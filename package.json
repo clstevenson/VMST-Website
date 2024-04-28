@@ -22,5 +22,10 @@
   "homepage": "https://github.com/Spikey1289/VMST-Communication-Website#readme",
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "@trycourier/courier": "^6.1.1",
+    "bootstrap": "^5.3.3",
+    "react-bootstrap": "^2.10.2"
   }
 }

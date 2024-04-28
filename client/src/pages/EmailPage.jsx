@@ -1,7 +1,7 @@
 import { useState } from "react";
 // import courierTest from "../utils/courierForm";
 
-export default function Contact() {
+export default function EmailPage() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [title, setTitle] = useState('');
