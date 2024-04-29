@@ -1,0 +1,175 @@
+[
+  {
+    "firstName": "Barbara",
+    "lastName": "Boslego",
+    "age": 72,
+    "gender": "F",
+    "relays": "13, 15, 25, 27, 37, 39, 49, 51, 53, 55"
+  },
+  {
+    "firstName": "Caycee",
+    "lastName": "Buscaglia",
+    "age": 59,
+    "gender": "F",
+    "relays": "13, 15, 25, 27, 37, 39, 49, 51"
+  },
+  {
+    "firstName": "Susan",
+    "lastName": "Carter",
+    "age": 77,
+    "gender": "F",
+    "relays": "13, 15, 25, 27"
+  },
+  {
+    "firstName": "James",
+    "lastName": "Daly",
+    "age": 53,
+    "gender": "M",
+    "relays": "14, 15, 26, 27"
+  },
+  {
+    "firstName": "Barbie",
+    "lastName": "Gregory",
+    "age": 55,
+    "gender": "F",
+    "relays": "25, 27"
+  },
+  {
+    "firstName": "Daisie",
+    "lastName": "Grenfell",
+    "age": 55,
+    "gender": "F",
+    "relays": "13, 15, 37, 39, 49, 51"
+  },
+  {
+    "firstName": "Steven",
+    "lastName": "Gromling",
+    "age": 34,
+    "gender": "M",
+    "relays": 50
+  },
+  {
+    "firstName": "Che'Rel",
+    "lastName": "Haywood",
+    "age": 24,
+    "gender": "F",
+    "relays": 27
+  },
+  {
+    "firstName": "Charlotte",
+    "lastName": "Hollings",
+    "age": 59,
+    "gender": "F",
+    "relays": "37, 39, 49, 51, 53, 55"
+  },
+  {
+    "firstName": "Debbie",
+    "lastName": "Jaeger",
+    "age": 61,
+    "gender": "F",
+    "relays": "13, 15, 25, 27"
+  },
+  {
+    "firstName": "Algernon",
+    "lastName": "Keith",
+    "age": 63,
+    "gender": "M",
+    "relays": "14, 15, 26, 27, 50, 51"
+  },
+  {
+    "firstName": "Chad",
+    "lastName": "Knapik",
+    "age": 25,
+    "gender": "M",
+    "relays": "14, 15, 50, 51"
+  },
+  {
+    "firstName": "Derek",
+    "lastName": "Lang",
+    "age": 22,
+    "gender": "M",
+    "relays": "38, 39, 50, 51, 54, 55"
+  },
+  {
+    "firstName": "Noah",
+    "lastName": "Laurence",
+    "age": 42,
+    "gender": "M",
+    "relays": "14, 15, 26, 27"
+  },
+  {
+    "firstName": "Kevin",
+    "lastName": "Mastracci",
+    "age": 28,
+    "gender": "M"
+  },
+  {
+    "firstName": "Elizabeth",
+    "lastName": "Miller",
+    "age": 42,
+    "gender": "F"
+  },
+  {
+    "firstName": "James",
+    "lastName": "Miller",
+    "age": 73,
+    "gender": "M",
+    "relays": "14, 15, 26, 27, 38, 39, 50, 51"
+  },
+  {
+    "firstName": "Patricia",
+    "lastName": "Miller",
+    "age": 63,
+    "gender": "F",
+    "relays": "13, 15, 25, 27, 49, 51, 53"
+  },
+  {
+    "firstName": "Richard",
+    "lastName": "Murphy",
+    "age": 64,
+    "gender": "M",
+    "relays": "14, 15"
+  },
+  {
+    "firstName": "David",
+    "lastName": "Speer",
+    "age": 64,
+    "gender": "M",
+    "relays": "14, 15"
+  },
+  {
+    "firstName": "Nancy",
+    "lastName": "Speer",
+    "age": 61,
+    "gender": "F",
+    "relays": "13, 15, 25, 27, 37, 39, 49, 51, 53, 55"
+  },
+  {
+    "firstName": "George",
+    "lastName": "Sushkoff",
+    "age": 58,
+    "gender": "M",
+    "relays": "26, 27, 50, 51"
+  },
+  {
+    "firstName": "Jayme",
+    "lastName": "Swain",
+    "age": 49,
+    "gender": "F",
+    "relays": "37, 39, 49, 51"
+  },
+  {
+    "firstName": "Val",
+    "lastName": "Van Horn Pate",
+    "age": 61,
+    "gender": "F",
+    "relays": "25, 27, 49, 51"
+  },
+  {
+    "firstName": "Mason",
+    "lastName": "Vaughan",
+    "age": 39,
+    "gender": "F",
+    "relays": 51
+  }
+]
