@@ -9,6 +9,7 @@
  */
 
 const { Schema, model } = require('mongoose');
+// const { User } = require('../models');
 
 const commentSchema = new Schema(
   {
@@ -24,13 +25,11 @@ const commentSchema = new Schema(
     createdAt: {
       type: Date,
       default: () => new Date(),
-      get: d => d.toLocaleString(),
+      get: d => d.toLocaleDateString(),
     },
   },
   {
-    toJSON: {
-      getters: true,
-    },
+    toJSON: {getters: true,},
   },
 );
 
@@ -42,27 +41,21 @@ const postSchema = new Schema(
     },
     summary: { // meant to be a teaser displayed on home page
       type: String,
-      required: true,
     },
     content: {
       type: String,
       required: true,
     },
-    // user (leader) who made the post
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: 'user',
-    },
     createdAt: {
       type: Date,
       default: () => new Date(),
-      get: d => d.toLocaleString(),
+      get: d => d.toLocaleDateString(),
     },
     // comments on the post (by any user)
     comments: [commentSchema],
   },
   {
-    toJSON: { getters: true },
+    toJSON: { getters: true, virtuals: true },
   },
 );
 

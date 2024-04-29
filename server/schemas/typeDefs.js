@@ -1,5 +1,28 @@
 const typeDefs = `
 # Meet is embedded in Competitors
+type Member {
+  usmsRegNo: String!
+  usmsId: String!
+  firstName: String!
+  lastName: String!
+  gender: String!
+  club: String!
+  workoutGroup: String
+  emails: [String]
+  emailExclude: Boolean
+}
+
+type User {
+  _id: ID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  password: String!
+  role: String!
+  notifications: Boolean
+  emailPermission: Boolean
+}
+
 type Meet {
   _id: ID!
   title: String!
@@ -27,16 +50,21 @@ type Competitor {
   usmsId: String
 }
 
-type Member {
-  usmsRegNo: String!
-  usmsId: String!
-  firstName: String!
-  lastName: String!
-  gender: String!
-  club: String!
-  workoutGroup: String
-  emails: [String]
-  emailExclude: Boolean
+# Comments are embedded in Posts
+type Comment {
+  _id: ID!
+  content: String!
+  userId: ID!
+  createdAt: String
+}
+
+type Post {
+  _id: ID!
+  title: String!
+  summary: String
+  content: String!
+  createdAt: String
+  comments: [Comment]
 }
 
 type Photo {
@@ -47,35 +75,6 @@ type Photo {
   permission: Boolean
   uplodatedAt: String
   uploadedBy: ID
-}
-
-# Comments are embedded in Posts
-type Comment {
-  _id: ID!
-  content: String!
-  userId: ID
-  createdAt: String
-}
-
-type Post {
-  _id: ID!
-  title: String!
-  summary: String!
-  content: String!
-  userId: ID
-  createdAt: String
-  comments: [Comment]
-}
-
-type User {
-  _id: ID!
-  firstName: String!
-  lastName: String!
-  email: String!
-  password: String!
-  role: String!
-  notifications: Boolean
-  emailPermission: Boolean
 }
 
 type Query {
