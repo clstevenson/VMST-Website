@@ -1,11 +1,11 @@
 import { useState } from "react";
-// import courierTest from "../utils/courierForm";
 
 export default function EmailPage() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [title, setTitle] = useState('');
     const [message, setMessage] = useState('');
+    const [recipients, setRecipients] = useState([])
     const [error, setError] = useState('');
     const [nonFunction, setNonFunction] = useState('');
 
@@ -23,6 +23,12 @@ export default function EmailPage() {
 
         if (inputType === 'name') {
             setName(inputValue);
+        } else if (inputType === 'recipient') {
+            if (target.checked){
+                setRecipients(recipients => [...recipients, inputValue]);
+            } else {
+                setRecipients(recipients.filter((input) => !inputValue));
+            }
         } else if (inputType === 'email') {
             setEmail(inputValue);
         } else if (inputType === 'title') {
@@ -35,13 +41,13 @@ export default function EmailPage() {
     const submitHandler = async (event) => {
         event.preventDefault();
 
-        courierTest(title, message, name, email);
-        // setNonFunction('Unfortunately, this form does not function independently. However, I do have a button that will open an email in another tab.\n I look forward to speaking with you.');
+        setNonFunction(recipients + "\n" + name + "\n" + email + "\n" + title + "\n" + message);
 
-        setName('');
-        setEmail('');
-        setTitle('');
-        setMessage('');
+        // setName('');
+        // setRecipients([]);
+        // setEmail('');
+        // setTitle('');
+        // setMessage('');
     }
 
     const errorCheck = (e) => {
@@ -55,9 +61,48 @@ export default function EmailPage() {
     return (
         <main className="">
             <h2 className="">
-                Contact Me
+                Contact Us
             </h2>
+
+            <aside
+                onMouseLeave={() => {
+                    if (recipients.length >= 0) {
+                        setError('Please select at least 1 person as a recipient')
+                    }
+                }}
+            >
+                <p>Select Recipients</p>
+                <ul style={{listStyle: 'none'}}>
+                    <li><input type="checkbox" name="recipient" value={'p-1'} onChange={handleInputChange} />person 1</li>
+                    <li><input type="checkbox" name="recipient" value={'p-2'} onChange={handleInputChange} />person 2</li>
+                    <li><input type="checkbox" name="recipient" value={'p-3'} onChange={handleInputChange} />person 3</li>
+                    <li><input type="checkbox" name="recipient" value={'p-4'} onChange={handleInputChange} />person 4</li>
+                    <li><input type="checkbox" name="recipient" value={'p-5'} onChange={handleInputChange} />person 5</li>
+                    <li><input type="checkbox" name="recipient" value={'p-6'} onChange={handleInputChange} />person 6</li>
+                </ul>
+            </aside>
+
             <form className="" onSubmit={submitHandler}>
+                
+                <p>Recipient:</p>
+                <input className="input"
+                    required
+                    disabled
+                    value={recipients}
+                    name="recipientsBox"
+                    type="text"
+                    placeholder="Please Select a Recipient from the tab to the right"
+                    // onBlur={() => {
+                    //     if (name === '' || /\s+/.test(String(name))) {
+                    //         setError('Please enter a name, blank space is not counted.');
+                    //     } else if (!nameRegex.test(String(name))) {
+                    //         setError('Please Ensure the name is Alpha-Numeric (no special Characters).');
+                    //     } else {
+                    //         setError('');
+                    //     }
+                    // }}
+                ></input>
+
                 <p className="">Name:</p>
                 <input className="input"
                     required
@@ -121,7 +166,7 @@ export default function EmailPage() {
                     value={message}
                     name="message"
                     type="textarea"
-                    placeholder="The body of your message to me"
+                    placeholder="The body of your message to the recipient"
                     rows={10}
                     onChange={handleInputChange}
                     onBlur={() => {
@@ -134,14 +179,14 @@ export default function EmailPage() {
                         }
                     }}
                 />
+
                 {error && <div className="">{error}</div>}
+
                 {nonFunction && <div className="">
                     <p className="">{nonFunction}</p>
-                    <div className="">
-                        <a className="" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=ianmstevenson1@gmail.com">Email</a>
-                    </div>
                 </div>}
-
+                
+                <br />
                 <button className="" type="submit" disabled={errorCheck(error)}>Submit</button>
             </form>
         </main>
