@@ -11,9 +11,9 @@ type Meet {
 type Relay {
   _id: ID!
   eventNum: String!
-  distance: Int!
-  relayStroke: String!
-  relayGender: String!
+  distance: Int
+  relayStroke: String
+  relayGender: String
 }
 
 type Competitor {
@@ -82,6 +82,7 @@ type Query {
   members: [Member]
   users: [User]
   posts: [Post]
+  competitors: [Competitor]
 }
 `;
 

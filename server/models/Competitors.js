@@ -21,16 +21,18 @@ const meetSchema = new Schema({
   startDate: {
     type: Date,
     required: true,
+    get: d => d.toLocaleDateString(),
   },
   // TODO: validate that endDate >= startDate
   endDate: {
     type: Date,
+    get: d => d.toLocaleDateString(),
   },
 });
 
 const relaySchema = new Schema({
   eventNum: {
-    type: String,
+    type: Number,
     required: true,
     unique: true,
   },
@@ -44,7 +46,7 @@ const relaySchema = new Schema({
   },
   relayGender: {
     type: String,
-    enum: ['Men', 'Women', 'Mixed'],
+    enum: ['M', 'F', 'X'],
   },
 });
 

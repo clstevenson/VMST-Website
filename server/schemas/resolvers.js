@@ -9,8 +9,8 @@ const resolvers = {
     users: async () => await User.find(),
     // get all posts
     posts: async () => await Post.find(),
-    // get all VMST members (with workout group affiliations)
-
+    // get all competitors
+    competitors: async () => await Competitor.find(),
     // get list of unique workout groups
   },
 };
