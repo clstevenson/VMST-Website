@@ -13,6 +13,8 @@ const resolvers = {
     // get all competitors
     competitors: async () => await Competitor.find(),
     // get list of unique workout groups
+    // GraphQL returns an object of the form { groups: [...list of unique groups ...] }
+    groups: async () => await Member.find({ club: 'VMST' }).distinct('workoutGroup'),
   },
   Mutation: {
     // login with email and password which returns signed JWT
@@ -31,9 +33,7 @@ const resolvers = {
     addUser: async (_, { firstName, lastName, email, password }) => {
       const user = await User.create({ firstName, lastName, email, password });
       // return with error message if no user created
-      if (!user) {
-        return 'Error: Something is wrong!';
-      }
+      if (!user) return 'Error: Something is wrong!';
       // sign the JWT and return with the user
       const token = signToken(user);
       return { token, user };

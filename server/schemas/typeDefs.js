@@ -88,6 +88,7 @@ type Query {
   users: [User]
   posts: [Post]
   competitors: [Competitor]
+  groups: [String]
 }
 
 type Mutation {
