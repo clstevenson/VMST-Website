@@ -34,7 +34,8 @@ const startApolloServer = async () => {
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
 
-  // assign a route for the Apollo server sandbox (with context)
+  // assign a route for the Apollo server sandbox
+  // the JWT token is validated as part of the context
   app.use('/graphql', expressMiddleware(server, {
     context: authMiddleware
   }));
