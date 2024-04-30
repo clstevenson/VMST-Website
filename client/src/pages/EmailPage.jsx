@@ -22,7 +22,6 @@ export default function EmailPage() {
     const titleRegex = /^[a-zA-Z0-9!@#\$%\^\&*\)\(\;+=._\s]{1,40}$/;
     const messageRegex = /^[a-zA-Z0-9!@#\$%\^\&*\)\(\;+=._\s]+$/;
 
-    
     // handles react updating for the inputs
     const handleInputChange = (element) => {
         const { target } = element;
@@ -56,9 +55,14 @@ export default function EmailPage() {
         }
     }
 
-    //checks all the values changed by the fields to ensure that they are actually filled out.
-    //returns an error and a variable that will be used to make a component if any of the fields fail
-    //the regex test(s)
+    // This should only check the values that cannot be caught with the form's built in validation (blank spaces, the extension on the email, and at least one recipient)
+    // consider using an api for form validation
+    // consider making a function that uses switch statements to return errors instead. that way you can use it in the Onblur() check.
+
+    // checks all the values changed by the fields to ensure that they are actually filled out.
+    // returns an error and a variable that will be used to make a component if any of the fields fail
+    // the regex test(s)
+
     const formInputCheck = async (event) =>{
         event.preventDefault();
 
@@ -68,9 +72,6 @@ export default function EmailPage() {
         console.log(error);
         console.log(checkReturn);
 
-        // checks every field of the form
-        // can't use a switch statement because it needs to check all of them,
-        // not break once it finds a case that applies.
         if (name === '' || /\s+[\s]/.test(String(name))){
             setCheckReturn([...checkReturn, 'Please enter a name, blank space is not counted.']);
             setError('n-1');
@@ -141,6 +142,7 @@ export default function EmailPage() {
         setMessage('');
     }
 
+    //this errorCheck might be useless after changing the other things
     const errorCheck = (e) => {
         if (e) {
             return true
