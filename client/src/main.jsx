@@ -7,7 +7,7 @@ import SingleThought from './pages/SingleThought'
 import ErrorPage from './pages/ErrorPage'
 import AboutUs from './pages/AboutUs.jsx'
 import Account from './pages/Account'
-import ContactUs from './pages/ContactUs'
+import Contact from './pages/Contact'
 
 const router = createBrowserRouter([
   {
@@ -22,8 +22,8 @@ const router = createBrowserRouter([
         path: '/about-us',
         element: <AboutUs />
       }, {
-        path: '/contact-us',
-        element: <ContactUs />
+        path: '/contact',
+        element: <Contact />
       }, {
         path: '/me',
         element: <Account />
