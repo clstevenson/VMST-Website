@@ -118,10 +118,6 @@ function SignUp(props) {
   }
     return (
       <>
-        <Button variant="dark" onClick={props.onShow}>
-          Sign Up
-        </Button>
-  
         <Modal show={props.show} onHide={props.onHide}>
           <Modal.Header closeButton>
             <Modal.Title>Sign Up</Modal.Title>
