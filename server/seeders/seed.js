@@ -31,7 +31,7 @@ const seedMembers = async () => {
   });
 
   // add to the members collection
-  return await Member.insertMany(lmscMembers);
+  return await Member.create(lmscMembers);
 };
 
 /*
@@ -99,7 +99,7 @@ const seedUsers = async (members) => {
   });
 
   // now add to the users collection
-  return await User.insertMany(userData);
+  return await User.create(userData);
 };
 
 /*
@@ -143,7 +143,7 @@ const seedPosts = async () => {
   });
 
   // add to the posts collection
-  return await Post.insertMany(posts);
+  return await Post.create(posts);
 };
 
 /*
@@ -279,7 +279,7 @@ const seedCompetitors = async () => {
     return swimmer;
   })
 
-  const competitors = await Competitor.insertMany(swimmers);
+  const competitors = await Competitor.create(swimmers);
   return competitors;
 }
 
