@@ -8,6 +8,7 @@ type Member {
   gender: String!
   club: String!
   workoutGroup: String
+  regYear: Int!
   emails: [String]
   emailExclude: Boolean
 }

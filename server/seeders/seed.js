@@ -27,11 +27,12 @@ const seedMembers = async () => {
       // member may not have an email address, catch the error
       member.emails = [];
     }
+    member.regYear = 2024;
     return member;
   });
 
   // add to the members collection
-  return await Member.create(lmscMembers);
+  return await Member.insertMany(lmscMembers);
 };
 
 /**
@@ -143,7 +144,7 @@ const seedPosts = async () => {
   });
 
   // add to the posts collection
-  return await Post.create(posts);
+  return await Post.insertMany(posts);
 };
 
 /**
@@ -279,7 +280,7 @@ const seedCompetitors = async () => {
     return swimmer;
   })
 
-  const competitors = await Competitor.create(swimmers);
+  const competitors = await Competitor.insertMany(swimmers);
   return competitors;
 }
 
