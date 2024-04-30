@@ -15,41 +15,25 @@ const { Schema, model } = require('mongoose');
 
 const memberSchema = new Schema({
   usmsRegNo: {
-    // this is the number that changes every year
+    // this is the number that changes every year and is unique (even if member listed twice)
     type: String,
     required: true,
     unique: true,
     index: true,
   },
-  firstName: {
-    type: String,
-    required: true,
-  },
-  lastName: {
-    type: String,
-    required: true,
-  },
-  gender: {
-    type: String,
-    required: true,
-  },
-  club: {
-    type: String,
-    required: true,
-  },
-  workoutGroup: {
-    type: String,
-  },
+  firstName: { type: String, required: true, },
+  lastName: { type: String, required: true, },
+  gender: { type: String, required: true, },
+  club: { type: String, required: true, },
+  workoutGroup: String,
+  regYear: { type: Number, required: true },
   emails: {
     type: [String],
     // set up email regex validator
     match: [/^([a-zA-Z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/, 'Must match an email address!'],
   },
   // did member opt out of receiving LMSC emails?
-  emailExclude: {
-    type: Boolean,
-    default: false,
-  },
+  emailExclude: { type: Boolean, default: false, },
 }, {
   virtuals: {
     usmsId: {

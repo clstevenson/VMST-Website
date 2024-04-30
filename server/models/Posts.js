@@ -9,7 +9,6 @@
  */
 
 const { Schema, model } = require('mongoose');
-// const { User } = require('../models');
 
 const commentSchema = new Schema(
   {

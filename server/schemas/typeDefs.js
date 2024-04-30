@@ -8,6 +8,7 @@ type Member {
   gender: String!
   club: String!
   workoutGroup: String
+  regYear: Int!
   emails: [String]
   emailExclude: Boolean
 }
@@ -77,11 +78,35 @@ type Photo {
   uploadedBy: ID
 }
 
+# type for issuing tokens and user data
+type Auth {
+  token: ID!
+  user: User
+}
+
+input UserData {
+  firstName: String
+  lastName: String
+  email: String
+  password: String
+  role: String
+  notifications: Boolean
+  emailPermission: Boolean
+}
+
 type Query {
   members: [Member]
   users: [User]
   posts: [Post]
   competitors: [Competitor]
+  groups: [String]
+  vmstMembers(workoutGroup: String): [Member]
+}
+
+type Mutation {
+  login(email: String!, password: String!): Auth
+  addUser(firstName: String!, lastName: String!, email: String!, password: String!): Auth
+  editUser(user: UserData): User
 }
 `;
 
