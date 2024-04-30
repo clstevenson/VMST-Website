@@ -84,6 +84,16 @@ type Auth {
   user: User
 }
 
+input UserData {
+  firstName: String
+  lastName: String
+  email: String
+  password: String
+  role: String
+  notifications: Boolean
+  emailPermission: Boolean
+}
+
 type Query {
   members: [Member]
   users: [User]
@@ -95,6 +105,7 @@ type Query {
 type Mutation {
   login(email: String!, password: String!): Auth
   addUser(firstName: String!, lastName: String!, email: String!, password: String!): Auth
+  editUser(user: UserData): User
 }
 `;
 
