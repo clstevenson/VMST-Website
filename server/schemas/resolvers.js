@@ -15,6 +15,7 @@ const resolvers = {
     // get list of unique workout groups
   },
   Mutation: {
+    // login with email and password which returns signed JWT
     login: async (_, { email, password }) => {
       const user = await User.findOne({ email: email });
       // no user with that email
@@ -25,7 +26,18 @@ const resolvers = {
       // sign the token and return it with the user
       const token = signToken(user);
       return { token, user };
-    }
+    },
+    // create new user, four required inputs, returns signed JWT
+    addUser: async (_, { firstName, lastName, email, password }) => {
+      const user = await User.create({ firstName, lastName, email, password });
+      // return with error message if no user created
+      if (!user) {
+        return 'Error: Something is wrong!';
+      }
+      // sign the JWT and return with the user
+      const token = signToken(user);
+      return { token, user };
+    },
   }
 };
 
