@@ -77,11 +77,21 @@ type Photo {
   uploadedBy: ID
 }
 
+# type for issuing tokens and user data
+type Auth {
+  token: ID!
+  user: User
+}
+
 type Query {
   members: [Member]
   users: [User]
   posts: [Post]
   competitors: [Competitor]
+}
+
+type Mutation {
+  login(email: String!, password: String!): Auth
 }
 `;
 
