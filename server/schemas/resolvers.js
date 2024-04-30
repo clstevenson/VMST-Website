@@ -15,6 +15,20 @@ const resolvers = {
     // get list of unique workout groups
     // GraphQL returns an object of the form { groups: [...list of unique groups ...] }
     groups: async () => await Member.find({ club: 'VMST' }).distinct('workoutGroup'),
+    // get members of a specific workout group (or all of VMST)
+    vmstMembers: async (_, { workoutGroup }) => {
+      let swimmers = [];
+      try {
+        if (workoutGroup.toLowerCase() === 'vmst') {
+          swimmers = await Member.find({ club: 'VMST' });
+        } else {
+          swimmers = await Member.find({ workoutGroup: workoutGroup });
+        }
+        return swimmers;
+      } catch (err) {
+        console.log(err);
+      }
+    }
   },
   Mutation: {
     // login with email and password which returns signed JWT

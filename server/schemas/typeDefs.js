@@ -100,6 +100,7 @@ type Query {
   posts: [Post]
   competitors: [Competitor]
   groups: [String]
+  vmstMembers(workoutGroup: String): [Member]
 }
 
 type Mutation {
