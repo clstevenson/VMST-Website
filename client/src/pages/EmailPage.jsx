@@ -1,6 +1,6 @@
 import { useState } from "react";
-import EmailForm from "../components/EmailForm/FormElement";
-import AsideSelector from "../components/EmailForm/AsideSelector";
+import EmailForm from "../components/EmailPage/FormElement";
+import AsideSelector from "../components/EmailPage/AsideSelector";
 
 export default function EmailPage() {
     // establishing useStates for the variables
@@ -9,17 +9,20 @@ export default function EmailPage() {
     const [title, setTitle] = useState('');
     const [message, setMessage] = useState('');
     const [recipients, setRecipients] = useState([])
+
+    // you don't need 2 error states, use one.
     const [error, setError] = useState('');
     const [checkReturn, setCheckReturn] = useState([]);
 
-    //regex for checking forms
-    //(I know the forms have regex, but they don't catch as much)
+    // these can be defined in the component where they actually check the regex.
+    // regex for checking forms
+    // (I know the forms have regex, but they don't catch as much)
     const nameRegex = /^[A-Za-z0-9]+$/;
     const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     const titleRegex = /^[a-zA-Z0-9!@#\$%\^\&*\)\(\;+=._\s]{1,40}$/;
     const messageRegex = /^[a-zA-Z0-9!@#\$%\^\&*\)\(\;+=._\s]+$/;
 
-
+    
     // handles react updating for the inputs
     const handleInputChange = (element) => {
         const { target } = element;
@@ -33,7 +36,7 @@ export default function EmailPage() {
         //checks if the recipient updates
         else if (inputType === 'recipient') {
             if (target.checked){
-                setRecipients(recipients => [...recipients, inputValue]);
+                setRecipients([...recipients, inputValue]);
             } else {
                 setRecipients(
                     recipients.filter((value) => {
@@ -60,61 +63,67 @@ export default function EmailPage() {
         event.preventDefault();
 
         setCheckReturn([]);
-        setError();
+        setError('');
+
+        console.log(error);
+        console.log(checkReturn);
 
         // checks every field of the form
         // can't use a switch statement because it needs to check all of them,
         // not break once it finds a case that applies.
-
-        if(name === '' || /\s+/.test(String(name))){
-            setCheckReturn(checkReturn =>[...checkReturn, 'Please enter a name, blank space is not counted.']);
+        if (name === '' || /\s+[\s]/.test(String(name))){
+            setCheckReturn([...checkReturn, 'Please enter a name, blank space is not counted.']);
             setError('n-1');
         }
 
         if(!nameRegex.test(String(name))){
-            setCheckReturn(checkReturn => [...checkReturn, 'Please Ensure the name is Alpha - Numeric(no special Characters).']);
+            setCheckReturn([...checkReturn, 'Please Ensure the name is Alpha - Numeric(no special Characters).']);
             setError('n-2');
         }
 
         if(email === '' || /^\s+[\s]$/.test(String(email))){
-            setCheckReturn(checkReturn => [...checkReturn, 'Please enter an email, blank space is not counted.']);
+            setCheckReturn([...checkReturn, 'Please enter an email, blank space is not counted.']);
             setError('e-1');
         }
 
         if(!emailRegex.test(String(email))){
-            setCheckReturn(checkReturn => [...checkReturn, 'Please enter a valid email address (E.g. test@gmail.com).']);
+            setCheckReturn([...checkReturn, 'Please enter a valid email address (E.g. test@gmail.com).']);
             setError('e-2');
         }
 
         if(title === '' || /^\s+[\s]$/.test(String(title))){
-            setCheckReturn(checkReturn => [...checkReturn, 'Please enter a title, blank space is not counted.']);
+            setCheckReturn([...checkReturn, 'Please enter a title, blank space is not counted.']);
             setError('t-1');
         }
 
         if(!titleRegex.test(String(title))){
-            setCheckReturn(checkReturn => [...checkReturn, 'Please keep the title simple and between 1 and 40 characters long.']);
+            setCheckReturn([...checkReturn, 'Please keep the title simple and between 1 and 40 characters long.']);
             setError('t-2');
         }
+
         if(message === '' || /^\s+[\s]$/.test(String(message))){
-            setCheckReturn(checkReturn => [...checkReturn, 'Please enter a message, blank space is not counted.']);
+            setCheckReturn([...checkReturn, 'Please enter a message, blank space is not counted.']);
             setError('m-1');
         }
 
         if(!messageRegex.test(String(message))){
-            setCheckReturn(checkReturn => [...checkReturn, 'Something went wrong, try to avoid complex characters or emojis / emoticons in the message please.']);
+            setCheckReturn([...checkReturn, 'Something went wrong, try to avoid complex characters or emojis / emoticons in the message please.']);
             setError('m-2');
         }
         
         if(((recipients.length) <= 0)){
-            setCheckReturn(checkReturn => [...checkReturn, 'You must Select at least One Recipient to send this message to.']);
+            setCheckReturn([...checkReturn, 'You must Select at least One Recipient to send this message to.']);
             setError('r-1');
         }
 
-        if(await error || await checkReturn.length > 0) {
-            await console.log(error);
-            await console.log(...checkReturn);
+        console.log(checkReturn);
+
+        if(error && (checkReturn.length > 0)) {
+            console.log(error);
+            console.log(...checkReturn);
             return;
         } else {
+            console.log("bellpepper");
             submitHandler();
         }
     }

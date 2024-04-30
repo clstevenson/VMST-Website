@@ -17,25 +17,12 @@ export default function EmailForm({
         checkReturn
     }) {
 
-    function ShowCheckReturn({checkReturn}) {
-        if(checkReturn){
-            return (
-                checkReturn.map(check => (
-                    <p key={Math.random()}>{check}</p>
-                ))
-            )
-        } else {
-            return (<p>All Clear!</p>)
-        }
-    }
-
     //returning the form component
     return(
         <form className="" onSubmit={formInputCheck}>
 
             <p>Recipient:</p>
             <input className="input"
-                required
                 disabled
                 value={recipients}
                 name="recipientsBox"
@@ -122,7 +109,14 @@ export default function EmailForm({
 
             {error && <div className="">{error}</div>}
 
-            <ShowCheckReturn checkReturn={checkReturn}/>
+            {checkReturn && checkReturn.length > 0 ? 
+                checkReturn.map(check => (
+                <p key={Math.random()}>{check}</p>))
+                :
+                <p>All Clear</p>
+            }
+
+            
 
             <br />
             <button className="" type="submit" disabled={errorCheck(error)}>Submit</button>
