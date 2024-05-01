@@ -8,7 +8,8 @@
     "develop": "concurrently \"cd server && npm run watch\" \"cd client && npm run dev\"",
     "install": "cd server && npm i && cd ../client && npm i",
     "seed": "cd server && npm run seed",
-    "build": "cd client && npm run build"
+    "build": "cd client && npm run build",
+    "render-build":"npm install && npm run build"
   },
   "repository": {
     "type": "git",
@@ -22,10 +23,5 @@
   "homepage": "https://github.com/Spikey1289/VMST-Communication-Website#readme",
   "devDependencies": {
     "concurrently": "^8.2.2"
-  },
-  "dependencies": {
-    "@trycourier/courier": "^6.1.1",
-    "bootstrap": "^5.3.3",
-    "react-bootstrap": "^2.10.2"
   }
 }
