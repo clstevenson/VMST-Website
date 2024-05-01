@@ -3,7 +3,6 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import App from './App.jsx'
 import Home from './pages/Home'
-import SingleThought from './pages/SingleThought'
 import ErrorPage from './pages/ErrorPage'
 import AboutUs from './pages/AboutUs.jsx'
 import Account from './pages/Account'
@@ -27,10 +26,7 @@ const router = createBrowserRouter([
       }, {
         path: '/me',
         element: <Account />
-      }, {
-        path: '/thoughts/:thoughtId',
-        element: <SingleThought />
-      }
+      }, 
     ]
   },
 ]);
