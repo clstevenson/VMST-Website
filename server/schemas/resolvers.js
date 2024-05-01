@@ -9,7 +9,9 @@ const resolvers = {
     users: async () => await User.find(),
     // get all posts
     // can't populate users directly, need to populate comments that are nested
-    posts: async () => await Post.find().populate('comments.user'),
+    posts: async () => await Post.find(),
+    // get a single post with all comments
+    onePost: async (_, { id }) => await Post.findById(id).populate('comments.user'),
     // get all competitors
     competitors: async () => await Competitor.find(),
     // get list of unique workout groups

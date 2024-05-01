@@ -98,6 +98,7 @@ type Query {
   members: [Member]
   users: [User]
   posts: [Post]
+  onePost(id: String!): Post
   competitors: [Competitor]
   groups: [String]
   vmstMembers(workoutGroup: String): [Member]
