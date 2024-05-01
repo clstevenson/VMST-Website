@@ -1,18 +1,23 @@
 const nodemailer = require("nodemailer");
 
+//fields for testing on ethereal
+const name = 'Helen McKenzie'
+const user = 'helen.mckenzie@ethereal.email'
+const password = 'MsABp8ggyck7VdHcgV'
+
 let transporter = nodemailer.createTransport({
     host: "smtp.ethereal.email",
     port: 587,
     secure: false,
     auth: {
-        user: 'helen.mckenzie@ethereal.email',
-        pass: 'MsABp8ggyck7VdHcgV'
+        user: user,
+        pass: password
     }
 })
 
 async function mail(){
     const info = await transporter.sendMail({
-        from: '"Helen McKenzie" <helen.mckenzie@ethereal.email>',
+        from: `"${name}" <${user}>`,
         to: 'bar@example.com, baz@example.com',
         subject: 'hello',
         text: 'hello world',
