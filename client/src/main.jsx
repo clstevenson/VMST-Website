@@ -3,8 +3,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import App from './App.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
-import EmailPage2 from './pages/EmailPage.jsx';
-import EmailPage from './pages/EmailPage.jsx'
+import EmailPage from './pages/EmailPage.jsx';
+import UploadMembers from './pages/UploadMembers';
 
 const router = createBrowserRouter([
   {
@@ -15,6 +15,10 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <EmailPage />
+      },
+      {
+        path: '/upload',
+        element: <UploadMembers />
       }
     ]
   },
