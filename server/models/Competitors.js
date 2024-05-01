@@ -14,10 +14,7 @@ const { Schema, model } = require('mongoose');
 
 //need to define two schema for embedded subdocuments first (meets and relays)
 const meetSchema = new Schema({
-  title: {
-    type: String,
-    required: true,
-  },
+  title: {type: String, required: true,},
   startDate: {
     type: Date,
     required: true,
@@ -31,54 +28,23 @@ const meetSchema = new Schema({
 });
 
 const relaySchema = new Schema({
-  eventNum: {
-    type: Number,
-    required: true,
-    unique: true,
-  },
-  distance: {
-    type: Number,
-    enum: [200, 400, 800],
-  },
-  relayStroke: {
-    type: String,
-    enum: ['Free', 'Medley'],
-  },
-  relayGender: {
-    type: String,
-    enum: ['M', 'F', 'X'],
-  },
+  eventNum: {type: Number, required: true, unique: true,},
+  distance: {type: Number, enum: [200, 400, 800],},
+  relayStroke: {type: String, enum: ['Free', 'Medley'],},
+  relayGender: {type: String, enum: ['M', 'F', 'X'],},
 });
 
 // now the main schema
 const competitorSchema = new Schema({
-  firstName: {
-    type: String,
-    required: true,
-  },
-  lastName: {
-    type: String,
-    required: true,
-  },
-  gender: {
-    type: String,
-    required: true,
-  },
+  firstName: {type: String, required: true,},
+  lastName: {type: String, required: true,},
+  gender: {type: String, required: true,},
   // age on the first day of the meet
-  age: {
-    type: Number,
-    required: true,
-  },
-  meet: {
-    type: meetSchema,
-    required: true,
-  },
+  age: {type: Number, required: true,},
+  meet: {type: meetSchema, required: true,},
   relay: [relaySchema],
   // from the USMS ID we have access to the emails and other information
-  usmsId: {
-    type: String,
-    ref: 'member'
-  }
+  usmsId: {type: String, ref: 'member'}
 });
 
 const Competitor = model('competitor', competitorSchema);

@@ -32,14 +32,8 @@ const { Schema, model } = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const userSchema = new Schema({
-  firstName: {
-    type: String,
-    required: true,
-  },
-  lastName: {
-    type: String,
-    required: true,
-  },
+  firstName: {type: String, required: true,},
+  lastName: {type: String, required: true,},
   // email/password used to login
   email: {
     type: String,
@@ -48,26 +42,13 @@ const userSchema = new Schema({
     match: [/^([a-zA-Z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/, 'Must match an email address!'],
     minLength: 1, // I read that empty strings pass the match validator
   },
-  password: {
-    type: String,
-    required: true,
-    minlength: 6,
-  },
-  role: {
-    type: String,
-    required: true,
-    default: 'user',
+  password: {type: String, required: true, minlength: 6,},
+  role: {type: String, required: true, default: 'user',
     // must be one of the following values
     enum: ['user', 'leader', 'coach', 'admin', 'membership'],
   },
-  notifications: {
-    type: Boolean,
-    default: false,
-  },
-  emailPermission: {
-    type: Boolean,
-    default: true,
-  }
+  notifications: {type: Boolean, default: false,},
+  emailPermission: {type: Boolean, default: true,}
 });
 
 userSchema.pre('save', async function (next) {
