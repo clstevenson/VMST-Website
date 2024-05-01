@@ -55,7 +55,7 @@ type Competitor {
 type Comment {
   _id: ID!
   content: String!
-  userId: ID!
+  user: User
   createdAt: String
 }
 

@@ -8,8 +8,8 @@ const resolvers = {
     // get all website users
     users: async () => await User.find(),
     // get all posts
-    posts: async () => await Post.find(),
-    // posts: async () => await Post.find().populate('user'),
+    // can't populate users directly, need to populate comments that are nested
+    posts: async () => await Post.find().populate('comments.user'),
     // get all competitors
     competitors: async () => await Competitor.find(),
     // get list of unique workout groups

@@ -17,7 +17,7 @@ const commentSchema = new Schema(
       required: true,
     },
     // user who made the comment
-    userId: {
+    user: {
       type: Schema.Types.ObjectId,
       ref: 'user',
     },

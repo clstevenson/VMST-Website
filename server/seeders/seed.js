@@ -137,7 +137,7 @@ const seedPosts = async () => {
       const id = users[randomIndex]._id;
       // randomly pick a comment to post
       randomIndex = Math.floor(Math.random() * (commentData.length));
-      commentArr.push({ content: commentData[randomIndex], userId: id });
+      commentArr.push({ content: commentData[randomIndex], user: id });
     }
     post.comments = commentArr;
     return post;
