@@ -1,0 +1,7713 @@
+[
+  {
+    "firstName": "Andrea",
+    "lastName": "ALMS",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124Y-5R5XU",
+    "emails": "AndreaALMS@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Saba",
+    "lastName": "Abraha",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124A-E9VN7",
+    "emails": "SabaAbraha@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "Abraham",
+    "gender": "M",
+    "club": "CAMT",
+    "usmsRegNo": "1241-0717P",
+    "emails": "DavidAbraham@email.org, DavidAbraham@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "William",
+    "lastName": "Adams",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "124Z-02HR9",
+    "emails": "WilliamAdams@email.org, WilliamAdams@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Dana",
+    "lastName": "Adkins",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124P-80V7H",
+    "emails": "DanaAdkins@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "R Martin",
+    "lastName": "Aherron",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124K-C2BMY",
+    "emails": "R MartinAherron@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Courtney",
+    "lastName": "Albini",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124X-U83ZZ",
+    "emails": "CourtneyAlbini@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kevin",
+    "lastName": "Allen",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124C-J71F8",
+    "emails": "KevinAllen@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Brad",
+    "lastName": "Allison",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1242-0VVWR",
+    "emails": "BradAllison@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sandra",
+    "lastName": "Amezquita",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124E-3D1ZE",
+    "emails": "SandraAmezquita@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Paul",
+    "lastName": "Anderson",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124P-02JP0",
+    "emails": "PaulAnderson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Pete",
+    "lastName": "Anderson",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124D-0AHCC",
+    "emails": "PeteAnderson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Michael",
+    "lastName": "Anderson",
+    "gender": "M",
+    "club": "FAFC",
+    "usmsRegNo": "124J-0B5C0",
+    "emails": "MichaelAnderson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ashley",
+    "lastName": "Anderson",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124S-74104",
+    "emails": "AshleyAnderson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Heidi",
+    "lastName": "Anderson",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1242-K3RPV",
+    "emails": "HeidiAnderson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Tess",
+    "lastName": "Andres",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124G-06WZV",
+    "workoutGroup": "SRVA",
+    "emails": "TessAndres@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sarah",
+    "lastName": "Anzelmo-Steele",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124N-VFM9R",
+    "workoutGroup": "N*VA",
+    "emails": "SarahAnzelmo-Steele@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Peggy",
+    "lastName": "Armand",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "1245-04U2W",
+    "emails": "PeggyArmand@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Gregory",
+    "lastName": "Armand",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "1243-05XFK",
+    "emails": "GregoryArmand@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Polly",
+    "lastName": "Arnott",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1240-08CV0",
+    "emails": "PollyArnott@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Patrick",
+    "lastName": "Arthur",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1242-038KT",
+    "emails": "PatrickArthur@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Michael",
+    "lastName": "Asip",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124F-D1RMW",
+    "emails": "MichaelAsip@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "John Rocco",
+    "lastName": "Aversa",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "124S-G6E7B",
+    "emails": "John RoccoAversa@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "DANIEL",
+    "lastName": "BARRON",
+    "gender": "M",
+    "club": "FAFF",
+    "usmsRegNo": "124H-0AMX4",
+    "emails": "DANIELBARRON@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Martha",
+    "lastName": "Bachman",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "1247-Y8RUZ",
+    "emails": "MarthaBachman@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "William",
+    "lastName": "Bacon",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1241-02HSJ",
+    "emails": "WilliamBacon@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Brenda",
+    "lastName": "Barrera",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1245-02WNS",
+    "emails": "BrendaBarrera@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Elizabeth",
+    "lastName": "Baskin",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124H-E10ZJ",
+    "emails": "ElizabethBaskin@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Todd",
+    "lastName": "Bassett",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124Z-02JKN",
+    "workoutGroup": "RVCM",
+    "emails": "ToddBassett@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lindsey",
+    "lastName": "Bates",
+    "gender": "F",
+    "club": "FAFF",
+    "usmsRegNo": "1243-TVKXT",
+    "emails": "LindseyBates@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "Bates",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1244-Z9F1Y",
+    "emails": "DavidBates@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Brenda",
+    "lastName": "Battani",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124W-8ZMU0",
+    "emails": "BrendaBattani@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Craig",
+    "lastName": "Bauer",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "124T-02AFF",
+    "emails": "CraigBauer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Carol",
+    "lastName": "Bauer",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1248-XMS79",
+    "emails": "CarolBauer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kirk",
+    "lastName": "Baumbach",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124N-2YHMA",
+    "emails": "KirkBaumbach@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Cal",
+    "lastName": "Beattie",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124D-0FNTT",
+    "emails": "CalBeattie@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Erika",
+    "lastName": "Beauchamp",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1240-0AB4X",
+    "workoutGroup": "QUEST",
+    "emails": "ErikaBeauchamp@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Scott",
+    "lastName": "Belfit",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124R-0B9A7",
+    "emails": "ScottBelfit@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Susan",
+    "lastName": "Bell",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124V-027S8",
+    "workoutGroup": "RVCM",
+    "emails": "SusanBell@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "Bell",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124Z-0383F",
+    "emails": "DavidBell@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Carolyn",
+    "lastName": "Bell",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124V-RM256",
+    "emails": "CarolynBell@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Roger",
+    "lastName": "Belmar",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124Z-A9GTB",
+    "emails": "RogerBelmar@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Abbey",
+    "lastName": "Berloco",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1243-PU2FF",
+    "workoutGroup": "N*VA",
+    "emails": "AbbeyBerloco@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kelly",
+    "lastName": "Berry",
+    "gender": "F",
+    "club": "VABR",
+    "usmsRegNo": "1247-Z5CY9",
+    "emails": "KellyBerry@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lee",
+    "lastName": "Bettis",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124C-BCUDA",
+    "workoutGroup": "SRVA",
+    "emails": "LeeBettis@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Alex",
+    "lastName": "Bibikau",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124G-97R4C",
+    "emails": "AlexBibikau@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Matthew",
+    "lastName": "Bickley",
+    "gender": "M",
+    "club": "CGMS",
+    "usmsRegNo": "124P-W8K9E",
+    "emails": "MatthewBickley@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Paula",
+    "lastName": "Bishop-Liebler",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124Y-7YYC8",
+    "emails": "PaulaBishop-Liebler@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Richard",
+    "lastName": "Black II",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1247-2ZKD5",
+    "workoutGroup": "RVCM",
+    "emails": "RichardBlack II@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sheila",
+    "lastName": "Blackford",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "1241-0EXJZ",
+    "emails": "SheilaBlackford@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Elizabeth",
+    "lastName": "Blackwell",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124F-FKBUA",
+    "emails": "ElizabethBlackwell@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jacob",
+    "lastName": "Blindenbach",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124V-J1S63",
+    "emails": "JacobBlindenbach@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Wendi",
+    "lastName": "Boggess",
+    "gender": "F",
+    "club": "BAM1",
+    "usmsRegNo": "124E-084JX",
+    "emails": "WendiBoggess@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lisa",
+    "lastName": "Bond",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124R-GBCJ9",
+    "emails": "LisaBond@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sarah",
+    "lastName": "Booker",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124J-1SYVK",
+    "workoutGroup": "RVCM",
+    "emails": "SarahBooker@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lauren",
+    "lastName": "Booker",
+    "gender": "F",
+    "club": "PSDN",
+    "usmsRegNo": "124K-NKNTG",
+    "emails": "LaurenBooker@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Scott",
+    "lastName": "Booker",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1248-TF5RT",
+    "workoutGroup": "RVCM",
+    "emails": "ScottBooker@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "Boslego",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124D-0ARBK",
+    "emails": "DavidBoslego@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Barbara",
+    "lastName": "Boslego",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1246-02HV9",
+    "emails": "BarbaraBoslego@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Robert",
+    "lastName": "Boslego",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1240-92ACN",
+    "emails": "RobertBoslego@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sydney",
+    "lastName": "Bowers",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124E-02JSZ",
+    "emails": "SydneyBowers@email.org, SydneyBowers@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ashley",
+    "lastName": "Bowling",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124Y-76WZ4",
+    "emails": "AshleyBowling@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Alison",
+    "lastName": "Bowman",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124T-7HR9M",
+    "workoutGroup": "N*VA",
+    "emails": "AlisonBowman@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Elizabeth",
+    "lastName": "Boyd",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124B-09CM5",
+    "emails": "ElizabethBoyd@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kathryn",
+    "lastName": "Boyd",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124M-3B9MG",
+    "emails": "KathrynBoyd@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Tara",
+    "lastName": "Boyd",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "1240-H4MT3",
+    "emails": "TaraBoyd@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ed",
+    "lastName": "Boyle",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124G-06SR4",
+    "emails": "EdBoyle@email.org, EdBoyle@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "William",
+    "lastName": "Boyle",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1246-07J5V",
+    "emails": "WilliamBoyle@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kitten",
+    "lastName": "Braaten",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1246-02HKK",
+    "emails": "KittenBraaten@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ryan",
+    "lastName": "Bracewell",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124K-YAFAR",
+    "emails": "RyanBracewell@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Patrick",
+    "lastName": "Bradley",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124S-02HZS",
+    "emails": "PatrickBradley@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Molly",
+    "lastName": "Brannan",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124W-XJ505",
+    "emails": "MollyBrannan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lance",
+    "lastName": "Braughton",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124N-02JXR",
+    "workoutGroup": "QUEST",
+    "emails": "LanceBraughton@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Meredith",
+    "lastName": "Brebner",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1244-07VU3",
+    "workoutGroup": "RVCM",
+    "emails": "MeredithBrebner@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Thomas",
+    "lastName": "Brennan",
+    "gender": "M",
+    "club": "YSRGE",
+    "usmsRegNo": "1241-5V3C8",
+    "emails": "ThomasBrennan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Cameron",
+    "lastName": "Brien",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124N-06U4X",
+    "emails": "CameronBrien@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Joni",
+    "lastName": "Briganti",
+    "gender": "F",
+    "club": "FAFF",
+    "usmsRegNo": "124Z-06HA0",
+    "emails": "JoniBriganti@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Molly",
+    "lastName": "Broderson",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124W-02J59",
+    "workoutGroup": "NNYS",
+    "emails": "MollyBroderson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Julia",
+    "lastName": "Brodsky",
+    "gender": "F",
+    "club": "FAFC",
+    "usmsRegNo": "124G-6NUZM",
+    "emails": "JuliaBrodsky@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Monica",
+    "lastName": "Brogan",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124E-0A84Y",
+    "emails": "MonicaBrogan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Carol",
+    "lastName": "Brooker",
+    "gender": "F",
+    "club": "VABR",
+    "usmsRegNo": "1247-0BA9T",
+    "emails": "CarolBrooker@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Andrew",
+    "lastName": "Brower",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1249-0A8BF",
+    "emails": "AndrewBrower@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Michael Tyson",
+    "lastName": "Brown",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1242-B2VUM",
+    "emails": "Michael TysonBrown@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jeffrey",
+    "lastName": "Brown",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124R-PPFN0",
+    "emails": "JeffreyBrown@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Andy",
+    "lastName": "Brown",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124H-VMX8R",
+    "workoutGroup": "NNYS",
+    "emails": "AndyBrown@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Peter",
+    "lastName": "Brukx",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124Z-9DAP1",
+    "emails": "PeterBrukx@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Warner",
+    "lastName": "Brundage",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124W-02HJ6",
+    "workoutGroup": "RVCM",
+    "emails": "WarnerBrundage@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Evelyn",
+    "lastName": "Bufton",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124T-4CD02",
+    "emails": "EvelynBufton@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sirin",
+    "lastName": "Bulakul",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124K-088DU",
+    "emails": "SirinBulakul@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Noelle",
+    "lastName": "Burgess",
+    "gender": "F",
+    "club": "HRBM",
+    "usmsRegNo": "124P-5YZKT",
+    "emails": "NoelleBurgess@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Erica",
+    "lastName": "Burgess",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124P-TK37A",
+    "workoutGroup": "RVCM",
+    "emails": "EricaBurgess@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Anthony",
+    "lastName": "Burke",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124E-B3FSA",
+    "workoutGroup": "SRVA",
+    "emails": "AnthonyBurke@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Peter",
+    "lastName": "Burkhardt",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124E-CSXBJ",
+    "workoutGroup": "SRVA",
+    "emails": "PeterBurkhardt@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Bridget",
+    "lastName": "Burkot",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124Y-05UJF",
+    "emails": "BridgetBurkot@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Suzi",
+    "lastName": "Burns",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124J-09JMT",
+    "emails": "SuziBurns@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Wes",
+    "lastName": "Burwell",
+    "gender": "M",
+    "club": "TIDE",
+    "usmsRegNo": "1246-09X7K",
+    "emails": "WesBurwell@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Caycee",
+    "lastName": "Buscaglia",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124M-02J1Y",
+    "workoutGroup": "RVCM",
+    "emails": "CayceeBuscaglia@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lisa",
+    "lastName": "Bushmire",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1245-02HP4",
+    "emails": "LisaBushmire@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Paul",
+    "lastName": "Butler",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124Z-02YK9",
+    "workoutGroup": "RVCM",
+    "emails": "PaulButler@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Charles",
+    "lastName": "Butler",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1247-093CK",
+    "workoutGroup": "RVCM",
+    "emails": "CharlesButler@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kathy",
+    "lastName": "Butterfield",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124H-AGSC9",
+    "emails": "KathyButterfield@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Anthony",
+    "lastName": "Buyalos",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1241-R4Y94",
+    "emails": "AnthonyBuyalos@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kaila",
+    "lastName": "Byerly",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "1241-DJ792",
+    "emails": "KailaByerly@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Debra",
+    "lastName": "CLARK",
+    "gender": "F",
+    "club": "FAFC",
+    "usmsRegNo": "124D-PSU76",
+    "emails": "DebraCLARK@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Anita",
+    "lastName": "Callahan",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124C-036RS",
+    "emails": "AnitaCallahan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sean",
+    "lastName": "Callender",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1246-02J3K",
+    "emails": "SeanCallender@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Carol Lynn",
+    "lastName": "Calobong-Pierce",
+    "gender": "F",
+    "club": "FAFC",
+    "usmsRegNo": "124N-0BAGB",
+    "emails": "Carol LynnCalobong-Pierce@email.org, Carol LynnCalobong-Pierce@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Taylor",
+    "lastName": "Campbell",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124A-E4R5U",
+    "emails": "TaylorCampbell@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Margaret",
+    "lastName": "Campbell",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124U-05Y52",
+    "emails": "MargaretCampbell@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Valerie",
+    "lastName": "Campbell",
+    "gender": "F",
+    "club": "FAFC",
+    "usmsRegNo": "1241-4XEZK",
+    "emails": "ValerieCampbell@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Craig",
+    "lastName": "Campesi",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124U-02HYM",
+    "emails": "CraigCampesi@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Stephanie",
+    "lastName": "Cannon",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "1240-07FCY",
+    "emails": "StephanieCannon@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Deb",
+    "lastName": "Capone",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124N-P7NCP",
+    "emails": "DebCapone@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mary",
+    "lastName": "Carbonneau",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124H-3PS3Y",
+    "workoutGroup": "SRVA",
+    "emails": "MaryCarbonneau@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Tami",
+    "lastName": "Carlow",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124G-036WU",
+    "emails": "TamiCarlow@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Devin",
+    "lastName": "Carroll",
+    "gender": "M",
+    "club": "NERD",
+    "usmsRegNo": "124S-MP9VX",
+    "emails": "DevinCarroll@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Susan",
+    "lastName": "Carter",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124N-D9MUF",
+    "emails": "SusanCarter@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Edmund",
+    "lastName": "Cataldo",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124M-01SD3",
+    "emails": "EdmundCataldo@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Angela",
+    "lastName": "Catolico",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1240-08A6W",
+    "emails": "AngelaCatolico@email.org, AngelaCatolico@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Teresa",
+    "lastName": "Chadwick",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124A-69AC8",
+    "emails": "TeresaChadwick@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Amy",
+    "lastName": "Chalfant",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124J-0394Y",
+    "emails": "AmyChalfant@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Josh",
+    "lastName": "Cheatham",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1240-06WK7",
+    "emails": "JoshCheatham@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Stephen",
+    "lastName": "Cheney",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1246-01GXV",
+    "emails": "StephenCheney@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jessica",
+    "lastName": "Childs",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124D-JJUT4",
+    "emails": "JessicaChilds@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Joseph",
+    "lastName": "Chirico",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1248-3PDH8",
+    "workoutGroup": "NNYS",
+    "emails": "JosephChirico@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Christie",
+    "lastName": "Chirinos",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124X-891YH",
+    "workoutGroup": "RVCM",
+    "emails": "ChristieChirinos@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Farah",
+    "lastName": "Chisham",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124N-7RAKM",
+    "emails": "FarahChisham@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Michele",
+    "lastName": "Choe",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124B-0AAE3",
+    "emails": "MicheleChoe@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Warren",
+    "lastName": "Cieslak",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124K-02K40",
+    "emails": "WarrenCieslak@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Angela",
+    "lastName": "Ciolfi",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124J-UTHKZ",
+    "emails": "AngelaCiolfi@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "John",
+    "lastName": "Clair",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124F-WS4BV",
+    "workoutGroup": "NNYS",
+    "emails": "JohnClair@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Timothy",
+    "lastName": "Clayton",
+    "gender": "M",
+    "club": "SUMS",
+    "usmsRegNo": "1243-3K11X",
+    "emails": "TimothyClayton@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kelly",
+    "lastName": "Cleary",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124V-02JMT",
+    "workoutGroup": "QUEST",
+    "emails": "KellyCleary@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Stephen",
+    "lastName": "Clendenin",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124M-06W5X",
+    "emails": "StephenClendenin@email.org, StephenClendenin@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kevin",
+    "lastName": "Cloe",
+    "gender": "M",
+    "club": "NERD",
+    "usmsRegNo": "124P-YME4S",
+    "emails": "KevinCloe@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jennifer",
+    "lastName": "Clune",
+    "gender": "F",
+    "club": "TIDE",
+    "usmsRegNo": "124J-YE8SG",
+    "emails": "JenniferClune@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Meg",
+    "lastName": "Clute",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "1241-037BH",
+    "emails": "MegClute@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Dianne",
+    "lastName": "Cobb",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124J-0B1TH",
+    "emails": "DianneCobb@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kathleen",
+    "lastName": "Coggshall",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124P-07WHR",
+    "emails": "KathleenCoggshall@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Elizabeth",
+    "lastName": "Cohen",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124A-05H6X",
+    "workoutGroup": "RVCM",
+    "emails": "ElizabethCohen@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Anthony",
+    "lastName": "Colalillo",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1242-09TXS",
+    "emails": "AnthonyColalillo@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Rob",
+    "lastName": "Colburn",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1245-06NSR",
+    "emails": "RobColburn@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Brian",
+    "lastName": "Colburn",
+    "gender": "M",
+    "club": "TIDE",
+    "usmsRegNo": "124P-ZFJAM",
+    "emails": "BrianColburn@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jamy",
+    "lastName": "Cole-Judd",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1240-S6RAW",
+    "emails": "JamyCole-Judd@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Michael",
+    "lastName": "Collett",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1248-0A98W",
+    "emails": "MichaelCollett@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kimberly",
+    "lastName": "Collins",
+    "gender": "F",
+    "club": "CGMS",
+    "usmsRegNo": "124W-09UBY",
+    "emails": "KimberlyCollins@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Aaron",
+    "lastName": "Cominio",
+    "gender": "M",
+    "club": "TIDE",
+    "usmsRegNo": "124R-9JEAE",
+    "emails": "AaronCominio@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Anca",
+    "lastName": "Constantin",
+    "gender": "F",
+    "club": "HRBM",
+    "usmsRegNo": "1241-0A8DA",
+    "emails": "AncaConstantin@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Margaret",
+    "lastName": "Conze",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124P-03707",
+    "emails": "MargaretConze@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Amy",
+    "lastName": "Cook",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124A-07KW3",
+    "workoutGroup": "SRVA",
+    "emails": "AmyCook@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Dana",
+    "lastName": "Coons",
+    "gender": "F",
+    "club": "BAM1",
+    "usmsRegNo": "124H-FXS6W",
+    "emails": "DanaCoons@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Brittany",
+    "lastName": "Copeland",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124G-083KS",
+    "emails": "BrittanyCopeland@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jorge",
+    "lastName": "Cortina",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124G-05UGB",
+    "emails": "JorgeCortina@email.org, JorgeCortina@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Shannon",
+    "lastName": "Coryell",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124P-6KYS2",
+    "emails": "ShannonCoryell@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Frank",
+    "lastName": "Cowling",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124H-0AYD9",
+    "emails": "FrankCowling@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "William",
+    "lastName": "Craddock",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124Z-EW0T9",
+    "emails": "WilliamCraddock@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "John",
+    "lastName": "Crane",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "124S-03H71",
+    "emails": "JohnCrane@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lindsay",
+    "lastName": "Critzer",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124D-MH6FX",
+    "emails": "LindsayCritzer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ashley",
+    "lastName": "Cullum",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124H-0AUEE",
+    "workoutGroup": "N*VA",
+    "emails": "AshleyCullum@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Missy",
+    "lastName": "Cundiff",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124V-5BCRS",
+    "emails": "MissyCundiff@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Christopher",
+    "lastName": "Cupito",
+    "gender": "M",
+    "club": "TIDE",
+    "usmsRegNo": "1242-C1XNV",
+    "emails": "ChristopherCupito@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Gregory",
+    "lastName": "Curry",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124P-02J1B",
+    "emails": "GregoryCurry@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "john",
+    "lastName": "DAmico",
+    "gender": "M",
+    "club": "PSDN",
+    "usmsRegNo": "124R-ZNZ8B",
+    "emails": "johnDAmico@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Michael",
+    "lastName": "Dalsey",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124H-076J3",
+    "emails": "MichaelDalsey@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Wendy",
+    "lastName": "Dalton",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "1249-H9NY3",
+    "emails": "WendyDalton@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "James",
+    "lastName": "Daly",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124E-0AZWY",
+    "emails": "JamesDaly@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Megan",
+    "lastName": "Dalzell",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1246-VHS3K",
+    "emails": "MeganDalzell@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Pam",
+    "lastName": "Dameron",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124G-02HJ2",
+    "workoutGroup": "QUEST",
+    "emails": "PamDameron@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Drew",
+    "lastName": "Daniele",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124C-09R2A",
+    "emails": "DrewDaniele@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Patrick",
+    "lastName": "Danley",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "124C-3J6CB",
+    "emails": "PatrickDanley@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Dale",
+    "lastName": "Darr",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1248-02JJK",
+    "emails": "DaleDarr@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Randy",
+    "lastName": "Dash",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124X-082NZ",
+    "workoutGroup": "SRVA",
+    "emails": "RandyDash@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Alan",
+    "lastName": "Davis",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124X-02HSB",
+    "emails": "AlanDavis@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Andrew",
+    "lastName": "Davis",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1241-CHE66",
+    "emails": "AndrewDavis@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Richard",
+    "lastName": "Davis",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1240-TU9TT",
+    "emails": "RichardDavis@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Edwin",
+    "lastName": "Davis",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1241-ZEYM2",
+    "workoutGroup": "N*VA",
+    "emails": "EdwinDavis@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Max",
+    "lastName": "Dawkins",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1248-7EMEM",
+    "emails": "MaxDawkins@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Adrienne",
+    "lastName": "DayKendrick",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124C-1DH33",
+    "emails": "AdrienneDayKendrick@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mark",
+    "lastName": "DeBartolo",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124K-084EZ",
+    "workoutGroup": "RVCM",
+    "emails": "MarkDeBartolo@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Danielle",
+    "lastName": "DeVere",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1242-BURRT",
+    "emails": "DanielleDeVere@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Debra",
+    "lastName": "Delbridge",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1245-02HKJ",
+    "emails": "DebraDelbridge@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Stephen",
+    "lastName": "Dempsey",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124Y-05T8R",
+    "emails": "StephenDempsey@email.org, StephenDempsey@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "James",
+    "lastName": "Deppe",
+    "gender": "M",
+    "club": "NERD",
+    "usmsRegNo": "1244-02HVS",
+    "emails": "JamesDeppe@email.org, JamesDeppe@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Russell",
+    "lastName": "Deppe",
+    "gender": "M",
+    "club": "NERD",
+    "usmsRegNo": "124A-0A02G",
+    "emails": "RussellDeppe@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Alysia",
+    "lastName": "Desbiens",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124E-023J9",
+    "emails": "AlysiaDesbiens@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Nathan",
+    "lastName": "Destree",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124M-0938B",
+    "emails": "NathanDestree@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Anna",
+    "lastName": "Dewey",
+    "gender": "F",
+    "club": "NERD",
+    "usmsRegNo": "124Y-M2X5U",
+    "emails": "AnnaDewey@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Brian",
+    "lastName": "Di Salvo",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124W-0AN6J",
+    "emails": "BrianDi Salvo@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Judith",
+    "lastName": "DiVita",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "1248-21G44",
+    "emails": "JudithDiVita@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Laundrew",
+    "lastName": "Diamond",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124X-P96RS",
+    "emails": "LaundrewDiamond@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Susan",
+    "lastName": "Dickens",
+    "gender": "F",
+    "club": "FAFF",
+    "usmsRegNo": "124Z-0905G",
+    "emails": "SusanDickens@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Helen",
+    "lastName": "Dixon",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1243-02HP2",
+    "emails": "HelenDixon@email.org, HelenDixon@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jessica",
+    "lastName": "Dodson",
+    "gender": "F",
+    "club": "PSDN",
+    "usmsRegNo": "124H-UX5R4",
+    "emails": "JessicaDodson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Scott",
+    "lastName": "Doney",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124K-035ZU",
+    "emails": "ScottDoney@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kathleen",
+    "lastName": "Doswell",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124U-08BJ5",
+    "workoutGroup": "RVCM",
+    "emails": "KathleenDoswell@email.org, KathleenDoswell@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "William",
+    "lastName": "Dougherty",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124M-680DB",
+    "emails": "WilliamDougherty@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Daniel",
+    "lastName": "Downs",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124W-1VJ74",
+    "emails": "DanielDowns@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Keith",
+    "lastName": "Driscoll",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124R-09WBJ",
+    "emails": "KeithDriscoll@email.org, KeithDriscoll@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Eric",
+    "lastName": "Druker",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1246-VY2DE",
+    "emails": "EricDruker@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Shae",
+    "lastName": "Duddempudi",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124V-EMNZ5",
+    "emails": "ShaeDuddempudi@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Josh",
+    "lastName": "Dugan",
+    "gender": "M",
+    "club": "CAMT",
+    "usmsRegNo": "1249-8DHF6",
+    "emails": "JoshDugan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sarah",
+    "lastName": "Dunstan",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124A-07CPM",
+    "workoutGroup": "NNYS",
+    "emails": "SarahDunstan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Betsy",
+    "lastName": "Durrant",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1241-BETSY",
+    "emails": "BetsyDurrant@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Elise",
+    "lastName": "Durusu",
+    "gender": "F",
+    "club": "FAFC",
+    "usmsRegNo": "124V-JXSY7",
+    "emails": "EliseDurusu@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Nezih",
+    "lastName": "Durusu",
+    "gender": "M",
+    "club": "FAFC",
+    "usmsRegNo": "124F-WWCHD",
+    "emails": "NezihDurusu@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Daniel",
+    "lastName": "Earle",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124A-0A9BG",
+    "emails": "DanielEarle@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Shandin",
+    "lastName": "Eason",
+    "gender": "F",
+    "club": "VABR",
+    "usmsRegNo": "124G-VBWJT",
+    "emails": "ShandinEason@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Anna",
+    "lastName": "Eckerd",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124Y-3FMDU",
+    "emails": "AnnaEckerd@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Paul",
+    "lastName": "Edelman",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124A-034R8",
+    "workoutGroup": "RVCM",
+    "emails": "PaulEdelman@email.org, PaulEdelman@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Don",
+    "lastName": "Edgell",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "124Z-0368P",
+    "emails": "DonEdgell@email.org, DonEdgell@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Amy",
+    "lastName": "Edgemond",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124D-1ZMT8",
+    "workoutGroup": "N*VA",
+    "emails": "AmyEdgemond@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Tabitha",
+    "lastName": "Edwards",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124E-394YP",
+    "emails": "TabithaEdwards@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jen",
+    "lastName": "Ekiert",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124B-1T2KX",
+    "emails": "JenEkiert@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Inas",
+    "lastName": "Elattar",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1244-GK42F",
+    "emails": "InasElattar@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jane",
+    "lastName": "Elkin",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124F-1E3RT",
+    "workoutGroup": "NNYS",
+    "emails": "JaneElkin@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Rachel",
+    "lastName": "Ellsmore",
+    "gender": "F",
+    "club": "FAFF",
+    "usmsRegNo": "1249-GBH7K",
+    "emails": "RachelEllsmore@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Evan",
+    "lastName": "Elsaesser",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1247-098R7",
+    "emails": "EvanElsaesser@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Acadia",
+    "lastName": "ElzHowe",
+    "gender": "F",
+    "club": "LACG",
+    "usmsRegNo": "124G-89Y38",
+    "emails": "AcadiaElzHowe@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Eric",
+    "lastName": "Engstrom",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124S-08A8E",
+    "emails": "EricEngstrom@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Laura",
+    "lastName": "Evans",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1248-033N5",
+    "emails": "LauraEvans@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Bernard",
+    "lastName": "Everett",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1243-0B05V",
+    "emails": "BernardEverett@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Benjamin",
+    "lastName": "Fabian",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124Z-XVW3S",
+    "workoutGroup": "SRVA",
+    "emails": "BenjaminFabian@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Heather",
+    "lastName": "Fairbanks",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124G-0AB22",
+    "workoutGroup": "SRVA",
+    "emails": "HeatherFairbanks@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "John",
+    "lastName": "Faulconer",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124V-RHKSP",
+    "emails": "JohnFaulconer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "John",
+    "lastName": "Feist",
+    "gender": "M",
+    "club": "AFMS",
+    "usmsRegNo": "124W-VHHWR",
+    "emails": "JohnFeist@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "Fellowes",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124B-02K8B",
+    "workoutGroup": "N*VA",
+    "emails": "DavidFellowes@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Margaret",
+    "lastName": "Fernheimer",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124A-1X6VK",
+    "emails": "MargaretFernheimer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "John",
+    "lastName": "Ferro",
+    "gender": "M",
+    "club": "TIDE",
+    "usmsRegNo": "124C-01X4X",
+    "emails": "JohnFerro@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Alice",
+    "lastName": "Findler",
+    "gender": "F",
+    "club": "HRBM",
+    "usmsRegNo": "124R-0AAVM",
+    "emails": "AliceFindler@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Katie",
+    "lastName": "Finn",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124Z-8TCX1",
+    "emails": "KatieFinn@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Harriette",
+    "lastName": "Fishburne",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124M-09JSW",
+    "emails": "HarrietteFishburne@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Bruce",
+    "lastName": "Fisher",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124Y-0365M",
+    "emails": "BruceFisher@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Gina",
+    "lastName": "Fitch",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124P-02JFU",
+    "emails": "GinaFitch@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Natalie",
+    "lastName": "Fitz",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124P-4FEJU",
+    "workoutGroup": "N*VA",
+    "emails": "NatalieFitz@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lauren",
+    "lastName": "Fitzgerald",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "1240-038MT",
+    "emails": "LaurenFitzgerald@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Vivian",
+    "lastName": "Flynn",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1241-076FU",
+    "workoutGroup": "RVCM",
+    "emails": "VivianFlynn@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Adam",
+    "lastName": "Foldenauer",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124V-19ZAU",
+    "workoutGroup": "RVCM",
+    "emails": "AdamFoldenauer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jacquelyn",
+    "lastName": "Foley",
+    "gender": "F",
+    "club": "AFMS",
+    "usmsRegNo": "1247-03VW4",
+    "emails": "JacquelynFoley@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Raymond",
+    "lastName": "Forbes",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1246-088N2",
+    "emails": "RaymondForbes@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lowell",
+    "lastName": "Foster",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124U-01NYG",
+    "emails": "LowellFoster@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Alexandra",
+    "lastName": "Foucher",
+    "gender": "F",
+    "club": "TIDE",
+    "usmsRegNo": "1249-WH8N6",
+    "emails": "AlexandraFoucher@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Daniel",
+    "lastName": "Fraley",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1247-HU889",
+    "workoutGroup": "N*VA",
+    "emails": "DanielFraley@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kevin",
+    "lastName": "Franceschini",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1240-09M65",
+    "emails": "KevinFranceschini@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sarah",
+    "lastName": "Frank",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124S-YWDDS",
+    "workoutGroup": "N*VA",
+    "emails": "SarahFrank@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Christopher",
+    "lastName": "Frasier",
+    "gender": "M",
+    "club": "LACG",
+    "usmsRegNo": "124D-S172W",
+    "emails": "ChristopherFrasier@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Bryan",
+    "lastName": "Fratkin",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124Y-0A5Z6",
+    "emails": "BryanFratkin@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "Freese",
+    "gender": "M",
+    "club": "FAFC",
+    "usmsRegNo": "124G-40U9B",
+    "emails": "DavidFreese@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Amy",
+    "lastName": "Frick",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1247-06CX7",
+    "workoutGroup": "SRVA",
+    "emails": "AmyFrick@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Raymond",
+    "lastName": "Funkhouser",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124M-02JW8",
+    "workoutGroup": "NNYS",
+    "emails": "RaymondFunkhouser@email.org, RaymondFunkhouser@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Genevieve",
+    "lastName": "Gadwale",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1242-WAFB6",
+    "emails": "GenevieveGadwale@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sarah",
+    "lastName": "Gaines",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124S-V5K2K",
+    "emails": "SarahGaines@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sergio",
+    "lastName": "Gallegos",
+    "gender": "M",
+    "club": "AFMS",
+    "usmsRegNo": "124B-8NGWB",
+    "emails": "SergioGallegos@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sandy",
+    "lastName": "Galletly",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1244-03APD",
+    "emails": "SandyGalletly@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lori",
+    "lastName": "Gano-Overway",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124G-00131",
+    "emails": "LoriGano-Overway@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Chuck",
+    "lastName": "Gantner",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124H-02D6W",
+    "emails": "ChuckGantner@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Luke",
+    "lastName": "Garcia",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1244-7M99T",
+    "workoutGroup": "N*VA",
+    "emails": "LukeGarcia@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Richard",
+    "lastName": "Gard",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1243-02DGJ",
+    "emails": "RichardGard@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kenneth",
+    "lastName": "Gardner",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124X-087AF",
+    "emails": "KennethGardner@email.org, KennethGardner@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Edward",
+    "lastName": "Gaulrapp",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124R-02HSH",
+    "emails": "EdwardGaulrapp@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Terry Sue",
+    "lastName": "Gault",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1240-02J1U",
+    "workoutGroup": "RVCM",
+    "emails": "Terry SueGault@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Terry",
+    "lastName": "Gernstein",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124Z-02HHJ",
+    "emails": "TerryGernstein@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Seth",
+    "lastName": "Gibson",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1240-NP71P",
+    "emails": "SethGibson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Giuliana",
+    "lastName": "Gigliotti",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124J-BWK96",
+    "emails": "GiulianaGigliotti@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Thomas",
+    "lastName": "Gill",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1245-02J0Z",
+    "emails": "ThomasGill@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "William",
+    "lastName": "Gill",
+    "gender": "M",
+    "club": "TIDE",
+    "usmsRegNo": "124Y-99FX2",
+    "emails": "WilliamGill@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Matthew",
+    "lastName": "Glasgow",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124S-02JCN",
+    "emails": "MatthewGlasgow@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sidney",
+    "lastName": "Glass",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124T-092T7",
+    "emails": "SidneyGlass@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Esther",
+    "lastName": "Glover",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124R-05ZN5",
+    "workoutGroup": "NNYS",
+    "emails": "EstherGlover@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mark",
+    "lastName": "Goforth",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124D-WJFR6",
+    "emails": "MarkGoforth@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Vennette",
+    "lastName": "Gonzalez",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124Z-Y4SE0",
+    "emails": "VennetteGonzalez@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Betsy",
+    "lastName": "Goode",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124E-02K6W",
+    "emails": "BetsyGoode@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Susan",
+    "lastName": "Gordon",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124D-02JZ4",
+    "emails": "SusanGordon@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "Gouger",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1245-0063W",
+    "emails": "DavidGouger@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jason",
+    "lastName": "Gould",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1247-6ZBRP",
+    "emails": "JasonGould@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Dan",
+    "lastName": "Gowetski",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124R-B9WZC",
+    "emails": "DanGowetski@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "William",
+    "lastName": "Graf",
+    "gender": "M",
+    "club": "FAFF",
+    "usmsRegNo": "124G-06HTE",
+    "emails": "WilliamGraf@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Will",
+    "lastName": "Grant",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1248-05XX6",
+    "emails": "WillGrant@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Beni",
+    "lastName": "Gras Thompson",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1249-0A7PW",
+    "emails": "BeniGras Thompson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "James",
+    "lastName": "Gray",
+    "gender": "M",
+    "club": "AFMS",
+    "usmsRegNo": "1244-06BKV",
+    "emails": "JamesGray@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Gresford",
+    "lastName": "Gray",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1243-1W5Z1",
+    "emails": "GresfordGray@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lauren",
+    "lastName": "Gray",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124K-SRNA2",
+    "workoutGroup": "RVCM",
+    "emails": "LaurenGray@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Rebecca",
+    "lastName": "Gray",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124P-ZVFXN",
+    "emails": "RebeccaGray@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Andy",
+    "lastName": "Grayson",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124C-080Y9",
+    "workoutGroup": "RVCM",
+    "emails": "AndyGrayson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Roberta",
+    "lastName": "Green",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124Z-06X95",
+    "emails": "RobertaGreen@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Barbie",
+    "lastName": "Gregory",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1248-02JU9",
+    "workoutGroup": "RVCM",
+    "emails": "BarbieGregory@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kathy",
+    "lastName": "Gregory",
+    "gender": "F",
+    "club": "CGMS",
+    "usmsRegNo": "1247-07NNR",
+    "emails": "KathyGregory@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Daisie",
+    "lastName": "Grenfell",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124G-YF664",
+    "workoutGroup": "RVCM",
+    "emails": "DaisieGrenfell@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Brendan",
+    "lastName": "Griffin",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124Z-JKD6X",
+    "emails": "BrendanGriffin@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Steven",
+    "lastName": "Gromling",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124P-N7UX0",
+    "workoutGroup": "N*VA",
+    "emails": "StevenGromling@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jeremy",
+    "lastName": "Gustafson",
+    "gender": "M",
+    "club": "YSRGE",
+    "usmsRegNo": "124K-05NU8",
+    "emails": "JeremyGustafson@email.org, JeremyGustafson@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Dean",
+    "lastName": "Gustafson",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1243-KR41Y",
+    "emails": "DeanGustafson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Joshua",
+    "lastName": "Hack",
+    "gender": "M",
+    "club": "CMM",
+    "usmsRegNo": "124G-85J0V",
+    "emails": "JoshuaHack@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sarah",
+    "lastName": "Haddox",
+    "gender": "F",
+    "club": "TIDE",
+    "usmsRegNo": "124U-6JVV5",
+    "emails": "SarahHaddox@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Caroline",
+    "lastName": "Hager",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1241-S6CP2",
+    "emails": "CarolineHager@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Roger",
+    "lastName": "Hahn",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "124M-042S6",
+    "emails": "RogerHahn@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Curtis",
+    "lastName": "Hakala",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124E-1SHDA",
+    "emails": "CurtisHakala@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Liana",
+    "lastName": "Hakim",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1245-9BFRT",
+    "emails": "LianaHakim@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Elizabeth",
+    "lastName": "Hall",
+    "gender": "F",
+    "club": "FAFC",
+    "usmsRegNo": "1248-078VW",
+    "emails": "ElizabethHall@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Debbie",
+    "lastName": "Halla",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124Y-05VUP",
+    "emails": "DebbieHalla@email.org, DebbieHalla@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Joey",
+    "lastName": "Hallock",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124P-VX8D0",
+    "emails": "JoeyHallock@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Catherine",
+    "lastName": "Ham",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124Z-0NAK0",
+    "workoutGroup": "N*VA",
+    "emails": "CatherineHam@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Martin",
+    "lastName": "Hammer",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124Z-02HS9",
+    "workoutGroup": "RVCM",
+    "emails": "MartinHammer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "KC",
+    "lastName": "Hampton",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124N-9TFYT",
+    "emails": "KCHampton@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Patrick",
+    "lastName": "Hanes",
+    "gender": "M",
+    "club": "TIDE",
+    "usmsRegNo": "124K-0AXEU",
+    "emails": "PatrickHanes@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Luke",
+    "lastName": "Hannon",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124X-9MMNZ",
+    "emails": "LukeHannon@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Grace",
+    "lastName": "Hansen",
+    "gender": "F",
+    "club": "NERD",
+    "usmsRegNo": "1249-H6525",
+    "emails": "GraceHansen@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Cliff",
+    "lastName": "Harbourt",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124C-0A394",
+    "emails": "CliffHarbourt@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Hannah",
+    "lastName": "Hardy",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124N-1M6V2",
+    "emails": "HannahHardy@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "April",
+    "lastName": "Harper",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124E-0AZ2N",
+    "emails": "AprilHarper@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Bill",
+    "lastName": "Harper",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1240-83YY6",
+    "emails": "BillHarper@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "McKenzie",
+    "lastName": "Harper",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "1242-DK92V",
+    "emails": "McKenzieHarper@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Samuel",
+    "lastName": "Harris",
+    "gender": "M",
+    "club": "NERD",
+    "usmsRegNo": "124S-05S5V",
+    "emails": "SamuelHarris@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kristen",
+    "lastName": "Harris",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "1244-094EH",
+    "emails": "KristenHarris@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Cathy",
+    "lastName": "Hasle",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124K-9UK52",
+    "emails": "CathyHasle@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lauren",
+    "lastName": "Hasselquist",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1243-037RZ",
+    "emails": "LaurenHasselquist@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Melissa",
+    "lastName": "Haug",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124Y-4UFY6",
+    "emails": "MelissaHaug@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Che'Rel",
+    "lastName": "Haywood",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124F-3ZNSN",
+    "workoutGroup": "N*VA",
+    "emails": "Che'RelHaywood@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Leo",
+    "lastName": "Heady",
+    "gender": "M",
+    "club": "FAFC",
+    "usmsRegNo": "124K-JSZUG",
+    "emails": "LeoHeady@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Matthew",
+    "lastName": "Healey",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124M-URA3M",
+    "emails": "MatthewHealey@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Amanda",
+    "lastName": "Henkler",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "1246-VKXUR",
+    "emails": "AmandaHenkler@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Stephen",
+    "lastName": "Hennessy",
+    "gender": "M",
+    "club": "CGMS",
+    "usmsRegNo": "1246-09GZP",
+    "emails": "StephenHennessy@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Christopher",
+    "lastName": "Hess",
+    "gender": "M",
+    "club": "WCMS",
+    "usmsRegNo": "124F-0B673",
+    "emails": "ChristopherHess@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Hans",
+    "lastName": "Hesse",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1245-6MJE8",
+    "emails": "HansHesse@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Barbara",
+    "lastName": "Hichak",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1247-0AD30",
+    "workoutGroup": "SRVA",
+    "emails": "BarbaraHichak@email.org, BarbaraHichak@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jim",
+    "lastName": "Hickey",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124M-0068Z",
+    "emails": "JimHickey@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Dave",
+    "lastName": "Higdon",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124D-04F3Z",
+    "emails": "DaveHigdon@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Matthew",
+    "lastName": "Higgins",
+    "gender": "M",
+    "club": "FAFF",
+    "usmsRegNo": "124Z-Z60F9",
+    "emails": "MatthewHiggins@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "Hildebrand",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124S-07SMV",
+    "emails": "DavidHildebrand@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Harvey",
+    "lastName": "Hill",
+    "gender": "M",
+    "club": "TIDE",
+    "usmsRegNo": "124T-02G8J",
+    "emails": "HarveyHill@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "James",
+    "lastName": "Hill",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1243-1MGFD",
+    "emails": "JamesHill@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Heather",
+    "lastName": "Hill",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124D-5WSMS",
+    "emails": "HeatherHill@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Bruce",
+    "lastName": "Hobbs",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124U-7X30S",
+    "emails": "BruceHobbs@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lisa",
+    "lastName": "Hobson",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1247-2J6VM",
+    "emails": "LisaHobson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Donald",
+    "lastName": "Hodgins",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1248-GP53P",
+    "emails": "DonaldHodgins@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Frank",
+    "lastName": "Hoffman",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124D-4Y40V",
+    "emails": "FrankHoffman@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Michael",
+    "lastName": "Hogg",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124H-06DKA",
+    "workoutGroup": "N*VA",
+    "emails": "MichaelHogg@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Dave",
+    "lastName": "Holland",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124C-02HWH",
+    "workoutGroup": "N*VA",
+    "emails": "DaveHolland@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Charlotte",
+    "lastName": "Hollings",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124C-02JDH",
+    "workoutGroup": "NNYS",
+    "emails": "CharlotteHollings@email.org, CharlotteHollings@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Brent",
+    "lastName": "Holsten",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124X-07TAW",
+    "emails": "BrentHolsten@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Hank",
+    "lastName": "Holswade",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124P-02HZU",
+    "workoutGroup": "RVCM",
+    "emails": "HankHolswade@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Nicole",
+    "lastName": "Hopkins",
+    "gender": "F",
+    "club": "TIDE",
+    "usmsRegNo": "124K-05FXF",
+    "emails": "NicoleHopkins@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Erin",
+    "lastName": "Horil",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1244-0B03V",
+    "workoutGroup": "N*VA",
+    "emails": "ErinHoril@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ellen",
+    "lastName": "Horne",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "1247-VK7RU",
+    "emails": "EllenHorne@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Angela",
+    "lastName": "Howsmon",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124G-02JH0",
+    "workoutGroup": "SRVA",
+    "emails": "AngelaHowsmon@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Theresa",
+    "lastName": "Huddleston",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1246-084SV",
+    "workoutGroup": "SRVA",
+    "emails": "TheresaHuddleston@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Christopher",
+    "lastName": "Hug",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124A-R4C9X",
+    "emails": "ChristopherHug@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Thomas",
+    "lastName": "Hunt",
+    "gender": "M",
+    "club": "RRY",
+    "usmsRegNo": "124E-08AJ6",
+    "emails": "ThomasHunt@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Michelle",
+    "lastName": "Hunt",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124C-09P4E",
+    "emails": "MichelleHunt@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ann",
+    "lastName": "Huntington-Lozis",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1249-4KATH",
+    "emails": "AnnHuntington-Lozis@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Phoebe",
+    "lastName": "Iguchi",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124P-0ABX7",
+    "emails": "PhoebeIguchi@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Carl",
+    "lastName": "Ingebretsen",
+    "gender": "M",
+    "club": "FAFF",
+    "usmsRegNo": "124S-3C850",
+    "emails": "CarlIngebretsen@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Prof Arnulfo",
+    "lastName": "Jacinto Jr",
+    "gender": "M",
+    "club": "YSRGE",
+    "usmsRegNo": "124V-82TBH",
+    "emails": "Prof ArnulfoJacinto Jr@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "John",
+    "lastName": "Jackson",
+    "gender": "M",
+    "club": "VABR",
+    "usmsRegNo": "124K-0B746",
+    "emails": "JohnJackson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Elyse",
+    "lastName": "Jacobs",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124H-2W0AK",
+    "emails": "ElyseJacobs@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jenna",
+    "lastName": "Jacoby",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124V-DBACP",
+    "emails": "JennaJacoby@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Debbie",
+    "lastName": "Jaeger",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124H-02HUT",
+    "emails": "DebbieJaeger@email.org, DebbieJaeger@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Anton",
+    "lastName": "Janezich",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124M-HA04T",
+    "emails": "AntonJanezich@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Andrea",
+    "lastName": "Jansen",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124D-90N7G",
+    "workoutGroup": "RVCM",
+    "emails": "AndreaJansen@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mark",
+    "lastName": "Jarosz",
+    "gender": "M",
+    "club": "SUMS",
+    "usmsRegNo": "1248-02K22",
+    "emails": "MarkJarosz@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Eric",
+    "lastName": "Jelinek",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124P-N0A5G",
+    "emails": "EricJelinek@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kate",
+    "lastName": "Jenkins",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124Y-02JMP",
+    "workoutGroup": "NNYS",
+    "emails": "KateJenkins@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Richard",
+    "lastName": "Jennings",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124R-0B9W6",
+    "workoutGroup": "N*VA",
+    "emails": "RichardJennings@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Voytek",
+    "lastName": "Jeruzal",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124J-02JGY",
+    "workoutGroup": "QUEST",
+    "emails": "VoytekJeruzal@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Amanda",
+    "lastName": "Jimeno",
+    "gender": "F",
+    "club": "PSDN",
+    "usmsRegNo": "124A-F1C7H",
+    "emails": "AmandaJimeno@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Andrew",
+    "lastName": "Johnson",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1242-02HNG",
+    "emails": "AndrewJohnson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Betty",
+    "lastName": "Johnson",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1240-09FZJ",
+    "workoutGroup": "SRVA",
+    "emails": "BettyJohnson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kelsey",
+    "lastName": "Johnson",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1240-1FEGU",
+    "emails": "KelseyJohnson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Christopher",
+    "lastName": "Johnson",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124J-2Z97S",
+    "emails": "ChristopherJohnson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Genny",
+    "lastName": "Johnson",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124Y-TW4H2",
+    "emails": "GennyJohnson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Rob",
+    "lastName": "Jones",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1241-02J0A",
+    "emails": "RobJones@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ralph",
+    "lastName": "Jones",
+    "gender": "M",
+    "club": "KCM",
+    "usmsRegNo": "124J-084FH",
+    "emails": "RalphJones@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Clifford",
+    "lastName": "Jones",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124B-0AGXA",
+    "emails": "CliffordJones@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Larquetta",
+    "lastName": "Jones",
+    "gender": "F",
+    "club": "KCM",
+    "usmsRegNo": "124G-114ZV",
+    "emails": "LarquettaJones@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Barbara",
+    "lastName": "Jones",
+    "gender": "F",
+    "club": "SUMS",
+    "usmsRegNo": "124Y-8D0X4",
+    "emails": "BarbaraJones@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jared",
+    "lastName": "Joo",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124Z-FTGRK",
+    "emails": "JaredJoo@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Craig",
+    "lastName": "Joy",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124V-07BM5",
+    "emails": "CraigJoy@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Charlie",
+    "lastName": "Juster",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124J-PFFES",
+    "emails": "CharlieJuster@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Shawn",
+    "lastName": "Jyawook",
+    "gender": "M",
+    "club": "WWMST",
+    "usmsRegNo": "124X-05SRT",
+    "emails": "ShawnJyawook@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Riva",
+    "lastName": "Kamat",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124M-09YZR",
+    "emails": "RivaKamat@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Chris",
+    "lastName": "Kammermann",
+    "gender": "M",
+    "club": "TIDE",
+    "usmsRegNo": "1244-0ACXP",
+    "emails": "ChrisKammermann@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "raymond",
+    "lastName": "Kannapell",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124G-YAB7W",
+    "emails": "raymondKannapell@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Steven",
+    "lastName": "Karl",
+    "gender": "M",
+    "club": "FAFF",
+    "usmsRegNo": "124D-WHRMA",
+    "emails": "StevenKarl@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Chuck",
+    "lastName": "Katis",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124D-87VXT",
+    "emails": "ChuckKatis@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Seiji",
+    "lastName": "Kato",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124P-0A59S",
+    "emails": "SeijiKato@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kathleen",
+    "lastName": "Kauffman",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124J-075PP",
+    "workoutGroup": "NNYS",
+    "emails": "KathleenKauffman@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Raymond",
+    "lastName": "Keating",
+    "gender": "M",
+    "club": "NERD",
+    "usmsRegNo": "124W-01NEZ",
+    "emails": "RaymondKeating@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Algernon",
+    "lastName": "Keith",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124Z-033HH",
+    "emails": "AlgernonKeith@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Claudia",
+    "lastName": "Keller",
+    "gender": "F",
+    "club": "FAFF",
+    "usmsRegNo": "124J-SH3BH",
+    "emails": "ClaudiaKeller@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Katherine",
+    "lastName": "Kelly",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124J-8EF29",
+    "emails": "KatherineKelly@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Christine",
+    "lastName": "Kelly",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124D-GFSC8",
+    "emails": "ChristineKelly@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Wilton",
+    "lastName": "Kennedy",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124K-02JYV",
+    "emails": "WiltonKennedy@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Joe",
+    "lastName": "Kennedy",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124E-5P66S",
+    "emails": "JoeKennedy@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Benjamin",
+    "lastName": "Kennedy",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1247-7C8CT",
+    "emails": "BenjaminKennedy@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Diane",
+    "lastName": "Kent",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1245-02HVT",
+    "emails": "DianeKent@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Krista",
+    "lastName": "Kessinger",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1247-AX5C9",
+    "emails": "KristaKessinger@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sam",
+    "lastName": "Kettlewell-SItes",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124E-0AXVG",
+    "emails": "SamKettlewell-SItes@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Brett",
+    "lastName": "Keyes",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1243-090EK",
+    "emails": "BrettKeyes@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Tory",
+    "lastName": "Kiley",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124E-02HPY",
+    "emails": "ToryKiley@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Joe",
+    "lastName": "Kimball",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124A-ZCV6E",
+    "emails": "JoeKimball@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kate",
+    "lastName": "King",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124J-0A5Z2",
+    "workoutGroup": "N*VA",
+    "emails": "KateKing@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "William",
+    "lastName": "King",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1249-DR8YH",
+    "emails": "WilliamKing@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Erin",
+    "lastName": "King",
+    "gender": "F",
+    "club": "NERD",
+    "usmsRegNo": "1247-VTDG1",
+    "emails": "ErinKing@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Joey",
+    "lastName": "Kirchgessner",
+    "gender": "M",
+    "club": "RRY",
+    "usmsRegNo": "124V-09460",
+    "emails": "JoeyKirchgessner@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Richard",
+    "lastName": "Kirchgessner",
+    "gender": "M",
+    "club": "RRY",
+    "usmsRegNo": "1241-0B74K",
+    "emails": "RichardKirchgessner@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jim",
+    "lastName": "Kirkland",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124P-0367F",
+    "emails": "JimKirkland@email.org, JimKirkland@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Paul",
+    "lastName": "Klepchick",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124H-05Z5B",
+    "emails": "PaulKlepchick@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Chad",
+    "lastName": "Knapik",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124T-0TTXN",
+    "workoutGroup": "N*VA",
+    "emails": "ChadKnapik@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Donna",
+    "lastName": "Knutson",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124Y-G06GE",
+    "emails": "DonnaKnutson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Nugent",
+    "lastName": "Koscielny",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124W-099KS",
+    "emails": "NugentKoscielny@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Corey",
+    "lastName": "Krall",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "124G-KB56A",
+    "emails": "CoreyKrall@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Madeline",
+    "lastName": "Kristoff",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1249-0AFSM",
+    "emails": "MadelineKristoff@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kate",
+    "lastName": "Kroll",
+    "gender": "F",
+    "club": "HRBM",
+    "usmsRegNo": "1244-MD8DC",
+    "emails": "KateKroll@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mark",
+    "lastName": "Kutz",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1242-02JPH",
+    "workoutGroup": "N*VA",
+    "emails": "MarkKutz@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Joel",
+    "lastName": "Labuda",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1240-AAWTR",
+    "emails": "JoelLabuda@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Cassandra",
+    "lastName": "Laios",
+    "gender": "F",
+    "club": "FAFC",
+    "usmsRegNo": "124P-UVRGN",
+    "emails": "CassandraLaios@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Carl",
+    "lastName": "Lampe",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1248-XTUVE",
+    "emails": "CarlLampe@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Denise",
+    "lastName": "Landers",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124P-0073S",
+    "emails": "DeniseLanders@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mary",
+    "lastName": "Landrum",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124D-18T9Y",
+    "emails": "MaryLandrum@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Laurence",
+    "lastName": "Lane",
+    "gender": "M",
+    "club": "NERD",
+    "usmsRegNo": "124B-09052",
+    "emails": "LaurenceLane@email.org, LaurenceLane@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Joey",
+    "lastName": "Lane",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124C-EESRM",
+    "emails": "JoeyLane@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Derek",
+    "lastName": "Lang",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124C-GW2S7",
+    "workoutGroup": "N*VA",
+    "emails": "DerekLang@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Robin",
+    "lastName": "Lang",
+    "gender": "F",
+    "club": "TIDE",
+    "usmsRegNo": "124S-PMA0F",
+    "emails": "RobinLang@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Meredith",
+    "lastName": "Lankford",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1240-3VW1S",
+    "workoutGroup": "N*VA",
+    "emails": "MeredithLankford@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Thomas",
+    "lastName": "Lannon",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124S-4RRHR",
+    "workoutGroup": "NNYS",
+    "emails": "ThomasLannon@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Susan",
+    "lastName": "Lansbury",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124X-02J4R",
+    "emails": "SusanLansbury@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Eden",
+    "lastName": "Larkin",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1244-UARBM",
+    "workoutGroup": "N*VA",
+    "emails": "EdenLarkin@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Andrea",
+    "lastName": "Latell",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1243-05ZTV",
+    "workoutGroup": "NNYS",
+    "emails": "AndreaLatell@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Rebecca",
+    "lastName": "Latimer",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124M-023UP",
+    "emails": "RebeccaLatimer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jennifer",
+    "lastName": "Lauer",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124P-WBCPP",
+    "emails": "JenniferLauer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Noah",
+    "lastName": "Laurence",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124J-Z7RBZ",
+    "workoutGroup": "N*VA",
+    "emails": "NoahLaurence@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Carey",
+    "lastName": "Lawless",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124K-01RER",
+    "emails": "CareyLawless@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Grace",
+    "lastName": "Lee",
+    "gender": "F",
+    "club": "NERD",
+    "usmsRegNo": "124A-3ABR5",
+    "emails": "GraceLee@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Oliver",
+    "lastName": "Lee",
+    "gender": "M",
+    "club": "CRIMZ",
+    "usmsRegNo": "1248-VSE65",
+    "emails": "OliverLee@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Russell",
+    "lastName": "Leighty",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124W-02XE8",
+    "emails": "RussellLeighty@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Catherine",
+    "lastName": "Leitch",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124D-02JD3",
+    "emails": "CatherineLeitch@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lindsay",
+    "lastName": "Lepore",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124C-0B0A9",
+    "emails": "LindsayLepore@email.org, LindsayLepore@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Denise",
+    "lastName": "Letendre",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124R-07JAU",
+    "workoutGroup": "SRVA",
+    "emails": "DeniseLetendre@email.org, DeniseLetendre@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Daniel",
+    "lastName": "Levy",
+    "gender": "M",
+    "club": "FAFF",
+    "usmsRegNo": "1244-022U6",
+    "emails": "DanielLevy@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Deborah",
+    "lastName": "Lewis",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124U-0ADH3",
+    "emails": "DeborahLewis@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Chris",
+    "lastName": "Lewis",
+    "gender": "M",
+    "club": "FAFC",
+    "usmsRegNo": "124P-J87AK",
+    "emails": "ChrisLewis@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Peter",
+    "lastName": "Lillehei",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124P-07C9E",
+    "emails": "PeterLillehei@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Santiago",
+    "lastName": "Lima",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124P-061YC",
+    "workoutGroup": "SRVA",
+    "emails": "SantiagoLima@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jeremy",
+    "lastName": "Linaburg",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124U-MFEC1",
+    "emails": "JeremyLinaburg@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "Linder",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124Z-407AF",
+    "emails": "DavidLinder@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Alex",
+    "lastName": "Lingafelter",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124J-GZ7GP",
+    "emails": "AlexLingafelter@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Susan",
+    "lastName": "Lipsey",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124V-02DBP",
+    "emails": "SusanLipsey@email.org, SusanLipsey@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Martha",
+    "lastName": "Little",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1242-07HAB",
+    "workoutGroup": "NNYS",
+    "emails": "MarthaLittle@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Madison",
+    "lastName": "Littlepage",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124W-CWF07",
+    "emails": "MadisonLittlepage@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Siming",
+    "lastName": "Liu",
+    "gender": "M",
+    "club": "LACG",
+    "usmsRegNo": "124K-4N3RK",
+    "emails": "SimingLiu@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mark",
+    "lastName": "Livezey",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124N-SKJ3A",
+    "workoutGroup": "RVCM",
+    "emails": "MarkLivezey@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Andy",
+    "lastName": "Lockman",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124Z-CATT2",
+    "emails": "AndyLockman@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Suzanne",
+    "lastName": "Loftus",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124V-07M4W",
+    "emails": "SuzanneLoftus@email.org, SuzanneLoftus@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Shirley",
+    "lastName": "Loftus-Charley",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124Z-WATER",
+    "emails": "ShirleyLoftus-Charley@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Brooke",
+    "lastName": "Lombardi",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124X-08YEW",
+    "emails": "BrookeLombardi@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lindsay",
+    "lastName": "London",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124K-0TV84",
+    "emails": "LindsayLondon@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Robin",
+    "lastName": "Lotz",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124R-06PZ7",
+    "emails": "RobinLotz@email.org, RobinLotz@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "William",
+    "lastName": "Lowry",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124Y-PFNHT",
+    "workoutGroup": "N*VA",
+    "emails": "WilliamLowry@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jane",
+    "lastName": "Lucas",
+    "gender": "F",
+    "club": "TIDE",
+    "usmsRegNo": "1243-08A2C",
+    "emails": "JaneLucas@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sarah",
+    "lastName": "Lukens",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124B-071C5",
+    "emails": "SarahLukens@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Teresa",
+    "lastName": "Lyons",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124T-6S1MX",
+    "emails": "TeresaLyons@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "JOHN",
+    "lastName": "MCCORKLE",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1247-02JS7",
+    "emails": "JOHNMCCORKLE@email.org, JOHNMCCORKLE@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Bruce",
+    "lastName": "MacDonald",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "1243-02K1C",
+    "emails": "BruceMacDonald@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Suni",
+    "lastName": "Mackall",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124Y-02JKP",
+    "emails": "SuniMackall@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Charles",
+    "lastName": "Mackall",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124P-0364V",
+    "emails": "CharlesMackall@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kim",
+    "lastName": "Macmillan",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124C-09K0X",
+    "workoutGroup": "N*VA",
+    "emails": "KimMacmillan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Justine",
+    "lastName": "Madigan",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1241-JPR1A",
+    "workoutGroup": "N*VA",
+    "emails": "JustineMadigan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Colleen",
+    "lastName": "Maguire",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124M-KNNBP",
+    "emails": "ColleenMaguire@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Shannon",
+    "lastName": "Maguire",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1243-VNN56",
+    "emails": "ShannonMaguire@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Tim",
+    "lastName": "Mainland",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124K-02J1Z",
+    "emails": "TimMainland@email.org, TimMainland@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kyle",
+    "lastName": "Major",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124P-ASCR2",
+    "emails": "KyleMajor@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Olivia",
+    "lastName": "Malloy",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124U-090P4",
+    "emails": "OliviaMalloy@email.org, OliviaMalloy@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Shawn",
+    "lastName": "Malony",
+    "gender": "M",
+    "club": "FAFF",
+    "usmsRegNo": "124U-9DZYB",
+    "emails": "ShawnMalony@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "James",
+    "lastName": "Mandell",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1248-065ST",
+    "emails": "JamesMandell@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Susan",
+    "lastName": "Mangin",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124H-0ANTF",
+    "workoutGroup": "N*VA",
+    "emails": "SusanMangin@email.org, SusanMangin@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Susan",
+    "lastName": "Marens",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124W-02HSX",
+    "emails": "SusanMarens@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lenora",
+    "lastName": "Mariner",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124U-02K49",
+    "workoutGroup": "SRVA",
+    "emails": "LenoraMariner@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Marsha",
+    "lastName": "Marinich",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124G-05GG4",
+    "emails": "MarshaMarinich@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Paula",
+    "lastName": "Marks",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1240-02HV3",
+    "workoutGroup": "SRVA",
+    "emails": "PaulaMarks@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Alexandra",
+    "lastName": "Marshall",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1241-KW224",
+    "workoutGroup": "N*VA",
+    "emails": "AlexandraMarshall@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Julia",
+    "lastName": "Marshel",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124Z-0APV0",
+    "workoutGroup": "RVCM",
+    "emails": "JuliaMarshel@email.org, JuliaMarshel@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Courtney",
+    "lastName": "Martin",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124E-VVEZR",
+    "workoutGroup": "N*VA",
+    "emails": "CourtneyMartin@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Maria",
+    "lastName": "Marvich",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1246-RTZX1",
+    "emails": "MariaMarvich@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Richard",
+    "lastName": "Marx",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124M-06RHB",
+    "emails": "RichardMarx@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kevin",
+    "lastName": "Mastracci",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1243-09Y5C",
+    "workoutGroup": "N*VA",
+    "emails": "KevinMastracci@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Michael",
+    "lastName": "Maxey",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124J-UVAM9",
+    "workoutGroup": "RVCM",
+    "emails": "MichaelMaxey@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Julia",
+    "lastName": "May",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124P-D8GG6",
+    "emails": "JuliaMay@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Gregory",
+    "lastName": "Mayes",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1245-06FW0",
+    "emails": "GregoryMayes@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Keegan",
+    "lastName": "McCauley",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124C-C07UB",
+    "emails": "KeeganMcCauley@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Denise",
+    "lastName": "McCourt",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124T-0ATAJ",
+    "emails": "DeniseMcCourt@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ken",
+    "lastName": "McCrery",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1249-06NE2",
+    "emails": "KenMcCrery@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Erin",
+    "lastName": "McDonald",
+    "gender": "F",
+    "club": "FAFC",
+    "usmsRegNo": "124G-02JR6",
+    "emails": "ErinMcDonald@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Megan",
+    "lastName": "McDonald",
+    "gender": "F",
+    "club": "FAFF",
+    "usmsRegNo": "1244-09677",
+    "emails": "MeganMcDonald@email.org, MeganMcDonald@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "McEttrick",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1244-033ZW",
+    "emails": "DavidMcEttrick@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jim",
+    "lastName": "McFarland",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124F-02J18",
+    "emails": "JimMcFarland@email.org, JimMcFarland@email.com",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Thomas",
+    "lastName": "McGowan",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124C-09RPF",
+    "emails": "ThomasMcGowan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Shannon",
+    "lastName": "McGrath",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124E-E3AAE",
+    "emails": "ShannonMcGrath@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Patrick",
+    "lastName": "McGroarty",
+    "gender": "M",
+    "club": "FAFF",
+    "usmsRegNo": "1245-02JEB",
+    "emails": "PatrickMcGroarty@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Gregor",
+    "lastName": "McLeod",
+    "gender": "M",
+    "club": "NERD",
+    "usmsRegNo": "124Z-090MZ",
+    "emails": "GregorMcLeod@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Matthew",
+    "lastName": "McLeod",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124C-X9F49",
+    "emails": "MatthewMcLeod@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ron",
+    "lastName": "McMillan",
+    "gender": "M",
+    "club": "AFMS",
+    "usmsRegNo": "124A-39A98",
+    "emails": "RonMcMillan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Bridget",
+    "lastName": "McMullen",
+    "gender": "F",
+    "club": "CGMS",
+    "usmsRegNo": "124F-01PBZ",
+    "emails": "BridgetMcMullen@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jacob",
+    "lastName": "McQuiggan",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "124J-0904W",
+    "emails": "JacobMcQuiggan@email.org, JacobMcQuiggan@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kathy",
+    "lastName": "McReynolds",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124Z-06ACA",
+    "emails": "KathyMcReynolds@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Suzanne",
+    "lastName": "McWilliams",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124B-082JC",
+    "workoutGroup": "SRVA",
+    "emails": "SuzanneMcWilliams@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Marilynn",
+    "lastName": "Mcateer",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124B-0AG6N",
+    "emails": "MarilynnMcateer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Marc",
+    "lastName": "Mclaurin",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124P-5X696",
+    "emails": "MarcMclaurin@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mike",
+    "lastName": "Means",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1246-K4JZY",
+    "emails": "MikeMeans@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lang",
+    "lastName": "Meem",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124X-02HJ5",
+    "workoutGroup": "RVCM",
+    "emails": "LangMeem@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Pania",
+    "lastName": "Meggison",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124Z-9FMHR",
+    "emails": "PaniaMeggison@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jeanne",
+    "lastName": "Meredith",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1247-02HT9",
+    "emails": "JeanneMeredith@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Matt",
+    "lastName": "Merrill",
+    "gender": "M",
+    "club": "PSDN",
+    "usmsRegNo": "1246-VDSA4",
+    "emails": "MattMerrill@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Matthew",
+    "lastName": "Meyer",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1249-02HSU",
+    "workoutGroup": "RVCM",
+    "emails": "MatthewMeyer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Elizabeth",
+    "lastName": "Meyer",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124D-0ZP10",
+    "workoutGroup": "N*VA",
+    "emails": "ElizabethMeyer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jillian",
+    "lastName": "Meyer",
+    "gender": "F",
+    "club": "TIDE",
+    "usmsRegNo": "124S-XW5TB",
+    "emails": "JillianMeyer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Avery",
+    "lastName": "Michienzi",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124W-UHZEX",
+    "emails": "AveryMichienzi@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Karen",
+    "lastName": "Mickunas",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124F-02HRZ",
+    "emails": "KarenMickunas@email.org, KarenMickunas@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Vic",
+    "lastName": "Mickunas",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1248-DW9A1",
+    "emails": "VicMickunas@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Hank",
+    "lastName": "Mierzwa",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124B-00685",
+    "emails": "HankMierzwa@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "John",
+    "lastName": "Miesner",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124Y-02J8A",
+    "emails": "JohnMiesner@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Terry",
+    "lastName": "Miffleton",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124S-02HT1",
+    "workoutGroup": "RVCM",
+    "emails": "TerryMiffleton@email.org, TerryMiffleton@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Gabrielle",
+    "lastName": "Milam",
+    "gender": "F",
+    "club": "LACG",
+    "usmsRegNo": "1240-02JGS",
+    "emails": "GabrielleMilam@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Patricia",
+    "lastName": "Miller",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124J-02HJ0",
+    "workoutGroup": "RVCM",
+    "emails": "PatriciaMiller@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Elizabeth",
+    "lastName": "Miller",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124A-MW749",
+    "workoutGroup": "N*VA",
+    "emails": "ElizabethMiller@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "James",
+    "lastName": "Miller",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124S-SWMMD",
+    "workoutGroup": "RVCM",
+    "emails": "JamesMiller@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Frank",
+    "lastName": "Millikan",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124Z-07HND",
+    "emails": "FrankMillikan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Edward",
+    "lastName": "Mills",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "1245-09ERZ",
+    "emails": "EdwardMills@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Chad",
+    "lastName": "Mirt",
+    "gender": "M",
+    "club": "CRIMZ",
+    "usmsRegNo": "124V-07H62",
+    "emails": "ChadMirt@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Daryl",
+    "lastName": "Misquith",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124A-PHDFJ",
+    "emails": "DarylMisquith@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Catherine",
+    "lastName": "Mitchell",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1243-HGXS5",
+    "emails": "CatherineMitchell@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Russ",
+    "lastName": "Mitchell",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "1243-H01A6",
+    "emails": "RussMitchell@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Emma",
+    "lastName": "Mitchell",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124X-U0490",
+    "emails": "EmmaMitchell@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Christen",
+    "lastName": "Mizell",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124A-M0BK8",
+    "emails": "ChristenMizell@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Gabrielle",
+    "lastName": "Mizerak",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124U-099KU",
+    "emails": "GabrielleMizerak@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Van",
+    "lastName": "Moffatt",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1246-06R75",
+    "emails": "VanMoffatt@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Christopher",
+    "lastName": "Molina",
+    "gender": "M",
+    "club": "CGMS",
+    "usmsRegNo": "124C-KDN1C",
+    "emails": "ChristopherMolina@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mark",
+    "lastName": "Monaco",
+    "gender": "M",
+    "club": "FAFC",
+    "usmsRegNo": "1241-VGDX0",
+    "emails": "MarkMonaco@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Elizabeth",
+    "lastName": "Montgomery",
+    "gender": "F",
+    "club": "YSRGE",
+    "usmsRegNo": "1247-ZZ38P",
+    "emails": "ElizabethMontgomery@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jonathan",
+    "lastName": "Moore",
+    "gender": "M",
+    "club": "NERD",
+    "usmsRegNo": "124D-T61FH",
+    "emails": "JonathanMoore@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "George",
+    "lastName": "Moore III",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124W-P852N",
+    "workoutGroup": "N*VA",
+    "emails": "GeorgeMoore III@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Michael",
+    "lastName": "Moriarty",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "124B-036BB",
+    "emails": "MichaelMoriarty@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "John",
+    "lastName": "Morris",
+    "gender": "M",
+    "club": "RRY",
+    "usmsRegNo": "124E-04U8A",
+    "emails": "JohnMorris@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Geary",
+    "lastName": "Morris",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1240-0AEY2",
+    "emails": "GearyMorris@email.org, GearyMorris@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Alex",
+    "lastName": "Morrow",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1241-P9JKE",
+    "emails": "AlexMorrow@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sanae",
+    "lastName": "Moummi",
+    "gender": "F",
+    "club": "FAFC",
+    "usmsRegNo": "1244-BWK6G",
+    "emails": "SanaeMoummi@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ghita",
+    "lastName": "Moummi",
+    "gender": "F",
+    "club": "FAFC",
+    "usmsRegNo": "1244-E5HXH",
+    "emails": "GhitaMoummi@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Justin",
+    "lastName": "Moyer",
+    "gender": "M",
+    "club": "BAM1",
+    "usmsRegNo": "124G-H52GK",
+    "emails": "JustinMoyer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "LaTonya",
+    "lastName": "Moyer",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1245-XY252",
+    "emails": "LaTonyaMoyer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Burton",
+    "lastName": "Mullins",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1240-036U0",
+    "emails": "BurtonMullins@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ted",
+    "lastName": "Mundy",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124T-3BE4P",
+    "emails": "TedMundy@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Beth",
+    "lastName": "Murphy",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1240-02HMX",
+    "workoutGroup": "RVCM",
+    "emails": "BethMurphy@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Matthew",
+    "lastName": "Murphy",
+    "gender": "M",
+    "club": "NERD",
+    "usmsRegNo": "124T-07K52",
+    "emails": "MatthewMurphy@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Richard",
+    "lastName": "Murphy",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124G-0B2T2",
+    "emails": "RichardMurphy@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sylvia",
+    "lastName": "Musselman",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124M-09GZK",
+    "emails": "SylviaMusselman@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sharon",
+    "lastName": "Nanz",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1244-02J0Y",
+    "emails": "SharonNanz@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Newsha",
+    "lastName": "Nazmi Ansary",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124R-0870W",
+    "emails": "NewshaNazmi Ansary@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Chris",
+    "lastName": "Nelson",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1241-082XC",
+    "workoutGroup": "N*VA",
+    "emails": "ChrisNelson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kenneth",
+    "lastName": "Neubauer",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124N-VZ4T4",
+    "emails": "KennethNeubauer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Christopher",
+    "lastName": "Newlin",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1245-4TZE2",
+    "workoutGroup": "RVCM",
+    "emails": "ChristopherNewlin@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Nina",
+    "lastName": "Nichols",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124X-G8P49",
+    "emails": "NinaNichols@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Linda",
+    "lastName": "Nicholson",
+    "gender": "F",
+    "club": "PSDN",
+    "usmsRegNo": "124C-9EP5W",
+    "emails": "LindaNicholson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sarah",
+    "lastName": "Nisewarner",
+    "gender": "F",
+    "club": "PKBM",
+    "usmsRegNo": "124R-0639R",
+    "emails": "SarahNisewarner@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Travis",
+    "lastName": "Nitkiewicz",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1248-G4JE4",
+    "emails": "TravisNitkiewicz@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "John",
+    "lastName": "Nolan",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1247-038S3",
+    "emails": "JohnNolan@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Geraldine",
+    "lastName": "Noonan",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1248-04BRH",
+    "emails": "GeraldineNoonan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Edward",
+    "lastName": "Noonan",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1243-077V6",
+    "workoutGroup": "RVCM",
+    "emails": "EdwardNoonan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Wendy",
+    "lastName": "Nordean",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1246-8BV9H",
+    "emails": "WendyNordean@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Dirk",
+    "lastName": "North",
+    "gender": "M",
+    "club": "RRY",
+    "usmsRegNo": "124G-0AKTH",
+    "emails": "DirkNorth@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Eric",
+    "lastName": "O'Brien",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1243-HFEWS",
+    "emails": "EricO'Brien@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ryan",
+    "lastName": "O'Hagan",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124M-SKUDY",
+    "emails": "RyanO'Hagan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jim",
+    "lastName": "O'Hanlon",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124M-02K8M",
+    "workoutGroup": "N*VA",
+    "emails": "JimO'Hanlon@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lisa",
+    "lastName": "O'Hara",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124D-EM5EM",
+    "emails": "LisaO'Hara@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Patrick",
+    "lastName": "O'Neill",
+    "gender": "M",
+    "club": "HRBM",
+    "usmsRegNo": "124K-063P6",
+    "emails": "PatrickO'Neill@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Nancy",
+    "lastName": "O'Shaughnessy",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1247-09KEM",
+    "workoutGroup": "NNYS",
+    "emails": "NancyO'Shaughnessy@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "John",
+    "lastName": "O'Shaughnessy",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1248-09KEN",
+    "workoutGroup": "NNYS",
+    "emails": "JohnO'Shaughnessy@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "Oalmann",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124R-076A4",
+    "emails": "DavidOalmann@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Morgan",
+    "lastName": "Oehler",
+    "gender": "F",
+    "club": "CAMT",
+    "usmsRegNo": "124J-NZ1NW",
+    "emails": "MorganOehler@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Dennis",
+    "lastName": "Olsen",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124W-01R76",
+    "emails": "DennisOlsen@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Erin",
+    "lastName": "Olson",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124Z-1PCNF",
+    "workoutGroup": "SRVA",
+    "emails": "ErinOlson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Chad",
+    "lastName": "Onken",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124D-NRG2A",
+    "workoutGroup": "QUEST",
+    "emails": "ChadOnken@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Bryn",
+    "lastName": "Onweller",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1241-AH0AA",
+    "emails": "BrynOnweller@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Maybeth",
+    "lastName": "Osmun",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124H-01S7H",
+    "emails": "MaybethOsmun@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kayla",
+    "lastName": "Owen",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124T-UCWUT",
+    "emails": "KaylaOwen@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Margaret",
+    "lastName": "O’Shea",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124Y-FPCW8",
+    "workoutGroup": "RVCM",
+    "emails": "MargaretO’Shea@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Emily",
+    "lastName": "Pace",
+    "gender": "F",
+    "club": "LACG",
+    "usmsRegNo": "1246-JTDET",
+    "emails": "EmilyPace@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Christy",
+    "lastName": "Parker",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1242-DMDF3",
+    "emails": "ChristyParker@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Roberto",
+    "lastName": "Parmeggiani",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124H-09V52",
+    "workoutGroup": "RVCM",
+    "emails": "RobertoParmeggiani@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Linda",
+    "lastName": "Passaretti",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124J-CZ4J0",
+    "emails": "LindaPassaretti@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Courtney",
+    "lastName": "Paulk",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1242-02J4Z",
+    "workoutGroup": "SRVA",
+    "emails": "CourtneyPaulk@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Maria",
+    "lastName": "Paz",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124B-CMWS8",
+    "emails": "MariaPaz@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Paige",
+    "lastName": "Pelikan",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124K-5TXFK",
+    "emails": "PaigePelikan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kiersten",
+    "lastName": "Pels",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1243-7Z2WE",
+    "emails": "KierstenPels@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jay",
+    "lastName": "Peluso",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124S-061V7",
+    "workoutGroup": "SRVA",
+    "emails": "JayPeluso@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Tomas",
+    "lastName": "Perez",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124D-06HJX",
+    "workoutGroup": "N*VA",
+    "emails": "TomasPerez@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "John",
+    "lastName": "Pero",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1242-07661",
+    "emails": "JohnPero@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Brian",
+    "lastName": "Peterson",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "124H-2U41P",
+    "emails": "BrianPeterson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Wayne",
+    "lastName": "Phelps",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124X-07EM0",
+    "emails": "WaynePhelps@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Alice",
+    "lastName": "Phillips",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1243-02J2Z",
+    "workoutGroup": "SRVA",
+    "emails": "AlicePhillips@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Bradley",
+    "lastName": "Phillips",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124J-0S6JK",
+    "workoutGroup": "N*VA",
+    "emails": "BradleyPhillips@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ed",
+    "lastName": "Pierce",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1240-02J4C",
+    "workoutGroup": "NNYS",
+    "emails": "EdPierce@email.org, EdPierce@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jennifer",
+    "lastName": "Pierce",
+    "gender": "F",
+    "club": "FAFC",
+    "usmsRegNo": "124B-UXWVN",
+    "emails": "JenniferPierce@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Anna",
+    "lastName": "Pintauro",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124E-UCN17",
+    "emails": "AnnaPintauro@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Margaret",
+    "lastName": "Pizer",
+    "gender": "F",
+    "club": "CGMS",
+    "usmsRegNo": "124M-023GW",
+    "emails": "MargaretPizer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Betsey",
+    "lastName": "Poehler",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124H-02JPP",
+    "workoutGroup": "N*VA",
+    "emails": "BetseyPoehler@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "William",
+    "lastName": "Polson",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1248-PHDDF",
+    "emails": "WilliamPolson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Karen",
+    "lastName": "Pompay",
+    "gender": "F",
+    "club": "TIDE",
+    "usmsRegNo": "124G-07569",
+    "emails": "KarenPompay@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Bob",
+    "lastName": "Popp",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1244-01Z1H",
+    "emails": "BobPopp@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "James",
+    "lastName": "Porter",
+    "gender": "M",
+    "club": "CAMT",
+    "usmsRegNo": "1245-SZ873",
+    "emails": "JamesPorter@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jack",
+    "lastName": "Portmann",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124J-67N3E",
+    "emails": "JackPortmann@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "John",
+    "lastName": "Post",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1244-02HK0",
+    "emails": "JohnPost@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "William",
+    "lastName": "Poynter",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1240-037UE",
+    "emails": "WilliamPoynter@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Howard",
+    "lastName": "Pride",
+    "gender": "M",
+    "club": "VABR",
+    "usmsRegNo": "124E-0APTK",
+    "emails": "HowardPride@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kathy",
+    "lastName": "Pride",
+    "gender": "F",
+    "club": "VABR",
+    "usmsRegNo": "124R-TTZNG",
+    "emails": "KathyPride@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Elizabeth",
+    "lastName": "Prom-Wormley",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1242-082TT",
+    "emails": "ElizabethProm-Wormley@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Cheryl",
+    "lastName": "Ptak",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124Y-074SY",
+    "emails": "CherylPtak@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Richena",
+    "lastName": "Purnell-Sayle",
+    "gender": "F",
+    "club": "FAFC",
+    "usmsRegNo": "124V-3JK8B",
+    "emails": "RichenaPurnell-Sayle@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jean",
+    "lastName": "Quinn",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124H-01SAM",
+    "emails": "JeanQuinn@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "KAP",
+    "lastName": "RO",
+    "gender": "M",
+    "club": "FAFC",
+    "usmsRegNo": "124S-0B4GG",
+    "emails": "KAPRO@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "DUK",
+    "lastName": "RO",
+    "gender": "F",
+    "club": "FAFC",
+    "usmsRegNo": "124R-0B4GH",
+    "emails": "DUKRO@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Robert",
+    "lastName": "Radam",
+    "gender": "M",
+    "club": "NERD",
+    "usmsRegNo": "124W-0AWAX",
+    "emails": "RobertRadam@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Natalie",
+    "lastName": "Rainer",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124R-09BEP",
+    "workoutGroup": "SRVA",
+    "emails": "NatalieRainer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Frank",
+    "lastName": "Ramaekers Jr.",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124U-WS25S",
+    "emails": "FrankRamaekers Jr.@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "Randolph",
+    "gender": "M",
+    "club": "NERD",
+    "usmsRegNo": "124N-JKYCD",
+    "emails": "DavidRandolph@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Chris",
+    "lastName": "Ratchford",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1244-07BPZ",
+    "workoutGroup": "RVCM",
+    "emails": "ChrisRatchford@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Patrick",
+    "lastName": "Reilly",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1248-02JS8",
+    "emails": "PatrickReilly@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Rachel",
+    "lastName": "Reinhart",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124H-GPPKK",
+    "emails": "RachelReinhart@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Marie",
+    "lastName": "Restrepo",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124U-0ARU3",
+    "emails": "MarieRestrepo@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sheldon",
+    "lastName": "Retchin",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124J-06N89",
+    "emails": "SheldonRetchin@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Donna",
+    "lastName": "Rhoads",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124W-RA6JM",
+    "emails": "DonnaRhoads@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Justin",
+    "lastName": "Rich",
+    "gender": "M",
+    "club": "PSDN",
+    "usmsRegNo": "1247-JZ1GW",
+    "emails": "JustinRich@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kevin",
+    "lastName": "Richardson",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124P-02HKZ",
+    "workoutGroup": "RVCM",
+    "emails": "KevinRichardson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sarah",
+    "lastName": "Rinsma",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124N-09HMS",
+    "emails": "SarahRinsma@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Robert",
+    "lastName": "Riordan",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124K-02HTR",
+    "emails": "RobertRiordan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Troy",
+    "lastName": "Robb",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1242-AETB2",
+    "workoutGroup": "SRVA",
+    "emails": "TroyRobb@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Emily",
+    "lastName": "Robbins",
+    "gender": "F",
+    "club": "NERD",
+    "usmsRegNo": "124A-05FX4",
+    "emails": "EmilyRobbins@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Cordelia",
+    "lastName": "Robinette",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124Y-06JEM",
+    "emails": "CordeliaRobinette@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "John",
+    "lastName": "Rockwell",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1247-0AAG0",
+    "emails": "JohnRockwell@email.org, JohnRockwell@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mylinda",
+    "lastName": "Rodenbeck",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1244-HPVU2",
+    "emails": "MylindaRodenbeck@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sharon",
+    "lastName": "Rodier",
+    "gender": "F",
+    "club": "TIDE",
+    "usmsRegNo": "1244-MJM4X",
+    "emails": "SharonRodier@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jason",
+    "lastName": "Rodriguez",
+    "gender": "M",
+    "club": "TIDE",
+    "usmsRegNo": "124V-09K2Z",
+    "emails": "JasonRodriguez@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Phyllis",
+    "lastName": "Rogers",
+    "gender": "F",
+    "club": "FAFC",
+    "usmsRegNo": "1249-31HS7",
+    "emails": "PhyllisRogers@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Vince",
+    "lastName": "Romano",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1246-02K1F",
+    "emails": "VinceRomano@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Abigail",
+    "lastName": "Romanowski",
+    "gender": "F",
+    "club": "FAFC",
+    "usmsRegNo": "124P-06E3P",
+    "emails": "AbigailRomanowski@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Eric",
+    "lastName": "Ronda",
+    "gender": "M",
+    "club": "CRIMZ",
+    "usmsRegNo": "124F-4Z5KG",
+    "emails": "EricRonda@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Scott",
+    "lastName": "Rose",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124A-02HX0",
+    "workoutGroup": "RVCM",
+    "emails": "ScottRose@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Madeline",
+    "lastName": "Rospierski",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124R-P75NB",
+    "workoutGroup": "RVCM",
+    "emails": "MadelineRospierski@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Rhett",
+    "lastName": "Ross",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124J-96SW1",
+    "emails": "RhettRoss@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mark",
+    "lastName": "Ross",
+    "gender": "M",
+    "club": "FAFC",
+    "usmsRegNo": "1247-ZSAT8",
+    "emails": "MarkRoss@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Emily",
+    "lastName": "Rotert",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "1240-SKUUR",
+    "emails": "EmilyRotert@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Reilly",
+    "lastName": "Rourke",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1249-X7WX0",
+    "emails": "ReillyRourke@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Esther",
+    "lastName": "Rubin",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124G-8YYW4",
+    "emails": "EstherRubin@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jonathan",
+    "lastName": "Ruckdeschel",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124F-087TG",
+    "emails": "JonathanRuckdeschel@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Andrew",
+    "lastName": "Rudin",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1243-0366F",
+    "emails": "AndrewRudin@email.org, AndrewRudin@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Agatha",
+    "lastName": "Rule",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124N-FF0JX",
+    "emails": "AgathaRule@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Justin",
+    "lastName": "Rummel",
+    "gender": "M",
+    "club": "FAFC",
+    "usmsRegNo": "1247-09BJ0",
+    "emails": "JustinRummel@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Mark",
+    "lastName": "Rush",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124W-02K7A",
+    "emails": "MarkRush@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Carl",
+    "lastName": "Russ",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124H-02J21",
+    "emails": "CarlRuss@email.org, CarlRuss@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Elizabeth",
+    "lastName": "Ryan",
+    "gender": "F",
+    "club": "KCM",
+    "usmsRegNo": "124G-095AZ",
+    "emails": "ElizabethRyan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ashley",
+    "lastName": "Ryan",
+    "gender": "F",
+    "club": "TIDE",
+    "usmsRegNo": "124S-7XKS1",
+    "emails": "AshleyRyan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Michael",
+    "lastName": "Ryan",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124G-REP9C",
+    "emails": "MichaelRyan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Grisel",
+    "lastName": "Saez",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124G-089YC",
+    "emails": "GriselSaez@email.org, GriselSaez@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mitch",
+    "lastName": "Saks",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124E-02K4A",
+    "emails": "MitchSaks@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Roseann",
+    "lastName": "Salasin",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124E-CAPS9",
+    "workoutGroup": "RVCM",
+    "emails": "RoseannSalasin@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Estebe",
+    "lastName": "Salgado",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1242-039WH",
+    "emails": "EstebeSalgado@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sydney",
+    "lastName": "Salters",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "1247-RVEC1",
+    "emails": "SydneySalters@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Christine",
+    "lastName": "Sanchez",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1249-074EJ",
+    "emails": "ChristineSanchez@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Tyler",
+    "lastName": "Sande",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "124K-Y1KT7",
+    "emails": "TylerSande@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Chris",
+    "lastName": "Satterthwaite",
+    "gender": "M",
+    "club": "CRIMZ",
+    "usmsRegNo": "124E-PG410",
+    "emails": "ChrisSatterthwaite@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Adam",
+    "lastName": "Schapiro",
+    "gender": "M",
+    "club": "RRY",
+    "usmsRegNo": "124G-060J9",
+    "emails": "AdamSchapiro@email.org, AdamSchapiro@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Christopher",
+    "lastName": "Scharver",
+    "gender": "M",
+    "club": "TIDE",
+    "usmsRegNo": "124V-001F1",
+    "emails": "ChristopherScharver@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Chris",
+    "lastName": "Schneider",
+    "gender": "M",
+    "club": "NERD",
+    "usmsRegNo": "124V-0B0KK",
+    "emails": "ChrisSchneider@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Timothy",
+    "lastName": "Schnelle",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1244-06NFY",
+    "emails": "TimothySchnelle@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Beth",
+    "lastName": "Schreiner",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1244-0367J",
+    "emails": "BethSchreiner@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Amy",
+    "lastName": "Schwab",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1249-KNU96",
+    "emails": "AmySchwab@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Dane",
+    "lastName": "Schwartz",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124X-0AR06",
+    "workoutGroup": "N*VA",
+    "emails": "DaneSchwartz@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Paula",
+    "lastName": "Scott",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124T-05R17",
+    "emails": "PaulaScott@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "KC",
+    "lastName": "Sehlhorst",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124N-02HR3",
+    "workoutGroup": "RVCM",
+    "emails": "KCSehlhorst@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Leon",
+    "lastName": "Semper",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124D-09UFM",
+    "emails": "LeonSemper@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Elizabeth",
+    "lastName": "Serre",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124W-037S8",
+    "emails": "ElizabethSerre@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Julian",
+    "lastName": "Setian",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124C-0768F",
+    "emails": "JulianSetian@email.org, JulianSetian@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Stephanie",
+    "lastName": "Shand",
+    "gender": "F",
+    "club": "FAFF",
+    "usmsRegNo": "1249-GSRUE",
+    "emails": "StephanieShand@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Dennis",
+    "lastName": "Shannon",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "124K-U6BFE",
+    "emails": "DennisShannon@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Micaela",
+    "lastName": "Shaughnessy",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1246-0384E",
+    "emails": "MicaelaShaughnessy@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mark",
+    "lastName": "Shea",
+    "gender": "M",
+    "club": "NERD",
+    "usmsRegNo": "124D-02HRE",
+    "emails": "MarkShea@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Andrew",
+    "lastName": "Sheaff",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124R-R9N9H",
+    "emails": "AndrewSheaff@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Megan",
+    "lastName": "Shepard",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1243-090VG",
+    "emails": "MeganShepard@email.org, MeganShepard@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Joshua",
+    "lastName": "Shepherd",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124A-09YHH",
+    "emails": "JoshuaShepherd@email.org, JoshuaShepherd@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mark",
+    "lastName": "Sheridan",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124Z-02HJM",
+    "emails": "MarkSheridan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Emily",
+    "lastName": "Sherrill",
+    "gender": "F",
+    "club": "WCMS",
+    "usmsRegNo": "1245-09X0V",
+    "emails": "EmilySherrill@email.org, EmilySherrill@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Alicia",
+    "lastName": "Shifflett",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124J-R42GA",
+    "emails": "AliciaShifflett@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Charlotte",
+    "lastName": "Shirey",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124R-0AUA3",
+    "workoutGroup": "N*VA",
+    "emails": "CharlotteShirey@email.org, CharlotteShirey@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lisa",
+    "lastName": "Shivers",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124D-0APHV",
+    "workoutGroup": "NNYS",
+    "emails": "LisaShivers@email.org, LisaShivers@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Craig",
+    "lastName": "Silverthorne",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124F-0E26T",
+    "emails": "CraigSilverthorne@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Michael",
+    "lastName": "Skinner",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124H-VG1MT",
+    "emails": "MichaelSkinner@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Douglas",
+    "lastName": "Slater",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124X-024AC",
+    "emails": "DouglasSlater@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Christopher",
+    "lastName": "Smedley",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124G-V30AM",
+    "emails": "ChristopherSmedley@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Michelle",
+    "lastName": "Smith",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124G-06U3G",
+    "emails": "MichelleSmith@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Michael",
+    "lastName": "Smith",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1244-GV7BE",
+    "emails": "MichaelSmith@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Imelda",
+    "lastName": "Smyth",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1247-066PP",
+    "emails": "ImeldaSmyth@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Shawn",
+    "lastName": "Snead",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124T-061MH",
+    "workoutGroup": "RVCM",
+    "emails": "ShawnSnead@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Steve",
+    "lastName": "Snyder",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124T-HWZCH",
+    "emails": "SteveSnyder@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Harry",
+    "lastName": "Sober",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1240-02HNE",
+    "emails": "HarrySober@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lauren",
+    "lastName": "Soleo",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124Y-V9V1U",
+    "emails": "LaurenSoleo@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jason",
+    "lastName": "Somensatto",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1246-038Y8",
+    "emails": "JasonSomensatto@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Suzanne",
+    "lastName": "Souders",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124F-EVN89",
+    "workoutGroup": "NNYS",
+    "emails": "SuzanneSouders@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Alison",
+    "lastName": "Sowers",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124Y-4Y33A",
+    "workoutGroup": "NNYS",
+    "emails": "AlisonSowers@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Nancy",
+    "lastName": "Speer",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124S-05XR8",
+    "emails": "NancySpeer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "Speer",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124A-XX454",
+    "emails": "DavidSpeer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jane",
+    "lastName": "Springer",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124M-51R58",
+    "emails": "JaneSpringer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "John",
+    "lastName": "Stacy",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124N-0337H",
+    "emails": "JohnStacy@email.org, JohnStacy@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Cody",
+    "lastName": "Stadler",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1249-0B96W",
+    "emails": "CodyStadler@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Erica",
+    "lastName": "Stanley",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124S-1H83M",
+    "workoutGroup": "N*VA",
+    "emails": "EricaStanley@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Susan",
+    "lastName": "Starnes",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "1243-0AVHW",
+    "emails": "SusanStarnes@email.org, SusanStarnes@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Richard",
+    "lastName": "Stauffer",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124R-06XAD",
+    "emails": "RichardStauffer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Tomomi",
+    "lastName": "Steincamp",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124S-PPNG5",
+    "workoutGroup": "RVCM",
+    "emails": "TomomiSteincamp@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Arlien",
+    "lastName": "Steiner",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1248-02JFG",
+    "emails": "ArlienSteiner@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "Stekert",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1248-07TCC",
+    "emails": "DavidStekert@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ann",
+    "lastName": "Steketee",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124R-02HPG",
+    "emails": "AnnSteketee@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Chris",
+    "lastName": "Stevenson",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124H-02J1G",
+    "emails": "ChrisStevenson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Heather",
+    "lastName": "Stevenson",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124G-02J1H",
+    "emails": "HeatherStevenson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Joey",
+    "lastName": "Stickle",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124U-02JCK",
+    "emails": "JoeyStickle@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Susanna",
+    "lastName": "Stickle",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124E-06ES5",
+    "emails": "SusannaStickle@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Richard",
+    "lastName": "Stone",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124V-02HYK",
+    "emails": "RichardStone@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Bryan",
+    "lastName": "Stone",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124W-02J0N",
+    "emails": "BryanStone@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jonathan",
+    "lastName": "Stone",
+    "gender": "M",
+    "club": "FAFC",
+    "usmsRegNo": "124M-039V2",
+    "emails": "JonathanStone@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jessica",
+    "lastName": "Straessle",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124A-02JUW",
+    "emails": "JessicaStraessle@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lori",
+    "lastName": "Strobl",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1240-082CU",
+    "workoutGroup": "RVCM",
+    "emails": "LoriStrobl@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mark",
+    "lastName": "Sullivan",
+    "gender": "M",
+    "club": "CGMS",
+    "usmsRegNo": "1245-3FU9V",
+    "emails": "MarkSullivan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Donna",
+    "lastName": "Sumption",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1245-06EXK",
+    "emails": "DonnaSumption@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Blake",
+    "lastName": "Sundel",
+    "gender": "M",
+    "club": "CRIMZ",
+    "usmsRegNo": "124Y-NA59D",
+    "emails": "BlakeSundel@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "George",
+    "lastName": "Sushkoff",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1246-02J6P",
+    "workoutGroup": "RVCM",
+    "emails": "GeorgeSushkoff@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Stuart",
+    "lastName": "Sutton",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124D-ZRZBV",
+    "emails": "StuartSutton@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jayme",
+    "lastName": "Swain",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124N-038JU",
+    "workoutGroup": "RVCM",
+    "emails": "JaymeSwain@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Clifford",
+    "lastName": "Sweatte",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124U-7B5RY",
+    "emails": "CliffordSweatte@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ralph",
+    "lastName": "Swiger",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124K-02HW9",
+    "emails": "RalphSwiger@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Daniel",
+    "lastName": "Szajta",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124P-091J3",
+    "emails": "DanielSzajta@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Jason",
+    "lastName": "Szobota",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1247-KBBCA",
+    "workoutGroup": "N*VA",
+    "emails": "JasonSzobota@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "VANCE",
+    "lastName": "TROWBRIDGE",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124N-FWWU7",
+    "workoutGroup": "N*VA",
+    "emails": "VANCETROWBRIDGE@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lindsey",
+    "lastName": "Taber",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124W-P2KHF",
+    "emails": "LindseyTaber@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ross",
+    "lastName": "Taggart",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124X-HPKE5",
+    "emails": "RossTaggart@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mary",
+    "lastName": "Tallent",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124X-02J5T",
+    "emails": "MaryTallent@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Amy",
+    "lastName": "Talmadge",
+    "gender": "F",
+    "club": "YSRGE",
+    "usmsRegNo": "124K-HF5PC",
+    "emails": "AmyTalmadge@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Robert",
+    "lastName": "Tamaro",
+    "gender": "M",
+    "club": "AFMS",
+    "usmsRegNo": "124U-02K7X",
+    "emails": "RobertTamaro@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "Tambellini",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124U-09YVC",
+    "workoutGroup": "N*VA",
+    "emails": "DavidTambellini@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Eleis",
+    "lastName": "Te Paske",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124U-06R9Z",
+    "emails": "EleisTe Paske@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Patricia",
+    "lastName": "Thackston",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124C-09RND",
+    "emails": "PatriciaThackston@email.org, PatriciaThackston@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Matt",
+    "lastName": "Thatcher",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124G-073BE",
+    "emails": "MattThatcher@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Joel",
+    "lastName": "Thomas",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124Z-0AUHK",
+    "emails": "JoelThomas@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Hilliary",
+    "lastName": "Thompson",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124W-02BT3",
+    "emails": "HilliaryThompson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "William",
+    "lastName": "Throne",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1247-01U6F",
+    "emails": "WilliamThrone@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Douglas",
+    "lastName": "Tice III",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124T-G3DUV",
+    "emails": "DouglasTice III@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Scott",
+    "lastName": "Ticknor",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1244-PBY8C",
+    "emails": "ScottTicknor@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Heather",
+    "lastName": "Tieszen",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1244-CZ6TM",
+    "emails": "HeatherTieszen@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Michael",
+    "lastName": "Tingstrom",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124H-JU0ND",
+    "emails": "MichaelTingstrom@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Katherine",
+    "lastName": "Tobin",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "1248-07ZKW",
+    "emails": "KatherineTobin@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jack",
+    "lastName": "Tolar",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124U-8XWKM",
+    "emails": "JackTolar@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sharon",
+    "lastName": "Toler",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1244-W4T8S",
+    "emails": "SharonToler@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Heather",
+    "lastName": "Tomaszek",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1242-ARDF9",
+    "emails": "HeatherTomaszek@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Penny",
+    "lastName": "Torian",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124E-0B4U8",
+    "emails": "PennyTorian@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Nathan",
+    "lastName": "Tschohl",
+    "gender": "M",
+    "club": "NERD",
+    "usmsRegNo": "124H-080MU",
+    "emails": "NathanTschohl@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Daniel",
+    "lastName": "Turner",
+    "gender": "M",
+    "club": "LACG",
+    "usmsRegNo": "124D-M02KP",
+    "emails": "DanielTurner@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sallie",
+    "lastName": "Turner",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1242-T4ZND",
+    "workoutGroup": "N*VA",
+    "emails": "SallieTurner@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kathy",
+    "lastName": "Umbdenstock",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "1240-UEJR3",
+    "emails": "KathyUmbdenstock@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Becky",
+    "lastName": "Upton",
+    "gender": "F",
+    "club": "NERD",
+    "usmsRegNo": "1245-94YYA",
+    "emails": "BeckyUpton@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Stacey",
+    "lastName": "Upton-Bracey",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124J-07HUZ",
+    "emails": "StaceyUpton-Bracey@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jeffery",
+    "lastName": "Valenzia",
+    "gender": "M",
+    "club": "FAFC",
+    "usmsRegNo": "1245-045XU",
+    "emails": "JefferyValenzia@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Val",
+    "lastName": "Van Horn Pate",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124C-02HHP",
+    "workoutGroup": "N*VA",
+    "emails": "ValVan Horn Pate@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Hernan",
+    "lastName": "Vargas",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124T-03DP2",
+    "emails": "HernanVargas@email.org, HernanVargas@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mason",
+    "lastName": "Vaughan",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124M-0ARYX",
+    "workoutGroup": "RVCM",
+    "emails": "MasonVaughan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Max",
+    "lastName": "Vaughan",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124F-W8UXU",
+    "workoutGroup": "SRVA",
+    "emails": "MaxVaughan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "Vaughn",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124F-00338",
+    "emails": "DavidVaughn@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sheri",
+    "lastName": "Vaughn",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124N-02J1C",
+    "emails": "SheriVaughn@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Irina",
+    "lastName": "Verlinden",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1240-MT372",
+    "workoutGroup": "N*VA",
+    "emails": "IrinaVerlinden@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "John Dominic",
+    "lastName": "Villanueva",
+    "gender": "M",
+    "club": "RRY",
+    "usmsRegNo": "124F-BN9BM",
+    "emails": "John DominicVillanueva@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "John",
+    "lastName": "Vivadelli",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1248-0ATSA",
+    "workoutGroup": "RVCM",
+    "emails": "JohnVivadelli@email.org, JohnVivadelli@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Bogdan",
+    "lastName": "Vladu",
+    "gender": "M",
+    "club": "VABR",
+    "usmsRegNo": "124R-09N6M",
+    "emails": "BogdanVladu@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Tina",
+    "lastName": "Vogel",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124W-T5VEP",
+    "emails": "TinaVogel@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Catherine",
+    "lastName": "Vrentas",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1244-0AX3Y",
+    "emails": "CatherineVrentas@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Angela",
+    "lastName": "Vu",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124G-KT34U",
+    "emails": "AngelaVu@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Pamela",
+    "lastName": "Waitkus",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124S-0B398",
+    "workoutGroup": "SRVA",
+    "emails": "PamelaWaitkus@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Laura",
+    "lastName": "Wake-Ramos",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "1240-VBAH1",
+    "emails": "LauraWake-Ramos@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Kay",
+    "lastName": "Wakeman",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "1249-074ZM",
+    "emails": "KayWakeman@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Tim",
+    "lastName": "Walkawicz",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124U-AFM93",
+    "emails": "TimWalkawicz@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Adam",
+    "lastName": "Walker",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1247-09AAA",
+    "emails": "AdamWalker@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Laura",
+    "lastName": "Walker",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1247-02HK3",
+    "emails": "LauraWalker@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sharon",
+    "lastName": "Walker",
+    "gender": "F",
+    "club": "BAM1",
+    "usmsRegNo": "1243-1GER4",
+    "emails": "SharonWalker@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Michael",
+    "lastName": "Wallin",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124V-51Z38",
+    "workoutGroup": "N*VA",
+    "emails": "MichaelWallin@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Stella",
+    "lastName": "Wallin",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124T-SKNJ1",
+    "emails": "StellaWallin@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Mindy",
+    "lastName": "Ward",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124X-HFG4P",
+    "workoutGroup": "N*VA",
+    "emails": "MindyWard@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "William",
+    "lastName": "Wardle",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "1241-3REYY",
+    "emails": "WilliamWardle@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Matthew",
+    "lastName": "Warnock",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124X-5N41J",
+    "emails": "MatthewWarnock@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Barbara",
+    "lastName": "Warren",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "124S-02K7Z",
+    "emails": "BarbaraWarren@email.org, BarbaraWarren@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Charlene",
+    "lastName": "Watkins",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "1240-09YFM",
+    "emails": "CharleneWatkins@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Lucas",
+    "lastName": "Watling",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124C-D2H8J",
+    "emails": "LucasWatling@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Brooke",
+    "lastName": "Wehrenberg",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124A-NXNC3",
+    "emails": "BrookeWehrenberg@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Laurie",
+    "lastName": "Wei",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "1248-0AACD",
+    "emails": "LaurieWei@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Maya",
+    "lastName": "Wei-Haas",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124F-57E0C",
+    "emails": "MayaWei-Haas@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Amy",
+    "lastName": "Weinheimer",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "1245-A5RAE",
+    "emails": "AmyWeinheimer@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Patrisha",
+    "lastName": "Wells",
+    "gender": "F",
+    "club": "FAFC",
+    "usmsRegNo": "1245-2W448",
+    "emails": "PatrishaWells@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jessica",
+    "lastName": "Weltha-Bales",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124J-WRH3B",
+    "emails": "JessicaWeltha-Bales@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jason",
+    "lastName": "West",
+    "gender": "M",
+    "club": "FAFC",
+    "usmsRegNo": "1248-H2DPD",
+    "emails": "JasonWest@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sam",
+    "lastName": "Westmont",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124M-2W687",
+    "emails": "SamWestmont@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jim",
+    "lastName": "Wetzel",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124C-05EZC",
+    "emails": "JimWetzel@email.org, JimWetzel@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Elizabeth",
+    "lastName": "Wetzler",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "1248-WGDR1",
+    "emails": "ElizabethWetzler@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Richard",
+    "lastName": "Wewerka",
+    "gender": "M",
+    "club": "FAFC",
+    "usmsRegNo": "124Z-XU51B",
+    "emails": "RichardWewerka@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "Wheeler",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124S-JWRT5",
+    "emails": "DavidWheeler@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "William",
+    "lastName": "White",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1249-05Y4X",
+    "emails": "WilliamWhite@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sian",
+    "lastName": "White",
+    "gender": "F",
+    "club": "HRBM",
+    "usmsRegNo": "124B-7V3XJ",
+    "emails": "SianWhite@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Roger",
+    "lastName": "Whiteway",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1240-09XDK",
+    "emails": "RogerWhiteway@email.org, RogerWhiteway@email.com",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Susanne",
+    "lastName": "Wienrich",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124P-02C0H",
+    "emails": "SusanneWienrich@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Shannon",
+    "lastName": "Wigent",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124F-06VDH",
+    "emails": "ShannonWigent@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Fall",
+    "lastName": "Willeboordse",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124A-02XG8",
+    "emails": "FallWilleboordse@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Rich",
+    "lastName": "Williams",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1242-094GG",
+    "emails": "RichWilliams@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Diana",
+    "lastName": "Williams",
+    "gender": "F",
+    "club": "CM-Y",
+    "usmsRegNo": "124U-76P02",
+    "emails": "DianaWilliams@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Austin",
+    "lastName": "Williamson",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1241-TZ693",
+    "workoutGroup": "RVCM",
+    "emails": "AustinWilliamson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Judy",
+    "lastName": "Wilson",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124A-02JN7",
+    "emails": "JudyWilson@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Travis",
+    "lastName": "Winfrey",
+    "gender": "M",
+    "club": "RRY",
+    "usmsRegNo": "1241-0B6UT",
+    "emails": "TravisWinfrey@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "LaDale",
+    "lastName": "Winling",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "1246-7R8J8",
+    "emails": "LaDaleWinling@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Bill",
+    "lastName": "Winters",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124J-02UDM",
+    "workoutGroup": "SRVA",
+    "emails": "BillWinters@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Melissa",
+    "lastName": "Wirt",
+    "gender": "F",
+    "club": "PSDN",
+    "usmsRegNo": "124P-BMEG5",
+    "emails": "MelissaWirt@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sum",
+    "lastName": "Wong",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124F-EVWU2",
+    "emails": "SumWong@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Jonathan",
+    "lastName": "Wood",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1246-036CS",
+    "emails": "JonathanWood@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Jeff",
+    "lastName": "Woodall",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124Z-037DU",
+    "emails": "JeffWoodall@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Scott",
+    "lastName": "Worsham",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124W-0AWAE",
+    "emails": "ScottWorsham@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sydney",
+    "lastName": "Wray",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124C-36B4H",
+    "emails": "SydneyWray@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Ken",
+    "lastName": "Wright",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "1241-06UNA",
+    "emails": "KenWright@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Timothy Dorje",
+    "lastName": "Wu",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "124Z-TV9BP",
+    "emails": "Timothy DorjeWu@email.org",
+    "emailExclude": true
+  },
+  {
+    "firstName": "Mary Catherine",
+    "lastName": "Yeakel",
+    "gender": "F",
+    "club": "VABR",
+    "usmsRegNo": "1243-07C1R",
+    "emails": "Mary CatherineYeakel@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Henry",
+    "lastName": "Yuan",
+    "gender": "M",
+    "club": "UC12",
+    "usmsRegNo": "124Y-078KP",
+    "emails": "HenryYuan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "David",
+    "lastName": "Zemo",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124M-A42TG",
+    "emails": "DavidZemo@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Marko",
+    "lastName": "Zerunyan",
+    "gender": "M",
+    "club": 1693,
+    "usmsRegNo": "1242-5RWBX",
+    "emails": "MarkoZerunyan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Sydney",
+    "lastName": "Zhu",
+    "gender": "F",
+    "club": 1693,
+    "usmsRegNo": "124C-NPC3Y",
+    "emails": "SydneyZhu@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "janet",
+    "lastName": "blair-fleetwood",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124J-14CUF",
+    "emails": "janetblair-fleetwood@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "james",
+    "lastName": "kuhn",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124K-X0UX6",
+    "emails": "jameskuhn@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "mike",
+    "lastName": "miller",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "1246-GZM8M",
+    "workoutGroup": "NNYS",
+    "emails": "mikemiller@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "mark",
+    "lastName": "mizuba",
+    "gender": "M",
+    "club": "VABR",
+    "usmsRegNo": "1241-F25GU",
+    "emails": "markmizuba@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "maureen",
+    "lastName": "oneill",
+    "gender": "F",
+    "club": "UC12",
+    "usmsRegNo": "124Z-YT6EP",
+    "emails": "maureenoneill@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "pat",
+    "lastName": "ryan",
+    "gender": "M",
+    "club": "VMST",
+    "usmsRegNo": "124E-8HJS7",
+    "workoutGroup": "N*VA",
+    "emails": "patryan@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "bei",
+    "lastName": "zhang",
+    "gender": "F",
+    "club": "VMST",
+    "usmsRegNo": "1243-0AMPU",
+    "emails": "beizhang@email.org",
+    "emailExclude": false
+  },
+  {
+    "firstName": "Howard",
+    "lastName": "zlotnick",
+    "gender": "M",
+    "club": "CM-Y",
+    "usmsRegNo": "124Y-FS71R",
+    "emails": "Howardzlotnick@email.org",
+    "emailExclude": false
+  }
+]
