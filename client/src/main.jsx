@@ -3,7 +3,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import App from './App.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
-import EmailPage2 from './pages/EmailPage2.jsx';
+import EmailPage2 from './pages/EmailPage.jsx';
 import EmailPage from './pages/EmailPage.jsx'
 
 const router = createBrowserRouter([
@@ -15,10 +15,6 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <EmailPage />
-      },
-      {
-        path: '/2',
-        element: <EmailPage2 />
       }
     ]
   },
