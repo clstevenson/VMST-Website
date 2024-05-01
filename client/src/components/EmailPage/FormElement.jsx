@@ -116,8 +116,6 @@ export default function EmailForm({
                 <p>All Clear</p>
             }
 
-            
-
             <br />
             <button className="" type="submit" disabled={errorCheck(error)}>Submit</button>
         </form>
