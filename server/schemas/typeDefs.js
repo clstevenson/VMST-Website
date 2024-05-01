@@ -55,7 +55,7 @@ type Competitor {
 type Comment {
   _id: ID!
   content: String!
-  userId: ID!
+  user: User
   createdAt: String
 }
 
@@ -98,6 +98,7 @@ type Query {
   members: [Member]
   users: [User]
   posts: [Post]
+  onePost(id: String!): Post
   competitors: [Competitor]
   groups: [String]
   vmstMembers(workoutGroup: String): [Member]
@@ -107,6 +108,7 @@ type Mutation {
   login(email: String!, password: String!): Auth
   addUser(firstName: String!, lastName: String!, email: String!, password: String!): Auth
   editUser(user: UserData): User
+  addPost(title: String!, summary: String, content: String!): Post
 }
 `;
 

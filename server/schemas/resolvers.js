@@ -8,8 +8,10 @@ const resolvers = {
     // get all website users
     users: async () => await User.find(),
     // get all posts
+    // can't populate users directly, need to populate comments that are nested
     posts: async () => await Post.find(),
-    // posts: async () => await Post.find().populate('user'),
+    // get a single post with all comments
+    onePost: async (_, { id }) => await Post.findById(id).populate('comments.user'),
     // get all competitors
     competitors: async () => await Competitor.find(),
     // get list of unique workout groups
@@ -67,6 +69,12 @@ const resolvers = {
         console.log(err);
       }
     },
+    // add a new post
+    addPost: async (_, args, { user }) => {
+      // only team leaders can create posts
+      if (user.role !== 'leader') throw new Error('Unauthorized');
+      return await Post.create(args);
+    }
   }
 };
 

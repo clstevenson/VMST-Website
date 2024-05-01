@@ -12,15 +12,9 @@ const { Schema, model } = require('mongoose');
 
 const commentSchema = new Schema(
   {
-    content: {
-      type: String,
-      required: true,
-    },
+    content: {type: String, required: true,},
     // user who made the comment
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: 'user',
-    },
+    user: {type: Schema.Types.ObjectId, ref: 'user',},
     createdAt: {
       type: Date,
       default: () => new Date(),
@@ -34,17 +28,10 @@ const commentSchema = new Schema(
 
 const postSchema = new Schema(
   {
-    title: {
-      type: String,
-      required: true,
-    },
-    summary: { // meant to be a teaser displayed on home page
-      type: String,
-    },
-    content: {
-      type: String,
-      required: true,
-    },
+    title: {type: String, required: true,},
+    // summar is meant to be a teaser for display on front page
+    summary: String,
+    content: {type: String, required: true,},
     createdAt: {
       type: Date,
       default: () => new Date(),
