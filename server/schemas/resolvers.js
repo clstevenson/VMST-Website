@@ -69,6 +69,12 @@ const resolvers = {
         console.log(err);
       }
     },
+    // add a new post
+    addPost: async (_, args, { user }) => {
+      // only team leaders can create posts
+      if (user.role !== 'leader') throw new Error('Unauthorized');
+      return await Post.create(args);
+    }
   }
 };
 

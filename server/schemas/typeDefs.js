@@ -108,6 +108,7 @@ type Mutation {
   login(email: String!, password: String!): Auth
   addUser(firstName: String!, lastName: String!, email: String!, password: String!): Auth
   editUser(user: UserData): User
+  addPost(title: String!, summary: String, content: String!): Post
 }
 `;
 
