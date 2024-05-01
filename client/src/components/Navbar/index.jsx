@@ -2,7 +2,7 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import "./index.css";
 import Navbar from 'react-bootstrap/Navbar';
-import vmstLogo from '../../assets/VMST-logo.gif';
+import vmstLogo from '../../assets/VMST_logo.png';
 import Button from 'react-bootstrap/Button';
 import SignUp from '../SignUp';
 import Login from '../Login';
@@ -19,11 +19,10 @@ function Navigation() {
 
   return (
     <Navbar id="navColor" collapseOnSelect expand="lg">
-    <Container>
+    
       <Navbar.Brand href="/"><img id="navLogo" src={ vmstLogo }/></Navbar.Brand>
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />
       <Navbar.Collapse id="responsive-navbar-nav">
-        <Nav className="mx-auto">
         {Auth.loggedIn() ? (
             <>
              <Button href="/me" id="accountButton">Account</Button>{' '}
@@ -50,12 +49,10 @@ function Navigation() {
             </>
           )}
         </div>
-        </Nav>
       </Navbar.Collapse>
-    </Container>
+    
   </Navbar>
   );
 }
 
 export default Navigation;
-
