@@ -1,8 +1,12 @@
 const connection = require('../config/connection');
+require('dotenv').config();
 const { Member, User, Competitor, Post } = require('../models');
 // Membership Data as of 04/28/24 (with emails replaced)
 
 connection.on('error', (err) => err);
+
+// hide the membership coordinator's initial password to DB
+const password = process.env.MEMERSHIP_PWD;
 
 /**
  * Function to seed the USMS members collection with VA LMSC members
@@ -94,7 +98,7 @@ const seedUsers = async (members) => {
   userData.push({
     firstName: 'Christopher',
     lastName: 'Stevenson',
-    password: 'password',
+    password: password,
     email: 'VAMembership@usms.org',
     role: 'membership'
   });

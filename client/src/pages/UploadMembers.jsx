@@ -87,6 +87,7 @@ export default function UploadMembers() {
         </p>
       </form>
 
+      {/* when message is not an empty string, it is displayed */}
       {message && <p> {message} </p>}
 
       <h3>Instructions For Upload (roll-ups?)</h3>
