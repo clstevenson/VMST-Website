@@ -1,6 +1,5 @@
 const { Competitor, Member, Photo, Post, User } = require('../models');
 const { signToken, AuthenticationError } = require('../utils/auth');
-const importCsvFile = require('../utils/importCsvFile');
 const connection = require('../config/connection');
 
 const resolvers = {
@@ -77,32 +76,13 @@ const resolvers = {
       if (user.role !== 'leader') throw new Error('Unauthorized');
       return await Post.create(args);
     },
-    uploadMembers: async (_, { file }, { user }) => {
-      // input is the file path
+    uploadMembers: async (_, { memberData }, { user }) => {
 
+      // input is the file path to the CSV file containing the membership data
       // only the Membership Coordinator is allowed to update the Member collection
       if (user.role !== 'membership') throw new Error('Unauthorized');
 
-      // use importCsvFile to return the data
-      const allMemberData = await importCsvFile(file);
 
-      // extract the parts that we need
-      // note that USMS seems to make the last line of the CSV blank, need to protect against that
-      const memberData = allMemberData.map(member => {
-        const obj = {};
-        obj.usmsRegNo = member['USMS Number'] || '';
-        obj.firstName = member['First Name'] || '';
-        obj.lastName = member['Last Name'] || '';
-        obj.gender = member.Gender || '';
-        obj.club = member.Club || '';
-        obj.workoutGroup = member['WO Group'];
-        obj.regYear = member['Reg. Year'] || 0;
-        obj.emails = [];
-        if (member['(P) Email Address']) obj.emails.push(member['(P) Email Address']);
-        if (member['(S) Email Address']) obj.emails.push(member['(S) Email Address']);
-        obj.emailExclude = member['Exclude LMSC Group Email'] === 'Y';
-        return obj;
-      });
 
       // update the Members collection in the DB
       // first delete the members collection if it exists
@@ -111,9 +91,7 @@ const resolvers = {
         await connection.dropCollection('members');
       }
 
-      // if the USMS registration number is blank consider that record invalid
-      // (it is usuall due to a blank line at the end of the CSV)
-      return await Member.insertMany(memberData.filter(member => member.usmsRegNo !== ''));
+      return await Member.insertMany(memberData);
     }
   }
 };
