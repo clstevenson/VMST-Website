@@ -1,0 +1,32 @@
+#navColor {
+    background-color: rgba(122,193,68,255);
+    padding-left: 2%;
+    padding-right: 2%;
+}
+
+#accountButton {
+    background-color: #6f489d;
+}
+
+#signUp {
+    background-color: black;
+}
+
+#navLogo {
+    width: 100px;
+}
+
+.nav-link {
+    color: white;
+    
+}
+
+.navbar-brand {
+    color: white;
+}
+
+.navbar-collapse {
+    justify-content:end;
+    gap: 4%;
+    width: 40%;
+}

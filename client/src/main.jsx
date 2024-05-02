@@ -1,10 +1,12 @@
-import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import ReactDOM from 'react-dom/client'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
-import App from './App.jsx';
-import ErrorPage from './pages/ErrorPage.jsx';
-import EmailPage2 from './pages/EmailPage.jsx';
-import EmailPage from './pages/EmailPage.jsx'
+import App from './App.jsx'
+import Home from './pages/Home'
+import ErrorPage from './pages/ErrorPage'
+import AboutUs from './pages/AboutUs.jsx'
+import Account from './pages/Account'
+import Contact from './pages/Contact'
 
 const router = createBrowserRouter([
   {
@@ -14,8 +16,17 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <EmailPage />
-      }
+        element: <Home />
+      }, {
+        path: '/about-us',
+        element: <AboutUs />
+      }, {
+        path: '/contact',
+        element: <Contact />
+      }, {
+        path: '/me',
+        element: <Account />
+      }, 
     ]
   },
 ]);
