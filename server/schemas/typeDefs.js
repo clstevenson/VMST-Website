@@ -106,6 +106,15 @@ input MemberData {
   emailExclude: Boolean
 }
 
+input emailData {
+  from: String
+  replyTo: String
+  id: [ID]!
+  subject: String!
+  plainText: String
+  html: String
+}
+
 type Query {
   members: [Member]
   users: [User]
@@ -114,6 +123,7 @@ type Query {
   competitors: [Competitor]
   groups: [String]
   vmstMembers(workoutGroup: String): [Member]
+  getLeaders: [User]
 }
 
 type Mutation {
@@ -122,6 +132,7 @@ type Mutation {
   editUser(user: UserData): User
   addPost(title: String!, summary: String, content: String!): Post
   uploadMembers(memberData: [MemberData]): [Member]
+  emailLeaders(emailData: emailData): Boolean
 }
 `;
 

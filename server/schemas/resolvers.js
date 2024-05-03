@@ -31,7 +31,8 @@ const resolvers = {
       } catch (err) {
         console.log(err);
       }
-    }
+    },
+    getLeaders: async () => await User.find({ role: 'leader' }),
   },
   Mutation: {
     // login with email and password which returns signed JWT
@@ -92,7 +93,26 @@ const resolvers = {
       }
 
       return await Member.insertMany(memberData);
-    }
+    },
+    emailLeaders: async (_, { emailData }) => {
+      try {
+        // retrieve the emails of the leaders from the DB
+        const leaders = await User.find({ _id: { $in: emailData.id } }).select('email');
+        // returned an array of objects with property "email" (one array item per leader in input)
+        const mailArgs = { ...emailData };
+        delete mailArgs.id;
+        mailArgs.emails = leaders.map(leader => leader.email);
+        console.log(mailArgs);
+
+        // call mail() with mailArgs
+
+
+        // returning "true" to client means emails successfully sent
+        return true;
+      } catch (err) {
+        console.log(err);
+      }
+    },
   }
 };
 
