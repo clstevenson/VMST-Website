@@ -94,6 +94,18 @@ input UserData {
   emailPermission: Boolean
 }
 
+input MemberData {
+  usmsRegNo: String!
+  firstName: String!
+  lastName: String!
+  gender: String!
+  club: String!
+  workoutGroup: String
+  regYear: Int!
+  emails: [String]
+  emailExclude: Boolean
+}
+
 type Query {
   members: [Member]
   users: [User]
@@ -109,6 +121,7 @@ type Mutation {
   addUser(firstName: String!, lastName: String!, email: String!, password: String!): Auth
   editUser(user: UserData): User
   addPost(title: String!, summary: String, content: String!): Post
+  uploadMembers(memberData: [MemberData]): [Member]
 }
 `;
 

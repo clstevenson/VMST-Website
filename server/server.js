@@ -14,9 +14,6 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const server = new ApolloServer({ typeDefs, resolvers });
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
 // if we're in production, serve client/dist as static assets
 // serve index.html by default (this is a SPA)
 if (process.env.NODE_ENV === 'production') {
@@ -31,8 +28,8 @@ const startApolloServer = async () => {
   // start up the Apollo server
   await server.start();
 
-  app.use(express.urlencoded({ extended: false }));
-  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json({ limit: '50mb' }));
 
   // assign a route for the Apollo server sandbox
   // the JWT token is validated as part of the context

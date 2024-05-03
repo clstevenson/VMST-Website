@@ -1,5 +1,6 @@
 const { Competitor, Member, Photo, Post, User } = require('../models');
 const { signToken, AuthenticationError } = require('../utils/auth');
+const connection = require('../config/connection');
 
 const resolvers = {
   Query: {
@@ -74,6 +75,23 @@ const resolvers = {
       // only team leaders can create posts
       if (user.role !== 'leader') throw new Error('Unauthorized');
       return await Post.create(args);
+    },
+    uploadMembers: async (_, { memberData }, { user }) => {
+
+      // input is the file path to the CSV file containing the membership data
+      // only the Membership Coordinator is allowed to update the Member collection
+      if (user.role !== 'membership') throw new Error('Unauthorized');
+
+
+
+      // update the Members collection in the DB
+      // first delete the members collection if it exists
+      let membersCheck = await connection.db.listCollections({ name: 'members' }).toArray();
+      if (membersCheck.length) {
+        await connection.dropCollection('members');
+      }
+
+      return await Member.insertMany(memberData);
     }
   }
 };
