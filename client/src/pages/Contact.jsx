@@ -3,23 +3,34 @@ import EmailForm from "../components/EmailPage/FormElement";
 import AsideSelector from "../components/EmailPage/AsideSelector";
 import "../components/GenPageSetUp/index.css";
 import { useForm } from "react-hook-form";
-import { useQuery, useMutation } from '@apollo/client';
-import { QUERY_LEADERS } from '../utils/queries';
+
+import { useMutation } from '@apollo/client';
 import { EMAIL_LEADERS } from '../utils/mutations';
 
 export default function EmailPage2() {
+    const [emailLeaders, { error }] = useMutation(EMAIL_LEADERS);
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm();
-    const onSubmit = (data) => console.log(data);
 
-    // you will use a call like const { loading, data } = useQuery(QUERY_LEADERS);
-    // Look at activity 13-14 in module 21
-    // once data is resolved it will have a property called getLeaders that is an array of objects
-
-    // for useMutation, look at activities 17-18 and also my UploadMembers page
+    const onSubmit = (data) => {
+        const emailData = 
+        {
+            from: data.name,
+            html: '<b>'+data.message+'</b>',
+            id: data.recipient,
+            plainText: data.message,
+            subject: data.title,
+            replyTo: data.email
+        }
+        try{
+            emailLeaders({variables: { emailData }})
+        } catch {
+            console.log(error);
+        }
+    };
 
     return (
         <main className="formatpage">

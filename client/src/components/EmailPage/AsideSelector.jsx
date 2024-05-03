@@ -1,14 +1,19 @@
+import { useQuery} from '@apollo/client';
+import { QUERY_LEADERS } from '../../utils/queries';
+
 export default function AsideSelector({ register, errors }) {
+    const { loading, data } = useQuery(QUERY_LEADERS);
+    let leaders = data?.getLeaders || [];
+
     return (
         <aside>
             <p>Select Recipients</p>
             <ul style={{ listStyle: 'none' }}>
-                <li><input type="checkbox" value={'p-1'} {...register('recipient')} />person 1</li>
-                <li><input type="checkbox" value={'p-2'} {...register('recipient')} />person 2</li>
-                <li><input type="checkbox" value={'p-3'} {...register('recipient')} />person 3</li>
-                <li><input type="checkbox" value={'p-4'} {...register('recipient')} />person 4</li>
-                <li><input type="checkbox" value={'p-5'} {...register('recipient')} />person 5</li>
-                <li><input type="checkbox" value={'p-6'} {...register('recipient')} />person 6</li>
+                {loading ? (
+                    <li>...Loading Recipients</li>
+                ) : (leaders.map((leader) => {
+                    return <li key={Math.random()}><input type="checkbox" value={leader._id} {...register("recipient")} /> {leader.firstName} {leader.lastName}</li>
+                }))}
             </ul>
         </aside>
     )
