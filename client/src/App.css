@@ -11,6 +11,12 @@
   -webkit-text-size-adjust: 100%;
   /* 2 */
 }
+#blogPosts {
+  display:flex;
+  flex-wrap: wrap;
+  justify-content: start;
+  width: 95%; 
+}
 
 /* Sections
    ========================================================================== */
