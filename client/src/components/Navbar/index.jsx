@@ -2,6 +2,7 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import "./index.css";
 import Navbar from 'react-bootstrap/Navbar';
+import PageIndicator from '../PageIndicator/PageIndicator';
 import vmstLogo from '../../assets/VMST_logo.png';
 import Button from 'react-bootstrap/Button';
 import SignUp from '../SignUp';
@@ -23,6 +24,7 @@ function Navigation() {
     : role = '';
 
   return (
+    <>
     <Navbar id="navColor" collapseOnSelect expand="lg">
       <Navbar.Brand href="/"><img id="navLogo" src={vmstLogo} /></Navbar.Brand>
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />
@@ -57,6 +59,9 @@ function Navigation() {
       </Navbar.Collapse>
 
     </Navbar>
+    <PageIndicator />
+    </>
+    
   );
 }
 
