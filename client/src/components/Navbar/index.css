@@ -1,11 +1,13 @@
 #navColor {
-    background-color: rgba(122,193,68,255);
+    background-color: #6f499d;
+    padding-top: 10px;
+    padding-bottom: 10px;
     padding-left: 2%;
     padding-right: 2%;
 }
 
 #accountButton {
-    background-color: #6f489d;
+    background-color: rgba(122,193,68,255);
 }
 
 #signUp {
