@@ -24,3 +24,13 @@ export const QUERY_POSTS = gql`
   }
 }
 `;
+
+export const QUERY_LEADERS=gql`
+query GetLeaders {
+  getLeaders {
+    _id
+    firstName
+    lastName
+  }
+}
+`;
