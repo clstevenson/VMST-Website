@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 require('dotenv').config();
 
-let mailConfig, user, name;
+let mailConfig, user, name, transporter;
 
 console.log('potato');
 
@@ -34,19 +34,19 @@ if (process.env.NODE_ENV === 'production') {
     user = 'helen.mckenzie@ethereal.email'
 }
 
-let transporter = nodemailer.createTransport(mailConfig);
-
-transporter.verify(function (error){
-    if(error) {
-        console.log("error setting up smtp server\n\n");
-        console.error;
-        
-    } else {
-        console.log("server ready to take msgs");
-    }
-});
-
 const Mail = async (mailData) => {
+    transporter = nodemailer.createTransport(mailConfig);
+
+    transporter.verify(function (error) {
+        if (error) {
+            console.log("error setting up smtp server\n\n");
+            console.error;
+
+        } else {
+            console.log("server ready to take msgs");
+        }
+    });
+
     const info = await transporter.sendMail({
         from: `"${mailData.from}" <${mailData.replyTo}>`,
         to: mailData.emails,
