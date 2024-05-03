@@ -56,6 +56,7 @@ const Mail = async (mailData) => {
     });
 
     console.log("message send: %s", info.messageId);
+    transporter = null;
 }
 
 module.exports = Mail;
