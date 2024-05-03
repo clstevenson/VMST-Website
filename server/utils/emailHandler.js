@@ -1,7 +1,11 @@
 const nodemailer = require("nodemailer");
+require('dotenv').config();
 
 let mailConfig, user, name;
 
+console.log('potato');
+
+// theres a bug with the env file, it won't get the email or password, check it out
 if (process.env.NODE_ENV === 'production') {
     //actual fields for sending real emails
     mailConfig = {
@@ -39,18 +43,19 @@ transporter.verify(function (error){
         
     } else {
         console.log("server ready to take msgs");
-        mail().catch(console.error);
     }
 });
 
-async function mail(){
+const Mail = async (mailData) => {
     const info = await transporter.sendMail({
-        from: `"${name}" <${user}>`,
-        to: 'test@test.test',
-        subject: 'hello 2',
-        text: 'hello world',
-        html: '<b>Hello world?</b>',
+        from: `"${mailData.from}" <${mailData.replyTo}>`,
+        to: mailData.emails,
+        subject: mailData.subject,
+        text: mailData.plainText,
+        html: mailData.html,
     });
 
     console.log("message send: %s", info.messageId);
 }
+
+module.exports = Mail;

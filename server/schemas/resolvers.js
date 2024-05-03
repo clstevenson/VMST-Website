@@ -1,6 +1,7 @@
 const { Competitor, Member, Photo, Post, User } = require('../models');
 const { signToken, AuthenticationError } = require('../utils/auth');
 const connection = require('../config/connection');
+const Mail = require('../utils/emailHandler');
 
 const resolvers = {
   Query: {
@@ -95,23 +96,23 @@ const resolvers = {
       return await Member.insertMany(memberData);
     },
     emailLeaders: async (_, { emailData }) => {
+      // retrieve the emails of the leaders from the DB
+      const leaders = await User.find({ _id: { $in: emailData.id } }).select('email');
+      // returned an array of objects with property "email" (one array item per leader in input)
+      const mailArgs = { ...emailData };
+      delete mailArgs.id;
+      mailArgs.emails = leaders.map(leader => leader.email);
+
+      // call mail() with mailArgs
       try {
-        // retrieve the emails of the leaders from the DB
-        const leaders = await User.find({ _id: { $in: emailData.id } }).select('email');
-        // returned an array of objects with property "email" (one array item per leader in input)
-        const mailArgs = { ...emailData };
-        delete mailArgs.id;
-        mailArgs.emails = leaders.map(leader => leader.email);
-        console.log(mailArgs);
+        Mail(mailArgs)
+      } catch {
+        console.error;
+        return false;
+      };
 
-        // call mail() with mailArgs
-
-
-        // returning "true" to client means emails successfully sent
-        return true;
-      } catch (err) {
-        console.log(err);
-      }
+      // returning "true" to client means emails successfully sent
+      return true;
     },
   }
 };
