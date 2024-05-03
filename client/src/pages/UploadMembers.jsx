@@ -10,10 +10,6 @@ export default function UploadMembers() {
   const [file, setFile] = useState('');
   const [upload, { error }] = useMutation(UPLOAD_MEMBERS);
 
-  // simulate a login (token from Apollo sandbox)
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImVtYWlsIjoiVkFNZW1iZXJzaGlwQHVzbXMub3JnIiwicm9sZSI6Im1lbWJlcnNoaXAiLCJfaWQiOiI2NjMzOGJlZjk3N2EyYzY1MTA5NDAwMzMifSwiaWF0IjoxNzE0Njg0MzUyLCJleHAiOjE3MTQ3MDU5NTJ9.KPww3m4U99gMTgv2n7tCRlcIZ0CktSjSlJFzp6a_lYY';
-  Auth.login(token);
-
   const handleFile = (e) => {
     setFile(e.target.value);
     let reader = new FileReader();
