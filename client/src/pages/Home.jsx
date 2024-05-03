@@ -1,7 +1,12 @@
+import BlogPosts from '../components/BlogPosts';
+
 function Home() {
   return <>
-    <h1>Home</h1>
+    <div id="blogPosts">
+      <BlogPosts />
+    </div>
   </>
+    
 }
 
 export default Home;
