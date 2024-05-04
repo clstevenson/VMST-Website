@@ -3,13 +3,28 @@ import { useMutation } from '@apollo/client';
 import Auth from '../utils/auth';
 import { UPLOAD_MEMBERS } from '../utils/mutations';
 import papa from 'papaparse';
+import Container from 'react-bootstrap/Container';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
+import Accordion from 'react-bootstrap/Accordion';
+import Alert from 'react-bootstrap/Alert';
 
 export default function UploadMembers() {
+  // state representing new members data uploaded from user
   const [members, setMembers] = useState([]);
+  // feedback to the user
   const [message, setMessage] = useState('');
+  // state representing currently selected file
   const [file, setFile] = useState('');
+  // state that represents what is currently in the DB
+  const [current, setCurrent] = useState([]);
+  // mutation to update the Members collection in the CB
+  // (used in form onSubmit event handler)
   const [upload, { error }] = useMutation(UPLOAD_MEMBERS);
 
+  // file input onchange event handler, which parses the CSV file
   const handleFile = (e) => {
     setFile(e.target.value);
     let reader = new FileReader();
@@ -25,6 +40,8 @@ export default function UploadMembers() {
     reader.onerror = () => console.log(reader.error);
   }
 
+  // form submit event handler extracts the good parts of the data
+  // and uploads to the Members collection of the DB, replacing those contents
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     // extract the parts that we need
@@ -50,7 +67,7 @@ export default function UploadMembers() {
     if (error) {
       setMessage(`There was a problem: ${error}`);
     } else {
-      setMessage(`Success! ${memberData.length} members added.`)
+      setMessage(`Success! ${memberData.length} members uploaded.`)
     }
 
     //reset state variables
@@ -60,33 +77,62 @@ export default function UploadMembers() {
 
   return (
     <>
-      <h2>Upload Membership Roll</h2>
+      <Container>
+        <h1>Upload Membership Roll</h1>
 
-      <h3>File Input Form</h3>
+        <Form
+          onSubmit={handleFormSubmit}
+        >
+          <Form.Group controlId="formUploadMembers">
+            <Form.Label htmlFor="members">
+              Membership file (CSV format)
+            </Form.Label>
+            <Row>
+              <Col>
+                <Form.Control
+                  type="file"
+                  id="members"
+                  name="members"
+                  value={file}
+                  accept=".csv"
+                  onChange={handleFile}
+                />
+                <Form.Text id="CSV help block">
+                  CSV export of HTML version of member report (instructions below).
+                </Form.Text>
+              </Col>
+              <Col>
+                <Button
+                  variant="primary"
+                  type="submit"
+                >
+                  Upload Members
+                </Button>
+              </Col>
+            </Row>
+          </Form.Group>
+        </Form>
 
-      <form
-        onSubmit={handleFormSubmit}
-      >
-        <label htmlFor="members">
-          Membership file (CSV format):{' '}
-        </label>
-        <input
-          type="file"
-          id="members"
-          name="members"
-          value={file}
-          accept=".csv"
-          onChange={handleFile}
-        />
-        <p>
-          <button>Upload</button>
-        </p>
-      </form>
+        {/* when message is not an empty string, it is displayed */}
+        {message && <Alert variant='success'> {message} </Alert>}
 
-      {/* when message is not an empty string, it is displayed */}
-      {message && <p> {message} </p>}
+        <Accordion>
+          <Accordion.Item eventKey="0">
+            <Accordion.Header>
+              Instructions on generating membership CSV file
+            </Accordion.Header>
+            <Accordion.Body>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+              </p>
 
-      <h3>Instructions For Upload (roll-ups?)</h3>
+              <p>
+                Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
+              </p>
+            </Accordion.Body>
+          </Accordion.Item>
+        </Accordion>
+      </Container>
 
     </>
   );
