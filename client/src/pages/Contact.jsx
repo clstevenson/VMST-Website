@@ -12,6 +12,7 @@ export default function EmailPage2() {
     const {
         register,
         handleSubmit,
+        setError,
         formState: { errors },
     } = useForm();
 
@@ -25,10 +26,15 @@ export default function EmailPage2() {
             subject: data.title,
             replyTo: data.email
         }
-        try{
-            emailLeaders({variables: { emailData }})
-        } catch {
-            console.log(error);
+
+        if(emailData.id.length > 0){
+            try {
+                emailLeaders({ variables: { emailData } })
+            } catch {
+                console.log(error);
+            }
+        } else {
+            setError('recipient', {type: 'custom', message: "please select at least 1 recipient"})
         }
     };
 
@@ -39,6 +45,7 @@ export default function EmailPage2() {
             </h2>
             <form name="form" onSubmit={handleSubmit(onSubmit)}>
                 <AsideSelector register={register} handleSubmit={handleSubmit} errors={errors}/>
+                {errors.recipient && <p>{errors.recipient.message}</p>}
 
                 <EmailForm register={register} handleSubmit={handleSubmit} errors={errors}/>
             </form>
