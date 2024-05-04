@@ -4,15 +4,15 @@ const titleRegex = /^[a-zA-Z0-9!@#\$%\^\&*\)\(\;+=._\s]{1,40}$/;
 const messageRegex = /^[a-zA-Z0-9!@#\$%\^\&*\)\(\;+=._\s]+$/;
 
 export default function EmailForm({register, errors}) {
-
     //returning the form component
+
     return(
         <div>
             {errors.recipients && <p>choose one please</p>}
 
             <label>Name:</label>
             <input
-                type="text"
+                ype="text"
                 placeholder="Your name"
                 {...register('name', {required: true}, { pattern: {nameRegex} })}
             />
