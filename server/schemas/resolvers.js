@@ -11,7 +11,7 @@ const resolvers = {
     users: async () => await User.find(),
     // get all posts
     // can't populate users directly, need to populate comments that are nested
-    posts: async () => await Post.find(),
+    posts: async () => await Post.find().sort({ createdAt:-1 }),
     // get a single post with all comments
     onePost: async (_, { id }) => await Post.findById(id).populate('comments.user'),
     // get all competitors

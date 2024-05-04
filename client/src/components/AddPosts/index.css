@@ -1,0 +1,33 @@
+#button {
+    margin-top: 50%;
+    margin-left: -225%;
+    background-color: grey;
+    color: black;
+    font-size: 100%;
+    padding-left: 100%;
+    padding-right: 100%;
+}
+
+#button:hover {
+    opacity: 75%;
+}
+
+#textarea1 {
+    min-height: 50px;
+}
+
+.textarea {
+    min-height: 200px;
+    min-width: 400px;
+    overflow-x: hidden;
+  overflow-y: auto;
+  display: block;
+}
+
+@media screen and (max-width: 370px) {
+    #button {
+        font-size: 75%;
+        padding-left: 100%;
+        padding-right: 100%;
+    }
+}
