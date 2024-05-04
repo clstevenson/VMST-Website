@@ -98,7 +98,7 @@ const seedUsers = async (members) => {
   userData.push({
     firstName: 'Christopher',
     lastName: 'Stevenson',
-    password: password,
+    password: 'password',
     email: 'VAMembership@usms.org',
     role: 'membership'
   });
