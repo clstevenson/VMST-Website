@@ -66,3 +66,9 @@ mutation UploadMembers($memberData: [MemberData]) {
     regYear
   }
 }`;
+
+export const EMAIL_LEADERS=gql`
+mutation EmailLeaders($emailData: emailData) {
+  emailLeaders(emailData: $emailData)
+}
+`;
