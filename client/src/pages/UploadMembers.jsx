@@ -1,17 +1,71 @@
-import { useState } from 'react';
-import { useMutation } from '@apollo/client';
+import { useState, useEffect } from 'react';
 import Auth from '../utils/auth';
+import { useQuery, useMutation } from '@apollo/client';
 import { UPLOAD_MEMBERS } from '../utils/mutations';
+import { QUERY_MEMBERS } from '../utils/queries';
 import papa from 'papaparse';
+import ErrorPage from './ErrorPage';
+import getGroups from '../utils/getGroups';
+
+// Bootstrap react components
+import Container from 'react-bootstrap/Container';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
+import Accordion from 'react-bootstrap/Accordion';
+import Alert from 'react-bootstrap/Alert';
+import Figure from 'react-bootstrap/Figure';
+import Card from 'react-bootstrap/Card';
+import Table from 'react-bootstrap/Table';
 
 export default function UploadMembers() {
+  // state representing new members data uploaded from user
   const [members, setMembers] = useState([]);
+  // state representing member information in DB to be displayed in the table
+  // (may be filtered and/or paginated version of DB membership data)
+  const [display, setDisplay] = useState([]);
+  // feedback to the user in an alert
   const [message, setMessage] = useState('');
+  // state representing currently selected file
   const [file, setFile] = useState('');
+  // summary stats of memberhip currently in DB
+  const [numMembers, setNumMembers] = useState(0);
+  const [numVMST, setNumVMST] = useState(0);
+  const [groups, setGroups] = useState([]);
+  // mutation to update the Members collection in the CB
+  // (used in form onSubmit event handler)
   const [upload, { error }] = useMutation(UPLOAD_MEMBERS);
 
+  // retrieve DB membership info
+  const { loading, data } = useQuery(QUERY_MEMBERS);
+
+  const currentMembers = data?.members || [];
+
+  useEffect(() => {
+    if (currentMembers.length > 0) {
+      setNumMembers(currentMembers.length);
+      setNumVMST(currentMembers.filter(member => member.club === 'VMST').length);
+      setGroups(getGroups(currentMembers));
+      const displayData = currentMembers.map(member => {
+        return {
+          usmsRegNo: member.usmsRegNo,
+          fullName: member.firstName + ' ' + member.lastName,
+          club: member.club,
+          usmsId: member.usmsId,
+          workoutGroup: member.workoutGroup,
+          regYear: member.regYear,
+        };
+      });
+      // console.log(displayData);
+      setDisplay(displayData);
+    }
+  }, [data])
+
+  // file input onchange event handler, which parses the CSV file
   const handleFile = (e) => {
     setFile(e.target.value);
+    setMessage('');
     let reader = new FileReader();
     reader.readAsText(e.target.files[0]);
     reader.onload = async () => {
@@ -25,8 +79,12 @@ export default function UploadMembers() {
     reader.onerror = () => console.log(reader.error);
   }
 
+  // form submit event handler extracts the good parts of the data
+  // and uploads to the Members collection of the DB, replacing those contents
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    // if no file has been chosen then don't do anything
+    if (file === '') return;
     // extract the parts that we need
     const memberData = members.map(member => {
       const obj = {};
@@ -45,12 +103,32 @@ export default function UploadMembers() {
     });
 
     // update the DB
-    await upload({ variables: { memberData } });
+    const { data } = await upload({ variables: { memberData } });
 
-    if (error) {
+    if (data.uploadMembers.length === 0) {
       setMessage(`There was a problem: ${error}`);
     } else {
-      setMessage(`Success! ${memberData.length} members added.`)
+      // update some state vars: members, member stats
+      // these will trigger update of the member table (should that be a spearate component?)
+      setNumMembers(data.uploadMembers.length);
+      setNumVMST(data.uploadMembers.filter(member => member.club === 'VMST').length);
+      setGroups(getGroups(data.uploadMembers));
+
+      // set up data to be displayed
+      const newMembers = data.uploadMembers.map(member => {
+        return {
+          usmsRegNo: member.usmsRegNo,
+          fullName: member.firstName + ' ' + member.lastName,
+          club: member.club,
+          usmsId: member.usmsId,
+          workoutGroup: member.workoutGroup,
+          regYear: member.regYear,
+        };
+      })
+      setDisplay(newMembers);
+
+      // feedback to user
+      // setMessage(`Success! Membership data uploaded.`)
     }
 
     //reset state variables
@@ -58,35 +136,146 @@ export default function UploadMembers() {
     setFile('');
   };
 
+  // find out role
+  let role;
+  Auth.loggedIn()
+    ? role = Auth.getProfile().data.role
+    : role = '';
+  // only the membership coordinator has access to this page
+  if (role !== 'membership') {
+    throw new Error('Not authorized to view this page');
+    return <ErrorPage />;
+  }
+
   return (
     <>
-      <h2>Upload Membership Roll</h2>
+      <Container>
+        <h2>Upload Membership Roll</h2>
 
-      <h3>File Input Form</h3>
+        <Card body>
+          <Form
+            onSubmit={handleFormSubmit}
+          >
+            <Form.Group>
+              <Form.Label htmlFor="members">
+                Membership file (CSV format)
+              </Form.Label>
+              <Row>
+                <Col>
+                  <Form.Control
+                    type="file"
+                    id="members"
+                    name="members"
+                    value={file}
+                    accept=".csv"
+                    onChange={handleFile}
+                  />
+                  <Form.Text id="CSV help block">
+                    CSV export of HTML version of member report (instructions below).
+                  </Form.Text>
+                </Col>
+                <Col>
+                  <Button
+                    variant="primary"
+                    type="submit"
+                  >
+                    Upload Members
+                  </Button>
+                </Col>
+              </Row>
+            </Form.Group>
+          </Form>
+        </Card>
 
-      <form
-        onSubmit={handleFormSubmit}
-      >
-        <label htmlFor="members">
-          Membership file (CSV format):{' '}
-        </label>
-        <input
-          type="file"
-          id="members"
-          name="members"
-          value={file}
-          accept=".csv"
-          onChange={handleFile}
-        />
-        <p>
-          <button>Upload</button>
-        </p>
-      </form>
+        {/* when message is not an empty string, it is displayed */}
+        {message && <Alert variant='success'> {message} </Alert>}
 
-      {/* when message is not an empty string, it is displayed */}
-      {message && <p> {message} </p>}
+        <Accordion>
+          <Accordion.Item eventKey="0">
+            <Accordion.Header>
+              Instructions on generating membership CSV file
+            </Accordion.Header>
+            <Accordion.Body>
+              <p>
+                The steps are shown in the following figure.
+              </p>
+              <Figure>
+                <Figure.Image
+                  src="./assets/MemberReportGeneration1.png"
+                  alt="generate HTML report screenshot"
+                />
+                <Figure.Caption>
+                  Generate an HTML report of all current members containing all fields.
+                </Figure.Caption>
+              </Figure>
 
-      <h3>Instructions For Upload (roll-ups?)</h3>
+              <ol>
+                <li>
+                  After logging into the Registration section of the USMS Site/Database Administration, click the "Member Report" item on the "Report" drop-down menu.
+                </li>
+                <li>
+                  Click on "Select all" to display all available fields in the report.
+                </li>
+                <li>
+                  Choose the years to generate all current members. That will always involve checking the current year; in the months of Nov and Dec you will also need to check the next calendar year.
+                </li>
+                <li>
+                  Choose the "HTML" report type.
+                </li>
+                <li>
+                  Click on the button to generate the report.
+                </li>
+              </ol>
+
+              <p>
+                After the report appears you will get a display like the one shown in the figure below. Check to make sure that all members seem to be included in the report and that all fields were generated (you will have to scroll horizontally to verify). Then click on the CSV button to download the report as a text file with Comma Separated Values. This is the file you will import.
+              </p>
+
+              <Figure>
+                <Figure.Image
+                  src="./assets/MemberReportGeneration2.png"
+                  alt="download member report as a file"
+                />
+                <Figure.Caption>
+                  Download the generated report in the CSV file format suitable for import.
+                </Figure.Caption>
+              </Figure>
+
+            </Accordion.Body>
+          </Accordion.Item>
+        </Accordion>
+
+        <Card>
+          <Card.Body>
+            There are currently {numMembers} members in the LMSC, {numVMST} of whom are in VMST.
+            <br />
+            VMST workout groups: {groups.join(', ')}.
+          </Card.Body>
+        </Card>
+
+        <Table striped bordered hover size="sm">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Club</th>
+              <th>USMS ID</th>
+              <th>WO Group</th>
+              <th>Reg Year</th>
+            </tr>
+          </thead>
+          <tbody>
+            {display?.map(member => (
+              <tr key={member.usmsRegNo}>
+                <td>{member.fullName}</td>
+                <td>{member.club}</td>
+                <td>{member.usmsId}</td>
+                <td>{member.workoutGroup}</td>
+                <td>{member.regYear}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </Container>
 
     </>
   );

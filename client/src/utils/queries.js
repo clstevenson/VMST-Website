@@ -34,3 +34,20 @@ query GetLeaders {
   }
 }
 `;
+
+export const QUERY_MEMBERS=gql`
+query Members {
+  members {
+    usmsRegNo
+    usmsId
+    firstName
+    lastName
+    gender
+    club
+    workoutGroup
+    regYear
+    emails
+    emailExclude
+  }
+}
+`;
