@@ -15,7 +15,12 @@
   display:flex;
   flex-wrap: wrap;
   justify-content: start;
-  width: 95%; 
+  width: 90%; 
+}
+
+#together {
+  display: flex;
+  justify-content: space-between;
 }
 
 /* Sections
@@ -1710,5 +1715,11 @@ label form [type='radio'] {
   }
   .align-content-center-xl {
     align-content: center;
+  }
+}
+
+@media screen and (max-width: 370px) {
+  #blogPosts {
+      margin-left: -2%;
   }
 }
