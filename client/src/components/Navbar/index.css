@@ -10,6 +10,10 @@
     background-color: rgba(122,193,68,255);
 }
 
+#accountButton.active {
+    color: yellow;
+}
+
 #signUp {
     background-color: black;
 }
@@ -31,4 +35,8 @@
     justify-content:end;
     gap: 4%;
     width: 40%;
+}
+
+.active {
+    color: yellow;
 }
