@@ -1,7 +1,7 @@
 import { useQuery} from '@apollo/client';
 import { useState } from 'react';
 import { QUERY_LEADERS } from '../../utils/queries';
-import {Button, Offcanvas, ToggleButton} from 'react-bootstrap';
+import {Button, Offcanvas} from 'react-bootstrap';
 
 export default function AsideSelector({ register, errors }) {
     const { loading, data } = useQuery(QUERY_LEADERS);
