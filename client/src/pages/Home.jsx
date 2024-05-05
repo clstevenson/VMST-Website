@@ -1,13 +1,21 @@
-import BlogPosts from '../components/BlogPosts';
+import BlogPosts from '../components/BlogPosts/index';
+import HomeCarousel from '../components/HomeCarousel/HomeCarousel'
 import "../components/GenPageSetUp/index.css";
 
 function Home() {
-  return <>
-    <div className="formatpage" id="blogPosts">
-      <BlogPosts />
+  return (
+    <>
+    <div id='Welcome-To-VSMT'>
+    <HomeCarousel />
     </div>
-  </>
-    
+      <div id="blogPosts" style={{ width: "100%", display: "flex", justifyContent: "center" }}>
+        <div>
+        <h3 style={{ color: "white", padding: "10px", marginTop:"10px" }}>Latest from VMST</h3>
+        </div>
+        <BlogPosts />
+      </div>
+    </>
+  );
 }
 
 export default Home;

@@ -17,7 +17,7 @@ function PageIndicator() {
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', padding: '5px', backgroundColor: 'rgba(122, 193, 68, 225)' }}>
-      <p style={{ marginLeft: '25px', color: 'white' }}>
+      <p style={{ marginLeft: '25px', marginTop: '10px', color: 'white' }}>
         {pathHistory.map((path, index) => (
           <span key={index} style={{ margin: index === 1 ? '0 3px' : '0' }}> {/* Apply margin only to 'Home' */}
             {index > 0 && ' > '}
