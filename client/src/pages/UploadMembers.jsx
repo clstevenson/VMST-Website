@@ -10,6 +10,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Accordion from 'react-bootstrap/Accordion';
 import Alert from 'react-bootstrap/Alert';
+import ErrorPage from './ErrorPage';
 
 export default function UploadMembers() {
   // state representing new members data uploaded from user
@@ -20,9 +21,14 @@ export default function UploadMembers() {
   const [file, setFile] = useState('');
   // state that represents what is currently in the DB
   const [current, setCurrent] = useState([]);
+  // summary stats of memberhip currently in DB
+  const [stats, setStats] = useState({});
   // mutation to update the Members collection in the CB
   // (used in form onSubmit event handler)
   const [upload, { error }] = useMutation(UPLOAD_MEMBERS);
+
+  // query the DB membership
+  const getMemberInfo = () => {};
 
   // file input onchange event handler, which parses the CSV file
   const handleFile = (e) => {
@@ -44,6 +50,8 @@ export default function UploadMembers() {
   // and uploads to the Members collection of the DB, replacing those contents
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    // if no file has been chosen then don't do anything
+    if (file==='') return;
     // extract the parts that we need
     const memberData = members.map(member => {
       const obj = {};
@@ -62,18 +70,34 @@ export default function UploadMembers() {
     });
 
     // update the DB
-    await upload({ variables: { memberData } });
+    const { data } = await upload({ variables: { memberData } });
+    console.log(data.uploadMembers.length);
 
-    if (error) {
+    if (data.uploadMembers.length === 0) {
       setMessage(`There was a problem: ${error}`);
     } else {
-      setMessage(`Success! ${memberData.length} members uploaded.`)
+      // update some state vars: members, member stats
+      // these will trigger update of the member table (should that be a spearate component?)
+
+
+      setMessage(`Success! ${data.uploadMembers.length} members uploaded.`)
     }
 
     //reset state variables
     setMembers([]);
     setFile('');
   };
+
+  // find out role
+  let role;
+  Auth.loggedIn()
+        ? role = Auth.getProfile().data.role
+        : role = '';
+
+  if (role !== 'membership') {
+    throw new Error('Not authorized to view this page');
+    return <ErrorPage />;
+  }
 
   return (
     <>
@@ -83,7 +107,7 @@ export default function UploadMembers() {
         <Form
           onSubmit={handleFormSubmit}
         >
-          <Form.Group controlId="formUploadMembers">
+          <Form.Group>
             <Form.Label htmlFor="members">
               Membership file (CSV format)
             </Form.Label>
