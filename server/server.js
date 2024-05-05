@@ -22,7 +22,6 @@ const startApolloServer = async () => {
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json({ limit: '50mb' }));
 
-
   // assign a route for the Apollo server sandbox
   // the JWT token is validated as part of the context
   app.use('/graphql', expressMiddleware(server, {

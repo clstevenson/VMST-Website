@@ -3,6 +3,8 @@ import { useMutation } from '@apollo/client';
 import Auth from '../utils/auth';
 import { UPLOAD_MEMBERS } from '../utils/mutations';
 import papa from 'papaparse';
+import ErrorPage from './ErrorPage';
+
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -10,7 +12,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Accordion from 'react-bootstrap/Accordion';
 import Alert from 'react-bootstrap/Alert';
-import ErrorPage from './ErrorPage';
+import Figure from 'react-bootstrap/Figure'
 
 export default function UploadMembers() {
   // state representing new members data uploaded from user
@@ -28,7 +30,7 @@ export default function UploadMembers() {
   const [upload, { error }] = useMutation(UPLOAD_MEMBERS);
 
   // query the DB membership
-  const getMemberInfo = () => {};
+  const getMemberInfo = () => { };
 
   // file input onchange event handler, which parses the CSV file
   const handleFile = (e) => {
@@ -51,7 +53,7 @@ export default function UploadMembers() {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     // if no file has been chosen then don't do anything
-    if (file==='') return;
+    if (file === '') return;
     // extract the parts that we need
     const memberData = members.map(member => {
       const obj = {};
@@ -91,8 +93,8 @@ export default function UploadMembers() {
   // find out role
   let role;
   Auth.loggedIn()
-        ? role = Auth.getProfile().data.role
-        : role = '';
+    ? role = Auth.getProfile().data.role
+    : role = '';
 
   if (role !== 'membership') {
     throw new Error('Not authorized to view this page');
@@ -147,12 +149,50 @@ export default function UploadMembers() {
             </Accordion.Header>
             <Accordion.Body>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                The steps are shown in the following figure.
               </p>
+              <Figure>
+                <Figure.Image
+                  src="./assets/MemberReportGeneration1.png"
+                  alt="generate HTML report screenshot"
+                />
+                <Figure.Caption>
+                  Generate an HTML report of all current members containing all fields.
+                </Figure.Caption>
+              </Figure>
+
+              <ol>
+                <li>
+                  After logging into the Registration section of the USMS Site/Database Administration, click the "Member Report" item on the "Report" drop-down menu.
+                </li>
+                <li>
+                  Click on "Select all" to display all available fields in the report.
+                </li>
+                <li>
+                  Choose the years to generate all current members. That will always involve checking the current year; in the months of Nov and Dec you will also need to check the next calendar year.
+                </li>
+                <li>
+                  Choose the "HTML" report type.
+                </li>
+                <li>
+                  Click on the button to generate the report.
+                </li>
+              </ol>
 
               <p>
-                Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
+                After the report appears you will get a display like the one shown in the figure below. Check to make sure that all members seem to be included in the report and that all fields were generated (you will have to scroll horizontally to verify). Then click on the CSV button to download the report as a text file with Comma Separated Values. This is the file you will import.
               </p>
+
+              <Figure>
+                <Figure.Image
+                  src="./assets/MemberReportGeneration2.png"
+                  alt="download member report as a file"
+                />
+                <Figure.Caption>
+                  Download the generated report in the CSV file format suitable for import.
+                </Figure.Caption>
+              </Figure>
+
             </Accordion.Body>
           </Accordion.Item>
         </Accordion>
