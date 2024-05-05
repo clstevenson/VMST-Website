@@ -14,13 +14,8 @@ const { Schema, model } = require('mongoose');
 // See module 21 activity 26 and documentation for mongoose and bcrypt
 
 const memberSchema = new Schema({
-  usmsRegNo: {
-    // this is the number that changes every year and is unique (even if member listed twice)
-    type: String,
-    required: true,
-    unique: true,
-    index: true,
-  },
+  // this is the number that changes every year and is unique (even if member listed twice)
+  usmsRegNo: {type: String, required: true, unique: true, index: true,},
   firstName: { type: String, required: true, },
   lastName: { type: String, required: true, },
   gender: { type: String, required: true, },

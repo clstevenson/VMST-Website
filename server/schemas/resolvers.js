@@ -5,14 +5,14 @@ const Mail = require('../utils/emailHandler');
 
 const resolvers = {
   Query: {
-    // get all USMS members
-    members: async () => await Member.find(),
+    // get all USMS members of the VA LMSC
+    members: async () => await Member.find().sort({lastName: 1}),
     // get all website users
     users: async () => await User.find(),
-    // get all posts
-    // can't populate users directly, need to populate comments that are nested
-    posts: async () => await Post.find().sort({ createdAt:-1 }),
+    // get all posts, sorted most recent first
+    posts: async () => await Post.find().sort({ createdAt: -1 }),
     // get a single post with all comments
+    // can't populate users directly, need to populate comments that are nested
     onePost: async (_, { id }) => await Post.findById(id).populate('comments.user'),
     // get all competitors
     competitors: async () => await Competitor.find(),
@@ -52,7 +52,7 @@ const resolvers = {
     addUser: async (_, { firstName, lastName, email, password }) => {
       const user = await User.create({ firstName, lastName, email, password });
       // return with error message if no user created
-      if (!user) return 'Error: Something is wrong!';
+      if (!user) throw AuthenticationError;
       // sign the JWT and return with the user
       const token = signToken(user);
       return { token, user };
@@ -75,16 +75,14 @@ const resolvers = {
     // add a new post
     addPost: async (_, args, { user }) => {
       // only team leaders can create posts
-      if (user.role !== 'leader') throw new Error('Unauthorized');
+      if (user.role !== 'leader') throw AuthenticationError;
       return await Post.create(args);
     },
     uploadMembers: async (_, { memberData }, { user }) => {
 
       // input is the file path to the CSV file containing the membership data
       // only the Membership Coordinator is allowed to update the Member collection
-      if (user.role !== 'membership') throw new Error('Unauthorized');
-
-
+      if (user.role !== 'membership') throw AuthenticationError;
 
       // update the Members collection in the DB
       // first delete the members collection if it exists
