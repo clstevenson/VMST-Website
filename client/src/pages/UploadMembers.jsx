@@ -17,6 +17,7 @@ import Accordion from 'react-bootstrap/Accordion';
 import Alert from 'react-bootstrap/Alert';
 import Figure from 'react-bootstrap/Figure';
 import Card from 'react-bootstrap/Card';
+import Table from 'react-bootstrap/Table';
 
 export default function UploadMembers() {
   // state representing new members data uploaded from user
@@ -39,17 +40,27 @@ export default function UploadMembers() {
   // retrieve DB membership info
   const { loading, data } = useQuery(QUERY_MEMBERS);
 
+  const currentMembers = data?.members || [];
+
   useEffect(() => {
-    if (data) {
-      setNumMembers(data.members.length);
-      setNumVMST(data.members.filter(member => member.club === 'VMST').length);
-      setGroups(getGroups(data.members));
+    if (currentMembers.length > 0) {
+      setNumMembers(currentMembers.length);
+      setNumVMST(currentMembers.filter(member => member.club === 'VMST').length);
+      setGroups(getGroups(currentMembers));
+      const displayData = currentMembers.map(member => {
+        return {
+          usmsRegNo: member.usmsRegNo,
+          fullName: member.firstName + ' ' + member.lastName,
+          club: member.club,
+          usmsId: member.usmsId,
+          workoutGroup: member.workoutGroup,
+          regYear: member.regYear,
+        };
+      });
+      // console.log(displayData);
+      setDisplay(displayData);
     }
   }, [data])
-
-  // when page is first rendered query the DB membership
-  // calculating membership stats and setting appropriate states
-
 
   // file input onchange event handler, which parses the CSV file
   const handleFile = (e) => {
@@ -93,7 +104,6 @@ export default function UploadMembers() {
 
     // update the DB
     const { data } = await upload({ variables: { memberData } });
-    console.log(data.uploadMembers.length);
 
     if (data.uploadMembers.length === 0) {
       setMessage(`There was a problem: ${error}`);
@@ -104,9 +114,21 @@ export default function UploadMembers() {
       setNumVMST(data.uploadMembers.filter(member => member.club === 'VMST').length);
       setGroups(getGroups(data.uploadMembers));
 
+      // set up data to be displayed
+      const newMembers = data.uploadMembers.map(member => {
+        return {
+          usmsRegNo: member.usmsRegNo,
+          fullName: member.firstName + ' ' + member.lastName,
+          club: member.club,
+          usmsId: member.usmsId,
+          workoutGroup: member.workoutGroup,
+          regYear: member.regYear,
+        };
+      })
+      setDisplay(newMembers);
 
       // feedback to user
-      setMessage(`Success! Membership data uploaded.`)
+      // setMessage(`Success! Membership data uploaded.`)
     }
 
     //reset state variables
@@ -131,38 +153,38 @@ export default function UploadMembers() {
         <h2>Upload Membership Roll</h2>
 
         <Card body>
-        <Form
-          onSubmit={handleFormSubmit}
-        >
-          <Form.Group>
-            <Form.Label htmlFor="members">
-              Membership file (CSV format)
-            </Form.Label>
-            <Row>
-              <Col>
-                <Form.Control
-                  type="file"
-                  id="members"
-                  name="members"
-                  value={file}
-                  accept=".csv"
-                  onChange={handleFile}
-                />
-                <Form.Text id="CSV help block">
-                  CSV export of HTML version of member report (instructions below).
-                </Form.Text>
-              </Col>
-              <Col>
-                <Button
-                  variant="primary"
-                  type="submit"
-                >
-                  Upload Members
-                </Button>
-              </Col>
-            </Row>
-          </Form.Group>
-        </Form>
+          <Form
+            onSubmit={handleFormSubmit}
+          >
+            <Form.Group>
+              <Form.Label htmlFor="members">
+                Membership file (CSV format)
+              </Form.Label>
+              <Row>
+                <Col>
+                  <Form.Control
+                    type="file"
+                    id="members"
+                    name="members"
+                    value={file}
+                    accept=".csv"
+                    onChange={handleFile}
+                  />
+                  <Form.Text id="CSV help block">
+                    CSV export of HTML version of member report (instructions below).
+                  </Form.Text>
+                </Col>
+                <Col>
+                  <Button
+                    variant="primary"
+                    type="submit"
+                  >
+                    Upload Members
+                  </Button>
+                </Col>
+              </Row>
+            </Form.Group>
+          </Form>
         </Card>
 
         {/* when message is not an empty string, it is displayed */}
@@ -231,6 +253,28 @@ export default function UploadMembers() {
           </Card.Body>
         </Card>
 
+        <Table striped bordered hover size="sm">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Club</th>
+              <th>USMS ID</th>
+              <th>WO Group</th>
+              <th>Reg Year</th>
+            </tr>
+          </thead>
+          <tbody>
+            {display?.map(member => (
+              <tr key={member.usmsRegNo}>
+                <td>{member.fullName}</td>
+                <td>{member.club}</td>
+                <td>{member.usmsId}</td>
+                <td>{member.workoutGroup}</td>
+                <td>{member.regYear}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       </Container>
 
     </>
