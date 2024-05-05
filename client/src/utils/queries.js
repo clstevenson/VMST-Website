@@ -51,3 +51,14 @@ query Members {
   }
 }
 `;
+
+export const QUERY_WOG=gql`
+query WOG {
+  members {
+    firstName
+    lastName
+    workoutGroup
+    usmsId
+  }
+}
+`;
