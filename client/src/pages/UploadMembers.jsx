@@ -1,10 +1,13 @@
-import { useState } from 'react';
-import { useMutation } from '@apollo/client';
+import { useState, useEffect } from 'react';
 import Auth from '../utils/auth';
+import { useQuery, useMutation } from '@apollo/client';
 import { UPLOAD_MEMBERS } from '../utils/mutations';
+import { QUERY_MEMBERS } from '../utils/queries';
 import papa from 'papaparse';
 import ErrorPage from './ErrorPage';
+import getGroups from '../utils/getGroups';
 
+// Bootstrap react components
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -12,29 +15,46 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Accordion from 'react-bootstrap/Accordion';
 import Alert from 'react-bootstrap/Alert';
-import Figure from 'react-bootstrap/Figure'
+import Figure from 'react-bootstrap/Figure';
+import Card from 'react-bootstrap/Card';
 
 export default function UploadMembers() {
   // state representing new members data uploaded from user
   const [members, setMembers] = useState([]);
-  // feedback to the user
+  // state representing member information in DB to be displayed in the table
+  // (may be filtered and/or paginated version of DB membership data)
+  const [display, setDisplay] = useState([]);
+  // feedback to the user in an alert
   const [message, setMessage] = useState('');
   // state representing currently selected file
   const [file, setFile] = useState('');
-  // state that represents what is currently in the DB
-  const [current, setCurrent] = useState([]);
   // summary stats of memberhip currently in DB
-  const [stats, setStats] = useState({});
+  const [numMembers, setNumMembers] = useState(0);
+  const [numVMST, setNumVMST] = useState(0);
+  const [groups, setGroups] = useState([]);
   // mutation to update the Members collection in the CB
   // (used in form onSubmit event handler)
   const [upload, { error }] = useMutation(UPLOAD_MEMBERS);
 
-  // query the DB membership
-  const getMemberInfo = () => { };
+  // retrieve DB membership info
+  const { loading, data } = useQuery(QUERY_MEMBERS);
+
+  useEffect(() => {
+    if (data) {
+      setNumMembers(data.members.length);
+      setNumVMST(data.members.filter(member => member.club === 'VMST').length);
+      setGroups(getGroups(data.members));
+    }
+  }, [data])
+
+  // when page is first rendered query the DB membership
+  // calculating membership stats and setting appropriate states
+
 
   // file input onchange event handler, which parses the CSV file
   const handleFile = (e) => {
     setFile(e.target.value);
+    setMessage('');
     let reader = new FileReader();
     reader.readAsText(e.target.files[0]);
     reader.onload = async () => {
@@ -80,9 +100,13 @@ export default function UploadMembers() {
     } else {
       // update some state vars: members, member stats
       // these will trigger update of the member table (should that be a spearate component?)
+      setNumMembers(data.uploadMembers.length);
+      setNumVMST(data.uploadMembers.filter(member => member.club === 'VMST').length);
+      setGroups(getGroups(data.uploadMembers));
 
 
-      setMessage(`Success! ${data.uploadMembers.length} members uploaded.`)
+      // feedback to user
+      setMessage(`Success! Membership data uploaded.`)
     }
 
     //reset state variables
@@ -95,7 +119,7 @@ export default function UploadMembers() {
   Auth.loggedIn()
     ? role = Auth.getProfile().data.role
     : role = '';
-
+  // only the membership coordinator has access to this page
   if (role !== 'membership') {
     throw new Error('Not authorized to view this page');
     return <ErrorPage />;
@@ -104,8 +128,9 @@ export default function UploadMembers() {
   return (
     <>
       <Container>
-        <h1>Upload Membership Roll</h1>
+        <h2>Upload Membership Roll</h2>
 
+        <Card body>
         <Form
           onSubmit={handleFormSubmit}
         >
@@ -138,6 +163,7 @@ export default function UploadMembers() {
             </Row>
           </Form.Group>
         </Form>
+        </Card>
 
         {/* when message is not an empty string, it is displayed */}
         {message && <Alert variant='success'> {message} </Alert>}
@@ -196,6 +222,15 @@ export default function UploadMembers() {
             </Accordion.Body>
           </Accordion.Item>
         </Accordion>
+
+        <Card>
+          <Card.Body>
+            There are currently {numMembers} members in the LMSC, {numVMST} of whom are in VMST.
+            <br />
+            VMST workout groups: {groups.join(', ')}.
+          </Card.Body>
+        </Card>
+
       </Container>
 
     </>

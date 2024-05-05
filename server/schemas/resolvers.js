@@ -5,14 +5,14 @@ const Mail = require('../utils/emailHandler');
 
 const resolvers = {
   Query: {
-    // get all USMS members
-    members: async () => await Member.find(),
+    // get all USMS members of the VA LMSC
+    members: async () => await Member.find().sort({lastName: 1}),
     // get all website users
     users: async () => await User.find(),
-    // get all posts
-    // can't populate users directly, need to populate comments that are nested
-    posts: async () => await Post.find().sort({ createdAt:-1 }),
+    // get all posts, sorted most recent first
+    posts: async () => await Post.find().sort({ createdAt: -1 }),
     // get a single post with all comments
+    // can't populate users directly, need to populate comments that are nested
     onePost: async (_, { id }) => await Post.findById(id).populate('comments.user'),
     // get all competitors
     competitors: async () => await Competitor.find(),
