@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import '../GenPageSetUp/index.css';
 import { Form, Button, Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
@@ -83,12 +84,9 @@ function Login(props) {
                   onChange={handleChange}
                 />
                 <br />
-                <Button variant="secondary" onClick={props.onHide}>
-                  Cancel
-                </Button>
                 <Button
                   id="loginColor" onClick={props.onHide}
-                  className="btn btn-primary"
+                  variant="info"
                   style={{ cursor: 'pointer' }}
                   type="submit"
                 >
@@ -107,7 +105,7 @@ function Login(props) {
              </Modal.Body>
           <Modal.Footer>
             <p>Don't have an account yet?</p>
-            <button onClick={displaySignUpModal}>Sign Up</button>
+            <Button variant="info" onClick={displaySignUpModal}>Sign Up</Button>
           </Modal.Footer>
         </Modal>
           </>
