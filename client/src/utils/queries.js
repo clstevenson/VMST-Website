@@ -57,6 +57,7 @@ query WOG {
   members {
     firstName
     lastName
+    club
     workoutGroup
     usmsId
   }

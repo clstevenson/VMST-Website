@@ -16,6 +16,7 @@ export default function EmailPage2() {
         formState: { errors },
     } = useForm();
 
+
     const onSubmit = (data) => {
         const emailData = 
         {
@@ -26,15 +27,18 @@ export default function EmailPage2() {
             subject: data.title,
             replyTo: data.email
         }
-
-        if(emailData.id.length > 0){
-            try {
-                emailLeaders({ variables: { emailData } })
-            } catch {
-                console.log(error);
+        try {
+            if (emailData.id.length > 0){
+                emailLeaders({ variables: { emailData } });
+            } else {
+                throw new TypeError;
             }
-        } else {
-            setError('recipient', {type: 'custom', message: "please select at least 1 recipient"})
+        } catch (err) {
+            if (err instanceof TypeError) {
+                setError('recipient', { type: 'custom', message: "please select at least 1 recipient" })
+            } else {
+                console.log(err);
+            }
         }
     };
 

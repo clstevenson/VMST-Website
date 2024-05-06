@@ -10,7 +10,7 @@ export default function AsideSelector({ register, errors }) {
     let members = membersData?.members || [];
     let leaders = leadersData?.getLeaders || [];
 
-    (membersLoading) ? (console.log('yeet')) : (console.log(members));
+    (membersLoading) ? (console.log('yeet')) : (console.log(members, getGroups([members])));
 
     const [show, setShow] = useState(false);
     const handleShow = () => setShow(true);
@@ -18,7 +18,7 @@ export default function AsideSelector({ register, errors }) {
 
     return (
         <>
-            <Button type='button' onClick={handleShow}>Select Recipients</Button>
+            <Button type='button' variant={errors["recipient"] ? 'danger' : 'primary'} onClick={handleShow}>Select Recipients</Button>
 
             <Offcanvas show={show} onHide={handleClose}>
                 <Offcanvas.Header closeButton>
