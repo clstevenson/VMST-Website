@@ -33,6 +33,9 @@ export default function UploadMembers() {
   const [numMembers, setNumMembers] = useState(0);
   const [numVMST, setNumVMST] = useState(0);
   const [groups, setGroups] = useState([]);
+  // states for filtering the members table
+  const [name, setName] = useState('');
+  const [clubGroup, setClubGroup] = useState('');
   // mutation to update the Members collection in the CB
   // (used in form onSubmit event handler)
   const [upload, { error }] = useMutation(UPLOAD_MEMBERS);
@@ -253,12 +256,30 @@ export default function UploadMembers() {
           </Card.Body>
         </Card>
 
+        {/* filter the table by name or club/group */}
+        <Form>
+          <Row>
+            <Col>
+              <Form.Group controlId="filterName">
+                <Form.Label>Search by name: </Form.Label>
+                <Form.Control type="text" placeholder="First or Last Name"></Form.Control>
+              </Form.Group>
+            </Col>
+            <Col>
+              <Form.Group controlId="filterGroup">
+                <Form.Label>Search by club/group: </Form.Label>
+                <Form.Control type="text" placeholder="Club or WO group"></Form.Control>
+              </Form.Group>
+            </Col>
+          </Row>
+        </Form>
+
         <Table striped bordered hover size="sm">
           <thead>
             <tr>
               <th>Name</th>
-              <th>Club</th>
               <th>USMS ID</th>
+              <th>Club</th>
               <th>WO Group</th>
               <th>Reg Year</th>
             </tr>
@@ -267,8 +288,12 @@ export default function UploadMembers() {
             {display?.map(member => (
               <tr key={member.usmsRegNo}>
                 <td>{member.fullName}</td>
+                <td>
+                  <a href={`https://www.usms.org/people/${member.usmsId}`} target="_new">
+                    {member.usmsId}
+                  </a>
+                </td>
                 <td>{member.club}</td>
-                <td>{member.usmsId}</td>
                 <td>{member.workoutGroup}</td>
                 <td>{member.regYear}</td>
               </tr>
