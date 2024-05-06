@@ -63,33 +63,6 @@
     "emailExclude": false
   },
   {
-    "firstName": "Kevin",
-    "lastName": "Allen",
-    "gender": "M",
-    "club": "UC12",
-    "usmsRegNo": "124C-J71F8",
-    "emails": "KevinAllen@email.org",
-    "emailExclude": false
-  },
-  {
-    "firstName": "Brad",
-    "lastName": "Allison",
-    "gender": "M",
-    "club": "UC12",
-    "usmsRegNo": "1242-0VVWR",
-    "emails": "BradAllison@email.org",
-    "emailExclude": false
-  },
-  {
-    "firstName": "Sandra",
-    "lastName": "Amezquita",
-    "gender": "F",
-    "club": "VMST",
-    "usmsRegNo": "124E-3D1ZE",
-    "emails": "SandraAmezquita@email.org",
-    "emailExclude": false
-  },
-  {
     "firstName": "Paul",
     "lastName": "Anderson",
     "gender": "M",
