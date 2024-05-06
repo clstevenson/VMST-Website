@@ -134,6 +134,7 @@ type Mutation {
   addPost(title: String!, summary: String, content: String!): Post
   uploadMembers(memberData: [MemberData]): [Member]
   emailLeaders(emailData: emailData): Boolean
+  emailGroup(emailData: emailData): Boolean
 }
 `;
 

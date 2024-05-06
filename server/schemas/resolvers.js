@@ -112,6 +112,27 @@ const resolvers = {
       // returning "true" to client means emails successfully sent
       return true;
     },
+    emailGroup: async (_, { emailData }, { user }) => {
+      // only team leaders or coaches can email WO groups
+      if (user.role !== 'leader' && user.role !== 'coach') throw AuthenticationError;
+      // retrieve the emails of the workout group me
+      const leaders = await Member.find({ _id: { $in: emailData.id } }).select('email');
+      // returned an array of objects with property "email" (one array item per leader in input)
+      const mailArgs = { ...emailData };
+      delete mailArgs.id;
+      mailArgs.emails = leaders.map(leader => leader.email);
+
+      // call mail() with mailArgs
+      try {
+        Mail(mailArgs)
+      } catch {
+        console.error;
+        return false;
+      };
+
+      // returning "true" to client means emails successfully sent
+      return true;
+    },
   }
 };
 

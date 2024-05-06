@@ -11,8 +11,6 @@ export default function AsideSelector({ register, errors }) {
     let leaders = leadersData?.getLeaders || [];
     let workoutGroups = getGroups(members);
 
-    const [open, setOpen] = useState(false);
-    
     const [show, setShow] = useState(false);
     const handleShow = () => setShow(true);
     const handleClose = () => setShow(false);
