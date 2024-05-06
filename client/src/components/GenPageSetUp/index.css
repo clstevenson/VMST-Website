@@ -40,6 +40,7 @@ h1 {
     margin: 15px;
     padding: 10px; 
     }  
+
     
     #Text-Content {
         text-align: left;
@@ -52,3 +53,11 @@ h1 {
       #Text-Content #Frequently-Asked-Questions {
         text-align: left;
       }
+
+      #container {
+        padding: 2%;
+    }
+
+    #blogPosts {
+    background-color: #6f499d;
+    }
