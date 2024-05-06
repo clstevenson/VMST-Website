@@ -94,7 +94,6 @@ const resolvers = {
       return await Member.insertMany(memberData);
     },
     emailLeaders: async (_, { emailData }) => {
-      console.log(emailData)
       // retrieve the emails of the leaders from the DB
       const leaders = await User.find({ _id: { $in: emailData.id } }).select('email');
       // returned an array of objects with property "email" (one array item per leader in input)
@@ -102,27 +101,27 @@ const resolvers = {
       delete mailArgs.id;
       mailArgs.emails = leaders.map(leader => leader.email);
 
-      console.log(mailArgs)
-
       // call mail() with mailArgs
-      try {
-        Mail(mailArgs)
-      } catch {
-        console.error;
-        return false;
-      };
+      if(mailArgs.emails.length > 0){
+        try {
+          Mail(mailArgs)
+        } catch {
+          console.error;
+          return false;
+        };
+      } else {
+        throw new Error('No Recipients for Leaders')
+      }
 
       // returning "true" to client means emails successfully sent
       return true;
     },
     emailGroup: async (_, { emailData }, { user }) => {
-      // console.log(emailData)
       // only team leaders or coaches can email WO groups
       if (user.role !== 'leader' && user.role !== 'coach') throw AuthenticationError;
       // retrieve the emails of the workout group me
       const group = await Member.find({ _id: { $in: emailData.id } }).select('emails');
       // returned an array of objects with property "email" (one array item per leader in input)
-      console.log(group)
       const mailArgs = { ...emailData };
       delete mailArgs.id;
       let emailArray = [];
@@ -130,16 +129,19 @@ const resolvers = {
         emailArray = [...emailArray, ...member.emails];
       })
 
-      mailArgs.email = emailArray;
-      console.log(mailArgs);
+      mailArgs.emails = emailArray;
 
       // call mail() with mailArgs
-      try {
-        Mail(mailArgs)
-      } catch {
-        console.error;
-        return false;
-      };
+      if (mailArgs.emails.length > 0) {
+        try {
+          Mail(mailArgs)
+        } catch {
+          console.error;
+          return false;
+        };
+      } else {
+        throw new Error('No Recipients for Members')
+      }
 
       // returning "true" to client means emails successfully sent
       return true;

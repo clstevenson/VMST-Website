@@ -31,11 +31,11 @@ export default function EmailPage2() {
         }
         try {
             if (emailData.id.length > 0){
-                // try{
-                //     emailLeaders({ variables: { emailData } });
-                // } catch(err) {
-                //     console.log(err);
-                // }
+                try{
+                    emailLeaders({ variables: { emailData } });
+                } catch(err) {
+                    console.log(err);
+                }
                 try{
                     emailGroup({ variables: { emailData } });
                 } catch(err){
