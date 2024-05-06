@@ -19,6 +19,9 @@ import Figure from 'react-bootstrap/Figure';
 import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
 
+// global variable representing the members in the DB
+let currentMembers = [];
+
 export default function UploadMembers() {
   // state representing new members data uploaded from user
   const [members, setMembers] = useState([]);
@@ -43,25 +46,31 @@ export default function UploadMembers() {
   // retrieve DB membership info
   const { loading, data } = useQuery(QUERY_MEMBERS);
 
-  const currentMembers = data?.members || [];
+  // function to extract data to display in members table
+  const displayMembers = (members) => {
+    const displayData = members.map(member => {
+      return {
+        usmsRegNo: member.usmsRegNo,
+        fullName: member.firstName + ' ' + member.lastName,
+        club: member.club,
+        usmsId: member.usmsId,
+        workoutGroup: member.workoutGroup,
+        regYear: member.regYear,
+      };
+    });
+    setDisplay(displayData);
+  }
+
+  // this variable will contain the content of the DB for the function
+  // initially it is set from the DB query
+  currentMembers = data?.members || [];
 
   useEffect(() => {
     if (currentMembers.length > 0) {
       setNumMembers(currentMembers.length);
       setNumVMST(currentMembers.filter(member => member.club === 'VMST').length);
       setGroups(getGroups(currentMembers));
-      const displayData = currentMembers.map(member => {
-        return {
-          usmsRegNo: member.usmsRegNo,
-          fullName: member.firstName + ' ' + member.lastName,
-          club: member.club,
-          usmsId: member.usmsId,
-          workoutGroup: member.workoutGroup,
-          regYear: member.regYear,
-        };
-      });
-      // console.log(displayData);
-      setDisplay(displayData);
+      displayMembers(currentMembers);
     }
   }, [data])
 
@@ -111,24 +120,16 @@ export default function UploadMembers() {
     if (data.uploadMembers.length === 0) {
       setMessage(`There was a problem: ${error}`);
     } else {
+      // update the variable representing members in DB
+      currentMembers = data.uploadMembers;
       // update some state vars: members, member stats
       // these will trigger update of the member table (should that be a spearate component?)
-      setNumMembers(data.uploadMembers.length);
-      setNumVMST(data.uploadMembers.filter(member => member.club === 'VMST').length);
-      setGroups(getGroups(data.uploadMembers));
+      setNumMembers(currentMembers.length);
+      setNumVMST(currentMembers.filter(member => member.club === 'VMST').length);
+      setGroups(getGroups(currentMembers));
 
-      // set up data to be displayed
-      const newMembers = data.uploadMembers.map(member => {
-        return {
-          usmsRegNo: member.usmsRegNo,
-          fullName: member.firstName + ' ' + member.lastName,
-          club: member.club,
-          usmsId: member.usmsId,
-          workoutGroup: member.workoutGroup,
-          regYear: member.regYear,
-        };
-      })
-      setDisplay(newMembers);
+      // display the new data
+      displayMembers(currentMembers);
 
       // feedback to user
       // setMessage(`Success! Membership data uploaded.`)
@@ -137,7 +138,52 @@ export default function UploadMembers() {
     //reset state variables
     setMembers([]);
     setFile('');
+    setName('');
+    setClubGroup('');
   };
+
+  const handleNameChange = async (e) => {
+    // case-insensitive search
+    // maybe eventually make the search smarter (eg space separated terms)
+    // respect any term in club/group input box
+    if (e.target.value.length > 0) {
+      // update displayed value
+      console.log(clubGroup);
+      setName(e.target.value);
+      const filterTerm = e.target.value.toLowerCase();
+      const filteredMembers = currentMembers.filter(member => {
+        const fullName = [member.firstName, member.lastName].join('').toLowerCase();
+        const clubAndGroup = [member.club, member.workoutGroup].join('').toLowerCase();
+        return fullName.includes(filterTerm) && clubAndGroup.includes(clubGroup.toLowerCase());
+      });
+      displayMembers(filteredMembers);
+    } else {
+      // reset display and name state variable
+      setName('');
+      displayMembers(currentMembers);
+    }
+  }
+
+  const handleGroupChange = async (e) => {
+    // case-insensitive search
+    // maybe eventually make the search smarter (eg space separated terms)
+    // respect any term in club/group input box
+    if (e.target.value.length > 0) {
+      // update displayed value
+      setClubGroup(e.target.value);
+      const filterTerm = e.target.value.toLowerCase();
+      const filteredMembers = currentMembers.filter(member => {
+        const fullName = [member.firstName, member.lastName].join('').toLowerCase();
+        const clubAndGroup = [member.club, member.workoutGroup].join('').toLowerCase();
+        return clubAndGroup.includes(filterTerm) && fullName.includes(name.toLowerCase());
+      });
+      displayMembers(filteredMembers);
+    } else {
+      // reset display and name state variable
+      setClubGroup('');
+      displayMembers(currentMembers);
+    }
+  }
 
   // find out role
   let role;
@@ -262,13 +308,25 @@ export default function UploadMembers() {
             <Col>
               <Form.Group controlId="filterName">
                 <Form.Label>Search by name: </Form.Label>
-                <Form.Control type="text" placeholder="First or Last Name"></Form.Control>
+                <Form.Control
+                  type="text"
+                  placeholder="First or Last Name"
+                  value={name}
+                  onChange={handleNameChange}
+                >
+                </Form.Control>
               </Form.Group>
             </Col>
             <Col>
               <Form.Group controlId="filterGroup">
                 <Form.Label>Search by club/group: </Form.Label>
-                <Form.Control type="text" placeholder="Club or WO group"></Form.Control>
+                <Form.Control
+                  type="text"
+                  placeholder="Club or WO group"
+                  value={clubGroup}
+                  onChange={handleGroupChange}
+                >
+                </Form.Control>
               </Form.Group>
             </Col>
           </Row>
@@ -278,7 +336,7 @@ export default function UploadMembers() {
           <thead>
             <tr>
               <th>Name</th>
-              <th>USMS ID</th>
+              <th>USMS Reg No.</th>
               <th>Club</th>
               <th>WO Group</th>
               <th>Reg Year</th>
@@ -290,7 +348,7 @@ export default function UploadMembers() {
                 <td>{member.fullName}</td>
                 <td>
                   <a href={`https://www.usms.org/people/${member.usmsId}`} target="_new">
-                    {member.usmsId}
+                    {member.usmsRegNo}
                   </a>
                 </td>
                 <td>{member.club}</td>
