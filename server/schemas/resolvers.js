@@ -102,12 +102,46 @@ const resolvers = {
       mailArgs.emails = leaders.map(leader => leader.email);
 
       // call mail() with mailArgs
-      try {
-        Mail(mailArgs)
-      } catch {
-        console.error;
-        return false;
-      };
+      if(mailArgs.emails.length > 0){
+        try {
+          Mail(mailArgs)
+        } catch {
+          console.error;
+          return false;
+        };
+      } else {
+        throw new Error('No Recipients for Leaders')
+      }
+
+      // returning "true" to client means emails successfully sent
+      return true;
+    },
+    emailGroup: async (_, { emailData }, { user }) => {
+      // only team leaders or coaches can email WO groups
+      if (user.role !== 'leader' && user.role !== 'coach') throw AuthenticationError;
+      // retrieve the emails of the workout group me
+      const group = await Member.find({ _id: { $in: emailData.id } }).select('emails');
+      // returned an array of objects with property "email" (one array item per leader in input)
+      const mailArgs = { ...emailData };
+      delete mailArgs.id;
+      let emailArray = [];
+      group.forEach(member => {
+        emailArray = [...emailArray, ...member.emails];
+      })
+
+      mailArgs.emails = emailArray;
+
+      // call mail() with mailArgs
+      if (mailArgs.emails.length > 0) {
+        try {
+          Mail(mailArgs)
+        } catch {
+          console.error;
+          return false;
+        };
+      } else {
+        throw new Error('No Recipients for Members')
+      }
 
       // returning "true" to client means emails successfully sent
       return true;

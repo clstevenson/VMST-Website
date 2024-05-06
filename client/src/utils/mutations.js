@@ -82,3 +82,9 @@ mutation EmailLeaders($emailData: emailData) {
   emailLeaders(emailData: $emailData)
 }
 `;
+
+export const EMAIL_GROUP=gql`
+mutation EmailGroup($emailData: emailData){
+  emailGroup(emailData: $emailData)
+}
+`;
