@@ -130,9 +130,6 @@ export default function UploadMembers() {
 
       // display the new data
       displayMembers(currentMembers);
-
-      // feedback to user
-      // setMessage(`Success! Membership data uploaded.`)
     }
 
     //reset state variables
@@ -142,40 +139,57 @@ export default function UploadMembers() {
     setClubGroup('');
   };
 
+  // case-insensitive search/filter for name (first or last), respecting
+  // any term in the club/group search field
+  // maybe eventually make the search smarter (eg space separated terms or regex)
   const handleNameChange = async (e) => {
-    // case-insensitive search
-    // maybe eventually make the search smarter (eg space separated terms)
-    // respect any term in club/group input box
+    let filteredMembers;
     if (e.target.value.length > 0) {
       // update displayed value
-      console.log(clubGroup);
       setName(e.target.value);
       const filterTerm = e.target.value.toLowerCase();
-      const filteredMembers = currentMembers.filter(member => {
+      filteredMembers = currentMembers.filter(member => {
         const fullName = [member.firstName, member.lastName].join('').toLowerCase();
         const clubAndGroup = [member.club, member.workoutGroup].join('').toLowerCase();
         return fullName.includes(filterTerm) && clubAndGroup.includes(clubGroup.toLowerCase());
       });
       displayMembers(filteredMembers);
+    } else if (clubGroup) {
+      setName('');
+      // need to filter based on club/group search term, which is not empty
+      filteredMembers = currentMembers.filter(member => {
+        const clubAndGroup = [member.club, member.workoutGroup].join('').toLowerCase();
+        return clubAndGroup.includes(clubGroup.toLowerCase());
+      });
+      displayMembers(filteredMembers);
     } else {
-      // reset display and name state variable
+      // both search terms empty, reset display
       setName('');
       displayMembers(currentMembers);
     }
   }
 
+  // case-insensitive search/filter for club or group, respecting
+  // any term in the name search field
+  // maybe eventually make the search smarter (eg space separated terms or regex)
   const handleGroupChange = async (e) => {
-    // case-insensitive search
-    // maybe eventually make the search smarter (eg space separated terms)
-    // respect any term in club/group input box
+    let filteredMembers;
     if (e.target.value.length > 0) {
       // update displayed value
       setClubGroup(e.target.value);
       const filterTerm = e.target.value.toLowerCase();
-      const filteredMembers = currentMembers.filter(member => {
+      filteredMembers = currentMembers.filter(member => {
         const fullName = [member.firstName, member.lastName].join('').toLowerCase();
         const clubAndGroup = [member.club, member.workoutGroup].join('').toLowerCase();
         return clubAndGroup.includes(filterTerm) && fullName.includes(name.toLowerCase());
+      });
+      displayMembers(filteredMembers);
+    } else if (name) {
+      setClubGroup('');
+      // need to filter based on name search term, which is not empty
+      filteredMembers = currentMembers.filter(member => {
+        const fullName = [member.firstName, member.lastName].join('').toLowerCase();
+        return fullName.includes(name.toLowerCase());
       });
       displayMembers(filteredMembers);
     } else {
@@ -329,6 +343,10 @@ export default function UploadMembers() {
                 </Form.Control>
               </Form.Group>
             </Col>
+            {/* Would be nice to have a small "clear all" button but styling... */}
+            {/* <Col> */}
+            {/*   <Button variant="warning">Clear All</Button> */}
+            {/* </Col> */}
           </Row>
         </Form>
 
