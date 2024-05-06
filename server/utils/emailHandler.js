@@ -3,8 +3,6 @@ require('dotenv').config();
 
 let mailConfig, user, name, transporter;
 
-console.log('potato');
-
 // theres a bug with the env file, it won't get the email or password, check it out
 if (process.env.NODE_ENV === 'production') {
     //actual fields for sending real emails
@@ -26,12 +24,12 @@ if (process.env.NODE_ENV === 'production') {
         port: 587,
         secure: false,
         auth: {
-            user: 'helen.mckenzie@ethereal.email',
-            pass: 'MsABp8ggyck7VdHcgV',
+            user: 'ida.murazik5@ethereal.email',
+            pass: 'y9pSDcG3HDbWDCnzd4',
         }
     }
     name = "test"
-    user = 'helen.mckenzie@ethereal.email'
+    user = 'ida.murazik5@ethereal.email'
 }
 
 const Mail = async (mailData) => {

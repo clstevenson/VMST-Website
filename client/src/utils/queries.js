@@ -51,3 +51,16 @@ query Members {
   }
 }
 `;
+
+export const QUERY_WORKOUT_GROUP=gql`
+query WORKOUT_GROUPS {
+  members {
+    _id
+    firstName
+    lastName
+    club
+    workoutGroup
+    usmsId
+  }
+}
+`;
