@@ -39,6 +39,7 @@ function Navigation() {
         )}
         <Nav.Link href="/">Home</Nav.Link>
         <Nav.Link href="/about-us">About Us</Nav.Link>
+        <Nav.Link href="/gallery">Gallery</Nav.Link>
         <Nav.Link href="/contact">Contact</Nav.Link>
         { role === 'membership' && <Nav.Link href="/upload">Upload Members</Nav.Link> }
         <div>
