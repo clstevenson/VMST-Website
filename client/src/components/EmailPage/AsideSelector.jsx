@@ -2,7 +2,7 @@ import { useQuery} from '@apollo/client';
 import { useState } from 'react';
 import { QUERY_LEADERS, QUERY_WOG } from '../../utils/queries';
 import getGroups from '../../utils/getGroups';
-import {Button, Offcanvas} from 'react-bootstrap';
+import {Button, Offcanvas, Collapse} from 'react-bootstrap';
 
 export default function AsideSelector({ register, errors }) {
     const { loading: leadersLoading, data: leadersData } = useQuery(QUERY_LEADERS);
@@ -11,6 +11,8 @@ export default function AsideSelector({ register, errors }) {
     let leaders = leadersData?.getLeaders || [];
     let workoutGroups = getGroups(members);
 
+    const [open, setOpen] = useState(false);
+    
     const [show, setShow] = useState(false);
     const handleShow = () => setShow(true);
     const handleClose = () => setShow(false);
@@ -44,27 +46,26 @@ export default function AsideSelector({ register, errors }) {
                     </ul>
                     <b key={Math.random()}>Workout Groups</b>
                     {membersLoading ? (
-                        <ul key={Math.random()}>
+                        <ul key={Math.random()} style={{ listStyle: 'none', paddingLeft: 15 }}>
                             <li key={Math.random()}>...Loading Recipients</li>
                         </ul>
                     ) : (workoutGroups.map((group) => {
                         const swimmers = members.filter((member) => member.workoutGroup === group);
                             return(
                                 <>
-                                    <ul key={Math.random()}>
-                                        <u key={Math.random()}>{group}</u>
+                                    <ul key={Math.random()} style={{ listStyle: 'none', paddingLeft: 15 }}>
+                                        <b key={Math.random()}><u>{group}</u></b>
                                         {swimmers.map(swimmer => {
-                                            return(
-                                                <li key={Math.random()} style={{ paddingRight: 5 }}>
-                                                    <input
-                                                        key={Math.random()}
-                                                        type="checkbox"
-                                                        value={swimmer.usmsId}
-                                                        {...register("recipient")}
-                                                        style={{ marginRight: 3 }}
-                                                    />
-                                                    {swimmer.firstName} {swimmer.lastName}
-                                                </li>
+                                            return(                                                    <li key={Math.random()} style={{ paddingRight: 5 }}>
+                                                        <input
+                                                            key={Math.random()}
+                                                            type="checkbox"
+                                                            value={swimmer._id}
+                                                            {...register("recipient")}
+                                                            style={{ marginRight: 3 }}
+                                                        />
+                                                        {swimmer.firstName} {swimmer.lastName}
+                                                    </li>
                                             )
                                         })}
                                     </ul>

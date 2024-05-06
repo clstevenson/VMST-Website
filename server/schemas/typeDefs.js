@@ -1,6 +1,7 @@
 const typeDefs = `
 # Meet is embedded in Competitors
 type Member {
+  _id: ID!
   usmsRegNo: String!
   usmsId: String!
   firstName: String!
