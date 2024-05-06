@@ -94,12 +94,15 @@ const resolvers = {
       return await Member.insertMany(memberData);
     },
     emailLeaders: async (_, { emailData }) => {
+      console.log(emailData)
       // retrieve the emails of the leaders from the DB
       const leaders = await User.find({ _id: { $in: emailData.id } }).select('email');
       // returned an array of objects with property "email" (one array item per leader in input)
       const mailArgs = { ...emailData };
       delete mailArgs.id;
       mailArgs.emails = leaders.map(leader => leader.email);
+
+      console.log(mailArgs)
 
       // call mail() with mailArgs
       try {
@@ -113,14 +116,17 @@ const resolvers = {
       return true;
     },
     emailGroup: async (_, { emailData }, { user }) => {
+      console.log(emailData)
       // only team leaders or coaches can email WO groups
       if (user.role !== 'leader' && user.role !== 'coach') throw AuthenticationError;
       // retrieve the emails of the workout group me
-      const leaders = await Member.find({ _id: { $in: emailData.id } }).select('email');
+      const group = await Member.find({ _id: { $in: emailData.id } }).select('email');
       // returned an array of objects with property "email" (one array item per leader in input)
       const mailArgs = { ...emailData };
       delete mailArgs.id;
-      mailArgs.emails = leaders.map(leader => leader.email);
+      mailArgs.emails = group.map(swimmer => swimmer.email);
+
+      console.log(mailArgs);
 
       // call mail() with mailArgs
       try {

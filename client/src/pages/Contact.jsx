@@ -6,9 +6,11 @@ import { useForm } from "react-hook-form";
 
 import { useMutation } from '@apollo/client';
 import { EMAIL_LEADERS } from '../utils/mutations';
+import { EMAIL_GROUP } from "../utils/mutations";
 
 export default function EmailPage2() {
-    const [emailLeaders, { error }] = useMutation(EMAIL_LEADERS);
+    const [emailLeaders, { error: leaderError }] = useMutation(EMAIL_LEADERS);
+    const [emailGroup, { error: groupError }] = useMutation(EMAIL_GROUP);
     const {
         register,
         handleSubmit,
@@ -29,7 +31,16 @@ export default function EmailPage2() {
         }
         try {
             if (emailData.id.length > 0){
-                emailLeaders({ variables: { emailData } });
+                // try{
+                //     emailLeaders({ variables: { emailData } });
+                // } catch(err) {
+                //     console.log(err);
+                // }
+                try{
+                    emailGroup({ variables: { emailData } });
+                } catch(err){
+                    console.log(err);
+                }
             } else {
                 throw new TypeError;
             }
