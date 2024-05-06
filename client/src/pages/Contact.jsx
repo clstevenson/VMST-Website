@@ -8,6 +8,8 @@ import { useMutation } from '@apollo/client';
 import { EMAIL_LEADERS } from '../utils/mutations';
 import { EMAIL_GROUP } from "../utils/mutations";
 
+import {Form, FormGroup, FormText} from 'react-bootstrap'
+
 export default function EmailPage2() {
     const [emailLeaders, { error: leaderError }] = useMutation(EMAIL_LEADERS);
     const [emailGroup, { error: groupError }] = useMutation(EMAIL_GROUP);
@@ -58,12 +60,14 @@ export default function EmailPage2() {
             <h2>
                 Contact Us
             </h2>
-            <form name="form" onSubmit={handleSubmit(onSubmit)}>
-                <AsideSelector register={register} handleSubmit={handleSubmit} errors={errors}/>
-                {errors.recipient && <p>{errors.recipient.message}</p>}
+            <Form name="form" onSubmit={handleSubmit(onSubmit)}>
+                <FormGroup>
+                    <AsideSelector register={register} handleSubmit={handleSubmit} errors={errors}/>
+                    {errors.recipient && <FormText>{errors.recipient.message}</FormText>}
+                </FormGroup>
 
                 <EmailForm register={register} handleSubmit={handleSubmit} errors={errors}/>
-            </form>
+            </Form>
         </main>
     );
 }
