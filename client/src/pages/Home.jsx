@@ -1,5 +1,6 @@
 import BlogPosts from '../components/BlogPosts/index';
-import HomeCarousel from '../components/HomeCarousel/HomeCarousel'
+import AddPosts from '../components/AddPosts';
+import HomeCarousel from '../components/HomeCarousel/HomeCarousel';
 import "../components/GenPageSetUp/index.css";
 
 function Home() {
@@ -14,8 +15,12 @@ function Home() {
         </div>
         <BlogPosts />
       </div>
+      <div id="addPosts">
+      <AddPosts />
+    </div>
     </>
   );
-}
+
+  }
 
 export default Home;
