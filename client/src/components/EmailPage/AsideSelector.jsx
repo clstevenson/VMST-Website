@@ -59,7 +59,7 @@ export default function AsideSelector({ register, errors }) {
                                                     <input
                                                         key={Math.random()}
                                                         type="checkbox"
-                                                        value={swimmer._id}
+                                                        value={swimmer.usmsId}
                                                         {...register("recipient")}
                                                         style={{ marginRight: 3 }}
                                                     />
