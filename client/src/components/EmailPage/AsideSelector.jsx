@@ -9,8 +9,7 @@ export default function AsideSelector({ register, errors }) {
     const { loading: membersLoading, data: membersData } = useQuery(QUERY_WOG);
     let members = membersData?.members || [];
     let leaders = leadersData?.getLeaders || [];
-
-    (membersLoading) ? (console.log('yeet')) : (console.log(members, getGroups([members])));
+    let workoutGroups = getGroups(members);
 
     const [show, setShow] = useState(false);
     const handleShow = () => setShow(true);
@@ -43,7 +42,36 @@ export default function AsideSelector({ register, errors }) {
                             )
                         }))}
                     </ul>
-                    
+                    <b key={Math.random()}>Workout Groups</b>
+                    {membersLoading ? (
+                        <ul key={Math.random()}>
+                            <li key={Math.random()}>...Loading Recipients</li>
+                        </ul>
+                    ) : (workoutGroups.map((group) => {
+                        const swimmers = members.filter((member) => member.workoutGroup === group);
+                            return(
+                                <>
+                                    <ul key={Math.random()}>
+                                        <u key={Math.random()}>{group}</u>
+                                        {swimmers.map(swimmer => {
+                                            return(
+                                                <li key={Math.random()} style={{ paddingRight: 5 }}>
+                                                    <input
+                                                        key={Math.random()}
+                                                        type="checkbox"
+                                                        value={swimmer._id}
+                                                        {...register("recipient")}
+                                                        style={{ marginRight: 3 }}
+                                                    />
+                                                    {swimmer.firstName} {swimmer.lastName}
+                                                </li>
+                                            )
+                                        })}
+                                    </ul>
+                                </>
+                            )
+                        })
+                    )}
                 </Offcanvas.Body>
             </Offcanvas>
         </>
