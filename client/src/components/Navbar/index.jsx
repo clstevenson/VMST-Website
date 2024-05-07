@@ -56,47 +56,46 @@ function Navigation() {
 
   return (
     <>
-    <Navbar id="navColor" collapseOnSelect expand="lg">
+      <Navbar id="navColor" collapseOnSelect expand="lg">
         <Navbar.Brand ><Link to='/'><img id="navLogo" src={vmstLogo} /></Link></Navbar.Brand>
-      <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-      <Navbar.Collapse id="responsive-navbar-nav">
-        {Auth.loggedIn() ? (
-          <>
-            <Button href="/me" id="accountButton" className= {activePage === 'Account' ? 'active' : ''}>Account</Button>{' '}
-          </>
-        ) : (
-          <>
-
-          </>
-        )}
-          <Nav.Link ><Link id="nav" to='/'  className={activePage === 'Home' ? 'active' : ''}>Home</ Link></Nav.Link>
-          <Nav.Link ><Link id="nav" to='/gallery'  className={activePage === 'Gallery' ? 'active' : ''}>Gallery</ Link></Nav.Link>
-          <Nav.Link ><Link id="nav" to='/about-us'  className={activePage === 'About Us' ? 'active' : ''}>About Us</Link></Nav.Link>
-          <Nav.Link ><Link id="nav" to='/contact'  className={activePage === 'Contact' ? 'active' : ''}>Contact</Link></Nav.Link>
-          {role === 'membership' && <Nav.Link><Link id="nav" to="/upload"  className={activePage === 'Upload Members' ? 'active' : ''}>Upload Members</Link></Nav.Link> }
-
-        <div>
+        <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+        <Navbar.Collapse id="responsive-navbar-nav">
           {Auth.loggedIn() ? (
             <>
-              <Nav.Link onClick={logout}>
-                Logout
-              </Nav.Link>
+              <Button href="/me" id="accountButton" className={activePage === 'Account' ? 'active' : ''}>Account</Button>{' '}
             </>
           ) : (
             <>
-              <SignUp show={showSignUpModal} onHide={() => setShowSignUpModal(false)} onShow={() => setShowSignUpModal(true)} showLoginModal={() => setShowLoginModal(true)} />
-              <Login show={showLoginModal} onHide={() => setShowLoginModal(false)} onShow={() => setShowLoginModal(true)} showSignUpModal={() => setShowSignUpModal(true)} />
+
             </>
           )}
-        </div>
-      </Navbar.Collapse>
+          <Nav.Link ><Link id="nav" to='/' className={activePage === 'Home' ? 'active' : ''}>Home</ Link></Nav.Link>
+          {/* <Nav.Link ><Link id="nav" to='/gallery' className={activePage === 'Gallery' ? 'active' : ''}>Gallery</ Link></Nav.Link> */}
+          <Nav.Link ><Link id="nav" to='/about-us' className={activePage === 'About Us' ? 'active' : ''}>About Us</Link></Nav.Link>
+          <Nav.Link ><Link id="nav" to='/contact' className={activePage === 'Contact' ? 'active' : ''}>Contact</Link></Nav.Link>
+          {role === 'membership' && <Nav.Link><Link id="nav" to="/upload" className={activePage === 'Upload Members' ? 'active' : ''}>Upload Members</Link></Nav.Link>}
 
-    </Navbar>
-    {/* <PageIndicator /> */}
+          <div>
+            {Auth.loggedIn() ? (
+              <>
+                <Nav.Link onClick={logout}>
+                  Logout
+                </Nav.Link>
+              </>
+            ) : (
+              <>
+                <SignUp show={showSignUpModal} onHide={() => setShowSignUpModal(false)} onShow={() => setShowSignUpModal(true)} showLoginModal={() => setShowLoginModal(true)} />
+                <Login show={showLoginModal} onHide={() => setShowLoginModal(false)} onShow={() => setShowLoginModal(true)} showSignUpModal={() => setShowSignUpModal(true)} />
+              </>
+            )}
+          </div>
+        </Navbar.Collapse>
+
+      </Navbar>
+      {/* <PageIndicator /> */}
     </>
-    
+
   );
 }
 
 export default Navigation;
-

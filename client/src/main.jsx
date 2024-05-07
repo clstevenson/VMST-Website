@@ -29,10 +29,10 @@ const router = createBrowserRouter([
         path: '/me',
         element: <Account />
       }, {
-        path: '/gallery',
-        element: <Gallery />
-      },
-      {
+      //   path: '/gallery',
+      //   element: <Gallery />
+      // },
+      // {
         path: '/upload',
         element: <UploadMembers />
       },
