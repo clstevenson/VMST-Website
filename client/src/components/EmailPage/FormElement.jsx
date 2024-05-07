@@ -7,7 +7,7 @@ const messageRegex = /^[a-zA-Z0-9!@#\$%\^\&*\)\(\;+=._\s]+$/;
 
 export default function EmailForm({register, errors}) {
     //returning the form component
-    
+
     return(
         <FormGroup>
             <FormGroup>

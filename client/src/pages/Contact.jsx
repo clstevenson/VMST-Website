@@ -10,6 +10,7 @@ import { EMAIL_GROUP } from "../utils/mutations";
 
 import {Form, FormGroup, FormText} from 'react-bootstrap'
 
+
 export default function EmailPage2() {
     const [emailLeaders, { error: leaderError }] = useMutation(EMAIL_LEADERS);
     const [emailGroup, { error: groupError }] = useMutation(EMAIL_GROUP);
@@ -18,6 +19,7 @@ export default function EmailPage2() {
         handleSubmit,
         setError,
         formState: { errors },
+        reset,
     } = useForm();
 
 
@@ -35,11 +37,13 @@ export default function EmailPage2() {
             if (emailData.id.length > 0){
                 try{
                     emailLeaders({ variables: { emailData } });
+                    reset();
                 } catch(err) {
                     console.log(err);
                 }
                 try{
                     emailGroup({ variables: { emailData } });
+                    reset();
                 } catch(err){
                     console.log(err);
                 }
