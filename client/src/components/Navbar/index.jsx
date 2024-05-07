@@ -45,6 +45,7 @@ function Navigation() {
         break;
       case '/gallery':
         setActivePage('Gallery');
+        break;
       case '/me':
         setActivePage('Account');
         break;
@@ -68,11 +69,11 @@ function Navigation() {
 
           </>
         )}
-          <Nav.Link className={activePage === 'Home' ? 'active' : ''}><Link to='/' style={{ color: 'white', textDecoration: 'none' }}>Home</ Link></Nav.Link>
-          <Nav.Link className={activePage === 'Gallery' ? 'active' : ''}><Link to='/' style={{ color: 'white', textDecoration: 'none' }}>Gallery</ Link></Nav.Link>
-          <Nav.Link className={activePage === 'About Us' ? 'active' : ''}><Link to='/about-us' style={{ color: 'white', textDecoration: 'none' }}>About Us</Link></Nav.Link>
-          <Nav.Link className={activePage === 'Contact' ? 'active' : ''}><Link to='/contact' style={{ color: 'white', textDecoration: 'none' }}>Contact</Link></Nav.Link>
-          {role === 'membership' && <Nav.Link className={activePage === 'Upload Members' ? 'active' : ''}><Link to="/upload" style={{ color: 'white', textDecoration: 'none' }}>Upload Members</Link></Nav.Link> }
+          <Nav.Link ><Link id="nav" to='/'  className={activePage === 'Home' ? 'active' : ''}>Home</ Link></Nav.Link>
+          <Nav.Link ><Link id="nav" to='/gallery'  className={activePage === 'Gallery' ? 'active' : ''}>Gallery</ Link></Nav.Link>
+          <Nav.Link ><Link id="nav" to='/about-us'  className={activePage === 'About Us' ? 'active' : ''}>About Us</Link></Nav.Link>
+          <Nav.Link ><Link id="nav" to='/contact'  className={activePage === 'Contact' ? 'active' : ''}>Contact</Link></Nav.Link>
+          {role === 'membership' && <Nav.Link><Link id="nav" to="/upload"  className={activePage === 'Upload Members' ? 'active' : ''}>Upload Members</Link></Nav.Link> }
 
         <div>
           {Auth.loggedIn() ? (
