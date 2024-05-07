@@ -42,6 +42,7 @@ function Navigation() {
           <Nav.Link><Link to='/about-us' style={{ color: 'white', textDecoration: 'none' }}>About Us</Link></Nav.Link>
           <Nav.Link><Link to='/contact' style={{ color: 'white', textDecoration: 'none' }}>Contact</Link></Nav.Link>
           {role === 'membership' && <Nav.Link><Link to="/upload" style={{ color: 'white', textDecoration: 'none' }}>Upload Members</Link></Nav.Link> }
+
         <div>
           {Auth.loggedIn() ? (
             <>

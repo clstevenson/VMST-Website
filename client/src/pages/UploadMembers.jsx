@@ -213,9 +213,9 @@ export default function UploadMembers() {
   return (
     <>
       <Container>
-        <h2>Upload Membership Roll</h2>
+        <h2 style={{marginTop:"20px", marginBottom:"20px"}}>Upload Membership Roll</h2>
 
-        <Card body>
+        <Card style={{marginBottom:"60px"}} body>
           <Form
             onSubmit={handleFormSubmit}
           >
@@ -253,7 +253,7 @@ export default function UploadMembers() {
         {/* when message is not an empty string, it is displayed */}
         {message && <Alert variant='success'> {message} </Alert>}
 
-        <Accordion>
+        <Accordion style={{marginBottom:"15px"}}>
           <Accordion.Item eventKey="0">
             <Accordion.Header>
               Instructions on generating membership CSV file
@@ -308,7 +308,7 @@ export default function UploadMembers() {
           </Accordion.Item>
         </Accordion>
 
-        <Card>
+        <Card style={{marginBottom:"60px"}}>
           <Card.Body>
             There are currently {numMembers} members in the LMSC, {numVMST} of whom are in VMST.
             <br />

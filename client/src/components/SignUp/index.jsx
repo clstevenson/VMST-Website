@@ -94,11 +94,8 @@ function SignUp(props) {
                     onChange={handleChange}
                 />
                 <br />
-                <Button variant="secondary" onClick={props.onHide}>
-            Cancel
-          </Button>
           <Button id="signUpColor" onClick={props.onHide}
-          className="btn btn-primary"
+          variant="info"
           style={{ cursor: 'pointer' }}
           type="submit">
             Sign Up
@@ -117,7 +114,7 @@ function SignUp(props) {
           </Modal.Body>
           <Modal.Footer>
             <p>Already have an account?</p>
-            <button onClick={displayLoginModal}>Login</button>
+            <Button variant="info" onClick={displayLoginModal}>Login</Button>
           </Modal.Footer>
         </Modal>
           </>

@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import App from './App.jsx'
 import Home from './pages/Home'
 import ErrorPage from './pages/ErrorPage'
+import Gallery from './pages/Gallery'
 import Account from './pages/Account'
 import Contact from './pages/Contact'
 import UploadMembers from './pages/UploadMembers'
@@ -27,6 +28,9 @@ const router = createBrowserRouter([
       }, {
         path: '/me',
         element: <Account />
+      }, {
+        path: '/gallery',
+        element: <Gallery />
       },
       {
         path: '/upload',

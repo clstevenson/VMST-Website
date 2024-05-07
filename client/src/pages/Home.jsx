@@ -15,6 +15,7 @@ function Home() {
         </div>
         <BlogPosts />
       </div>
+      {/* Comment AddPosts out before Demo */}
       <div id="addPosts">
         <AddPosts />
       </div>
