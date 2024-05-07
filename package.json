@@ -1,5 +1,5 @@
 {
-  "name": "vmst-communication-website",
+  "name": "vmst-website",
   "version": "1.0.0",
   "description": "",
   "main": "server/server.js",

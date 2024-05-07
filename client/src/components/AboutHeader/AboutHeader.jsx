@@ -1,4 +1,4 @@
-import image29 from '../../../public/image29.jpg'
+const image29 = '/assets/image29.jpg'
 
 const AltText = 'Swimmer Competing Against Other Teams During Their Relay';
 const url = image29;

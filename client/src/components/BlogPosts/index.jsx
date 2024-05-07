@@ -3,21 +3,23 @@ import Card from 'react-bootstrap/Card';
 import { useQuery } from '@apollo/client';
 import { QUERY_POSTS } from '../../utils/queries';
 import "../GenPageSetUp/index.css";
-import GeneralImagery from '../ImageAltConfig/ImageAltConfigGen'; // Import the GeneralImagery array
+import GeneralImagery from '../ImageAltConfig/ImageAltConfigGen';
+import shuffle from '../../utils/shuffle';
 
 function BlogPosts() {
-  const { loading, data, error } = useQuery(QUERY_POSTS);
+  const { loading, data } = useQuery(QUERY_POSTS);
   const posts = data?.posts;
 
   if (loading) return <p>loading...</p>;
 
+  // randomize order of image array
+  const shuffledImages = shuffle(GeneralImagery);
+
   return (
     <div id="blogPostsContainer" style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
       {posts.map((post, index) => {
-        // Generate a random image for each blog post
-        const randomIndex = Math.floor(Math.random() * GeneralImagery.length);
-        const randomImage = GeneralImagery[randomIndex];
-
+        // use modulo operator to repeat array if necessary
+        const randomImage = shuffledImages[index % shuffledImages.length];
         return (
           <div key={post._id} style={{ width: "25%", margin: "30px" }}>
             <Card style={{ width: "24rem", height: "38rem" }}>

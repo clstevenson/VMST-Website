@@ -11,7 +11,7 @@ function Home() {
       </div>
       <div id="blogPosts" style={{ width: "100%", display: "flex", justifyContent: "center" }}>
         <div>
-          <h3 style={{ color: "white", padding: "10px", marginTop: "10px" }}>Latest from VMST</h3>
+          <h3 style={{ color: "white", padding: "10px", marginTop: "10px" }}>Welcome from the Virginia Masters Swim Team!</h3>
         </div>
         <BlogPosts />
       </div>

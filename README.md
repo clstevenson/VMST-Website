@@ -17,9 +17,9 @@ The primary purpose of this website is to facilitate communication between VMST 
 - [License](#license)
 
 ## Deployment
-The demo website is [deployed on Render](https://vmst-communication-website-352o.onrender.com):
+The demo website is [deployed on Render](https://vmst-website.onrender.com):
 
-<https://vmst-communication-website-352o.onrender.com>
+<https://vmst-website.onrender.com>
 
 If VMST team leadership adopts this website we will eventually procure a domain name, which will be published here.
 
@@ -41,21 +41,11 @@ There are three additional types of users beyond the basic. Users may request th
 
 When leaders, coaches, website admins, or the Membership Coordinator log into the website they will have additional capabilities available to them through their Account Page or other pages that appear in the Navigation buttons.
 
-## Questions
-Reach out if you have questions that are not covered here!
-
-- GitHub username: Spikey1289
-- email: ianmstevenson1@gmail.com
-
 ## Contributions
-This website was initially created by the following individuals (GitHub usernames in parentheses):
+The [first version website](https://github.com/Spikey1289/VMST-Communication-Website) was initially created by the following individuals: Ian Stevenson, Chris Stevenson, De'Shawn Pair, and Brian Guthrie. Future development will continue on this fork by two collaborators:
 
-- Brian Guthrie
-- De'Shawn Pair
-- Ian Stevenson (Spikey1289)
-- Chris Stevenson (clstevenson)
-
-Future development of the website will continue on a [forked branch.](https://github.com/clstevenson/VMST-Communication-Website)
+- Chris Stevenson (chrislstevenson@gmail.com)
+- Ian Stevenson (ianmstevenson1@gmail.com)
 
 ## License
 This project is licensed under the terms of the [MIT license](https://opensource.org/licenses/MIT).

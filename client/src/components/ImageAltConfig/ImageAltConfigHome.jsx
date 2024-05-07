@@ -1,7 +1,7 @@
-import image3 from '../../../public/image3.jpg';
-import image4 from '../../../public/image4.jpg';
-import image18 from '../../../public/image18.jpg';
-import image20 from '../../../public/image20.jpg';
+const image3 = '/assets/image3.jpg';
+const image4 = '/assets/image4.jpg';
+const image18 = '/assets/image18.jpg';
+const image20 = '/assets/image20.jpg';
 
 const alt3 = 'Swimmer Smiling and Waving At Meet';
 const alt4 = 'Swimmers at a Lake';

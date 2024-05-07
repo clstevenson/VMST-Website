@@ -92,7 +92,7 @@ function Navigation() {
       </Navbar.Collapse>
 
     </Navbar>
-    <PageIndicator />
+    {/* <PageIndicator /> */}
     </>
     
   );
