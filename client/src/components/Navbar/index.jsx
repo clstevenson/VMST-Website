@@ -26,7 +26,7 @@ function Navigation() {
   return (
     <>
     <Navbar id="navColor" collapseOnSelect expand="lg">
-      <Navbar.Brand href="/"><img id="navLogo" src={vmstLogo} /></Navbar.Brand>
+        <Navbar.Brand ><Link to='/'><img id="navLogo" src={vmstLogo} /></Link></Navbar.Brand>
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />
       <Navbar.Collapse id="responsive-navbar-nav">
         {Auth.loggedIn() ? (
