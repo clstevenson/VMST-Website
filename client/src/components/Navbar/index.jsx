@@ -9,6 +9,7 @@ import Login from '../Login';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Auth from '../../utils/auth';
+import { Link } from 'react-router-dom';
 
 function Navigation() {
   const logout = (event) => {
@@ -42,6 +43,8 @@ function Navigation() {
       case '/upload':
         setActivePage('Upload Members');
         break;
+      case '/gallery':
+        setActivePage('Gallery');
       case '/me':
         setActivePage('Account');
         break;
@@ -53,7 +56,7 @@ function Navigation() {
   return (
     <>
     <Navbar id="navColor" collapseOnSelect expand="lg">
-      <Navbar.Brand href="/"><img id="navLogo" src={vmstLogo} /></Navbar.Brand>
+        <Navbar.Brand ><Link to='/'><img id="navLogo" src={vmstLogo} /></Link></Navbar.Brand>
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />
       <Navbar.Collapse id="responsive-navbar-nav">
         {Auth.loggedIn() ? (
@@ -65,10 +68,12 @@ function Navigation() {
 
           </>
         )}
-        <Nav.Link href="/" className={activePage === 'Home' ? 'active' : ''}>Home</Nav.Link>
-        <Nav.Link href="/about-us" className={activePage === 'About Us' ? 'active' : ''}>About Us</Nav.Link>
-        <Nav.Link href="/contact" className={activePage === 'Contact' ? 'active' : ''}>Contact</Nav.Link>
-        { role === 'membership' && <Nav.Link href="/upload" className={activePage === 'Upload Members' ? 'active' : ''}>Upload Members</Nav.Link> }
+          <Nav.Link className={activePage === 'Home' ? 'active' : ''}><Link to='/' style={{ color: 'white', textDecoration: 'none' }}>Home</ Link></Nav.Link>
+          <Nav.Link className={activePage === 'Gallery' ? 'active' : ''}><Link to='/' style={{ color: 'white', textDecoration: 'none' }}>Gallery</ Link></Nav.Link>
+          <Nav.Link className={activePage === 'About Us' ? 'active' : ''}><Link to='/about-us' style={{ color: 'white', textDecoration: 'none' }}>About Us</Link></Nav.Link>
+          <Nav.Link className={activePage === 'Contact' ? 'active' : ''}><Link to='/contact' style={{ color: 'white', textDecoration: 'none' }}>Contact</Link></Nav.Link>
+          {role === 'membership' && <Nav.Link className={activePage === 'Upload Members' ? 'active' : ''}><Link to="/upload" style={{ color: 'white', textDecoration: 'none' }}>Upload Members</Link></Nav.Link> }
+
         <div>
           {Auth.loggedIn() ? (
             <>
