@@ -2,7 +2,7 @@ import { useQuery} from '@apollo/client';
 import { useState } from 'react';
 import { QUERY_LEADERS, QUERY_WORKOUT_GROUP } from '../../utils/queries';
 import getGroups from '../../utils/getGroups';
-import {Button, Offcanvas, Collapse} from 'react-bootstrap';
+import {Button, Offcanvas, Collapse, FormGroup} from 'react-bootstrap';
 
 export default function AsideSelector({ register, errors }) {
     const { loading: leadersLoading, data: leadersData } = useQuery(QUERY_LEADERS);
@@ -16,7 +16,7 @@ export default function AsideSelector({ register, errors }) {
     const handleClose = () => setShow(false);
 
     return (
-        <>
+        <FormGroup>
             <Button type='button' variant={errors["recipient"] ? 'danger' : 'primary'} onClick={handleShow}>Select Recipients</Button>
 
             <Offcanvas show={show} onHide={handleClose}>
@@ -73,6 +73,6 @@ export default function AsideSelector({ register, errors }) {
                     )}
                 </Offcanvas.Body>
             </Offcanvas>
-        </>
+        </FormGroup>
     )
 }

@@ -8,6 +8,7 @@ import SignUp from '../SignUp';
 import Login from '../Login';
 import { useState } from 'react';
 import Auth from '../../utils/auth';
+import { Link } from 'react-router-dom';
 
 function Navigation() {
   const logout = (event) => {
@@ -25,23 +26,23 @@ function Navigation() {
   return (
     <>
     <Navbar id="navColor" collapseOnSelect expand="lg">
-      <Navbar.Brand href="/"><img id="navLogo" src={vmstLogo} /></Navbar.Brand>
+        <Navbar.Brand ><Link to='/'><img id="navLogo" src={vmstLogo} /></Link></Navbar.Brand>
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />
       <Navbar.Collapse id="responsive-navbar-nav">
         {Auth.loggedIn() ? (
           <>
-            <Button href="/me" id="accountButton">Account</Button>{' '}
+            <Button to="/me" id="accountButton">Account</Button>{' '}
           </>
         ) : (
           <>
 
           </>
         )}
-        <Nav.Link href="/">Home</Nav.Link>
-        <Nav.Link href="/about-us">About Us</Nav.Link>
-        <Nav.Link href="/gallery">Gallery</Nav.Link>
-        <Nav.Link href="/contact">Contact</Nav.Link>
-        { role === 'membership' && <Nav.Link href="/upload">Upload Members</Nav.Link> }
+          <Nav.Link><Link to='/' style={{ color: 'white', textDecoration: 'none' }}>Home</ Link></Nav.Link>
+          <Nav.Link><Link to='/about-us' style={{ color: 'white', textDecoration: 'none' }}>About Us</Link></Nav.Link>
+          <Nav.Link><Link to='/contact' style={{ color: 'white', textDecoration: 'none' }}>Contact</Link></Nav.Link>
+          {role === 'membership' && <Nav.Link><Link to="/upload" style={{ color: 'white', textDecoration: 'none' }}>Upload Members</Link></Nav.Link> }
+
         <div>
           {Auth.loggedIn() ? (
             <>
