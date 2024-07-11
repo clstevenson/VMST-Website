@@ -3,7 +3,7 @@ import Card from 'react-bootstrap/Card';
 import { useQuery } from '@apollo/client';
 import { QUERY_POSTS } from '../../utils/queries';
 import "../GenPageSetUp/index.css";
-import GeneralImagery from '../ImageAltConfig/ImageAltConfigGen';
+import GeneralImagery from '../../assets/photos';
 import shuffle from '../../utils/shuffle';
 
 function BlogPosts() {
