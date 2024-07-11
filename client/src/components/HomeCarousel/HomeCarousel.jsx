@@ -1,5 +1,5 @@
 import Carousel from "react-bootstrap/Carousel";
-import bannerPhotos from "../../assets/banner-photos";
+import bannerPhotos from "../../utils/banner-photos";
 
 function HomeCarousel() {
   return (
