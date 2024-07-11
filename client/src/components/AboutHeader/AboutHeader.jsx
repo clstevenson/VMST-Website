@@ -1,13 +1,16 @@
-const image29 = '/assets/image29.jpg'
+const url = "/assets/photos/image29.jpg";
+const altText = "VMST swimmer diving off the blocks";
 
-const AltText = 'Swimmer Competing Against Other Teams During Their Relay';
-const url = image29;
-function AboutHeader () {
-return (
-<div>
-<img src={url} alt={AltText} style={{width:"100%", height:"400px"}}/>
-</div>
-    );
+function AboutHeader() {
+  return (
+    <div>
+      <img
+        src={url}
+        alt={altText}
+        style={{ width: "100%", height: "400px", objectFit: "cover" }}
+      />
+    </div>
+  );
 }
 
 export default AboutHeader;
