@@ -1,29 +1,29 @@
-import './App.css';
 import {
   ApolloClient,
   InMemoryCache,
   ApolloProvider,
   createHttpLink,
-} from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
+} from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 
-import { Outlet } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { Outlet } from "react-router-dom";
+import GlobalStyles from "../GlobalStyles";
 
-import Footer from './components/Footer';
-import Navbar from './components/Navbar';
+import Footer from "./components/Footer";
+import Navbar from "./components/Navbar";
+import styled from "styled-components";
 
-const httpLink = createHttpLink({uri: '/graphql'});
+const httpLink = createHttpLink({ uri: "/graphql" });
 
 // Construct request middleware that will attach the JWT token to every request as an `authorization` header
 const authLink = setContext((_, { headers }) => {
   // get the authentication token from local storage if it exists
-  const token = localStorage.getItem('id_token');
+  const token = localStorage.getItem("id_token");
   // return the headers to the context so httpLink can read them
   return {
     headers: {
       ...headers,
-      authorization: token ? `Bearer ${token}` : '',
+      authorization: token ? `Bearer ${token}` : "",
     },
   };
 });
@@ -36,13 +36,22 @@ const client = new ApolloClient({
 function App() {
   return (
     <ApolloProvider client={client}>
-      <div className="flex-column justify-flex-start min-100-vh">
-          <Navbar />
+      <GlobalStyles />
+      <Wrapper>
+        <Navbar />
+        <main>
           <Outlet />
+        </main>
         <Footer />
-      </div>
+      </Wrapper>
     </ApolloProvider>
   );
 }
+
+const Wrapper = styled.div`
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+`;
 
 export default App;
