@@ -1,4 +1,4 @@
-import postPhotos from "../../assets/photos";
+import postPhotos from "../../utils/post-photos";
 import Card from "react-bootstrap/Card";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";

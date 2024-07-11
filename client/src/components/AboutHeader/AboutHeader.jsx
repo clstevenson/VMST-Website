@@ -1,7 +1,6 @@
-const image29 = "./src/assets/photos/image29.jpg";
-
+const url = "/assets/photos/image29.jpg";
 const altText = "VMST swimmer diving off the blocks";
-const url = image29;
+
 function AboutHeader() {
   return (
     <div>
