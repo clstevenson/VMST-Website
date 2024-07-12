@@ -1,11 +1,9 @@
 import "../components/GenPageSetUp/index.css";
 import FAQs from "../components/FAQs/FAQs";
-import AboutHeader from "../components/AboutHeader/AboutHeader";
 
 function AboutUs() {
   return (
     <>
-      <AboutHeader />
       <div className="formatpage">
         <h2 style={{ textAlign: "center" }}>About Us</h2>
         <div id="content">
