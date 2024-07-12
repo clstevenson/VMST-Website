@@ -14,10 +14,13 @@ html, body, #root {
   height: 100%;
 }
 
-/* Typographic tweaks  */
 body {
+  /* Typographic tweaks  */
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  /* limit width (centered on wide screens) */
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
 /* Remove built-in form typography styles */
@@ -53,7 +56,6 @@ html {
   font-family: var(--font-sans-serif);
   /* background-color: ${COLORS.gray[100]}; */
 }
-
 `;
 
 export default GlobalStyles;

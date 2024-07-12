@@ -11,6 +11,7 @@ import GlobalStyles from "../GlobalStyles";
 
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
+import Header from "./components/Header";
 import styled from "styled-components";
 
 const httpLink = createHttpLink({ uri: "/graphql" });
@@ -38,7 +39,8 @@ function App() {
     <ApolloProvider client={client}>
       <GlobalStyles />
       <Wrapper>
-        <Navbar />
+        <Header />
+        {/* <Navbar /> */}
         <main>
           <Outlet />
         </main>
@@ -52,6 +54,7 @@ const Wrapper = styled.div`
   min-height: 100%;
   display: flex;
   flex-direction: column;
+  padding: 16px;
 `;
 
 export default App;
