@@ -10,6 +10,7 @@ import styled from "styled-components";
 import { COLORS, QUERIES } from "../utils/constants";
 import { Image, Home, User, Info, Send } from "react-feather";
 import * as Tooltip from "@radix-ui/react-tooltip";
+import auth from "../utils/auth";
 
 export default function NavBar() {
   // get the current page to indicate the current link
@@ -25,13 +26,18 @@ export default function NavBar() {
         <NavItem href="/about-us" label="About" icon={Info} />
         <NavItem href="/gallery" label="Photos" icon={Image} />
         <NavItem href="/contact" label="Contact" icon={Send} />
-        <NavItem href="/me" label="User" icon={User} />
+        {auth.loggedIn() ? (
+          <NavItem href="/me" label="User" icon={User} />
+        ) : (
+          <LoginItem />
+        )}
       </Tooltip.Provider>
     </Wrapper>
   );
 }
 
-// internal component for convenience
+// internal components for convenience
+// NavItem is for client-side routing with tooltips
 const NavItem = ({ href, label, icon: Icon }) => {
   const currentPage = useLocation().pathname;
   return (
@@ -47,6 +53,24 @@ const NavItem = ({ href, label, icon: Icon }) => {
         </ListItem>
         <TooltipContent aria-label={label}>{label}</TooltipContent>
       </TooltipTrigger>
+    </Tooltip.Root>
+  );
+};
+
+// looks like a navlink but is actually a trigger to display
+// the login modal
+const LoginItem = () => {
+  return (
+    <Tooltip.Root>
+      <TooltipTrigger tabIndex={-1}>
+        <ListItem>
+          <Button onClick={() => alert("Logging in")}>
+            <User />
+            <LabelWrapper>Log In</LabelWrapper>
+          </Button>
+        </ListItem>
+      </TooltipTrigger>
+      <TooltipContent aria-label="Login">Log In</TooltipContent>
     </Tooltip.Root>
   );
 };
@@ -124,6 +148,10 @@ const Button = styled.button`
   &:hover {
     cursor: pointer;
     color: ${COLORS.primary_light};
+  }
+
+  &:focus {
+    border-radius: 0;
   }
 `;
 
