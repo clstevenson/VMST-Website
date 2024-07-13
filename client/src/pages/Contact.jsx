@@ -1,7 +1,6 @@
 // import { useState } from "react";
 import EmailForm from "../components/EmailPage/FormElement";
 import AsideSelector from "../components/EmailPage/AsideSelector";
-import "../components/GenPageSetUp/index.css";
 import { useForm } from "react-hook-form";
 
 import { useMutation } from '@apollo/client';

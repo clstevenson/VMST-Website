@@ -1,7 +1,5 @@
 import BlogPosts from "../components/BlogPosts/index";
-import HomeCarousel from "../components/HomeCarousel/HomeCarousel";
 import AddPosts from "../components/AddPosts";
-import "../components/GenPageSetUp/index.css";
 
 function Home() {
   return (

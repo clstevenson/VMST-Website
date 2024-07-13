@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* 
  Cycles through hero images chosen from among the VMST photos.
  Should display the range of activities (and fun) of VMST swimming.

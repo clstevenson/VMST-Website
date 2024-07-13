@@ -1,4 +1,3 @@
-import "../components/GenPageSetUp/index.css";
 import FAQs from "../components/FAQs/FAQs";
 
 function AboutUs() {

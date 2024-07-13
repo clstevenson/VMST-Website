@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import '../GenPageSetUp/index.css';
 import { Form, Button, Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useMutation } from '@apollo/client';

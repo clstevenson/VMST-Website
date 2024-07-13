@@ -3,7 +3,7 @@
  */
 
 import styled from "styled-components";
-import { QUERIES, COLORS } from "../utils/constants";
+import { COLORS, QUERIES } from "../utils/constants";
 import NavBar from "./NavBar";
 
 export default function Header() {
@@ -34,6 +34,7 @@ const Wrapper = styled.div`
 const Title = styled.h1`
   margin-right: auto;
   font-size: 1.8em;
+  color: ${COLORS.primary};
 
   @media ${QUERIES.tabletAndLess} {
     display: none;

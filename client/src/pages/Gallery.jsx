@@ -1,4 +1,3 @@
-import "../components/GenPageSetUp/index.css";
 import GalleryContent from "../components/GalleryContent/GalleryContent";
 
 function Gallery() {

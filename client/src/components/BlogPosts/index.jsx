@@ -2,7 +2,6 @@ import React from "react";
 import Card from "react-bootstrap/Card";
 import { useQuery } from "@apollo/client";
 import { QUERY_POSTS } from "../../utils/queries";
-import "../GenPageSetUp/index.css";
 import postPhotos from "../../utils/post-photos";
 import shuffle from "../../utils/shuffle";
 
