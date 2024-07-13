@@ -12,7 +12,7 @@ export const COLORS = {
   primary_dark: "hsl(267deg 36% 30%)",
   primary_light: "hsl(267deg 50% 60%)",
   secondary: "hsl(60deg 80% 45%)",
-  secondary_light: "hsl(60deg 100% 50%)",
+  secondary_light: "hsl(60deg 100% 50% / 0.5)",
   secondary_dark: "hsl(60deg 80% 40%)",
   urgent: "hsl(0deg 75% 40%)",
 };

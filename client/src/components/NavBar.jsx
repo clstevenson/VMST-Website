@@ -8,80 +8,119 @@
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { COLORS, QUERIES } from "../utils/constants";
+import { Image, Home, User, Info, Send } from "react-feather";
+import * as Tooltip from "@radix-ui/react-tooltip";
 
 export default function NavBar() {
   // get the current page to indicate the current link
-  const currentPage = useLocation().pathname;
-
-  const navLinks = [
-    {
-      id: crypto.randomUUID(),
-      label: "Home",
-      href: "/",
-    },
-    {
-      id: crypto.randomUUID(),
-      label: "About",
-      href: "/about-us",
-    },
-    {
-      id: crypto.randomUUID(),
-      label: "Gallery",
-      href: "/gallery",
-    },
-    {
-      id: crypto.randomUUID(),
-      label: "Contact",
-      href: "/contact",
-    },
-    {
-      id: crypto.randomUUID(),
-      label: "Account",
-      href: "/me",
-    },
-  ];
 
   // TODO Need some logic here: create a filtered array depending on login status
-  // TODO Add appropiate icon to each array element, should be a separate property
-  // TODO Add prop to component on whether to display text and icons or just icons
   // TODO Use Radix navigation component but it must be coupled with client-side serving
   // (Another option: add accessibility elements myself)
+  // Add tooltip to nav items (certainly when only icons shown)
 
   return (
     <Wrapper>
-      {navLinks.map((link) => (
-        <ListItem key={link.id} isCurrent={link.href === currentPage}>
-          <NavLink to={link.href}>{link.label}</NavLink>
-        </ListItem>
-      ))}
+      <Tooltip.Provider delayDuration={0}>
+        <NavItem href="/" label="Home" icon={Home} />
+        <NavItem href="/about-us" label="About" icon={Info} />
+        <NavItem href="/gallery" label="Photos" icon={Image} />
+        <NavItem href="/contact" label="Contact" icon={Send} />
+        <NavItem href="/me" label="User" icon={User} />
+      </Tooltip.Provider>
     </Wrapper>
   );
 }
 
+// internal component for convenience
+const NavItem = ({ href, label, icon: Icon }) => {
+  const currentPage = useLocation().pathname;
+  return (
+    <Tooltip.Root>
+      <TooltipTrigger>
+        <ListItem>
+          <NavLink to={href}>
+            <Button isCurrent={href === currentPage}>
+              <Icon />
+              <LabelWrapper>{label}</LabelWrapper>
+            </Button>
+          </NavLink>
+        </ListItem>
+        <TooltipContent aria-label={label}>{label}</TooltipContent>
+      </TooltipTrigger>
+    </Tooltip.Root>
+  );
+};
+
 // Styled components
-const Wrapper = styled.ul`
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
-  font-size: 1.15rem;
-  list-style: none;
+const TooltipTrigger = styled(Tooltip.Trigger)`
+  background-color: transparent;
+  border: none;
+  padding: 0;
+`;
+
+const TooltipContent = styled(Tooltip.Content)`
+  display: none;
 
   @media ${QUERIES.tabletAndLess} {
-    gap: 10px;
+    display: revert;
+  }
+`;
+
+const Wrapper = styled.ul`
+  display: flex;
+  position: relative;
+  flex-direction: row;
+  font-size: 1.15rem;
+  list-style: none;
+  padding: 0 3px;
+  border-bottom: 1.5px solid ${COLORS.gray[500]};
+
+  @media ${QUERIES.tabletAndLess} {
     font-size: 1rem;
   }
 `;
 
-const ListItem = styled.li`
-  padding: 0 4px;
-  transition: transform 400ms;
-  border-bottom: ${({ isCurrent }) => {
-    return isCurrent && "2px solid " + COLORS.primary;
+const Button = styled.button`
+  border: none;
+  /* uncomment line below if you want all tabs for links (not just current page) */
+  /* border: 1px dotted ${COLORS.gray[500]}; */
+  padding: 0 8px;
+  padding-top: 2px;
+  color: ${COLORS.primary_dark};
+  border: ${({ isCurrent }) => {
+    return isCurrent && `1px solid ${COLORS.gray[500]}`;
   }};
+  border-bottom: none;
+  background-color: ${({ isCurrent }) => {
+    return isCurrent ? COLORS.secondary_light : "transparent";
+  }};
+
+  border-radius: 6px 6px 0 0;
+
+  &:hover {
+    cursor: pointer;
+    color: ${COLORS.primary_light};
+  }
+`;
+
+const LabelWrapper = styled.span`
+  @media ${QUERIES.tabletAndLess} {
+    display: none;
+  }
+`;
+
+const ListItem = styled.li`
+  transition: transform 400ms;
+
+  & svg {
+    transform: translateY(2px);
+    margin-right: 2px;
+  }
 
   &:hover {
     transform-origin: 50% 100%;
-    transform: scale(1.1);
+    transform: scale(1.05);
     transition: transform 200ms;
   }
 `;
