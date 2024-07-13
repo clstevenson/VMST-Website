@@ -15,9 +15,8 @@ export default function NavBar() {
   // get the current page to indicate the current link
 
   // TODO Need some logic here: create a filtered array depending on login status
-  // TODO Use Radix navigation component but it must be coupled with client-side serving
+  // TODO Possibly use Radix navigation component but it must be coupled with client-side serving
   // (Another option: add accessibility elements myself)
-  // Add tooltip to nav items (certainly when only icons shown)
 
   return (
     <Wrapper>
@@ -37,10 +36,10 @@ const NavItem = ({ href, label, icon: Icon }) => {
   const currentPage = useLocation().pathname;
   return (
     <Tooltip.Root>
-      <TooltipTrigger>
+      <TooltipTrigger tabIndex={-1}>
         <ListItem>
           <NavLink to={href}>
-            <Button isCurrent={href === currentPage}>
+            <Button isCurrent={href === currentPage} tabIndex={-1}>
               <Icon />
               <LabelWrapper>{label}</LabelWrapper>
             </Button>
@@ -81,6 +80,30 @@ const Wrapper = styled.ul`
   }
 `;
 
+const ListItem = styled.li`
+  transition: transform 400ms;
+
+  & svg {
+    transform: translateY(2px);
+    margin-right: 2px;
+  }
+
+  &:hover {
+    transform-origin: 50% 100%;
+    transform: scale(1.05);
+    transition: transform 200ms;
+  }
+`;
+
+const NavLink = styled(Link)`
+  color: ${COLORS.primary};
+  text-decoration: none;
+
+  ${ListItem}:hover & {
+    color: ${COLORS.primary_light};
+  }
+`;
+
 const Button = styled.button`
   border: none;
   /* uncomment line below if you want all tabs for links (not just current page) */
@@ -107,29 +130,5 @@ const Button = styled.button`
 const LabelWrapper = styled.span`
   @media ${QUERIES.tabletAndLess} {
     display: none;
-  }
-`;
-
-const ListItem = styled.li`
-  transition: transform 400ms;
-
-  & svg {
-    transform: translateY(2px);
-    margin-right: 2px;
-  }
-
-  &:hover {
-    transform-origin: 50% 100%;
-    transform: scale(1.05);
-    transition: transform 200ms;
-  }
-`;
-
-const NavLink = styled(Link)`
-  color: ${COLORS.primary};
-  text-decoration: none;
-
-  ${ListItem}:hover & {
-    color: ${COLORS.primary_light};
   }
 `;
