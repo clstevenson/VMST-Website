@@ -15,21 +15,19 @@ html, body, #root {
   height: 100%;
 }
 
-/* want body centered horizontally */
-html {
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: center;
-}
-
 body {
   /* Typographic tweaks  */
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  /* limit width (centered on wide screens) */
   width: 100%;
-  max-width: 1600px;
-  background-color: var(--content-bkd-color);
+  background-color: ${COLORS.white};
+}
+
+/* limit content width and center it */
+/* note that this is the root div element for React */
+#root {
+  display: grid;
+  grid-template-columns: 1fr min(100%, 1600px) 1fr;
 }
 
 /* Remove built-in form typography styles */
@@ -65,9 +63,6 @@ html {
   font-family: var(--font-sans-serif);
   /* color of bkgd "behind" the content */
   /* background-color: hsl(267deg 25% 50% / 0.2); */
-
-  --content-bkd-color: ${COLORS.white}; /* apply to page wrappers */
-  --content-padding: 16px;   /* apply to page wrappers */
   --subheading-size: 1.4em;  /* usually an h2 element */
 }
 `;

@@ -16,10 +16,7 @@ export default function Home() {
   );
 }
 
-const Wrapper = styled.div`
-  background-color: var(--content-bkd-color);
-  padding: var(--content-padding);
-`;
+const Wrapper = styled.div``;
 
 const PostWrapper = styled.div``;
 

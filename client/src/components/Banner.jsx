@@ -42,7 +42,7 @@ export default function Banner({ duration }) {
 }
 
 const Wrapper = styled.div`
-  padding: var(--content-padding);
+  margin: 16px 0;
 `;
 
 const Image = styled.img`

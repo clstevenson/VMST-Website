@@ -81,7 +81,4 @@ export default function EmailPage2() {
   );
 }
 
-const Wrapper = styled.div`
-  background-color: var(--content-bkd-color);
-  padding: var(--content-padding);
-`;
+const Wrapper = styled.div``;

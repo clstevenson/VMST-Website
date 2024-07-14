@@ -26,7 +26,4 @@ export default function AboutUs() {
   );
 }
 
-const Wrapper = styled.article`
-  background-color: var(--content-bkd-color);
-  padding: var(--content-padding);
-`;
+const Wrapper = styled.article``;

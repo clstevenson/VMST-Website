@@ -10,10 +10,7 @@ export default function Gallery() {
   );
 }
 
-const Wrapper = styled.div`
-  background-color: var(--content-bkd-color);
-  padding: var(--content-padding);
-`;
+const Wrapper = styled.div``;
 
 const Title = styled.h2`
   font-size: 1.4rem;
