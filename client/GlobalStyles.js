@@ -8,10 +8,18 @@ const GlobalStyles = createGlobalStyle`
 
 * {
   margin: 0;
+  padding: 0;
 }
 
 html, body, #root {
   height: 100%;
+}
+
+/* want body centered horizontally */
+html {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
 }
 
 body {
@@ -19,8 +27,9 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   /* limit width (centered on wide screens) */
+  width: 100%;
   max-width: 1600px;
-  margin: 0 auto;
+  background-color: var(--content-bkd-color);
 }
 
 /* Remove built-in form typography styles */
@@ -54,7 +63,12 @@ a {
 
 html {
   font-family: var(--font-sans-serif);
-  /* background-color: ${COLORS.gray[100]}; */
+  /* color of bkgd "behind" the content */
+  /* background-color: hsl(267deg 25% 50% / 0.2); */
+
+  --content-bkd-color: ${COLORS.white}; /* apply to page wrappers */
+  --content-padding: 16px;   /* apply to page wrappers */
+  --subheading-size: 1.4em;  /* usually an h2 element */
 }
 `;
 

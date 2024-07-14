@@ -1,26 +1,29 @@
+import styled from "styled-components";
 import BlogPosts from "../components/BlogPosts/index";
-import AddPosts from "../components/AddPosts";
+import { COLORS } from "../utils/constants";
 
-function Home() {
+export default function Home() {
   return (
-    <>
-      <div
-        id="blogPosts"
-        style={{ width: "100%", display: "flex", justifyContent: "center" }}
-      >
-        <div>
-          <h3 style={{ color: "white", padding: "10px", marginTop: "10px" }}>
-            Welcome from the Virginia Masters Swim Team!
-          </h3>
-        </div>
+    <Wrapper>
+      <Title>Check out the latest news from VMST!</Title>
+      <PostWrapper>
+        {/* Will want 1-2 "featured" posts */}
+        {/* The rest will be photos and titles only (I think) */}
+        {/* Photos are optional */}
         <BlogPosts />
-      </div>
-      {/* Comment AddPosts out before Demo */}
-      <div id="addPosts">
-        <AddPosts />
-      </div>
-    </>
+      </PostWrapper>
+    </Wrapper>
   );
 }
 
-export default Home;
+const Wrapper = styled.div`
+  background-color: var(--content-bkd-color);
+  padding: var(--content-padding);
+`;
+
+const PostWrapper = styled.div``;
+
+const Title = styled.h2`
+  color: ${COLORS.primary};
+  font-size: 1.4em;
+`;

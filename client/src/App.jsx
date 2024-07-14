@@ -55,7 +55,6 @@ const Wrapper = styled.div`
   min-height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 16px;
 `;
 
 export default App;

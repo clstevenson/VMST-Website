@@ -25,6 +25,7 @@ const Wrapper = styled.div`
   align-items: center;
   gap: 16px;
   background-color: transparent;
+  padding: var(--content-padding);
 
   @media ${QUERIES.tabletAndLess} {
     gap: 12px;
@@ -45,6 +46,7 @@ const ShortTitle = styled.h1`
   display: none;
   margin-right: auto;
   line-height: 1.3em;
+  color: ${COLORS.primary};
 
   @media ${QUERIES.tabletAndLess} {
     display: revert;

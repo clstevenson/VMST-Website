@@ -8,6 +8,7 @@ export const COLORS = {
     700: "hsl(28deg 5% 40%)",
     900: "hsl(24deg 6% 16%)",
   },
+  overlay: "hsl(24deg 6% 16% / 0.7)",
   primary: "hsl(267deg 36% 45%)",
   primary_dark: "hsl(267deg 36% 30%)",
   primary_light: "hsl(267deg 50% 60%)",

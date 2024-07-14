@@ -1,4 +1,5 @@
-import React from "react";
+import styled from "styled-components";
+
 import Card from "react-bootstrap/Card";
 import { useQuery } from "@apollo/client";
 import { QUERY_POSTS } from "../../utils/queries";
@@ -16,8 +17,11 @@ function BlogPosts() {
 
   return (
     <div
-      id="blogPostsContainer"
-      style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
+      }}
     >
       {posts.map((post, index) => {
         // use modulo operator to repeat array if necessary

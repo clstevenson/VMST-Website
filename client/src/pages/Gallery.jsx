@@ -1,21 +1,20 @@
+import styled from "styled-components";
 import GalleryContent from "../components/GalleryContent/GalleryContent";
 
-function Gallery() {
+export default function Gallery() {
   return (
-    <>
-      <div id="formatpage">
-        <h1
-          style={{
-            textAlign: "center",
-            marginTop: "20px",
-            marginBottom: "20px",
-          }}
-        >
-          Gallery
-        </h1>
-        <GalleryContent />
-      </div>
-    </>
+    <Wrapper>
+      <Title>Gallery</Title>
+      <GalleryContent />
+    </Wrapper>
   );
 }
-export default Gallery;
+
+const Wrapper = styled.div`
+  background-color: var(--content-bkd-color);
+  padding: var(--content-padding);
+`;
+
+const Title = styled.h2`
+  font-size: 1.4rem;
+`;

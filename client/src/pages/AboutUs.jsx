@@ -1,8 +1,9 @@
+import styled from "styled-components";
 import FAQs from "../components/FAQs/FAQs";
 
-function AboutUs() {
+export default function AboutUs() {
   return (
-    <>
+    <Wrapper>
       <div className="formatpage">
         <h2 style={{ textAlign: "center" }}>About Us</h2>
         <div id="content">
@@ -21,8 +22,11 @@ function AboutUs() {
           </div>
         </div>
       </div>
-    </>
+    </Wrapper>
   );
 }
 
-export default AboutUs;
+const Wrapper = styled.article`
+  background-color: var(--content-bkd-color);
+  padding: var(--content-padding);
+`;

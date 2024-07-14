@@ -21,14 +21,17 @@ export default function Footer() {
 }
 
 const Wrapper = styled.footer`
+  background-color: var(--content-bkd-color);
   width: 100%;
   height: 54px;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 32px;
-  padding: 4px 0;
+  padding: 4px 0 8px;
   margin-top: auto;
+  /* zero out line height to get rid of scrollbar on short pages */
+  line-height: 0;
 `;
 
 const Link = styled.a`
