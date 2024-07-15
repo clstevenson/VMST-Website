@@ -1,20 +1,43 @@
 export const COLORS = {
   white: "hsl(0deg 0% 100%)",
   offblack: "hsl(24deg 5% 6%)",
-  gray: {
-    100: "hsl(40deg 12% 95%)",
-    300: "hsl(35deg 8% 80%)",
-    500: "hsl(30deg 4% 60%)",
-    700: "hsl(28deg 5% 40%)",
-    900: "hsl(24deg 6% 16%)",
+  // backdrop overlays for modals
+  overlay: "hsl(24deg 6% 16% / 0.2)",
+  // color scheme based on "VMST logo purple" color
+  //bkgds: 1-2, interactives: 3-5, borders: 6-8, color: 9-10, text: 11-12
+  accent: {
+    1: "hsl(276deg 56% 99%)",
+    2: "hsl(268deg 63% 98%)",
+    3: "hsl(259deg 66% 96%)",
+    4: "hsl(263deg 73% 94%)",
+    5: "hsl(262deg 71% 91%)",
+    6: "hsl(263deg 61% 87%)",
+    7: "hsl(264deg 52% 81%)",
+    8: "hsl(265deg 48% 73%)",
+    9: "hsl(267deg 37% 45%)",
+    10: "hsl(268deg 42% 39%)",
+    11: "hsl(267deg 35% 48%)",
+    12: "hsl(268deg 39% 24%)",
   },
-  overlay: "hsl(24deg 6% 16% / 0.7)",
-  primary: "hsl(267deg 36% 45%)",
-  primary_dark: "hsl(267deg 36% 30%)",
-  primary_light: "hsl(267deg 50% 60%)",
+  gray: {
+    1: "hsl(242deg 22% 99%)",
+    2: "hsl(241deg 22% 98%)",
+    3: "hsl(241deg 12% 95%)",
+    4: "hsl(227deg 13% 92%)",
+    5: "hsl(229deg 12% 89%)",
+    6: "hsl(229deg 10% 86%)",
+    7: "hsl(233deg 11% 82%)",
+    8: "hsl(229deg 10% 75%)",
+    9: "hsl(234deg 6% 57%)",
+    10: "hsl(234deg 5% 53%)",
+    11: "hsl(233deg 5% 41%)",
+    12: "hsl(229deg 10% 13%)",
+  },
+  // yellow highlighting
   secondary: "hsl(60deg 80% 45%)",
   secondary_light: "hsl(60deg 100% 50% / 0.5)",
   secondary_dark: "hsl(60deg 80% 40%)",
+  // error/attention needed
   urgent: "hsl(0deg 75% 40%)",
 };
 

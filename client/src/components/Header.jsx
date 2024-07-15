@@ -35,7 +35,7 @@ const Wrapper = styled.div`
 const Title = styled.h1`
   margin-right: auto;
   font-size: 1.8em;
-  color: ${COLORS.primary};
+  color: ${COLORS.accent[9]};
 
   @media ${QUERIES.tabletAndLess} {
     display: none;
@@ -46,7 +46,7 @@ const ShortTitle = styled.h1`
   display: none;
   margin-right: auto;
   line-height: 1.3em;
-  color: ${COLORS.primary};
+  color: ${COLORS.accent[9]};
 
   @media ${QUERIES.tabletAndLess} {
     display: revert;
