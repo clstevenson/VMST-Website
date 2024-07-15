@@ -18,6 +18,8 @@ import styled from "styled-components";
 import { Image, Home, User, Info, Send, X } from "react-feather";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import * as Dialog from "@radix-ui/react-dialog";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+import * as Separator from "@radix-ui/react-separator";
 
 import auth from "../utils/auth";
 import { LOGIN_USER } from "../utils/mutations";
@@ -119,53 +121,63 @@ const LoginItem = ({ email, password, setEmail, setPassword }) => {
       {/* Login modal window is below */}
       <Dialog.Portal>
         <DialogOverlay />
-          <DialogContent>
-            <Xclose asChild>
-              <X />
-            </Xclose>
-            {/* <DialogTitle>Login</DialogTitle> */}
-              <DialogDescription>
-                Enter your login information below.
-              </DialogDescription>
-              <Form onSubmit={handleSubmit}>
-                <InputWrapper>
-                  {/* TODO: add valudation that field is not empty (onBlue) */}
-                  <label htmlFor="email">Email</label>
-                  <Input
-                    type="email"
-                    id="email"
-                    required
-                    value={email}
-                    tabIndex={1}
-                    onChange={(evt) => {
-                      setEmail(evt.target.value);
-                    }}
-                  />
-                </InputWrapper>
-                <InputWrapper>
-                  {/* TODO: add valudation that field is not empty (onBlue) */}
-                  <label htmlFor="password">Password</label>
-                  <Input
-                    type="password"
-                    id="password"
-                    required
-                    value={password}
-                    tabIndex={2}
-                    onChange={(evt) => {
-                      setPassword(evt.target.value);
-                    }}
-                  />
-                </InputWrapper>
-                <DialogButtonWrapper>
-                  <DialogClose asChild>
-                    <CloseButton tabIndex={3}>Close</CloseButton>
-                  </DialogClose>
-                  <SubmitButton type="submit" tabIndex={4}>
-                    Submit
-                  </SubmitButton>
-                </DialogButtonWrapper>
-              </Form>
-          </DialogContent>
+        <DialogContent>
+          <Xclose asChild>
+            <X />
+          </Xclose>
+          <DialogTitle>Login</DialogTitle>
+          <VisuallyHidden.Root asChild>
+            <Dialog.Description>
+              Enter your login information.
+            </Dialog.Description>
+          </VisuallyHidden.Root>
+          <Form onSubmit={handleSubmit}>
+            <InputWrapper>
+              {/* TODO: add valudation that field is not empty (onBlue) */}
+              <label htmlFor="email">Email</label>
+              <Input
+                type="email"
+                id="email"
+                required
+                value={email}
+                tabIndex={1}
+                onChange={(evt) => {
+                  setEmail(evt.target.value);
+                }}
+              />
+            </InputWrapper>
+            <InputWrapper>
+              {/* TODO: add valudation that field is not empty (onBlue) */}
+              <label htmlFor="password">Password</label>
+              <Input
+                type="password"
+                id="password"
+                required
+                value={password}
+                tabIndex={2}
+                onChange={(evt) => {
+                  setPassword(evt.target.value);
+                }}
+              />
+            </InputWrapper>
+            <DialogButtonWrapper>
+              <Dialog.Close asChild>
+                <CloseButton tabIndex={3}>Close</CloseButton>
+              </Dialog.Close>
+              <SubmitButton type="submit" tabIndex={4}>
+                Submit
+              </SubmitButton>
+            </DialogButtonWrapper>
+          </Form>
+          <SeparatorRoot />
+          <SignupWrapper>
+            <p>Don't have an account?</p>
+            <Dialog.Close asChild>
+              <CloseButton tabIndex={5}>Sign Up</CloseButton>
+            </Dialog.Close>
+          </SignupWrapper>
+        </DialogContent>
+      </Dialog.Portal>
     </Dialog.Root>
   );
 };
@@ -175,8 +187,9 @@ const LoginItem = ({ email, password, setEmail, setPassword }) => {
  **********************************/
 
 // For login modal (using Radix Dialog primitive)
-// modal window styling
+// dialog (modal) window styling
 const DialogContent = styled(Dialog.Content)`
+  color: ${COLORS.accent[12]};
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -253,8 +266,6 @@ const DialogTitle = styled(Dialog.Title)`
   color: ${COLORS.accent[12]};
 `;
 
-const DialogDescription = styled(Dialog.Description)``;
-
 const DialogButtonWrapper = styled.div`
   width: 100%;
   display: flex;
@@ -271,12 +282,24 @@ const DialogOverlay = styled(Dialog.Overlay)`
   inset: 0;
 `;
 
-const DialogClose = styled(Dialog.Close)``;
-
 const Xclose = styled(Dialog.Close)`
   position: absolute;
   top: 3px;
   right: 3px;
+`;
+
+const SeparatorRoot = styled(Separator.Root)`
+  background-color: ${COLORS.accent[7]};
+  height: 1.5px;
+  width: 90%;
+  margin: 0 auto;
+`;
+
+const SignupWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
 `;
 
 // For the tooltips (on smaller screens) using Radix Tooltip primitive
