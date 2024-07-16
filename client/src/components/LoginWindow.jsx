@@ -4,7 +4,6 @@
   the modal.
  */
 
-
 import { useState } from "react";
 import { useMutation } from "@apollo/client";
 import styled from "styled-components";
@@ -20,6 +19,12 @@ export default function LoginWindow() {
   // tie form to state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  // toggle between signup or login
+  const [isLogin, setIsLogin] = useState(true);
+
   // login checked on server
   const [login, { error, data }] = useMutation(LOGIN_USER);
 
@@ -28,6 +33,50 @@ export default function LoginWindow() {
   // I don't think so...
   // const [isLoggedIn, setIsLoggedIn] = useState(auth.loggedIn());
 
+  return (
+    <Dialog.Portal>
+      <DialogOverlay />
+      {isLogin ? (
+        <LoginContent
+          email={email}
+          setEmail={setEmail}
+          password={password}
+          setPassword={setPassword}
+          setIsLogin={setIsLogin}
+        />
+      ) : (
+        <SignupContent
+          email={email}
+          setEmail={setEmail}
+          password={password}
+          setPassword={setPassword}
+          confirmPassword={confirmPassword}
+          setConfirmPassword={setConfirmPassword}
+          setIsLogin={setIsLogin}
+          first={firstName}
+          setFirstName={setFirstName}
+          last={lastName}
+          setLastName={setLastName}
+        />
+      )}
+    </Dialog.Portal>
+  );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//                            Internal Components                            //
+///////////////////////////////////////////////////////////////////////////////
+
+const LoginContent = ({
+  email,
+  setEmail,
+  password,
+  setPassword,
+  setIsLogin,
+}) => {
+  // for email entry validation
+  const emailRegex =
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
   const handleSubmit = (evt) => {
     evt.preventDefault();
@@ -40,65 +89,187 @@ export default function LoginWindow() {
   };
 
   return (
-    <Dialog.Portal>
-      <DialogOverlay />
-      <DialogContent>
-        <Xclose asChild>
-          <X />
-        </Xclose>
-        <DialogTitle>Login</DialogTitle>
-        <VisuallyHidden.Root asChild>
-          <Dialog.Description>Enter your login information.</Dialog.Description>
-        </VisuallyHidden.Root>
-        <Form onSubmit={handleSubmit}>
-          <InputWrapper>
-            {/* TODO: add validation that field is not empty (onBlur) */}
-            <label htmlFor="email">Email</label>
-            <Input
-              type="email"
-              id="email"
-              required
-              value={email}
-              tabIndex={1}
-              onChange={(evt) => {
-                setEmail(evt.target.value);
-              }}
-            />
-          </InputWrapper>
-          <InputWrapper>
-            {/* TODO: add valudation that field is not empty (onBlue) */}
-            <label htmlFor="password">Password</label>
-            <Input
-              type="password"
-              id="password"
-              required
-              value={password}
-              tabIndex={2}
-              onChange={(evt) => {
-                setPassword(evt.target.value);
-              }}
-            />
-          </InputWrapper>
-          <DialogButtonWrapper>
-            <Dialog.Close asChild>
-              <CloseButton tabIndex={3}>Close</CloseButton>
-            </Dialog.Close>
-            <SubmitButton type="submit" tabIndex={4}>
-              Submit
-            </SubmitButton>
-          </DialogButtonWrapper>
-        </Form>
-        <SeparatorRoot />
-        <SignupWrapper>
-          <p>Don&apos;t have an account?</p>
+    <DialogContent>
+      <Xclose asChild>
+        <X />
+      </Xclose>
+      <DialogTitle>Login</DialogTitle>
+      <VisuallyHidden.Root asChild>
+        <Dialog.Description>Enter your login information.</Dialog.Description>
+      </VisuallyHidden.Root>
+      <Form onSubmit={handleSubmit}>
+        <InputWrapper>
+          {/* TODO: add validation that field is not empty (onBlur) */}
+          <label htmlFor="email">Email</label>
+          <Input
+            type="email"
+            id="email"
+            required
+            value={email}
+            tabIndex={1}
+            onChange={(evt) => {
+              setEmail(evt.target.value);
+            }}
+          />
+        </InputWrapper>
+        <InputWrapper>
+          {/* TODO: add valudation that field is not empty (onBlue) */}
+          <label htmlFor="password">Password</label>
+          <Input
+            type="password"
+            id="password"
+            required
+            value={password}
+            tabIndex={2}
+            onChange={(evt) => {
+              setPassword(evt.target.value);
+            }}
+          />
+        </InputWrapper>
+        <DialogButtonWrapper>
           <Dialog.Close asChild>
-            <CloseButton tabIndex={5}>Sign Up</CloseButton>
+            <CloseButton tabIndex={3}>Close</CloseButton>
           </Dialog.Close>
-        </SignupWrapper>
-      </DialogContent>
-    </Dialog.Portal>
+          <SubmitButton type="submit" tabIndex={4}>
+            Submit
+          </SubmitButton>
+        </DialogButtonWrapper>
+      </Form>
+      <SeparatorRoot />
+      <SignupOrLogin>
+        <p>Don&apos;t have an account?</p>
+        <CloseButton tabIndex={5} onClick={() => setIsLogin(false)}>
+          Sign Up
+        </CloseButton>
+      </SignupOrLogin>
+    </DialogContent>
   );
-}
+};
+
+const SignupContent = ({
+  email,
+  setEmail,
+  password,
+  setPassword,
+  confirmPassword,
+  setConfirmPassword,
+  setIsLogin,
+  first,
+  setFirstName,
+  last,
+  setLastName,
+}) => {
+  // for email entry validation
+  const emailRegex =
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
+  const handleSubmit = (evt) => {
+    evt.preventDefault();
+
+    // attempt to sign up as a new user
+
+    // if successful, close modal, reset states, and go to User page
+
+    // if not successful, display an error message on the modal (keeping info in input fields)
+  };
+
+  return (
+    <DialogContent>
+      <Xclose asChild>
+        <X />
+      </Xclose>
+      <DialogTitle>Sign Up</DialogTitle>
+      <VisuallyHidden.Root asChild>
+        <Dialog.Description>Enter your account information.</Dialog.Description>
+      </VisuallyHidden.Root>
+      <Form onSubmit={handleSubmit}>
+        <InputWrapper>
+          <label htmlFor="first">First name</label>
+          <Input
+            type="text"
+            id="first"
+            required
+            value={first}
+            tabIndex={1}
+            onChange={(evt) => {
+              setFirstName(evt.target.value);
+            }}
+          />
+        </InputWrapper>
+        <InputWrapper>
+          <label htmlFor="last">Last name</label>
+          <Input
+            type="text"
+            id="last"
+            required
+            value={last}
+            tabIndex={1}
+            onChange={(evt) => {
+              setLastName(evt.target.value);
+            }}
+          />
+        </InputWrapper>
+        <InputWrapper>
+          {/* TODO: add validation that field is not empty (onBlur) */}
+          <label htmlFor="email">Email</label>
+          <Input
+            type="email"
+            id="email"
+            required
+            value={email}
+            tabIndex={1}
+            onChange={(evt) => {
+              setEmail(evt.target.value);
+            }}
+          />
+        </InputWrapper>
+        <InputWrapper>
+          {/* TODO: add valudation that field is not empty (onBlue) */}
+          <label htmlFor="password">Password</label>
+          <Input
+            type="password"
+            id="password"
+            required
+            value={password}
+            tabIndex={1}
+            onChange={(evt) => {
+              setPassword(evt.target.value);
+            }}
+          />
+        </InputWrapper>
+        <InputWrapper>
+          {/* TODO: add validation/feedback that passwords match (onBlur; onChange?) */}
+          <label htmlFor="confirm_password">Confirm password</label>
+          <Input
+            type="password"
+            id="confirm_password"
+            required
+            value={confirmPassword}
+            tabIndex={1}
+            onChange={(evt) => {
+              setConfirmPassword(evt.target.value);
+            }}
+          />
+        </InputWrapper>
+        <DialogButtonWrapper>
+          <Dialog.Close asChild>
+            <CloseButton tabIndex={3}>Close</CloseButton>
+          </Dialog.Close>
+          <SubmitButton type="submit" tabIndex={4}>
+            Submit
+          </SubmitButton>
+        </DialogButtonWrapper>
+      </Form>
+      <SeparatorRoot />
+      <SignupOrLogin>
+        <p>Already have an account?</p>
+        <CloseButton tabIndex={5} onClick={() => setIsLogin(true)}>
+          Log In
+        </CloseButton>
+      </SignupOrLogin>
+    </DialogContent>
+  );
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 //                             Styled Components                             //
@@ -111,7 +282,7 @@ const SeparatorRoot = styled(Separator.Root)`
   margin: 0 auto;
 `;
 
-const SignupWrapper = styled.div`
+const SignupOrLogin = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
