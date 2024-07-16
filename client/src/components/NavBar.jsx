@@ -22,10 +22,9 @@ import LoginWindow from "./LoginWindow";
 import { COLORS, QUERIES } from "../utils/constants";
 
 // TODO address accessibility concerns (possibly by using Radix navigation component if that is workable)
-// - space will trigger the element (loading page)
-// - screenreader will only read off the item once
+// - need spacebar to trigger page load on focus (currently only ENTER)
+// - screenreader should only read off the item once
 // - ESC to unselect/unfocus? (Is that needed for accessbility?)
-// - disable animation for reduced-motion users? The motion is pretty subtle tho.
 export default function NavBar() {
   return (
     <Wrapper>
@@ -70,7 +69,6 @@ const NavItem = ({ href, label, icon: Icon }) => {
 // looks like a navlink but is actually a button to display the login modal
 // modal removes scrollbar which causes a shift in backdrop. Radix bug?
 const LoginItem = ({ email, password, setEmail, setPassword }) => {
-  // email validation; this is the regex the HTML form uses for validation
   return (
     <Dialog.Root>
       <Tooltip.Root>
@@ -115,6 +113,7 @@ const TooltipTrigger = styled(Tooltip.Trigger)`
 
 const TooltipContent = styled(Tooltip.Content)`
   display: none;
+  background-color: ${COLORS.accent[1]};
 
   @media ${QUERIES.tabletAndLess} {
     display: revert;
@@ -151,6 +150,7 @@ const LinkButton = styled.button`
     color: ${COLORS.accent[9]};
   }
 
+  /* icon styling */
   & svg {
     transform: translateY(2px);
     margin-right: 2px;
@@ -162,6 +162,15 @@ const LinkButton = styled.button`
     transform-origin: 50% 100%;
     transform: scale(1.05);
     transition: transform 200ms;
+  }
+
+  /* larger icon targets for touchscreens */
+  @media ${QUERIES.tabletAndLess} {
+    & svg {
+      width: 36px;
+      height: 36px;
+      stroke-width: 1.5;
+    }
   }
 `;
 
