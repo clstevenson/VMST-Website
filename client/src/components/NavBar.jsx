@@ -21,10 +21,12 @@ import auth from "../utils/auth";
 import LoginWindow from "./LoginWindow";
 import { COLORS, QUERIES } from "../utils/constants";
 
-// TODO Possibly use Radix navigation component/ but it must be coupled with client-side route serving
-// (Another option: add accessibility elements myself)
+// TODO address accessibility concerns (possibly by using Radix navigation component if that is workable)
+// - space will trigger the element (loading page)
+// - screenreader will only read off the item once
+// - ESC to unselect/unfocus? (Is that needed for accessbility?)
+// - disable animation for reduced-motion users? The motion is pretty subtle tho.
 export default function NavBar() {
-
   return (
     <Wrapper>
       <Tooltip.Provider delayDuration={0}>
@@ -51,14 +53,14 @@ const NavItem = ({ href, label, icon: Icon }) => {
   return (
     <Tooltip.Root>
       <TooltipTrigger tabIndex={-1}>
-        <ListItem>
-          <Link to={href}>
+        <li>
+          <NavLink to={href}>
             <LinkButton isCurrent={href === currentPage} tabIndex={-1}>
               <Icon />
               <LabelWrapper>{label}</LabelWrapper>
             </LinkButton>
-          </Link>
-        </ListItem>
+          </NavLink>
+        </li>
         <TooltipContent>{label}</TooltipContent>
       </TooltipTrigger>
     </Tooltip.Root>
@@ -69,31 +71,18 @@ const NavItem = ({ href, label, icon: Icon }) => {
 // modal removes scrollbar which causes a shift in backdrop. Radix bug?
 const LoginItem = ({ email, password, setEmail, setPassword }) => {
   // email validation; this is the regex the HTML form uses for validation
-  const emailRegex =
-    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-
-  const handleSubmit = (evt) => {
-    evt.preventDefault();
-
-    // attempt to log in
-
-    // if successful, close modal, reset states, and go to User page
-
-    // if not successful, display an error message on the modal (keeping info in input fields)
-  };
-
   return (
     <Dialog.Root>
       <Tooltip.Root>
         {/* Navbar item is trigger for both tooltip and login modal */}
         <Tooltip.Trigger asChild>
           <Dialog.Trigger asChild>
-            <ListItem>
+            <li>
               <LinkButton>
                 <User />
                 <LabelWrapper>Log In</LabelWrapper>
               </LinkButton>
-            </ListItem>
+            </li>
           </Dialog.Trigger>
         </Tooltip.Trigger>
         <TooltipContent>Log In</TooltipContent>
@@ -132,20 +121,9 @@ const TooltipContent = styled(Tooltip.Content)`
   }
 `;
 
-// navigation link items, including animation
-const ListItem = styled.li`
-  transition: transform 400ms;
-
-  & svg {
-    transform: translateY(2px);
-    margin-right: 2px;
-  }
-
-  &:hover {
-    transform-origin: 50% 100%;
-    transform: scale(1.05);
-    transition: transform 200ms;
-  }
+// styled React Router link (essentially an anchor tag)
+const NavLink = styled(Link)`
+  outline: none;
 `;
 
 // the links wrap around the buttons, so they determine link appearance
@@ -165,14 +143,25 @@ const LinkButton = styled.button`
   }};
 
   border-radius: 6px 6px 0 0;
+  transition: transform 400ms;
+
+  &:focus,
+  ${NavLink}:focus & {
+    outline: 2px solid ${COLORS.accent[9]};
+    color: ${COLORS.accent[9]};
+  }
+
+  & svg {
+    transform: translateY(2px);
+    margin-right: 2px;
+  }
 
   &:hover {
     cursor: pointer;
     color: ${COLORS.accent[9]};
-  }
-
-  &:focus {
-    border-radius: 0;
+    transform-origin: 50% 100%;
+    transform: scale(1.05);
+    transition: transform 200ms;
   }
 `;
 
