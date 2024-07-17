@@ -12,21 +12,26 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import * as Separator from "@radix-ui/react-separator";
 
+import Auth from "../utils/auth";
 import { LOGIN_USER } from "../utils/mutations";
-import { COLORS, WEIGHTS } from "../utils/constants";
+import { COLORS, QUERIES, WEIGHTS } from "../utils/constants";
 
-export default function LoginWindow() {
+export default function LoginWindow({
+  email,
+  setEmail,
+  password,
+  setPassword,
+  isLogin,
+  setIsLogin,
+  open,
+  setOpen,
+  message,
+  setMessage,
+}) {
   // tie form to state
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  // toggle between signup or login
-  const [isLogin, setIsLogin] = useState(true);
-
-  // login checked on server
-  const [login, { error, data }] = useMutation(LOGIN_USER);
 
   // will I need to useEffect to update a state variable to have NavBar re-rendederd?
   // for example, will the NavBar automatically re-render when the authorization expires?
@@ -43,6 +48,10 @@ export default function LoginWindow() {
           password={password}
           setPassword={setPassword}
           setIsLogin={setIsLogin}
+          open={open}
+          setOpen={setOpen}
+          message={message}
+          setMessage={setMessage}
         />
       ) : (
         <SignupContent
@@ -57,6 +66,8 @@ export default function LoginWindow() {
           setFirstName={setFirstName}
           last={lastName}
           setLastName={setLastName}
+          message={message}
+          setMessage={setMessage}
         />
       )}
     </Dialog.Portal>
@@ -73,19 +84,37 @@ const LoginContent = ({
   password,
   setPassword,
   setIsLogin,
+  open,
+  setOpen,
+  message,
+  setMessage,
 }) => {
-  // for email entry validation
-  const emailRegex =
-    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+  // login checked on server
+  const [login] = useMutation(LOGIN_USER);
 
-  const handleSubmit = (evt) => {
+  const handleSubmit = async (evt) => {
     evt.preventDefault();
 
     // attempt to log in
-
     // if successful, close modal, reset states, and go to User page
-
-    // if not successful, display an error message on the modal (keeping info in input fields)
+    try {
+      const { data } = await login({ variables: { email, password } });
+      // store the token in browser
+      // load the account page (with greeting)
+      Auth.login(data.login.token);
+      // close the modal
+      setOpen(false);
+      // reset states
+      setEmail("");
+      setPassword("");
+      setIsLogin(true);
+      setMessage("");
+      setOpen(false);
+    } catch (error) {
+      // display error
+      setMessage("Something went wrong. Please check your email and password.");
+      console.log(`Error: ${error}`);
+    }
   };
 
   return (
@@ -97,9 +126,8 @@ const LoginContent = ({
       <VisuallyHidden.Root asChild>
         <Dialog.Description>Enter your login information.</Dialog.Description>
       </VisuallyHidden.Root>
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={(evt) => handleSubmit(evt)}>
         <InputWrapper>
-          {/* TODO: add validation that field is not empty (onBlur) */}
           <label htmlFor="email">Email</label>
           <Input
             type="email"
@@ -113,7 +141,6 @@ const LoginContent = ({
           />
         </InputWrapper>
         <InputWrapper>
-          {/* TODO: add valudation that field is not empty (onBlue) */}
           <label htmlFor="password">Password</label>
           <Input
             type="password"
@@ -135,6 +162,13 @@ const LoginContent = ({
           </SubmitButton>
         </DialogButtonWrapper>
       </Form>
+      {/* Put notifications here */}
+      {message && (
+        <>
+          <ErrorMessage>{message}</ErrorMessage>
+          <ForgotInfo>Click here if you forgot your password.</ForgotInfo>
+        </>
+      )}
       <SeparatorRoot />
       <SignupOrLogin>
         <p>Don&apos;t have an account?</p>
@@ -293,6 +327,7 @@ const DialogContent = styled(Dialog.Content)`
   color: ${COLORS.accent[12]};
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 16px;
   font-size: 1.1rem;
   padding: 24px;
@@ -303,9 +338,18 @@ const DialogContent = styled(Dialog.Content)`
   top: 30%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: fit-content;
+  width: 400px;
   height: fit-content;
   box-shadow: 2px 4px 8px ${COLORS.gray[9]};
+
+  @media ${QUERIES.mobile} {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform: translate(0, 0);
+    box-shadow: none;
+  }
 `;
 
 const Form = styled.form`
@@ -352,16 +396,18 @@ const CloseButton = styled.button`
 `;
 
 const SubmitButton = styled(CloseButton)`
-  background-color: ${COLORS.accent[12]};
+  background-color: ${COLORS.accent[10]};
   color: white;
 
   &:hover,
   &:focus {
     background-color: ${COLORS.accent[11]};
+    transform: scale(1.05);
   }
 `;
 
 const DialogTitle = styled(Dialog.Title)`
+  align-self: flex-start;
   font-size: 1.3em;
   font-weight: ${WEIGHTS.medium};
   color: ${COLORS.accent[12]};
@@ -387,4 +433,19 @@ const Xclose = styled(Dialog.Close)`
   position: absolute;
   top: 3px;
   right: 3px;
+`;
+
+const ErrorMessage = styled.div`
+  border-radius: 4px;
+  padding: 0 16px;
+  background-color: ${COLORS.urgent_light};
+  color: ${COLORS.urgent_text};
+`;
+
+const ForgotInfo = styled.p`
+  display: block;
+  font-style: italic;
+  font-size: 1rem;
+  padding: 0 16px;
+  align-self: flex-start;
 `;

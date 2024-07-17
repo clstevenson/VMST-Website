@@ -38,7 +38,9 @@ export const COLORS = {
   secondary_light: "hsl(60deg 100% 50% / 0.5)",
   secondary_dark: "hsl(60deg 80% 40%)",
   // error/attention needed
-  urgent: "hsl(0deg 75% 40%)",
+  urgent_text: "hsl(351deg 63% 24%)",
+  urgent: "hsl(358deg 75% 59%)",
+  urgent_light: "hsl(359deg 92% 96%)",
 };
 
 export const WEIGHTS = {

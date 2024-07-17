@@ -11,13 +11,14 @@
  smaller files.
  */
 
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { Image, Home, User, Info, Send } from "react-feather";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import * as Dialog from "@radix-ui/react-dialog";
 
-import auth from "../utils/auth";
+import Auth from "../utils/auth";
 import LoginWindow from "./LoginWindow";
 import { COLORS, QUERIES } from "../utils/constants";
 
@@ -26,6 +27,17 @@ import { COLORS, QUERIES } from "../utils/constants";
 // - screenreader should only read off the item once
 // - ESC to unselect/unfocus? (Is that needed for accessbility?)
 export default function NavBar() {
+  // need to reset these here (on close of login modal) and pass as props to modal componnets
+  // current state of the modal
+  const [open, setOpen] = useState(false);
+  // user info for login
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  // toggle between login or signup modals
+  const [isLogin, setIsLogin] = useState(true);
+  // notification messages on modal (eg input errors)
+  const [message, setMessage] = useState("");
+
   return (
     <Wrapper>
       <Tooltip.Provider delayDuration={0}>
@@ -33,18 +45,32 @@ export default function NavBar() {
         <NavItem href="/about-us" label="About" icon={Info} />
         <NavItem href="/gallery" label="Photos" icon={Image} />
         <NavItem href="/contact" label="Contact" icon={Send} />
-        {auth.loggedIn() ? (
+        {Auth.loggedIn() ? (
           <NavItem href="/me" label="User" icon={User} />
         ) : (
-          <LoginItem />
+          <LoginItem
+            email={email}
+            setEmail={setEmail}
+            password={password}
+            setPassword={setPassword}
+            isLogin={isLogin}
+            setIsLogin={setIsLogin}
+            open={open}
+            setOpen={setOpen}
+            message={message}
+            setMessage={setMessage}
+          />
         )}
       </Tooltip.Provider>
     </Wrapper>
   );
 }
 
-// internal components for convenience
-// NavItem is for client-side routing with tooltips
+///////////////////////////////////////////////////////////////////////////////
+//                            Internal Components                            //
+///////////////////////////////////////////////////////////////////////////////
+
+// NavItem is for client-side routing with tooltips and icons
 // TODO passing isCurrent as a prop causes warnings/errors; fix that
 const NavItem = ({ href, label, icon: Icon }) => {
   // get the current page so we know which link to highlight
@@ -68,9 +94,32 @@ const NavItem = ({ href, label, icon: Icon }) => {
 
 // looks like a navlink but is actually a button to display the login modal
 // modal removes scrollbar which causes a shift in backdrop. Radix bug?
-const LoginItem = ({ email, password, setEmail, setPassword }) => {
+const LoginItem = ({
+  email,
+  password,
+  setEmail,
+  setPassword,
+  isLogin,
+  setIsLogin,
+  open,
+  setOpen,
+  message,
+  setMessage,
+}) => {
+  // reset state after closing the modal
+  const handleCLose = () => {
+    const isOpen = open;
+    setOpen(!open);
+    if (isOpen) {
+      setEmail("");
+      setPassword("");
+      setIsLogin(true);
+      setMessage("");
+    }
+  };
+
   return (
-    <Dialog.Root>
+    <Dialog.Root open={open} onOpenChange={handleCLose}>
       <Tooltip.Root>
         {/* Navbar item is trigger for both tooltip and login modal */}
         <Tooltip.Trigger asChild>
@@ -92,6 +141,12 @@ const LoginItem = ({ email, password, setEmail, setPassword }) => {
         password={password}
         setEmail={setEmail}
         setPassword={setPassword}
+        isLogin={isLogin}
+        setIsLogin={setIsLogin}
+        open={open}
+        setOpen={setOpen}
+        message={message}
+        setMessage={setMessage}
       />
     </Dialog.Root>
   );

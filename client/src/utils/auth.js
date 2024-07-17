@@ -36,13 +36,14 @@ class AuthService {
   login(idToken) {
     // Saves user token to localStorage
     localStorage.setItem("id_token", idToken);
+    //TODO: figure out how to do the redirect with client-side routing
     window.location.assign("/me");
   }
 
   logout() {
     // Clear user token and profile data from localStorage
     localStorage.removeItem("id_token");
-    // this will reload the page and reset the state of the application
+    //TODO: figure out how to do the redirect with client-side routing
     window.location.assign("/");
   }
 }
