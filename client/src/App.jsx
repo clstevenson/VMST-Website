@@ -43,7 +43,7 @@ function App() {
         <Header />
         {/* Maybe use a global state to turn Banner on/off as needed */}
         {/* Prop is duraction each image is displayed, in sec */}
-        <Banner duration={5 * 60} />
+        <Banner duration={30 * 60} />
         <main>
           <Outlet />
         </main>
