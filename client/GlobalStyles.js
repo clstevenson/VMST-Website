@@ -63,7 +63,12 @@ html {
   font-family: var(--font-sans-serif);
   /* color of bkgd "behind" the content */
   /* background-color: hsl(267deg 25% 50% / 0.2); */
-  --subheading-size: 1.4em;  /* usually an h2 element */
+  --subheading-size: 1.4rem;  /* usually an h2 element */
+}
+
+/* roughly align bullet with other text */
+ul, ol {
+  padding-left: 1.2em;
 }
 `;
 
