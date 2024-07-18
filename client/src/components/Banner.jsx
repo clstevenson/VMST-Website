@@ -10,7 +10,7 @@ import { useState, useEffect, useCallback } from "react";
 
 import { COLORS, QUERIES } from "../utils/constants";
 import bannerPhotos from "../utils/banner-photos";
-import { ArrowLeft, ArrowRight } from "react-feather";
+import { ChevronLeft, ChevronRight } from "react-feather";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 export default function Banner({ duration }) {
@@ -46,11 +46,12 @@ export default function Banner({ duration }) {
       />
       <ArrowsWrapper>
         <ArrowButton onClick={() => previousImage()}>
-          <ArrowLeft color={COLORS.accent[12]} strokeWidth={1.5} />
+          <ChevronLeft color={COLORS.accent[12]} strokeWidth={1.5} />
           <VisuallyHidden.Root>go to next banner image</VisuallyHidden.Root>
         </ArrowButton>
+        <BannerText>banner</BannerText>
         <ArrowButton onClick={() => nextImage()}>
-          <ArrowRight color={COLORS.accent[12]} strokeWidth={1.5} />
+          <ChevronRight color={COLORS.accent[12]} strokeWidth={1.5} />
           <VisuallyHidden.Root>go to previous banner image</VisuallyHidden.Root>
         </ArrowButton>
       </ArrowsWrapper>
@@ -59,10 +60,15 @@ export default function Banner({ duration }) {
 }
 
 // arrows to pick previous or next image
+const BannerText = styled.div`
+  color: ${COLORS.gray[9]};
+  font-size: 0.8rem;
+  padding: 2px 6px;
+`;
+
 const ArrowsWrapper = styled.div`
   display: flex;
   justify-content: flex-end;
-  gap: 24px;
   color: ${COLORS.accent[12]};
   /* take it out of flow */
   position: absolute;
