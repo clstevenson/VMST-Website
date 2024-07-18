@@ -28,13 +28,13 @@ const LinkTab = styled.div`
   background-color: ${({ href }) =>
     useLocation().pathname === href ? COLORS.secondary_light : "transparent"};
   border-bottom: none;
-  border-radius: 6px 6px 0 0;
+  border-radius: var(--nav-border-radius);
   transition: transform 400ms;
 
   &:focus,
   ${NavLink}:focus & {
-    outline: 2px solid ${COLORS.accent[9]};
-    color: ${COLORS.accent[9]};
+    outline: var(--nav-focus-outline);
+    color: var(--nav-focus-color);
   }
 
   /* icon styling */

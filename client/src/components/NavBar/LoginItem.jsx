@@ -28,7 +28,7 @@ export default function LoginItem() {
   // when user closes the modal, need to reset the state vars tied to the form
   const handleCLose = () => {
     const isOpen = open;
-    setOpen(!open);
+    setOpen(!isOpen);
     if (isOpen) {
       setEmail("");
       setPassword("");
@@ -42,16 +42,16 @@ export default function LoginItem() {
       <Tooltip.Root>
         {/* Navbar item is trigger for both tooltip and login modal */}
         <Tooltip.Trigger asChild>
-          <Dialog.Trigger asChild>
+          <DialogTrigger aria-haspopup>
             <li>
               <LinkTab>
                 <User />
-                <LabelWrapper>Log In</LabelWrapper>
+                <LabelWrapper aria-hidden>Log In</LabelWrapper>
               </LinkTab>
             </li>
-          </Dialog.Trigger>
+          </DialogTrigger>
         </Tooltip.Trigger>
-        <TooltipContent>Log In</TooltipContent>
+        <TooltipContent aria-hidden>Log In</TooltipContent>
       </Tooltip.Root>
 
       {/* Login/signup modal window is below */}
@@ -90,5 +90,18 @@ export default function LoginItem() {
 const LabelWrapper = styled.span`
   @media ${QUERIES.tabletAndLess} {
     display: none;
+  }
+`;
+
+const DialogTrigger = styled(Dialog.Trigger)`
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+
+  // the items below have to match the same settings from LinkTab
+  border-radius: var(--nav-border-radius);
+  &:focus {
+    outline: var(--nav-focus-outline);
+    color: var(--nav-focus-color);
   }
 `;

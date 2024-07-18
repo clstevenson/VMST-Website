@@ -39,7 +39,7 @@ export default function Banner({ duration }) {
 
   // eventually want to set a timer to cycle through the images
   return (
-    <Wrapper>
+    <Wrapper role="banner">
       <Image
         src={bannerPhotos[imageIndex].url}
         alt={bannerPhotos[imageIndex].alt}
@@ -59,13 +59,31 @@ export default function Banner({ duration }) {
   );
 }
 
-// arrows to pick previous or next image
+const Wrapper = styled.div`
+  margin: 16px 0;
+  position: relative;
+`;
+
+const Image = styled.img`
+  display: block;
+  height: 300px;
+  width: 100%;
+  object-fit: cover;
+  /* border-radius: 8px; */
+
+  @media ${QUERIES.mobile} {
+    height: 200px;
+  }
+`;
+
+// hint on what the arrows do
 const BannerText = styled.div`
   color: ${COLORS.gray[9]};
   font-size: 0.8rem;
   padding: 2px 6px;
 `;
 
+// arrows to pick previous or next image
 const ArrowsWrapper = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -89,22 +107,5 @@ const ArrowButton = styled.button`
   &:hover {
     transform: scale(1.2);
     transition: 300ms transform;
-  }
-`;
-
-const Wrapper = styled.div`
-  margin: 16px 0;
-  position: relative;
-`;
-
-const Image = styled.img`
-  display: block;
-  height: 300px;
-  width: 100%;
-  object-fit: cover;
-  /* border-radius: 8px; */
-
-  @media ${QUERIES.mobile} {
-    height: 200px;
   }
 `;

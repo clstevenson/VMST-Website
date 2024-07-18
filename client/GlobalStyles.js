@@ -64,6 +64,10 @@ html {
   /* color of bkgd "behind" the content */
   /* background-color: hsl(267deg 25% 50% / 0.2); */
   --subheading-size: 1.4rem;  /* usually an h2 element */
+  /* settings for navigation links */
+  --nav-border-radius: 6px 6px 0 0;
+  --nav-focus-outline: 2px solid ${COLORS.accent[9]};
+  --nav-focus-color: ${COLORS.accent[9]};
 }
 
 /* roughly align bullet with other text */

@@ -71,7 +71,10 @@ const LoginContent = ({
       </VisuallyHidden.Root>
 
       {/* login form */}
-      <ModalStyle.Form onSubmit={(evt) => handleSubmit(evt)}>
+      <ModalStyle.Form
+        onSubmit={(evt) => handleSubmit(evt)}
+        aria-labelledby="login"
+      >
         <ModalStyle.InputWrapper>
           <label htmlFor="email">Email</label>
           <ModalStyle.Input
@@ -79,7 +82,7 @@ const LoginContent = ({
             id="email"
             required
             value={email}
-            tabIndex={1}
+            tabIndex={0}
             onChange={(evt) => {
               setEmail(evt.target.value);
             }}
@@ -92,7 +95,7 @@ const LoginContent = ({
             id="password"
             required
             value={password}
-            tabIndex={2}
+            tabIndex={0}
             onChange={(evt) => {
               setPassword(evt.target.value);
             }}
@@ -100,9 +103,9 @@ const LoginContent = ({
         </ModalStyle.InputWrapper>
         <ModalStyle.DialogButtonWrapper>
           <Dialog.Close asChild>
-            <ModalStyle.CloseButton tabIndex={3}>Close</ModalStyle.CloseButton>
+            <ModalStyle.CloseButton tabIndex={0}>Close</ModalStyle.CloseButton>
           </Dialog.Close>
-          <ModalStyle.SubmitButton type="submit" tabIndex={4}>
+          <ModalStyle.SubmitButton type="submit" tabIndex={0}>
             Submit
           </ModalStyle.SubmitButton>
         </ModalStyle.DialogButtonWrapper>
@@ -124,7 +127,7 @@ const LoginContent = ({
       <ModalStyle.SignupOrLogin>
         <p>Don&apos;t have an account?</p>
         <ModalStyle.CloseButton
-          tabIndex={5}
+          tabIndex={0}
           onClick={() => {
             setIsLogin(false);
             setMessage("");

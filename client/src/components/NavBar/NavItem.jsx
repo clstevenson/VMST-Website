@@ -13,7 +13,7 @@ import { COLORS, QUERIES } from "../../utils/constants";
 export function NavItem({ href, label, icon: Icon }) {
   return (
     <Tooltip.Root>
-      <TooltipTrigger tabIndex={-1}>
+      <TooltipTrigger role="link" tabIndex={-1}>
         <li>
           <NavLink to={href}>
             <LinkTab href={href} tabIndex={-1}>

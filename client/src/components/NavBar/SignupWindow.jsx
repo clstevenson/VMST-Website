@@ -23,7 +23,6 @@ const SignupContent = ({
   password,
   setPassword,
   setIsLogin,
-  setOpen,
   message,
   setMessage,
 }) => {
@@ -99,7 +98,10 @@ const SignupContent = ({
       </VisuallyHidden.Root>
 
       {/* signup form */}
-      <ModalStyle.Form onSubmit={(evt) => handleSubmit(evt)}>
+      <ModalStyle.Form
+        onSubmit={(evt) => handleSubmit(evt)}
+        aria-labelledby="signup"
+      >
         <ModalStyle.InputWrapper>
           <label htmlFor="first">First name</label>
           <ModalStyle.Input
@@ -107,7 +109,7 @@ const SignupContent = ({
             id="first"
             required
             value={firstName}
-            tabIndex={1}
+            tabIndex={0}
             onChange={(evt) => {
               setFirstName(evt.target.value);
             }}
@@ -120,7 +122,7 @@ const SignupContent = ({
             id="last"
             required
             value={lastName}
-            tabIndex={1}
+            tabIndex={0}
             onChange={(evt) => {
               setLastName(evt.target.value);
             }}
@@ -133,7 +135,7 @@ const SignupContent = ({
             id="email"
             required
             value={email}
-            tabIndex={1}
+            tabIndex={0}
             onChange={(evt) => {
               setEmail(evt.target.value);
             }}
@@ -146,7 +148,7 @@ const SignupContent = ({
             id="password"
             required
             value={password}
-            tabIndex={1}
+            tabIndex={0}
             onChange={(evt) => {
               setPassword(evt.target.value);
             }}
@@ -160,7 +162,7 @@ const SignupContent = ({
             id="confirm_password"
             required
             value={confirmPassword}
-            tabIndex={1}
+            tabIndex={0}
             onChange={(evt) => {
               setConfirmPassword(evt.target.value);
             }}
@@ -168,9 +170,9 @@ const SignupContent = ({
         </ModalStyle.InputWrapper>
         <ModalStyle.DialogButtonWrapper>
           <Dialog.Close asChild>
-            <ModalStyle.CloseButton tabIndex={3}>Close</ModalStyle.CloseButton>
+            <ModalStyle.CloseButton tabIndex={0}>Close</ModalStyle.CloseButton>
           </Dialog.Close>
-          <ModalStyle.SubmitButton type="submit" tabIndex={4}>
+          <ModalStyle.SubmitButton type="submit" tabIndex={0}>
             Submit
           </ModalStyle.SubmitButton>
         </ModalStyle.DialogButtonWrapper>
@@ -184,7 +186,7 @@ const SignupContent = ({
       <ModalStyle.SignupOrLogin>
         <p>Already have an account?</p>
         <ModalStyle.CloseButton
-          tabIndex={5}
+          tabIndex={0}
           onClick={() => {
             setIsLogin(true);
             setMessage("");
