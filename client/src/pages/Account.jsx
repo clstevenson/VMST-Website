@@ -22,9 +22,13 @@ export default function Account() {
       <ul>
         <li>change password</li>
         <li>change email</li>
+        <li>change email preferences (opt in/out)</li>
+        <li>notifications of posts (opt in/out)</li>
+        <li>banner preferences</li>
         <li>see USMS info: ID, club, WO group</li>
         <li>link to other USMS info: results, personal page</li>
         <li>log out</li>
+        <li>allow photo uploading privileges (when implemented)</li>
         <li>see/edit responses to posts (when that is implemented)</li>
       </ul>
 

@@ -2,11 +2,11 @@
 // modal removes scrollbar which causes a shift in backdrop. Radix bug?
 
 import styled from "styled-components";
+import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { User } from "react-feather";
 
-import { useNavContext } from "./NavContext";
 import { LinkButton } from "./LinkButton";
 import { TooltipContent } from "./NavItem";
 import { QUERIES } from "../../utils/constants";
@@ -15,17 +15,17 @@ import SignupContent from "./SignupWindow";
 import * as ModalStyle from "./ModalStyles";
 
 export default function LoginItem() {
-  // get state and setters from context
-  const {
-    setEmail,
-    setPassword,
-    setIsLogin,
-    open,
-    setOpen,
-    setMessage,
-    isLogin,
-  } = useNavContext();
-  // reset state after closing the modal
+  // login credentials
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  // does user want to log in (or sign up)?
+  const [isLogin, setIsLogin] = useState(true);
+  // control the state of the modal (Radix primitive Dialog)
+  const [open, setOpen] = useState(false);
+  // error message to display on modal
+  const [message, setMessage] = useState("");
+
+  // when user closes the modal, need to reset the state vars tied to the form
   const handleCLose = () => {
     const isOpen = open;
     setOpen(!open);
@@ -57,7 +57,29 @@ export default function LoginItem() {
       {/* Login/signup modal window is below */}
       <Dialog.Portal>
         <ModalStyle.DialogOverlay />
-        {isLogin ? <LoginContent /> : <SignupContent />}
+        {isLogin ? (
+          <LoginContent
+            email={email}
+            setEmail={setEmail}
+            password={password}
+            setPassword={setPassword}
+            setIsLogin={setIsLogin}
+            setOpen={setOpen}
+            message={message}
+            setMessage={setMessage}
+          />
+        ) : (
+          <SignupContent
+            email={email}
+            setEmail={setEmail}
+            password={password}
+            setPassword={setPassword}
+            setIsLogin={setIsLogin}
+            setOpen={setOpen}
+            message={message}
+            setMessage={setMessage}
+          />
+        )}
       </Dialog.Portal>
     </Dialog.Root>
   );

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /*
  * This is the content of the signup portion of the login/signup modal,
  * as well as the associated mutation to create a new account.
@@ -12,24 +13,74 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import * as ModalStyle from "./ModalStyles";
 
-import { useNavContext } from "./NavContext";
+import { useMutation } from "@apollo/client";
+import { ADD_USER } from "../../utils/mutations";
+import Auth from "../../utils/auth";
 
-const SignupContent = () => {
-  // tie form to state
+const SignupContent = ({
+  email,
+  setEmail,
+  password,
+  setPassword,
+  setIsLogin,
+  setOpen,
+  message,
+  setMessage,
+}) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
 
-  // get other state variables from context
-  const { email, setEmail, password, setPassword, setIsLogin } =
-    useNavContext();
+  const [addUser, { error, data }] = useMutation(ADD_USER);
 
-  const handleSubmit = (evt) => {
+  // clear all input fields (but not any error messages)
+  const clearForm = () => {
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setFirstName("");
+    setLastName("");
+  };
+
+  const handleSubmit = async (evt) => {
     evt.preventDefault();
 
-    // attempt to sign up as a new user
+    // check email
+    const emailRegex = /^([a-zA-Z0-9_.-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/;
+    if (!emailRegex.test(email)) {
+      setMessage("Please enter a valid email address.");
+      return;
+    }
 
-    // if successful, close modal, reset states, and go to User page
+    // make sure the passwords match and that it is long enough
+    if (password !== confirmPassword) {
+      setMessage("Passwords don't match, please try again.");
+      return;
+    } else if (password.length < 6) {
+      setMessage("Password must be at least 6 characters long.");
+      return;
+    }
+
+    // create a new account
+    try {
+      const { data } = await addUser({
+        variables: {
+          firstName,
+          lastName,
+          email,
+          password,
+        },
+      });
+
+      // close modal and reset states
+      clearForm();
+
+      // store the token in the browser
+      Auth.login(data.addUser.token);
+    } catch (err) {
+      // TODO: need to display better error messages
+      setMessage(`Server error: ${err}`);
+    }
 
     // if not successful, display an error message on the modal (keeping info in input fields)
   };
@@ -40,10 +91,14 @@ const SignupContent = () => {
         <X />
       </ModalStyle.Xclose>
       <ModalStyle.DialogTitle>Sign Up</ModalStyle.DialogTitle>
+
+      {/* Description not shown visually (but yes to screenreaders) */}
       <VisuallyHidden.Root asChild>
         <Dialog.Description>Enter your account information.</Dialog.Description>
       </VisuallyHidden.Root>
-      <ModalStyle.Form onSubmit={handleSubmit}>
+
+      {/* signup form */}
+      <ModalStyle.Form onSubmit={(evt) => handleSubmit(evt)}>
         <ModalStyle.InputWrapper>
           <label htmlFor="first">First name</label>
           <ModalStyle.Input
@@ -71,8 +126,7 @@ const SignupContent = () => {
           />
         </ModalStyle.InputWrapper>
         <ModalStyle.InputWrapper>
-          {/* TODO: add validation that field is not empty (onBlur) */}
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email">Email (must be unique)</label>
           <ModalStyle.Input
             type="email"
             id="email"
@@ -85,8 +139,7 @@ const SignupContent = () => {
           />
         </ModalStyle.InputWrapper>
         <ModalStyle.InputWrapper>
-          {/* TODO: add valudation that field is not empty (onBlue) */}
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password">Password (6+ characters)</label>
           <ModalStyle.Input
             type="password"
             id="password"
@@ -121,10 +174,22 @@ const SignupContent = () => {
           </ModalStyle.SubmitButton>
         </ModalStyle.DialogButtonWrapper>
       </ModalStyle.Form>
+
+      {/* error messsage (if any) appears below */}
+      {message && <ModalStyle.ErrorMessage>{message}</ModalStyle.ErrorMessage>}
+
+      {/* allow user to switch to other form */}
       <ModalStyle.SeparatorRoot />
       <ModalStyle.SignupOrLogin>
         <p>Already have an account?</p>
-        <ModalStyle.CloseButton tabIndex={5} onClick={() => setIsLogin(true)}>
+        <ModalStyle.CloseButton
+          tabIndex={5}
+          onClick={() => {
+            setIsLogin(true);
+            setMessage("");
+            clearForm();
+          }}
+        >
           Log In
         </ModalStyle.CloseButton>
       </ModalStyle.SignupOrLogin>

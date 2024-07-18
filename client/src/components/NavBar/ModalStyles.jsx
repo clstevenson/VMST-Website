@@ -7,6 +7,7 @@ import * as Separator from "@radix-ui/react-separator";
 import * as Dialog from "@radix-ui/react-dialog";
 import { COLORS, QUERIES, WEIGHTS } from "../../utils/constants";
 
+// dividing line between form and signup vs login prompt
 export const SeparatorRoot = styled(Separator.Root)`
   background-color: ${COLORS.accent[7]};
   height: 1.5px;
@@ -14,6 +15,7 @@ export const SeparatorRoot = styled(Separator.Root)`
   margin: 0 auto;
 `;
 
+// div containing prompt and button to switch between modals
 export const SignupOrLogin = styled.div`
   display: flex;
   justify-content: center;
@@ -21,6 +23,7 @@ export const SignupOrLogin = styled.div`
   gap: 8px;
 `;
 
+// wrapper for modal content
 export const DialogContent = styled(Dialog.Content)`
   color: ${COLORS.accent[12]};
   display: flex;
@@ -50,13 +53,14 @@ export const DialogContent = styled(Dialog.Content)`
   }
 `;
 
+// form wrapper
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 16px;
 `;
 
-// email label and input field
+// wrapper for label/input combos
 export const InputWrapper = styled.fieldset`
   border: none;
   display: flex;
@@ -64,6 +68,7 @@ export const InputWrapper = styled.fieldset`
   gap: 4px;
 `;
 
+// text input field
 export const Input = styled.input`
   all: unset;
   width: 30ch;
@@ -78,6 +83,7 @@ export const Input = styled.input`
   }
 `;
 
+// styling for all form buttons except "Submit"
 export const CloseButton = styled.button`
   padding: 2px 16px;
   font-weight: ${WEIGHTS.medium};
@@ -93,6 +99,7 @@ export const CloseButton = styled.button`
   }
 `;
 
+// the submit button is highlighted relative to the others
 export const SubmitButton = styled(CloseButton)`
   background-color: ${COLORS.accent[10]};
   color: white;
@@ -104,6 +111,7 @@ export const SubmitButton = styled(CloseButton)`
   }
 `;
 
+// displayed at top of modal
 export const DialogTitle = styled(Dialog.Title)`
   align-self: flex-start;
   font-size: 1.3em;
@@ -111,6 +119,7 @@ export const DialogTitle = styled(Dialog.Title)`
   color: ${COLORS.accent[12]};
 `;
 
+// wrapper for "Close" and "Submit" buttons below input fields
 export const DialogButtonWrapper = styled.div`
   width: 100%;
   display: flex;
@@ -118,6 +127,7 @@ export const DialogButtonWrapper = styled.div`
   padding: 12px;
 `;
 
+// styling of the backdrop of the modal
 export const DialogOverlay = styled(Dialog.Overlay)`
   --filter-width: 4px;
   backdrop-filter: blur(var(--filter-width));
@@ -127,12 +137,14 @@ export const DialogOverlay = styled(Dialog.Overlay)`
   inset: 0;
 `;
 
+// styling/positioning of the X to close the modal
 export const Xclose = styled(Dialog.Close)`
   position: absolute;
   top: 3px;
   right: 3px;
 `;
 
+// displayed below the form if there is some problem
 export const ErrorMessage = styled.div`
   border-radius: 4px;
   padding: 0 16px;
@@ -140,6 +152,7 @@ export const ErrorMessage = styled.div`
   color: ${COLORS.urgent_text};
 `;
 
+// prompt to give the user a chance to reset password (placeholder for now)
 export const ForgotInfo = styled.p`
   display: block;
   font-style: italic;

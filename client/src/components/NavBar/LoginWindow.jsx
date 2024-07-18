@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /*
  * This is the content of the login portion of the login/signup modal,
  * as well as the associated mutation to login to an existing account.
@@ -11,26 +12,28 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import * as ModalStyle from "./ModalStyles";
 
-import { useNavContext } from "./NavContext";
 import { useMutation } from "@apollo/client";
 import Auth from "../../utils/auth";
 import { LOGIN_USER } from "../../utils/mutations";
 
-const LoginContent = () => {
-  // get state variables and setters from context
-  const {
-    email,
-    setEmail,
-    password,
-    setPassword,
-    setIsLogin,
-    setOpen,
-    message,
-    setMessage,
-  } = useNavContext();
+const LoginContent = ({
+  email,
+  setEmail,
+  password,
+  setPassword,
+  setIsLogin,
+  setOpen,
+  message,
+  setMessage,
+}) => {
+  // clear all input fields (but not any error messages)
+  const clearForm = () => {
+    setEmail("");
+    setPassword("");
+  };
 
   // login checked on server
-  const [login] = useMutation(LOGIN_USER);
+  const [login, { error, data }] = useMutation(LOGIN_USER);
 
   const handleSubmit = async (evt) => {
     evt.preventDefault();
@@ -39,21 +42,20 @@ const LoginContent = () => {
     // if successful, close modal, reset states, and go to User page
     try {
       const { data } = await login({ variables: { email, password } });
-      // store the token in browser
-      // load the account page (with greeting)
-      Auth.login(data.login.token);
-      // close the modal
-      setOpen(false);
-      // reset states
+
+      // reset states and close the modal
       setEmail("");
       setPassword("");
       setIsLogin(true);
       setMessage("");
       setOpen(false);
-    } catch (error) {
-      // display error
-      setMessage("Something went wrong. Please check your email and password.");
-      console.log(`Error: ${error}`);
+
+      // store the token in browser
+      // load the account page (with greeting)
+      Auth.login(data.login.token);
+    } catch (err) {
+      // TODO: need to display better error messages
+      setMessage(`Server error: ${err}`);
     }
   };
 
@@ -63,9 +65,13 @@ const LoginContent = () => {
         <X />
       </ModalStyle.Xclose>
       <ModalStyle.DialogTitle>Login</ModalStyle.DialogTitle>
+
+      {/* Description not shown visually (but yes to screenreaders) */}
       <VisuallyHidden.Root asChild>
         <Dialog.Description>Enter your login information.</Dialog.Description>
       </VisuallyHidden.Root>
+
+      {/* login form */}
       <ModalStyle.Form onSubmit={(evt) => handleSubmit(evt)}>
         <ModalStyle.InputWrapper>
           <label htmlFor="email">Email</label>
@@ -102,19 +108,30 @@ const LoginContent = () => {
           </ModalStyle.SubmitButton>
         </ModalStyle.DialogButtonWrapper>
       </ModalStyle.Form>
-      {/* Put notifications here */}
+
+      {/* error messsage (if any) appears below */}
       {message && (
         <>
           <ModalStyle.ErrorMessage>{message}</ModalStyle.ErrorMessage>
+          {/* TODO: offer user the option to reset password */}
           <ModalStyle.ForgotInfo>
             Click here if you forgot your password.
           </ModalStyle.ForgotInfo>
         </>
       )}
+
+      {/* allow user to switch to other form */}
       <ModalStyle.SeparatorRoot />
       <ModalStyle.SignupOrLogin>
         <p>Don&apos;t have an account?</p>
-        <ModalStyle.CloseButton tabIndex={5} onClick={() => setIsLogin(false)}>
+        <ModalStyle.CloseButton
+          tabIndex={5}
+          onClick={() => {
+            setIsLogin(false);
+            setMessage("");
+            clearForm();
+          }}
+        >
           Sign Up
         </ModalStyle.CloseButton>
       </ModalStyle.SignupOrLogin>
