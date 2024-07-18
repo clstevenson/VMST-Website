@@ -6,27 +6,23 @@
  * are stored in a separate file.
  */
 
+import { useState } from "react";
 import { X } from "react-feather";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import * as Modal from "./ModalStyles";
+import * as ModalStyle from "./ModalStyles";
 
-const SignupContent = ({
-  email,
-  setEmail,
-  password,
-  setPassword,
-  confirmPassword,
-  setConfirmPassword,
-  setIsLogin,
-  first,
-  setFirstName,
-  last,
-  setLastName,
-}) => {
-  // for email entry validation
-  const emailRegex =
-    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+import { useNavContext } from "./NavContext";
+
+const SignupContent = () => {
+  // tie form to state
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+
+  // get other state variables from context
+  const { email, setEmail, password, setPassword, setIsLogin } =
+    useNavContext();
 
   const handleSubmit = (evt) => {
     evt.preventDefault();
@@ -39,45 +35,45 @@ const SignupContent = ({
   };
 
   return (
-    <Modal.DialogContent>
-      <Modal.Xclose asChild>
+    <ModalStyle.DialogContent>
+      <ModalStyle.Xclose asChild>
         <X />
-      </Modal.Xclose>
-      <Modal.DialogTitle>Sign Up</Modal.DialogTitle>
+      </ModalStyle.Xclose>
+      <ModalStyle.DialogTitle>Sign Up</ModalStyle.DialogTitle>
       <VisuallyHidden.Root asChild>
         <Dialog.Description>Enter your account information.</Dialog.Description>
       </VisuallyHidden.Root>
-      <Modal.Form onSubmit={handleSubmit}>
-        <Modal.InputWrapper>
+      <ModalStyle.Form onSubmit={handleSubmit}>
+        <ModalStyle.InputWrapper>
           <label htmlFor="first">First name</label>
-          <Modal.Input
+          <ModalStyle.Input
             type="text"
             id="first"
             required
-            value={first}
+            value={firstName}
             tabIndex={1}
             onChange={(evt) => {
               setFirstName(evt.target.value);
             }}
           />
-        </Modal.InputWrapper>
-        <Modal.InputWrapper>
+        </ModalStyle.InputWrapper>
+        <ModalStyle.InputWrapper>
           <label htmlFor="last">Last name</label>
-          <Modal.Input
+          <ModalStyle.Input
             type="text"
             id="last"
             required
-            value={last}
+            value={lastName}
             tabIndex={1}
             onChange={(evt) => {
               setLastName(evt.target.value);
             }}
           />
-        </Modal.InputWrapper>
-        <Modal.InputWrapper>
+        </ModalStyle.InputWrapper>
+        <ModalStyle.InputWrapper>
           {/* TODO: add validation that field is not empty (onBlur) */}
           <label htmlFor="email">Email</label>
-          <Modal.Input
+          <ModalStyle.Input
             type="email"
             id="email"
             required
@@ -87,11 +83,11 @@ const SignupContent = ({
               setEmail(evt.target.value);
             }}
           />
-        </Modal.InputWrapper>
-        <Modal.InputWrapper>
+        </ModalStyle.InputWrapper>
+        <ModalStyle.InputWrapper>
           {/* TODO: add valudation that field is not empty (onBlue) */}
           <label htmlFor="password">Password</label>
-          <Modal.Input
+          <ModalStyle.Input
             type="password"
             id="password"
             required
@@ -101,11 +97,11 @@ const SignupContent = ({
               setPassword(evt.target.value);
             }}
           />
-        </Modal.InputWrapper>
-        <Modal.InputWrapper>
+        </ModalStyle.InputWrapper>
+        <ModalStyle.InputWrapper>
           {/* TODO: add validation/feedback that passwords match (onBlur; onChange?) */}
           <label htmlFor="confirm_password">Confirm password</label>
-          <Modal.Input
+          <ModalStyle.Input
             type="password"
             id="confirm_password"
             required
@@ -115,24 +111,24 @@ const SignupContent = ({
               setConfirmPassword(evt.target.value);
             }}
           />
-        </Modal.InputWrapper>
-        <Modal.DialogButtonWrapper>
+        </ModalStyle.InputWrapper>
+        <ModalStyle.DialogButtonWrapper>
           <Dialog.Close asChild>
-            <Modal.CloseButton tabIndex={3}>Close</Modal.CloseButton>
+            <ModalStyle.CloseButton tabIndex={3}>Close</ModalStyle.CloseButton>
           </Dialog.Close>
-          <Modal.SubmitButton type="submit" tabIndex={4}>
+          <ModalStyle.SubmitButton type="submit" tabIndex={4}>
             Submit
-          </Modal.SubmitButton>
-        </Modal.DialogButtonWrapper>
-      </Modal.Form>
-      <Modal.SeparatorRoot />
-      <Modal.SignupOrLogin>
+          </ModalStyle.SubmitButton>
+        </ModalStyle.DialogButtonWrapper>
+      </ModalStyle.Form>
+      <ModalStyle.SeparatorRoot />
+      <ModalStyle.SignupOrLogin>
         <p>Already have an account?</p>
-        <Modal.CloseButton tabIndex={5} onClick={() => setIsLogin(true)}>
+        <ModalStyle.CloseButton tabIndex={5} onClick={() => setIsLogin(true)}>
           Log In
-        </Modal.CloseButton>
-      </Modal.SignupOrLogin>
-    </Modal.DialogContent>
+        </ModalStyle.CloseButton>
+      </ModalStyle.SignupOrLogin>
+    </ModalStyle.DialogContent>
   );
 };
 

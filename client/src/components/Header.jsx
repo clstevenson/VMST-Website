@@ -5,6 +5,8 @@
 import styled from "styled-components";
 import { COLORS, QUERIES } from "../utils/constants";
 import NavBar from "./NavBar";
+// context for all the state variables and setters of the navbar
+import { NavProvider } from "./NavBar/NavContext";
 
 export default function Header() {
   return (
@@ -14,7 +16,9 @@ export default function Header() {
       <Title>Virginia Masters Swim Team</Title>
       <ShortTitle>Virginia Masters</ShortTitle>
       <nav>
-        <NavBar />
+        <NavProvider>
+          <NavBar />
+        </NavProvider>
       </nav>
     </Wrapper>
   );

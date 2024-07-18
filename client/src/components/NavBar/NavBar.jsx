@@ -8,7 +8,6 @@
  for ease of debugging but they are probably not very re-usable.
  */
 
-import { useState } from "react";
 import styled from "styled-components";
 import { Image, Home, Info, Send, User } from "react-feather";
 import * as Tooltip from "@radix-ui/react-tooltip";
@@ -23,17 +22,6 @@ import { COLORS, QUERIES } from "../../utils/constants";
 // - screenreader should only read off the item once
 // - ESC to unselect/unfocus? (Is that needed for accessbility?)
 export default function NavBar() {
-  // need to reset these here (on close of login modal) and pass as props to modal componnets
-  // current state of the modal
-  const [open, setOpen] = useState(false);
-  // user info for login
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  // toggle between login or signup modals
-  const [isLogin, setIsLogin] = useState(true);
-  // notification messages on modal (eg input errors)
-  const [message, setMessage] = useState("");
-
   return (
     <Wrapper>
       <Tooltip.Provider delayDuration={0}>
@@ -44,18 +32,7 @@ export default function NavBar() {
         {Auth.loggedIn() ? (
           <NavItem href="/me" label="User" icon={User} />
         ) : (
-          <LoginItem
-            email={email}
-            setEmail={setEmail}
-            password={password}
-            setPassword={setPassword}
-            isLogin={isLogin}
-            setIsLogin={setIsLogin}
-            open={open}
-            setOpen={setOpen}
-            message={message}
-            setMessage={setMessage}
-          />
+          <LoginItem />
         )}
       </Tooltip.Provider>
     </Wrapper>
