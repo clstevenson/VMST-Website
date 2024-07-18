@@ -78,8 +78,9 @@ const SignupContent = ({
       // store the token in the browser
       Auth.login(data.addUser.token);
     } catch (err) {
-      // TODO: need to display better error messages
-      setMessage(`Server error: ${err}`);
+      if (err.message.includes("E11000"))
+        setMessage("Error: an account with that email already exists");
+      else setMessage(`Error: ${err.message}`);
     }
 
     // if not successful, display an error message on the modal (keeping info in input fields)

@@ -54,8 +54,7 @@ const LoginContent = ({
       // load the account page (with greeting)
       Auth.login(data.login.token);
     } catch (err) {
-      // TODO: need to display better error messages
-      setMessage(`Server error: ${err}`);
+      setMessage(`Error: ${err.message}`);
     }
   };
 
