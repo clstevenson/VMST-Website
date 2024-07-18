@@ -1,35 +1,32 @@
+/* eslint-disable react/prop-types */
 /*
  * NavItem is for rendering/styling individual navigation links (using React Router)
  * It is used by the NavBar component
  */
 
 import styled from "styled-components";
-import { useLocation } from "react-router-dom";
 import * as Tooltip from "@radix-ui/react-tooltip";
 
-import { LinkButton, NavLink } from "./LinkButton";
+import { LinkTab, NavLink } from "./LinkTab";
 import { COLORS, QUERIES } from "../../utils/constants";
 
-// TODO passing isCurrent as a prop causes warnings/errors; fix that
 export function NavItem({ href, label, icon: Icon }) {
-  // get the current page so we know which link to highlight
-  const currentPage = useLocation().pathname;
   return (
     <Tooltip.Root>
       <TooltipTrigger tabIndex={-1}>
         <li>
           <NavLink to={href}>
-            <LinkButton isCurrent={href === currentPage} tabIndex={-1}>
+            <LinkTab href={href} tabIndex={-1}>
               <Icon />
               <LabelWrapper>{label}</LabelWrapper>
-            </LinkButton>
+            </LinkTab>
           </NavLink>
         </li>
         <TooltipContent>{label}</TooltipContent>
       </TooltipTrigger>
     </Tooltip.Root>
   );
-};
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //                             Styled Components                             //

@@ -1,10 +1,12 @@
 /*
- * This is a styled button. The navigation links wrap around this component,
- * so it determines the appearance of the nav links.
+ This is a styled div that determines the appearance of the navigation links.
+
+ The link corresponding to the current page is styled differently to indicate
+ the current location to the user.
  */
 
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import { COLORS, QUERIES } from "../../utils/constants";
 
@@ -13,21 +15,19 @@ const NavLink = styled(Link)`
   outline: none;
 `;
 
-const LinkButton = styled.button`
-  border: none;
-  /* uncomment line below if you want all tabs for links (not just current page) */
-  /* border: 1px dotted ${COLORS.gray[9]}; */
+const LinkTab = styled.div`
   padding: 0 8px;
   padding-top: 2px;
   color: ${COLORS.accent[12]};
-  border: ${({ isCurrent }) => {
-    return isCurrent && `1px solid ${COLORS.gray[9]}`;
-  }};
+  border: none;
+  /* uncomment line below if you want all tabs for links (not just current page) */
+  /* border: 1px dotted ${COLORS.gray[9]}; */
+  /* style the link corresponding to the current location differently */
+  border: ${({ href }) =>
+    useLocation().pathname === href && `1px solid ${COLORS.gray[9]}`};
+  background-color: ${({ href }) =>
+    useLocation().pathname === href ? COLORS.secondary_light : "transparent"};
   border-bottom: none;
-  background-color: ${({ isCurrent }) => {
-    return isCurrent ? COLORS.secondary_light : "transparent";
-  }};
-
   border-radius: 6px 6px 0 0;
   transition: transform 400ms;
 
@@ -61,4 +61,4 @@ const LinkButton = styled.button`
   }
 `;
 
-export { LinkButton, NavLink };
+export { LinkTab, NavLink };

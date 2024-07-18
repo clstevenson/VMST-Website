@@ -7,7 +7,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { User } from "react-feather";
 
-import { LinkButton } from "./LinkButton";
+import { LinkTab } from "./LinkTab";
 import { TooltipContent } from "./NavItem";
 import { QUERIES } from "../../utils/constants";
 import LoginContent from "./LoginWindow";
@@ -44,10 +44,10 @@ export default function LoginItem() {
         <Tooltip.Trigger asChild>
           <Dialog.Trigger asChild>
             <li>
-              <LinkButton>
+              <LinkTab>
                 <User />
                 <LabelWrapper>Log In</LabelWrapper>
-              </LinkButton>
+              </LinkTab>
             </li>
           </Dialog.Trigger>
         </Tooltip.Trigger>
