@@ -21,6 +21,7 @@ export const QUERY_POSTS = gql`
       _id
       title
       content
+      createdAt
   }
 }
 `;
