@@ -1,29 +1,158 @@
 import styled from "styled-components";
-import FAQs from "../components/FAQs/FAQs";
+import * as Accordian from "@radix-ui/react-accordion";
+import AccordianItem from "../components/AccordianItem";
+import { COLORS, QUERIES, WEIGHTS } from "../utils/constants";
 
 export default function AboutUs() {
   return (
     <Wrapper>
-      <div className="formatpage">
-        <h2 style={{ textAlign: "center" }}>About Us</h2>
-        <div id="content">
-          <div id="introduction">
-            <h3 style={{ marginBottom: "10px", marginTop: "40px" }}>
-              The Legacy of VMST
-            </h3>
-            <p style={{ marginLeft: "12px", marginBottom: "40px" }}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </p>
-          </div>
-          <div id="Frequently-Asked-Questions">
-            <h3 style={{ marginBottom: "20px" }}>Frequently Asked Questions</h3>
-            <FAQs />
-          </div>
-        </div>
-      </div>
+      <QuoteWrapper>
+        <Quote>From the mountains to the sea...we are VMST!</Quote>
+      </QuoteWrapper>
+
+      <Paragraph>
+        The Virginia Masters Swim Team is the largest masters swimming club in
+        Virginia, with{" "}
+        <a
+          href="https://www.usms.org/reg/members/club.php?ClubAbbr=VMST"
+          target="_new"
+        >
+          approximately 300 members
+        </a>{" "}
+        spread throughout the state. We are a member club of{" "}
+        <a href="https://www.usms.org" target="_new">
+          U.S. Masters Swimming
+        </a>
+        .
+      </Paragraph>
+
+      <Accordian.Root type="single" collapsible>
+        <AccordianItem title="Where can I swim?">
+          <Paragraph>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+            culpa qui officia deserunt mollit anim id est laborum.
+          </Paragraph>
+        </AccordianItem>
+
+        <AccordianItem title="What are workout groups? Should we form one?">
+          <Paragraph>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+            culpa qui officia deserunt mollit anim id est laborum.
+          </Paragraph>
+        </AccordianItem>
+
+        <AccordianItem title="What is the difference between VMST and the Virginia LMSC?">
+          <Paragraph>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+            culpa qui officia deserunt mollit anim id est laborum.
+          </Paragraph>
+        </AccordianItem>
+
+        <AccordianItem title="Are there any resources for hosting meets?">
+          <Paragraph>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+            culpa qui officia deserunt mollit anim id est laborum.
+          </Paragraph>
+        </AccordianItem>
+
+        <AccordianItem title="How long has VMST been around?">
+          <Title>The History of VMST</Title>
+
+          <Paragraph>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+            culpa qui officia deserunt mollit anim id est laborum.
+          </Paragraph>
+
+          <Paragraph>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+            culpa qui officia deserunt mollit anim id est laborum.
+          </Paragraph>
+        </AccordianItem>
+      </Accordian.Root>
     </Wrapper>
   );
 }
 
-const Wrapper = styled.article``;
+const Wrapper = styled.article`
+  max-width: var(--max-prose-width);
+  margin: 8px auto 32px;
+  border: 1px solid ${COLORS.accent[12]};
+  padding: 8px 24px 16px 48px;
+  border-radius: 8px;
+  box-shadow: 2px 4px 6px ${COLORS.gray[9]};
+  background-color: ${COLORS.accent[3]};
+`;
+
+const Quote = styled.blockquote`
+  padding: 32px;
+  box-shadow: 2px 2px 8px ${COLORS.gray[9]};
+  color: white;
+  font-style: italic;
+  font-weight: ${WEIGHTS.bold};
+  font-size: 1.2rem;
+  background-color: ${COLORS.accent[9]};
+
+  @media ${QUERIES.tabletAndLess} {
+    padding: 24px;
+  }
+
+  @media ${QUERIES.mobile} {
+    padding: 16px;
+  }
+`;
+
+// the inset shadow below gives a "moat" around the item
+// adapted from JWC CSS course
+const QuoteWrapper = styled.div`
+  box-shadow: inset 2px 2px 8px ${COLORS.gray[9]};
+  border: 1px solid ${COLORS.gray[7]};
+  width: fit-content;
+  overflow: hidden;
+  padding: 8px;
+  margin: 8px auto;
+`;
+
+const Paragraph = styled.p`
+  /* spacing between all paragraphs */
+  margin: 16px 0;
+  /* make the prose a little more readable */
+  font-family: var(--font-serif);
+  text-align: justify;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  overflow-wrap: break-word;
+`;
+
+const Title = styled.h3`
+  font-size: 1rem;
+`;
