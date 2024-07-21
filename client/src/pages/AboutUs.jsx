@@ -63,6 +63,14 @@ export default function AboutUs() {
           </Paragraph>
         </AccordianItem>
 
+        <AccordianItem title="Who are the current officers of VMST?">
+          <ul>
+            <li>President: Barbara Boslego</li>
+            <li>Vice President: Jim Miller</li>
+            <li>Secretary: Debbie Jaeger</li>
+          </ul>
+        </AccordianItem>
+
         <AccordianItem title="Are there any resources for hosting meets?">
           <Paragraph>
             Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
