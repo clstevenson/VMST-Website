@@ -10,7 +10,7 @@
 
 import styled from "styled-components";
 import BlogPosts from "../components/BlogPosts";
-import { COLORS } from "../utils/constants";
+import { COLORS, QUERIES } from "../utils/constants";
 
 export default function Home() {
   return (
@@ -28,6 +28,10 @@ export default function Home() {
 
 const Wrapper = styled.div`
   margin: 8px 0;
+
+  @media ${QUERIES.mobile} {
+    margin: 2px 0;
+  }
 `;
 
 const PostWrapper = styled.div`
@@ -37,6 +41,10 @@ const PostWrapper = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   border: 1px solid ${COLORS.accent[10]};
   background-color: ${COLORS.accent[10]};
+
+  @media ${QUERIES.mobile} {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
 `;
 
 const Title = styled.h2`

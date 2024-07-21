@@ -118,17 +118,22 @@ const Wrapper = styled.article`
   padding: 8px 24px 16px 48px;
   border-radius: 8px;
   box-shadow: 2px 4px 6px ${COLORS.gray[9]};
-  background-color: ${COLORS.accent[3]};
+  background-color: ${COLORS.accent[2]};
 `;
 
 const Quote = styled.blockquote`
   padding: 32px;
   box-shadow: 2px 2px 8px ${COLORS.gray[9]};
-  color: white;
+  color: black;
   font-style: italic;
   font-weight: ${WEIGHTS.bold};
   font-size: 1.2rem;
-  background-color: ${COLORS.accent[9]};
+  /* background-color: ${COLORS.accent[9]}; */
+  background: linear-gradient(
+    to right,
+    ${COLORS.accent[2]},
+    ${COLORS.accent[8]}
+  );
 
   @media ${QUERIES.tabletAndLess} {
     padding: 24px;

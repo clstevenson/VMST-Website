@@ -44,9 +44,9 @@ function App() {
         {/* Maybe use a global state to turn Banner on/off as needed */}
         {/* Prop is duraction each image is displayed, in sec */}
         <Banner duration={30 * 60} />
-        <main>
+        <Main>
           <Outlet />
-        </main>
+        </Main>
         <Footer />
       </Wrapper>
       <Sidebar />
@@ -62,6 +62,8 @@ const Wrapper = styled.div`
   background-color: ${COLORS.white};
   padding: 16px;
 `;
+
+const Main = styled.main``;
 
 // container below is meant to be empty, centers the content on wide screens
 const Sidebar = styled.div``;

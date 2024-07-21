@@ -13,9 +13,9 @@ export default function Header() {
       <Image src="/assets/VMST-logo-white.png" alt="VMST logo" />
       <Title>Virginia Masters Swim Team</Title>
       <ShortTitle>Virginia Masters</ShortTitle>
-      <nav>
+      <Nav>
         <NavBar />
-      </nav>
+      </Nav>
     </Wrapper>
   );
 }
@@ -25,15 +25,15 @@ const Wrapper = styled.div`
   align-items: center;
   gap: 16px;
   background-color: transparent;
-  padding: var(--content-padding);
 
   @media ${QUERIES.tabletAndLess} {
     gap: 12px;
+    padding-bottom: 4px;
   }
 `;
 
 const Title = styled.h1`
-  margin-right: auto;
+  /* margin-right: auto; */
   font-size: 1.8em;
   color: ${COLORS.accent[9]};
 
@@ -44,7 +44,7 @@ const Title = styled.h1`
 
 const ShortTitle = styled.h1`
   display: none;
-  margin-right: auto;
+  /* margin-right: auto; */
   line-height: 1.3em;
   color: ${COLORS.accent[9]};
 
@@ -58,6 +58,10 @@ const ShortTitle = styled.h1`
   }
 `;
 
+const Nav = styled.nav`
+  margin-left: auto;
+`
+
 const Image = styled.img`
   display: block;
   height: 64px;
@@ -67,6 +71,11 @@ const Image = styled.img`
   }
 
   @media ${QUERIES.mobile} {
-    margin-right: auto;
+    /* margin-right: auto; */
+    height: 42px;
+  }
+
+  @media (max-width: 425px) {
+    display: none;
   }
 `;

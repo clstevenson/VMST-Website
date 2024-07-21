@@ -49,7 +49,7 @@ export default function Banner({ duration }) {
           <ChevronLeft color={COLORS.accent[12]} strokeWidth={1.5} />
           <VisuallyHidden.Root>go to next banner image</VisuallyHidden.Root>
         </ArrowButton>
-        <BannerText>banner</BannerText>
+        {/* <BannerText>banner</BannerText> */}
         <ArrowButton onClick={() => nextImage()}>
           <ChevronRight color={COLORS.accent[12]} strokeWidth={1.5} />
           <VisuallyHidden.Root>go to previous banner image</VisuallyHidden.Root>
@@ -87,6 +87,7 @@ const BannerText = styled.div`
 const ArrowsWrapper = styled.div`
   display: flex;
   justify-content: flex-end;
+  gap: 4px;
   color: ${COLORS.accent[12]};
   /* take it out of flow */
   position: absolute;
@@ -107,5 +108,6 @@ const ArrowButton = styled.button`
   &:hover {
     transform: scale(1.2);
     transition: 300ms transform;
+    cursor: pointer;
   }
 `;

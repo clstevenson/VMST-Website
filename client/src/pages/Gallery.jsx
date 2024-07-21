@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import postPhotos from "../utils/post-photos";
 import CaptionedImage from "../components/CaptionedImage";
-import { COLORS } from "../utils/constants";
+import { COLORS, QUERIES } from "../utils/constants";
 
 export default function Gallery() {
   return (
@@ -36,4 +36,8 @@ const GalleryWrapper = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   border: 1px solid ${COLORS.accent[10]};
   background-color: white;
+
+  @media ${QUERIES.mobile} {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
 `;

@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import EmailForm from "../components/EmailPage/FormElement";
-import AsideSelector from "../components/EmailPage/AsideSelector";
+import EmailForm from "../components/Email/FormElement";
+import AsideSelector from "../components/Email/AsideSelector";
 import { useForm } from "react-hook-form";
 
 import { useMutation } from "@apollo/client";

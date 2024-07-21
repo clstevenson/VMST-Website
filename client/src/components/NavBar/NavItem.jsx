@@ -41,7 +41,6 @@ const TooltipTrigger = styled(Tooltip.Trigger)`
 
 export const TooltipContent = styled(Tooltip.Content)`
   display: none;
-  background-color: ${COLORS.accent[1]};
 
   @media ${QUERIES.tabletAndLess} {
     display: revert;
