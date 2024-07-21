@@ -48,11 +48,6 @@ const AccordianTrigger = styled(Accordian.Trigger)`
   background-color: transparent;
   margin: 16px 0;
   border: none;
-
-  &:hover {
-    background-color: ${COLORS.accent[3]};
-    cursor: pointer;
-  }
 `;
 
 const Chevron = styled(ChevronRight)`
@@ -68,4 +63,10 @@ const Title = styled.button`
   position: relative;
   background-color: transparent;
   border: none;
+
+  /* indicate to user that the title is clickable */
+  &:hover {
+    text-decoration: underline;
+    cursor: pointer;
+  }
 `;
