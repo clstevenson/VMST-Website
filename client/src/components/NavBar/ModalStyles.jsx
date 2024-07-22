@@ -145,12 +145,12 @@ export const Xclose = styled(Dialog.Close)`
 `;
 
 // displayed below the form if there is some problem
-export const ErrorMessage = styled.div`
-  border-radius: 4px;
-  padding: 0 16px;
-  background-color: ${COLORS.urgent_light};
-  color: ${COLORS.urgent_text};
-`;
+// export const ErrorMessage = styled.div`
+//   border-radius: 4px;
+//   padding: 0 16px;
+//   background-color: ${COLORS.urgent_light};
+//   color: ${COLORS.urgent_text};
+// `;
 
 // prompt to give the user a chance to reset password (placeholder for now)
 export const ForgotInfo = styled.p`
@@ -159,4 +159,10 @@ export const ForgotInfo = styled.p`
   font-size: 1rem;
   padding: 0 16px;
   align-self: flex-start;
+`;
+
+export const ErrorMessage = styled.p`
+  color: ${COLORS.urgent_text};
+  font-size: 0.9em;
+  font-style: italic;
 `;

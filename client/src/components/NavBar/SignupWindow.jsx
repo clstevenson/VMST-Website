@@ -16,50 +16,21 @@ import * as ModalStyle from "./ModalStyles";
 import { useMutation } from "@apollo/client";
 import { ADD_USER } from "../../utils/mutations";
 import Auth from "../../utils/auth";
+import { useForm } from "react-hook-form";
 
-const SignupContent = ({
-  email,
-  setEmail,
-  password,
-  setPassword,
-  setIsLogin,
-  message,
-  setMessage,
-}) => {
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+const SignupContent = ({ setIsLogin, message, setMessage }) => {
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    setFocus,
+    formState: { errors, isSubmitting },
+  } = useForm();
 
+  // mutation to add a new user
   const [addUser, { error, data }] = useMutation(ADD_USER);
 
-  // clear all input fields (but not any error messages)
-  const clearForm = () => {
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
-    setFirstName("");
-    setLastName("");
-  };
-
-  const handleSubmit = async (evt) => {
-    evt.preventDefault();
-
-    // check email
-    const emailRegex = /^([a-zA-Z0-9_.-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/;
-    if (!emailRegex.test(email)) {
-      setMessage("Please enter a valid email address.");
-      return;
-    }
-
-    // make sure the passwords match and that it is long enough
-    if (password !== confirmPassword) {
-      setMessage("Passwords don't match, please try again.");
-      return;
-    } else if (password.length < 6) {
-      setMessage("Password must be at least 6 characters long.");
-      return;
-    }
-
+  const onSubmit = async ({ firstName, lastName, email, password }) => {
     // create a new account
     try {
       const { data } = await addUser({
@@ -70,16 +41,13 @@ const SignupContent = ({
           password,
         },
       });
-
-      // close modal and reset states
-      clearForm();
-
       // store the token in the browser
       Auth.login(data.addUser.token);
     } catch (err) {
-      if (err.message.includes("E11000"))
+      if (err.message.includes("E11000")) {
         setMessage("Error: an account with that email already exists");
-      else setMessage(`Error: ${err.message}`);
+        setFocus("email");
+      } else setMessage(`Error: ${err.message}`);
     }
 
     // if not successful, display an error message on the modal (keeping info in input fields)
@@ -99,81 +67,122 @@ const SignupContent = ({
 
       {/* signup form */}
       <ModalStyle.Form
-        onSubmit={(evt) => handleSubmit(evt)}
+        onSubmit={handleSubmit(onSubmit)}
         aria-labelledby="signup"
       >
         <ModalStyle.InputWrapper>
           <label htmlFor="first">First name</label>
           <ModalStyle.Input
+            tabIndex={0}
             type="text"
             id="first"
-            required
-            value={firstName}
-            tabIndex={0}
-            onChange={(evt) => {
-              setFirstName(evt.target.value);
-            }}
+            aria-invalid={errors.firstName ? "true" : "false"}
+            {...register("firstName", {
+              required: "First name is required",
+            })}
           />
+          {/* output error message from validation */}
+          {errors.firstName?.message && (
+            <ModalStyle.ErrorMessage>
+              {errors.firstName.message}
+            </ModalStyle.ErrorMessage>
+          )}
         </ModalStyle.InputWrapper>
         <ModalStyle.InputWrapper>
           <label htmlFor="last">Last name</label>
           <ModalStyle.Input
+            tabIndex={0}
             type="text"
             id="last"
-            required
-            value={lastName}
-            tabIndex={0}
-            onChange={(evt) => {
-              setLastName(evt.target.value);
-            }}
+            aria-invalid={errors.lastName ? "true" : "false"}
+            {...register("lastName", {
+              required: "Last name is required",
+            })}
           />
+          {/* output error message from validation */}
+          {errors.lastName?.message && (
+            <ModalStyle.ErrorMessage>
+              {errors.lastName.message}
+            </ModalStyle.ErrorMessage>
+          )}
         </ModalStyle.InputWrapper>
         <ModalStyle.InputWrapper>
           <label htmlFor="email">Email (must be unique)</label>
           <ModalStyle.Input
-            type="email"
-            id="email"
-            required
-            value={email}
             tabIndex={0}
-            onChange={(evt) => {
-              setEmail(evt.target.value);
-            }}
+            id="email"
+            aria-invalid={errors.email ? "true" : "false"}
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^([a-zA-Z0-9_.-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/,
+                message: "Not a valid email address",
+              },
+            })}
           />
+          {/* output error message from validation */}
+          {errors.email?.message && (
+            <ModalStyle.ErrorMessage>
+              {errors.email.message}
+            </ModalStyle.ErrorMessage>
+          )}
         </ModalStyle.InputWrapper>
         <ModalStyle.InputWrapper>
           <label htmlFor="password">Password (6+ characters)</label>
           <ModalStyle.Input
+            tabIndex={0}
             type="password"
             id="password"
-            required
-            value={password}
-            tabIndex={0}
-            onChange={(evt) => {
-              setPassword(evt.target.value);
-            }}
+            aria-invalid={errors.password ? "true" : "false"}
+            {...register("password", {
+              required: "Password is required",
+              minLength: {
+                value: 6,
+                message: "Password is too short",
+              },
+            })}
           />
+          {/* output error message from validation */}
+          {errors.password?.message && (
+            <ModalStyle.ErrorMessage>
+              {errors.password.message}
+            </ModalStyle.ErrorMessage>
+          )}
         </ModalStyle.InputWrapper>
         <ModalStyle.InputWrapper>
           {/* TODO: add validation/feedback that passwords match (onBlur; onChange?) */}
           <label htmlFor="confirm_password">Confirm password</label>
           <ModalStyle.Input
+            tabIndex={0}
             type="password"
             id="confirm_password"
-            required
-            value={confirmPassword}
-            tabIndex={0}
-            onChange={(evt) => {
-              setConfirmPassword(evt.target.value);
-            }}
+            aria-invalid={errors.confirmPassword ? "true" : "false"}
+            {...register("confirmPassword", {
+              required: true,
+              validate: (val) => {
+                if (val !== getValues("password"))
+                  return "Your passwords do not match";
+                return true;
+              },
+            })}
           />
+          {/* output error message from validation */}
+          {errors.confirmPassword?.message && (
+            <ModalStyle.ErrorMessage>
+              {errors.confirmPassword.message}
+            </ModalStyle.ErrorMessage>
+          )}
         </ModalStyle.InputWrapper>
         <ModalStyle.DialogButtonWrapper>
           <Dialog.Close asChild>
             <ModalStyle.CloseButton tabIndex={0}>Close</ModalStyle.CloseButton>
           </Dialog.Close>
-          <ModalStyle.SubmitButton type="submit" tabIndex={0}>
-            Submit
+          <ModalStyle.SubmitButton
+            disabled={isSubmitting}
+            type="submit"
+            tabIndex={0}
+          >
+            {isSubmitting ? "working..." : "Submit"}
           </ModalStyle.SubmitButton>
         </ModalStyle.DialogButtonWrapper>
       </ModalStyle.Form>
@@ -190,7 +199,6 @@ const SignupContent = ({
           onClick={() => {
             setIsLogin(true);
             setMessage("");
-            clearForm();
           }}
         >
           Log In

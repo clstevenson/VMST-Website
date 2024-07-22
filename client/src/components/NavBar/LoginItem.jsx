@@ -15,9 +15,6 @@ import SignupContent from "./SignupWindow";
 import * as ModalStyle from "./ModalStyles";
 
 export default function LoginItem() {
-  // login credentials
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   // does user want to log in (or sign up)?
   const [isLogin, setIsLogin] = useState(true);
   // control the state of the modal (Radix primitive Dialog)
@@ -30,8 +27,6 @@ export default function LoginItem() {
     const isOpen = open;
     setOpen(!isOpen);
     if (isOpen) {
-      setEmail("");
-      setPassword("");
       setIsLogin(true);
       setMessage("");
     }
@@ -59,25 +54,17 @@ export default function LoginItem() {
         <ModalStyle.DialogOverlay />
         {isLogin ? (
           <LoginContent
-            email={email}
-            setEmail={setEmail}
-            password={password}
-            setPassword={setPassword}
-            setIsLogin={setIsLogin}
-            setOpen={setOpen}
             message={message}
             setMessage={setMessage}
+            setIsLogin={setIsLogin}
+            setOpen={setOpen}
           />
         ) : (
           <SignupContent
-            email={email}
-            setEmail={setEmail}
-            password={password}
-            setPassword={setPassword}
-            setIsLogin={setIsLogin}
-            setOpen={setOpen}
             message={message}
             setMessage={setMessage}
+            setIsLogin={setIsLogin}
+            setOpen={setOpen}
           />
         )}
       </Dialog.Portal>

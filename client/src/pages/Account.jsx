@@ -58,6 +58,7 @@ const Button = styled.div`
   color: white;
   border-radius: 4px;
   font-weight: ${WEIGHTS.medium};
+  cursor: pointer;
 `;
 
 const Title = styled.h2`

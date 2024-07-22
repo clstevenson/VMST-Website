@@ -7,6 +7,7 @@
  * are stored in a separate file.
  */
 
+import { useForm } from "react-hook-form";
 import { X } from "react-feather";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
@@ -16,38 +17,24 @@ import { useMutation } from "@apollo/client";
 import Auth from "../../utils/auth";
 import { LOGIN_USER } from "../../utils/mutations";
 
-const LoginContent = ({
-  email,
-  setEmail,
-  password,
-  setPassword,
-  setIsLogin,
-  setOpen,
-  message,
-  setMessage,
-}) => {
-  // clear all input fields (but not any error messages)
-  const clearForm = () => {
-    setEmail("");
-    setPassword("");
-  };
+const LoginContent = ({ setIsLogin, setOpen, message, setMessage }) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm();
 
   // login checked on server
   const [login, { error, data }] = useMutation(LOGIN_USER);
 
-  const handleSubmit = async (evt) => {
-    evt.preventDefault();
-
+  const onSubmit = async ({ email, password }) => {
     // attempt to log in
     // if successful, close modal, reset states, and go to User page
     try {
       const { data } = await login({ variables: { email, password } });
 
       // reset states and close the modal
-      setEmail("");
-      setPassword("");
       setIsLogin(true);
-      setMessage("");
       setOpen(false);
 
       // store the token in browser
@@ -72,55 +59,65 @@ const LoginContent = ({
 
       {/* login form */}
       <ModalStyle.Form
-        onSubmit={(evt) => handleSubmit(evt)}
+        // onSubmit={(evt) => handleSubmit(evt)}
+        onSubmit={handleSubmit(onSubmit)}
         aria-labelledby="login"
       >
         <ModalStyle.InputWrapper>
           <label htmlFor="email">Email</label>
           <ModalStyle.Input
-            type="email"
-            id="email"
-            required
-            value={email}
             tabIndex={0}
-            onChange={(evt) => {
-              setEmail(evt.target.value);
-            }}
+            id="email"
+            aria-invalid={errors.email ? "true" : "false"}
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^([a-zA-Z0-9_.-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/,
+                message: "Not a valid email address",
+              },
+            })}
           />
+          {/* output error message from validation */}
+          {errors.email?.message && (
+            <ModalStyle.ErrorMessage>
+              {errors.email.message}
+            </ModalStyle.ErrorMessage>
+          )}
         </ModalStyle.InputWrapper>
         <ModalStyle.InputWrapper>
           <label htmlFor="password">Password</label>
           <ModalStyle.Input
+            tabIndex={0}
             type="password"
             id="password"
-            required
-            value={password}
-            tabIndex={0}
-            onChange={(evt) => {
-              setPassword(evt.target.value);
-            }}
+            aria-invalid={errors.password ? "true" : "false"}
+            {...register("password", {
+              required: "Password is required",
+            })}
           />
+          {/* output error message from validation */}
+          {errors.password?.message && (
+            <ModalStyle.ErrorMessage>
+              {errors.password.message}
+            </ModalStyle.ErrorMessage>
+          )}
         </ModalStyle.InputWrapper>
         <ModalStyle.DialogButtonWrapper>
           <Dialog.Close asChild>
             <ModalStyle.CloseButton tabIndex={0}>Close</ModalStyle.CloseButton>
           </Dialog.Close>
-          <ModalStyle.SubmitButton type="submit" tabIndex={0}>
-            Submit
+          <ModalStyle.SubmitButton
+            type="submit"
+            disabled={isSubmitting}
+            tabIndex={0}
+          >
+            {isSubmitting ? "working..." : "Submit"}
           </ModalStyle.SubmitButton>
         </ModalStyle.DialogButtonWrapper>
       </ModalStyle.Form>
 
-      {/* error messsage (if any) appears below */}
-      {message && (
-        <>
-          <ModalStyle.ErrorMessage>{message}</ModalStyle.ErrorMessage>
-          {/* TODO: offer user the option to reset password */}
-          <ModalStyle.ForgotInfo>
-            Click here if you forgot your password.
-          </ModalStyle.ForgotInfo>
-        </>
-      )}
+      {/* Something went wrong on the server */}
+      {message && <ModalStyle.ErrorMessage>{message}</ModalStyle.ErrorMessage>}
 
       {/* allow user to switch to other form */}
       <ModalStyle.SeparatorRoot />
@@ -131,7 +128,6 @@ const LoginContent = ({
           onClick={() => {
             setIsLogin(false);
             setMessage("");
-            clearForm();
           }}
         >
           Sign Up

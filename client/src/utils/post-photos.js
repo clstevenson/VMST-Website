@@ -37,11 +37,11 @@ const image32 = "/assets/photos/image32.jpg";
 const image33 = "/assets/photos/image33.jpg";
 
 const alt1 = "VMST swimmers at booth for 10K race";
-const alt2 = "White T-Shirt Stating Pain Is Temporary and Results Last Forever";
-const alt3 = "Kate clowning around";
+const alt2 = "Truth on a T-shirt";
+const alt3 = "Kate clowning around before racing";
 const alt4 = "A wave sets off at Chris Greene Lake";
 const alt5 = "VMST Backstroker taking his mark";
-const alt6 = "Marie proudly displays her medal";
+const alt6 = "Marie enjoys her 100-104 age group";
 const alt7 = "Group photo of three VMST swimmers wearing medals";
 const alt8 = "Maura happy that the race is over";
 const alt9 = "Next gen VMST swimmer?";
@@ -98,7 +98,8 @@ const postPhotos = [
   { id: crypto.randomUUID(), url: image25, alt: alt25 },
   { id: crypto.randomUUID(), url: image26, alt: alt26 },
   { id: crypto.randomUUID(), url: image27, alt: alt27 },
-  { id: crypto.randomUUID(), url: image28, alt: alt28 },
+  // below is a vertual copy of photo #25
+  // { id: crypto.randomUUID(), url: image28, alt: alt28 },
   { id: crypto.randomUUID(), url: image29, alt: alt29 },
   { id: crypto.randomUUID(), url: image30, alt: alt30 },
   { id: crypto.randomUUID(), url: image31, alt: alt31 },
