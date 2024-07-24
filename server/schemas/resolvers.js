@@ -95,11 +95,12 @@ const resolvers = {
     },
     emailLeaders: async (_, { emailData }) => {
       // retrieve the emails of the leaders from the DB
-      const leaders = await User.find({ _id: { $in: emailData.id } }).select('email');
-      // returned an array of objects with property "email" (one array item per leader in input)
+      const emails = await User.find({ role: 'leader' }).select('email');
+      // returned an array of objects with property "email" (one array item per leader)
       const mailArgs = { ...emailData };
       delete mailArgs.id;
-      mailArgs.emails = leaders.map(leader => leader.email);
+      // add the leader's emails (as an array) to the argument object
+      mailArgs.emails = emails.map(leader => leader.email);
 
       // call mail() with mailArgs
       if(mailArgs.emails.length > 0){
@@ -110,7 +111,58 @@ const resolvers = {
           return false;
         };
       } else {
-        throw new Error('No Recipients for Leaders')
+        throw new Error('No Leaders found')
+      }
+
+      // returning "true" to client means emails successfully sent
+      return true;
+    },
+    emailLeadersWebmaster: async (_, { emailData }) => {
+      // retrieve the emails of the leaders and webmaster from the DB
+      const emails = await User.find({
+        $or: [{role: 'leader'}, {role: 'webmaster'}]
+      }).select('email');
+      // returned an array of objects with property "email" (one array item per email address)
+      const mailArgs = { ...emailData };
+      delete mailArgs.id;
+      // add the emails (as an array) to the argument object
+      mailArgs.emails = emails.map(user => user.email);
+
+      // call mail() with mailArgs
+      if(mailArgs.emails.length > 0){
+        try {
+          Mail(mailArgs)
+        } catch {
+          console.error;
+          return false;
+        };
+      } else {
+        throw new Error('No Recipients found')
+      }
+
+      // returning "true" to client means emails successfully sent
+      return true;
+    },
+    emailWebmaster: async (_, { emailData }) => {
+      // retrieve the emails of the webmaster(s) from the DB
+      // (there could potentially be more than one)
+      const emails = await User.find({ role: 'webmaster' }).select('email');
+      // returned an array of objects with property "email" (one array item per webmaster)
+      const mailArgs = { ...emailData };
+      delete mailArgs.id;
+      // add the leader's emails (as an array) to the argument object
+      mailArgs.emails = emails.map(user => user.email);
+
+      // call mail() with mailArgs
+      if(mailArgs.emails.length > 0){
+        try {
+          Mail(mailArgs)
+        } catch {
+          console.error;
+          return false;
+        };
+      } else {
+        throw new Error('No webmasters found')
       }
 
       // returning "true" to client means emails successfully sent
