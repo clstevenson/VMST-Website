@@ -52,7 +52,7 @@ export default function BlogPosts() {
   );
 }
 
-// want to center spinner on the viewpor
+// want to center spinner on the viewport
 const SpinnerWrapper = styled.div`
   position: fixed;
   top: 50%;
@@ -67,6 +67,16 @@ const Post = styled.article`
   padding: 24px;
   background-color: ${COLORS.accent[1]};
   position: relative;
+  border: 1px solid ${COLORS.gray[8]};
+  border-radius: 4px;
+  box-shadow: 1px 2px 4px ${COLORS.gray[8]};
+
+  &:hover {
+    background-color: ${COLORS.accent[3]};
+    /* mimics a link to the full post, which isn't in place yet */
+    outline: auto;
+    cursor: pointer;
+  }
 
   @media ${QUERIES.mobile} {
     padding: 8px;

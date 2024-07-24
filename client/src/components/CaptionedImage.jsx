@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import styled from "styled-components";
+import { COLORS } from "../utils/constants";
 
 export default function CaptionedImage({
   alt,
@@ -15,14 +16,24 @@ export default function CaptionedImage({
   );
 }
 
+const Figure = styled.figure`
+  padding: 8px;
+  /* same styling as posts on home page */
+  border: 1px solid ${COLORS.gray[8]};
+  border-radius: 4px;
+  box-shadow: 1px 2px 4px ${COLORS.gray[8]};
+
+  &:hover {
+    outline: auto;
+    background-color: ${COLORS.accent[2]};
+    /* mimics a link to the full post, which isn't in place yet */
+    cursor: pointer;
+  }
+`;
+
 const Image = styled.img`
   width: 100%;
   object-fit: cover;
-`;
-
-const Figure = styled.figure`
-  padding: 8px;
-  margin-bottom: 8px;
 `;
 
 const FigCaption = styled.figcaption`

@@ -36,11 +36,9 @@ const Wrapper = styled.div`
 
 const PostWrapper = styled.div`
   display: grid;
-  gap: 1px;
+  gap: 8px;
   margin: 2px;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  border: 1px solid ${COLORS.accent[10]};
-  background-color: ${COLORS.accent[10]};
 
   @media ${QUERIES.mobile} {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

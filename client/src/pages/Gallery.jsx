@@ -22,20 +22,23 @@ export default function Gallery() {
   );
 }
 
-const Wrapper = styled.div``;
+const Wrapper = styled.div`
+  margin-bottom: 16px;
+`;
 
 const Title = styled.h2`
   font-size: var(--subheading-size);
   color: ${COLORS.accent[12]};
+  margin-bottom: 16px;
 `;
 
 const GalleryWrapper = styled.div`
   display: grid;
-  gap: 2px;
-  margin: 2px;
+  gap: 8px;
+  /* margin: 2px; */
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  border: 1px solid ${COLORS.accent[10]};
-  background-color: white;
+  /* border: 1px solid ${COLORS.accent[10]}; */
+  /* background-color: white; */
 
   @media ${QUERIES.mobile} {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
