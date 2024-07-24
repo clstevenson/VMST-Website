@@ -6,13 +6,20 @@ import * as Label from "@radix-ui/react-label";
 import { ErrorMessage } from "../components/NavBar/ModalStyles";
 
 import { useMutation } from "@apollo/client";
-import { EMAIL_LEADERS, EMAIL_LEADERSWEBMASTER, EMAIL_WEBMASTER } from "../utils/mutations";
+import {
+  EMAIL_LEADERS,
+  EMAIL_LEADERSWEBMASTER,
+  EMAIL_WEBMASTER,
+} from "../utils/mutations";
 import { QUERIES, COLORS, WEIGHTS } from "../utils/constants";
 
 export default function EmailPage2() {
   const [emailLeaders, { error: leaderError }] = useMutation(EMAIL_LEADERS);
-  const [emailWebmaster, { error: webmasterError }] = useMutation(EMAIL_WEBMASTER);
-  const [emailLeadersWebmaster, { error: leaderWebmasterError }] = useMutation(EMAIL_LEADERSWEBMASTER);
+  const [emailWebmaster, { error: webmasterError }] =
+    useMutation(EMAIL_WEBMASTER);
+  const [emailLeadersWebmaster, { error: leaderWebmasterError }] = useMutation(
+    EMAIL_LEADERSWEBMASTER
+  );
 
   const {
     register,
@@ -43,11 +50,11 @@ export default function EmailPage2() {
   const onSubmit = async ({ name, email, message, leaders, webmaster }) => {
     // convert plain text message to simple HTML
     let html = "";
-    const txtArray = message.split('\n');
+    const txtArray = message.split("\n");
 
     for (let i = 0; i < txtArray.length; i++) {
       // skip blank lines
-      if (txtArray[i] === '') continue;
+      if (txtArray[i] === "") continue;
       // wrap p-tags around text blocks
       html += `<p>${txtArray[i]}</p>`;
     }
@@ -64,14 +71,14 @@ export default function EmailPage2() {
     try {
       // send data to server
       if (leaders && webmaster) {
-        await emailLeadersWebmaster({ variables: {emailData} });
+        await emailLeadersWebmaster({ variables: { emailData } });
       } else if (leaders) {
-        await emailLeaders({ variables: {emailData} });
+        await emailLeaders({ variables: { emailData } });
       } else if (webmaster) {
-        await emailWebmaster({ variables: {emailData} });
+        await emailWebmaster({ variables: { emailData } });
       }
 
-      reset();  // form back to default values
+      reset(); // form back to default values
     } catch (err) {
       console.log({ err });
       // TODO: need to change this to output to form
@@ -277,7 +284,9 @@ const Input = styled.input`
 
   &:focus {
     background-color: ${COLORS.accent[2]};
-    border-bottom: 2px solid ${COLORS.accent[8]};
+    border-bottom: none;
+    outline-offset: 0;
+    outline: auto;
   }
 `;
 
@@ -291,11 +300,6 @@ const Message = styled.textarea`
   padding: 8px;
   min-width: 100%;
   max-width: 100%;
-  &:focus {
-    background-color: ${COLORS.accent[1]};
-    border: 2px solid ${COLORS.accent[8]};
-    outline: none;
-  }
 `;
 
 const SubmitButton = styled.button`
