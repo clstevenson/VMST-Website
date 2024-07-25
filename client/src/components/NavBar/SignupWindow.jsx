@@ -12,6 +12,7 @@ import { X } from "react-feather";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import * as ModalStyle from "./ModalStyles";
+import ErrorMessage from "../Styled/ErrorMessage";
 
 import { useMutation } from "@apollo/client";
 import { ADD_USER } from "../../utils/mutations";
@@ -83,9 +84,7 @@ const SignupContent = ({ setIsLogin, message, setMessage }) => {
           />
           {/* output error message from validation */}
           {errors.firstName?.message && (
-            <ModalStyle.ErrorMessage>
-              {errors.firstName.message}
-            </ModalStyle.ErrorMessage>
+            <ErrorMessage>{errors.firstName.message}</ErrorMessage>
           )}
         </ModalStyle.InputWrapper>
         <ModalStyle.InputWrapper>
@@ -101,9 +100,7 @@ const SignupContent = ({ setIsLogin, message, setMessage }) => {
           />
           {/* output error message from validation */}
           {errors.lastName?.message && (
-            <ModalStyle.ErrorMessage>
-              {errors.lastName.message}
-            </ModalStyle.ErrorMessage>
+            <ErrorMessage>{errors.lastName.message}</ErrorMessage>
           )}
         </ModalStyle.InputWrapper>
         <ModalStyle.InputWrapper>
@@ -122,9 +119,7 @@ const SignupContent = ({ setIsLogin, message, setMessage }) => {
           />
           {/* output error message from validation */}
           {errors.email?.message && (
-            <ModalStyle.ErrorMessage>
-              {errors.email.message}
-            </ModalStyle.ErrorMessage>
+            <ErrorMessage>{errors.email.message}</ErrorMessage>
           )}
         </ModalStyle.InputWrapper>
         <ModalStyle.InputWrapper>
@@ -144,9 +139,7 @@ const SignupContent = ({ setIsLogin, message, setMessage }) => {
           />
           {/* output error message from validation */}
           {errors.password?.message && (
-            <ModalStyle.ErrorMessage>
-              {errors.password.message}
-            </ModalStyle.ErrorMessage>
+            <ErrorMessage>{errors.password.message}</ErrorMessage>
           )}
         </ModalStyle.InputWrapper>
         <ModalStyle.InputWrapper>
@@ -168,9 +161,7 @@ const SignupContent = ({ setIsLogin, message, setMessage }) => {
           />
           {/* output error message from validation */}
           {errors.confirmPassword?.message && (
-            <ModalStyle.ErrorMessage>
-              {errors.confirmPassword.message}
-            </ModalStyle.ErrorMessage>
+            <ErrorMessage>{errors.confirmPassword.message}</ErrorMessage>
           )}
         </ModalStyle.InputWrapper>
         <ModalStyle.DialogButtonWrapper>
@@ -188,7 +179,7 @@ const SignupContent = ({ setIsLogin, message, setMessage }) => {
       </ModalStyle.Form>
 
       {/* error messsage (if any) appears below */}
-      {message && <ModalStyle.ErrorMessage>{message}</ModalStyle.ErrorMessage>}
+      {message && <ErrorMessage>{message}</ErrorMessage>}
 
       {/* allow user to switch to other form */}
       <ModalStyle.SeparatorRoot />

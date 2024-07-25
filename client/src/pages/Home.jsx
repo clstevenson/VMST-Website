@@ -47,6 +47,6 @@ const PostWrapper = styled.div`
 
 const Title = styled.h2`
   color: ${COLORS.accent[12]};
-  font-size: 1.4em;
+  font-size: var(--subheading-size);
   padding-bottom: 8px;
 `;

@@ -7,7 +7,6 @@ import ErrorPage from "./pages/ErrorPage";
 import Gallery from "./pages/Gallery";
 import Account from "./pages/Account";
 import Contact from "./pages/Contact";
-import UploadMembers from "./pages/UploadMembers";
 import AboutUs from "./pages/AboutUs";
 
 const router = createBrowserRouter([
@@ -35,10 +34,6 @@ const router = createBrowserRouter([
       {
         path: "/gallery",
         element: <Gallery />,
-      },
-      {
-        path: "/upload",
-        element: <UploadMembers />,
       },
     ],
   },

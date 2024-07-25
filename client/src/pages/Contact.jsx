@@ -3,7 +3,8 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as Label from "@radix-ui/react-label";
 
-import { ErrorMessage } from "../components/NavBar/ModalStyles";
+import SubmitButton from "../components/Styled/SubmiButton";
+import ErrorMessage from "../components/Styled/ErrorMessage";
 
 import { useMutation } from "@apollo/client";
 import {
@@ -300,25 +301,4 @@ const Message = styled.textarea`
   padding: 8px;
   min-width: 100%;
   max-width: 100%;
-`;
-
-const SubmitButton = styled.button`
-  /* display: block; */
-  padding: 4px 24px;
-  font-weight: ${WEIGHTS.medium};
-  background-color: ${COLORS.accent[10]};
-  border: 1px solid ${COLORS.accent[9]};
-  border-radius: 4px;
-  outline-offset: 0;
-  color: white;
-
-  @media ${QUERIES.tabletAndLess} {
-    padding: 4px 16px;
-  }
-
-  &:hover,
-  &:focus {
-    background-color: ${COLORS.accent[11]};
-    transform: scale(1.05);
-  }
 `;

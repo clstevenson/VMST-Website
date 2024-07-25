@@ -12,6 +12,7 @@ import { X } from "react-feather";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import * as ModalStyle from "./ModalStyles";
+import ErrorMessage from "../Styled/ErrorMessage";
 
 import { useMutation } from "@apollo/client";
 import Auth from "../../utils/auth";
@@ -79,9 +80,7 @@ const LoginContent = ({ setIsLogin, setOpen, message, setMessage }) => {
           />
           {/* output error message from validation */}
           {errors.email?.message && (
-            <ModalStyle.ErrorMessage>
-              {errors.email.message}
-            </ModalStyle.ErrorMessage>
+            <ErrorMessage>{errors.email.message}</ErrorMessage>
           )}
         </ModalStyle.InputWrapper>
         <ModalStyle.InputWrapper>
@@ -97,9 +96,7 @@ const LoginContent = ({ setIsLogin, setOpen, message, setMessage }) => {
           />
           {/* output error message from validation */}
           {errors.password?.message && (
-            <ModalStyle.ErrorMessage>
-              {errors.password.message}
-            </ModalStyle.ErrorMessage>
+            <ErrorMessage>{errors.password.message}</ErrorMessage>
           )}
         </ModalStyle.InputWrapper>
         <ModalStyle.DialogButtonWrapper>
@@ -117,7 +114,7 @@ const LoginContent = ({ setIsLogin, setOpen, message, setMessage }) => {
       </ModalStyle.Form>
 
       {/* Something went wrong on the server */}
-      {message && <ModalStyle.ErrorMessage>{message}</ModalStyle.ErrorMessage>}
+      {message && <ErrorMessage>{message}</ErrorMessage>}
 
       {/* allow user to switch to other form */}
       <ModalStyle.SeparatorRoot />

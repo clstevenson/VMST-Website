@@ -8,7 +8,7 @@ import styled from "styled-components";
 import * as Tooltip from "@radix-ui/react-tooltip";
 
 import { LinkTab, NavLink } from "./LinkTab";
-import { COLORS, QUERIES } from "../../utils/constants";
+import { QUERIES } from "../../utils/constants";
 
 export function NavItem({ href, label, icon: Icon }) {
   return (

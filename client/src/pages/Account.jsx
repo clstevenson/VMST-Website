@@ -2,158 +2,87 @@ import styled from "styled-components";
 import Auth from "../utils/auth";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import * as Tabs from "@radix-ui/react-tabs";
+
 import { COLORS, WEIGHTS } from "../utils/constants.js";
-import * as Separator from "@radix-ui/react-separator";
+import User from "../components/User";
+import UploadMembers from "../components/UploadMembers.jsx";
 
 export default function Account() {
   const navigate = useNavigate();
 
+  // if not logged in, redirect to home page
   useEffect(() => {
     if (!Auth.loggedIn()) {
       navigate("/");
     }
   }, [navigate]);
 
+  const { data: userProfile } = Auth.getProfile();
+
+  // early return: if basic user, don't show tabs
+  if (userProfile.role === "user") return <User />;
+
+  // other roles have tabs (ie more things they can do)
   return (
-    <Wrapper>
-      <Title>Welcome to your user account page!</Title>
-
-      <Figure>
-        <Image
-          src="/assets/anne-nygard-unsplash-construction.jpg"
-          alt="scaffolding on construction site"
-        />
-        <figcaption>This page is still being built.</figcaption>
-      </Figure>
-
-      <p>Sorry for our dust, this page is under construction. </p>
-
-      <Separator.Root
-        style={{
-          backgroundColor: "black",
-          height: "2px",
-          width: "200px",
-          margin: "6px 100px",
-        }}
-        aria-hidden
-      />
-
-      <p>
-        Things a <strong>basic user</strong> will eventually be able to do the
-        following on this page:
-      </p>
-      <ul>
-        <li>change password</li>
-        <li>change email</li>
-        <li>
-          manage communication preferences (email and post notification opt
-          in/out)
-        </li>
-        <li>see their USMS info: ID, club, WO group</li>
-        <li>direct link to other USMS info: results, personal page</li>
-        <li>log out</li>
-        <li>upload photos to the VMST Flickr account</li>
-        <li>see/edit responses to posts by VMST team leaders</li>
-        <li>
-          manage banner preferences (choose an image, or choose to randomly
-          change them at a user-specified interval)
-        </li>
-        <li>display the website in dark mode</li>
-        <li>request an "upgraded" role (eg coach or team leader)</li>
-      </ul>
-
-      <P>Some users will have additional capabilities</P>
-      <ul>
-        <li>
-          <strong>LMSC membership coordinator</strong> will be able to upload
-          the current LMSC membership information
-        </li>
-        <li>
-          <strong>VMST WO group coaches</strong> will be able to see their
-          current roster and email them individually or all at once using a Rich
-          Text Format (RTF) editor
-        </li>
-        <li>
-          <strong>VMST Team Leaders</strong> will be able to create posts and
-          edit previous posts as well as edit certain parts of the website
-          (again using an RTF editor)
-        </li>
-        <li>
-          <strong>VMST Team Leaders</strong> will be able to upload meet
-          rosters, create and post relays, and communicate with competitors in
-          an upcoming meet
-        </li>
-        <li>
-          <strong>VMST Team Leaders</strong> will be able to communicate with
-          coaches (however they decide to define the term)
-        </li>
-        <li>
-          <strong>Webmaster</strong> will be able to manage certain aspects of
-          the site, such as deleting offensive comments, suspending or banning
-          users from posting them, resetting passwords, changing user roles.
-          They will also have the same privileges as Team Leaders in case they
-          need assistance in various tasks.
-        </li>
-      </ul>
-
-      <Button onClick={() => Auth.logout()}>Log out</Button>
-    </Wrapper>
+    <TabsRoot defaultValue="user">
+      <TabsList aria-label="Account page">
+        <TabsTrigger value="user">User Settings</TabsTrigger>
+        {userProfile.role === "membership" && (
+          <TabsTrigger value="membership">Update Membership</TabsTrigger>
+        )}
+        {(userProfile.role === "leader" || userProfile.role === "coach") && (
+          <TabsTrigger value="email">Communication</TabsTrigger>
+        )}
+        {userProfile.role === "leader" && (
+          <TabsTrigger value="relays">Relays</TabsTrigger>
+        )}
+        {userProfile.role === "webmaster" && (
+          <TabsTrigger value="webmaster">Website Mgmt</TabsTrigger>
+        )}
+      </TabsList>
+      <Tabs.Content value="user" asChild>
+        <User />
+      </Tabs.Content>
+      <Tabs.Content value="membership">
+        <UploadMembers />
+      </Tabs.Content>
+      <Tabs.Content value="email"></Tabs.Content>
+      <Tabs.Content value="relays"></Tabs.Content>
+      <Tabs.Content value="webmaster"></Tabs.Content>
+    </TabsRoot>
   );
 }
 
-const Wrapper = styled.div`
-  width: min(100%, var(--max-prose-width));
-  margin: 0 auto;
+const TabsRoot = styled(Tabs.Root)`
+  width: min(1200px, 100%);
+  margin: 8px auto;
+  border: 1px solid ${COLORS.accent[12]};
+  border-radius: 8px;
+  padding: 16px;
 `;
 
-const Figure = styled.figure`
-  padding: 4px;
-  float: right;
-  margin-right: 0;
-  margin-left: 4px;
-  padding: 4px;
-  border: 1px solid ${COLORS.gray[8]};
-  box-shadow: 1px 2px 4px ${COLORS.gray[6]};
+const TabsList = styled(Tabs.List)`
+  border-bottom: 1px solid ${COLORS.accent[12]};
+`;
 
-  & figcaption {
-    text-align: center;
+const TabsTrigger = styled(Tabs.Trigger)`
+  all: unset;
+  font-family: inherit;
+  font-size: 1.05rem;
+  padding: 4px 20px;
+  border: 1px solid ${COLORS.gray[9]};
+  border-bottom: none;
+  border-radius: var(--nav-border-radius);
+
+  &:hover {
+    cursor: pointer;
+    outline: var(--nav-focus-outline);
+    background-color: ${COLORS.accent[2]};
   }
 
-  @media (max-width: 650px) {
-    width: 208px;
+  &[data-state="active"] {
+    background-color: ${COLORS.secondary_light};
+    font-weight: ${WEIGHTS.medium};
   }
-
-  @media (max-width: 450px) {
-    float: revert;
-  }
-`;
-
-const Image = styled.img`
-  height: 250px;
-  width: 300px;
-  object-fit: cover;
-
-  @media (max-width: 650px) {
-    width: 200px;
-    height: 150px;
-  }
-`;
-
-const Button = styled.div`
-  width: fit-content;
-  padding: 4px 8px;
-  margin-top: 16px;
-  background-color: ${COLORS.accent[12]};
-  color: white;
-  border-radius: 4px;
-  font-weight: ${WEIGHTS.medium};
-  cursor: pointer;
-`;
-
-const Title = styled.h2`
-  font-size: var(--subheading-size);
-`;
-
-const P = styled.p`
-  margin: 12px 0 3px;
 `;
