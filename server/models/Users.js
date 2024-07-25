@@ -45,7 +45,7 @@ const userSchema = new Schema({
   password: {type: String, required: true, minlength: 6,},
   role: {type: String, required: true, default: 'user',
     // must be one of the following values
-    enum: ['user', 'leader', 'coach', 'admin', 'membership'],
+    enum: ['user', 'leader', 'coach', 'membership', 'webmaster'],
   },
   notifications: {type: Boolean, default: false,},
   emailPermission: {type: Boolean, default: true,}

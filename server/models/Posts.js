@@ -29,7 +29,7 @@ const commentSchema = new Schema(
 const postSchema = new Schema(
   {
     title: {type: String, required: true,},
-    // summar is meant to be a teaser for display on front page
+    // summary is meant to be a teaser for display on front page
     summary: String,
     content: {type: String, required: true,},
     createdAt: {

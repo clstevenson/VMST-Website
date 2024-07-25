@@ -2,21 +2,32 @@
  Export links to photos meant to be used in the banner.
 */
 
-const hero1 = "/assets/hero1.jpg";
-const hero2 = "/assets/hero2.jpg";
-const hero3 = "/assets/hero3.jpg";
-const hero4 = "/assets/hero4.jpg";
-
-const alt1 = "Mass start of ocean swim";
-const alt2 = "VMST swimmers group photo in front of pool";
-const alt3 = "Swimmers celebrating after finishing a lake swim";
-const alt4 = "Swimming breastroke wearing VMST cap";
-
-const bannerPhotos = [
-  { url: hero1, alt: alt1 },
-  { url: hero2, alt: alt2 },
-  { url: hero3, alt: alt3 },
-  { url: hero4, alt: alt4 },
+const hero = [
+  "/assets/hero1.jpg",
+  "/assets/hero2.jpg",
+  "/assets/hero3.jpg",
+  "/assets/hero4.jpg",
+  "/assets/hero5.jpg",
+  "/assets/hero6.jpg",
+  "/assets/hero7.jpg",
 ];
+
+const alt = [
+  "Mass start of ocean swim",
+  "VMST swimmers group photo in front of pool",
+  "Swimmers celebrating after finishing a lake swim",
+  "Swimming breastroke wearing VMST cap",
+  "Swimmer waving at camera",
+  "Swimmers start lake race",
+  "VMST swimmer diving into pool",
+];
+
+const bannerPhotos = [];
+
+const upper = Math.min(hero.length, alt.length);
+
+for (let i = 0; i < upper; i++) {
+  bannerPhotos.push({ url: hero[i], alt: alt[i] });
+}
 
 export default bannerPhotos;

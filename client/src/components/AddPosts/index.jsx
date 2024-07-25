@@ -3,7 +3,6 @@ import { Form, Button, Modal } from 'react-bootstrap';
 import { useMutation } from '@apollo/client';
 import { ADD_POST } from '../../utils/mutations';
 import Auth from '../../utils/auth';
-import "./index.css";
 
 function AddPosts() {
 

@@ -5,56 +5,52 @@ let mailConfig, user, name, transporter;
 
 // theres a bug with the env file, it won't get the email or password, check it out
 if (process.env.NODE_ENV === 'production') {
-    //actual fields for sending real emails
-    mailConfig = {
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        auth: {
-            user: process.env.EMAIL,
-            pass: process.env.EMAIL_PASSWORD,
-        }
+  //actual fields for sending real emails
+  mailConfig = {
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.EMAIL_PASSWORD,
     }
-    name = 'Ian Stevenson'
-    user = process.env.EMAIL
+  }
 } else {
-    //fields for testing on ethereal
-    mailConfig = {
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false,
-        auth: {
-            user: 'ida.murazik5@ethereal.email',
-            pass: 'y9pSDcG3HDbWDCnzd4',
-        }
+  //fields for testing on ethereal
+  mailConfig = {
+    host: 'smtp.ethereal.email',
+    port: 587,
+    auth: {
+      user: 'vada80@ethereal.email',
+      pass: 'nSjzC6JTYW75W4pQnj'
     }
-    name = "test"
-    user = 'ida.murazik5@ethereal.email'
+  }
 }
 
 const Mail = async (mailData) => {
-    transporter = nodemailer.createTransport(mailConfig);
+  transporter = nodemailer.createTransport(mailConfig);
 
-    transporter.verify(function (error) {
-        if (error) {
-            console.log("error setting up smtp server\n\n");
-            console.error;
+  transporter.verify(function(error) {
+    if (error) {
+      console.log("error setting up smtp server\n\n");
+      console.error;
 
-        } else {
-            console.log("server ready to take msgs");
-        }
-    });
+    } else {
+      console.log("server ready to take msgs");
+    }
+  });
 
-    const info = await transporter.sendMail({
-        from: `"${mailData.from}" <${mailData.replyTo}>`,
-        to: mailData.emails,
-        subject: mailData.subject,
-        text: mailData.plainText,
-        html: mailData.html,
-    });
+  const info = await transporter.sendMail({
+    to: mailData.emails,
+    from: {
+      name: mailData.from,
+      address: mailData.replyTo,
+    },
+    subject: mailData.subject,
+    text: mailData.plainText,
+    html: mailData.html,
+  });
 
-    console.log("message send: %s", info.messageId);
-    transporter = null;
+  console.log("message sent: %s", info.messageId);
+  transporter = null;
 }
 
 module.exports = Mail;

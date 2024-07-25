@@ -6,7 +6,8 @@ const { Member, User, Competitor, Post } = require('../models');
 connection.on('error', (err) => err);
 
 // hide the membership coordinator's initial password to DB
-const password = process.env.MEMERSHIP_PWD;
+const membershipPassword = process.env.MEMERSHIP_PWD;
+const webmasterPassword = process.env.WEBMASTER_PWD;
 
 /**
  * Function to seed the USMS members collection with VA LMSC members
@@ -85,7 +86,7 @@ const seedUsers = async (members) => {
     lastName: 'Stevenson',
     password: 'password',
     email: 'cstevens@richmond.edu',
-    role: 'leader'
+    role: 'coach'
   });
   userData.push({
     firstName: 'Michael',
@@ -98,9 +99,18 @@ const seedUsers = async (members) => {
   userData.push({
     firstName: 'Christopher',
     lastName: 'Stevenson',
-    password: password,
+    password: membershipPassword,
     email: 'VAMembership@usms.org',
     role: 'membership'
+  });
+  // add webmaster
+  userData.push({
+    firstName: 'Chris',
+    lastName: 'Stevenson',
+    password: webmasterPassword,
+    email: 'vmstwebmaster@icloud.com',
+    notifications: true,
+    role: 'webmaster'
   });
 
   // now add to the users collection

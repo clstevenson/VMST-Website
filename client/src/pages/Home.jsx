@@ -1,26 +1,52 @@
-import BlogPosts from '../components/BlogPosts/index';
-import HomeCarousel from '../components/HomeCarousel/HomeCarousel'
-import AddPosts from '../components/AddPosts';
-import "../components/GenPageSetUp/index.css";
+/*
+ Display posts, allowing the display of single posts at some point.
 
-function Home() {
+ TODO: Eventually add the ability to search and filter:
+ - search titles and content (or just leave it at both)
+ - control how many posts are displayed, allowing for pagination
+ - filter by date
+ - maybe eventually allow tags on posts?
+ */
+
+import styled from "styled-components";
+import BlogPosts from "../components/BlogPosts";
+import { COLORS, QUERIES } from "../utils/constants";
+
+export default function Home() {
   return (
-    <>
-      <div id='Welcome-To-VSMT'>
-        <HomeCarousel />
-      </div>
-      <div id="blogPosts" style={{ width: "100%", display: "flex", justifyContent: "center" }}>
-        <div>
-          <h3 style={{ color: "white", padding: "10px", marginTop: "10px" }}>Welcome from the Virginia Masters Swim Team!</h3>
-        </div>
+    <Wrapper>
+      <Title>Check out the latest from VMST!</Title>
+      <PostWrapper>
+        {/* Will want 1-2 "featured" posts */}
+        {/* The rest will be photos and titles only (I think) */}
+        {/* Photos are optional */}
         <BlogPosts />
-      </div>
-      {/* Comment AddPosts out before Demo */}
-      <div id="addPosts">
-        <AddPosts />
-      </div>
-    </>
+      </PostWrapper>
+    </Wrapper>
   );
 }
 
-export default Home;
+const Wrapper = styled.div`
+  margin: 8px 0;
+
+  @media ${QUERIES.mobile} {
+    margin: 2px 0;
+  }
+`;
+
+const PostWrapper = styled.div`
+  display: grid;
+  gap: 8px;
+  margin: 2px;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+
+  @media ${QUERIES.mobile} {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+`;
+
+const Title = styled.h2`
+  color: ${COLORS.accent[12]};
+  font-size: var(--subheading-size);
+  padding-bottom: 8px;
+`;
