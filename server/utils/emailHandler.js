@@ -44,6 +44,7 @@ const Mail = async (mailData) => {
       name: mailData.from,
       address: mailData.replyTo,
     },
+    replyTo: `${mailData.from} <${mailData.replyTo}>`,
     subject: mailData.subject,
     text: mailData.plainText,
     html: mailData.html,

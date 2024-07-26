@@ -57,13 +57,12 @@ export default function User() {
         <li>see their USMS info: ID, club, WO group</li>
         <li>direct link to other USMS info: results, personal page</li>
         <li>log out</li>
-        <li>upload photos to the VMST Flickr account</li>
+        <li>upload photos to the VMST Flickr account (after review)</li>
         <li>see/edit responses to posts by VMST team leaders</li>
         <li>
           manage banner preferences (choose an image, or choose to randomly
           change them at a user-specified interval)
         </li>
-        <li>display the website in dark mode</li>
         <li>request an "upgraded" role (eg coach or team leader)</li>
       </ul>
 
