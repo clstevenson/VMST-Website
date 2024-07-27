@@ -21,6 +21,8 @@ export const QUERY_POSTS = gql`
       _id
       title
       content
+      photoURL
+      photoCaption
       createdAt
     }
   }
@@ -33,6 +35,8 @@ export const QUERY_SINGLEPOST = gql`
       title
       summary
       content
+      photoURL
+      photoCaption
       createdAt
       comments {
         _id

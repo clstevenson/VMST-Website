@@ -1,4 +1,4 @@
-/* 
+/*
  Display a single posts and its comments. Input prop is the post ID.
 
  Need to display:
@@ -34,8 +34,11 @@ export default function SinglePost() {
   else {
     return (
       <article>
+        <figure>
+          <img alt={post.photoCaption} src={post.photoURL} />
+          <figcaption>{post.photoCaption}</figcaption>
+        </figure>
         <h2>{post.title}</h2>
-
         {post.summary && (
           <div>
             <h3>Summary</h3>
