@@ -14,8 +14,9 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import { QUERY_SINGLEPOST } from "../utils/queries";
 import Spinner from "../components/Spinner";
-import { COLORS, QUERIES, WEIGHTS } from "../utils/constants";
+import { COLORS, QUERIES } from "../utils/constants";
 import * as Separator from "@radix-ui/react-separator";
+import { ChevronLeft, ChevronRight, Home } from "react-feather";
 
 export default function SinglePost() {
   // retrieve post ID from the route param
@@ -71,6 +72,11 @@ export default function SinglePost() {
           <figcaption>{post.photoCaption}</figcaption>
         </Figure>
       </PostWrapper>
+      <PostNav>
+        <ChevronLeft />
+        <Home />
+        <ChevronRight />
+      </PostNav>
     </Wrapper>
   );
 }
@@ -147,6 +153,10 @@ const CommentsWrapper = styled.div`
     list-style-type: none;
     padding-left: 0;
   }
+
+  & li {
+    margin: 16px 0;
+  }
 `;
 
 const CommentAttribution = styled.p`
@@ -154,4 +164,24 @@ const CommentAttribution = styled.p`
   font-style: italic;
   text-align: right;
   padding-right: 32px;
+`;
+
+const PostNav = styled.nav`
+  display: flex;
+  gap: 48px;
+  justify-content: center;
+  margin-top: 48px;
+
+  & svg {
+    width: 48px;
+    height: 48px;
+    stroke-width: 1.5;
+    padding: 8px;
+  }
+  & svg:hover {
+    transform: scale(1.1);
+    stroke-width: 2;
+    cursor: pointer;
+    color: ${COLORS.accent[8]};
+  }
 `;
