@@ -7,7 +7,7 @@
 import styled, { keyframes } from "styled-components";
 
 const Spinner = ({ ...delegated }) => {
-  return <Image {...delegated} alt="Busy..." src="./assets/loader.svg" />;
+  return <Image {...delegated} alt="Busy..." src="/assets/loader.svg" />;
 };
 
 const spinning = keyframes`

@@ -26,7 +26,8 @@ function shuffle(array) {
 }
 
 const image1 = "https://live.staticflickr.com/65535/49640252638_051a4c4951.jpg";
-const image2 = "https://live.staticflickr.com/65535/49006190053_4fbb4b8362_z.jpg";
+const image2 =
+  "https://live.staticflickr.com/65535/49006190053_4fbb4b8362_z.jpg";
 const image3 = "https://live.staticflickr.com/6123/6018848148_85f8e94d12.jpg";
 const image4 = "https://live.staticflickr.com/448/19455280650_42eefdbd80.jpg";
 const image5 = "https://live.staticflickr.com/2860/9120490998_e453ed60f0.jpg";
@@ -45,7 +46,7 @@ const alt1 = "Record-setting relay";
 const alt2 = "The legendary Betsy D";
 const alt3 = "Kate clowning around before racing";
 const alt4 = "Celebrating after finishing the Chris Greene cable swim";
-const alt5 = "Putting on their race faces before a relay";
+const alt5 = "Putting on race faces before a relay";
 const alt6 = "Marie is a rock star";
 const alt7 = "Young ladies showing off their hardware";
 const alt8 = "Jocelyn exulting after the cable swim";
