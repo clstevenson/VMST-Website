@@ -31,6 +31,7 @@ const postSchema = new Schema(
     title: {type: String, required: true,},
     // summary is meant to be a teaser for display on front page
     summary: String,
+    photoURL: String,
     content: {type: String, required: true,},
     createdAt: {
       type: Date,

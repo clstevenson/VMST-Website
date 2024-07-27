@@ -3,15 +3,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 /*
- * Photos will be stored/retrieved in Google Photos using their API
- * Should only need a URL in order to display in an img tag element.
+ * DB for photos that are displayed on this website, will integrate with Flickr API.
  */
 
 const { Schema, model } = require('mongoose');
 
 const photoSchema = new Schema({
   url: {
-    // TODO add regex validation
+    // TODO add regex validation (after switch to Flickr API)
     type: String,
     required: true,
   },
