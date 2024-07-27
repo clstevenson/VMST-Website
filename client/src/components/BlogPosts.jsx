@@ -7,6 +7,7 @@
  */
 
 import styled from "styled-components";
+import { Link } from "react-router-dom";
 
 import { useQuery } from "@apollo/client";
 import { QUERY_POSTS } from "../utils/queries";
@@ -40,7 +41,7 @@ export default function BlogPosts() {
         // use modulo operator to repeat array if necessary
         const randomImage = shuffledImages[index % shuffledImages.length];
         return (
-          <Post key={post._id}>
+          <Post key={post._id} to={`/post/${post._id}`}>
             <Image src={randomImage.url} alt={randomImage.alt} />
             <Title>{post.title}</Title>
             <Content>{post.content}</Content>
@@ -60,7 +61,7 @@ const SpinnerWrapper = styled.div`
   transform: translate(-50%, -50%);
 `;
 
-const Post = styled.article`
+const Post = styled(Link)`
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -74,8 +75,8 @@ const Post = styled.article`
   &:hover {
     background-color: ${COLORS.accent[3]};
     /* mimics a link to the full post, which isn't in place yet */
-    outline: auto;
-    cursor: pointer;
+    /* outline: auto; */
+    /* cursor: pointer; */
   }
 
   @media ${QUERIES.mobile} {
@@ -101,6 +102,7 @@ const Content = styled.p`
   -webkit-line-clamp: 2;
   text-overflow: ellipsis;
   overflow: hidden;
+  color: ${COLORS.accent[12]};
 `;
 
 const Date = styled.p`
@@ -110,6 +112,7 @@ const Date = styled.p`
   margin-top: auto;
   align-self: flex-end;
   transform: translate(8px, 12px);
+  color: ${COLORS.accent[12]};
 
   @media ${QUERIES.mobile} {
     transform: translate(0, 0);
