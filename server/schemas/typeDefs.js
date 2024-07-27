@@ -66,6 +66,8 @@ type Post {
   summary: String
   content: String!
   createdAt: String
+  photoURL: String
+  photoCaption: String
   comments: [Comment]
 }
 

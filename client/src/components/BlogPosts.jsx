@@ -7,13 +7,12 @@
  */
 
 import styled from "styled-components";
+import { Link } from "react-router-dom";
 
 import { useQuery } from "@apollo/client";
 import { QUERY_POSTS } from "../utils/queries";
 
 import Spinner from "./Spinner";
-import postPhotos from "../utils/post-photos";
-import shuffle from "../utils/shuffle";
 import { COLORS, QUERIES } from "../utils/constants";
 
 // at some point will accept props capable of limiting
@@ -22,15 +21,13 @@ export default function BlogPosts() {
   const { loading, data } = useQuery(QUERY_POSTS);
   const posts = data?.posts;
 
-  if (loading)
+  if (loading) {
     return (
       <SpinnerWrapper>
         <Spinner />
       </SpinnerWrapper>
     );
-
-  // randomize order of image array
-  const shuffledImages = shuffle(postPhotos);
+  }
 
   return (
     // do not change to a wrapper HTML element unless you are willing
@@ -38,10 +35,9 @@ export default function BlogPosts() {
     <>
       {posts.map((post, index) => {
         // use modulo operator to repeat array if necessary
-        const randomImage = shuffledImages[index % shuffledImages.length];
         return (
-          <Post key={post._id}>
-            <Image src={randomImage.url} alt={randomImage.alt} />
+          <Post key={post._id} to={`/post/${post._id}`}>
+            <Image src={post.photoURL} alt={post.photoCaption} />
             <Title>{post.title}</Title>
             <Content>{post.content}</Content>
             <Date>Posted {post.createdAt}</Date>
@@ -60,7 +56,7 @@ const SpinnerWrapper = styled.div`
   transform: translate(-50%, -50%);
 `;
 
-const Post = styled.article`
+const Post = styled(Link)`
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -74,8 +70,8 @@ const Post = styled.article`
   &:hover {
     background-color: ${COLORS.accent[3]};
     /* mimics a link to the full post, which isn't in place yet */
-    outline: auto;
-    cursor: pointer;
+    /* outline: auto; */
+    /* cursor: pointer; */
   }
 
   @media ${QUERIES.mobile} {
@@ -101,6 +97,7 @@ const Content = styled.p`
   -webkit-line-clamp: 2;
   text-overflow: ellipsis;
   overflow: hidden;
+  color: ${COLORS.accent[12]};
 `;
 
 const Date = styled.p`
@@ -110,6 +107,7 @@ const Date = styled.p`
   margin-top: auto;
   align-self: flex-end;
   transform: translate(8px, 12px);
+  color: ${COLORS.accent[12]};
 
   @media ${QUERIES.mobile} {
     transform: translate(0, 0);

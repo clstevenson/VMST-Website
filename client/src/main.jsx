@@ -8,6 +8,7 @@ import Gallery from "./pages/Gallery";
 import Account from "./pages/Account";
 import Contact from "./pages/Contact";
 import AboutUs from "./pages/AboutUs";
+import SinglePost from "./pages/SinglePost.jsx";
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
+      },
+      {
+        path: "/post/:id",
+        element: <SinglePost />,
       },
       {
         path: "/about-us",

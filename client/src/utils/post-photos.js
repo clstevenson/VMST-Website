@@ -1,22 +1,24 @@
 /* 
- Export links to photos for posts (demo purposes). These may be replaced with Flickr API calls.
+ Export links to photos for posts for demo purposes. These will eventually reside in the Photos table
+ of the DB and be integrated with calls to the Flickr API. Max size displayed (in gallary) is 500 x 300px
  */
 
-const image1 = "/assets/photos/image1.jpg";
-const image2 = "/assets/photos/image2.jpg";
-const image3 = "/assets/photos/image3.jpg";
-const image4 = "/assets/photos/image4.jpg";
-const image5 = "/assets/photos/image5.jpg";
-const image6 = "/assets/photos/image6.jpg";
-const image7 = "/assets/photos/image7.jpg";
-const image8 = "/assets/photos/image8.jpg";
-const image9 = "/assets/photos/image9.jpg";
-const image10 = "/assets/photos/image10.jpg";
-const image11 = "/assets/photos/image11.jpg";
-const image12 = "/assets/photos/image12.jpg";
-const image13 = "/assets/photos/image13.jpg";
-const image14 = "/assets/photos/image15.jpg";
-const image15 = "/assets/photos/image14.jpg";
+const image1 = "https://live.staticflickr.com/65535/49640252638_051a4c4951.jpg";
+const image2 = "https://live.staticflickr.com/65535/49006190053_4fbb4b8362_z.jpg";
+const image3 = "https://live.staticflickr.com/6123/6018848148_85f8e94d12.jpg";
+const image4 = "https://live.staticflickr.com/448/19455280650_42eefdbd80.jpg";
+const image5 = "https://live.staticflickr.com/2860/9120490998_e453ed60f0.jpg";
+const image6 = "https://live.staticflickr.com/7221/7184585424_7136087746.jpg";
+const image7 = "https://live.staticflickr.com/7221/7184590172_280b8c74cd.jpg";
+const image8 = "https://live.staticflickr.com/2831/9485788325_15bab9357a.jpg";
+const image9 = "https://live.staticflickr.com/3860/15041156835_b163a9a4fc.jpg";
+const image10 = "https://live.staticflickr.com/5624/22774960680_4809b5c481.jpg";
+const image11 = "https://live.staticflickr.com/5613/15568212790_bf07898e57.jpg";
+const image12 = "https://live.staticflickr.com/7622/26778543566_2ed4db6619.jpg";
+const image13 = "https://live.staticflickr.com/8885/28791401451_27f8f86100.jpg";
+const image14 = "https://live.staticflickr.com/7300/9210986658_712dcf10ab.jpg";
+const image15 = "https://live.staticflickr.com/7302/9438476577_b69d020a24.jpg";
+/*
 const image16 = "/assets/photos/image16.jpg";
 const image17 = "/assets/photos/image17.jpg";
 const image18 = "/assets/photos/image18.jpg";
@@ -35,22 +37,24 @@ const image30 = "/assets/photos/image30.jpg";
 const image31 = "/assets/photos/image31.jpg";
 const image32 = "/assets/photos/image32.jpg";
 const image33 = "/assets/photos/image33.jpg";
+ */
 
-const alt1 = "VMST swimmers at booth for 10K race";
-const alt2 = "Truth on a T-shirt";
+const alt1 = "Record-setting relay";
+const alt2 = "The legendary Betsy D";
 const alt3 = "Kate clowning around before racing";
-const alt4 = "A wave sets off at Chris Greene Lake";
-const alt5 = "VMST Backstroker taking his mark";
-const alt6 = "Marie enjoys her 100-104 age group";
-const alt7 = "Group photo of three VMST swimmers wearing medals";
-const alt8 = "Maura happy that the race is over";
-const alt9 = "Next gen VMST swimmer?";
-const alt10 = "Coach wants a word";
-const alt11 = "Two friends enjoying a moment";
-const alt12 = "Getting ready to dust the competition";
-const alt13 = "Marie K is a rock star";
+const alt4 = "Celebrating after finishing the Chris Greene cable swim";
+const alt5 = "Putting on their race faces before a relay";
+const alt6 = "Marie is a rock star";
+const alt7 = "Young ladies showing off their hardware";
+const alt8 = "Jocelyn exulting after the cable swim";
+const alt9 = "Enjoying a team dinner";
+const alt10 = "Blast from the past: VMST at Nationals, Ft Lauderdale, 1995";
+const alt11 = "Charles turning in the 100 breast";
+const alt12 = "Kirk happy after a PB in the 100 back";
+const alt13 = "Jumping for joy at Lake Moomaw";
 const alt14 = "Mass start of the Jack King Ocean swim";
-const alt15 = "Relaxing after the Jack King Ocean swim";
+const alt15 = "After the race at Lake Moomaw";
+/*
 const alt16 = "Swimmers awaiting race instructions at Chris Greene Lake";
 const alt17 = "Flawless turn";
 const alt18 = "Group photo at meet";
@@ -69,6 +73,7 @@ const alt30 = "VMST swimmers enjoying a laugh";
 const alt31 = "The legandary Betsy D";
 const alt32 = "VMST relay after another record-breaking effort";
 const alt33 = "VMST swimmers mugging for the camera";
+ */
 
 const postPhotos = [
   { id: crypto.randomUUID(), url: image1, alt: alt1 },
@@ -86,6 +91,7 @@ const postPhotos = [
   { id: crypto.randomUUID(), url: image13, alt: alt13 },
   { id: crypto.randomUUID(), url: image14, alt: alt14 },
   { id: crypto.randomUUID(), url: image15, alt: alt15 },
+  /*
   { id: crypto.randomUUID(), url: image16, alt: alt16 },
   { id: crypto.randomUUID(), url: image17, alt: alt17 },
   { id: crypto.randomUUID(), url: image18, alt: alt18 },
@@ -98,13 +104,14 @@ const postPhotos = [
   { id: crypto.randomUUID(), url: image25, alt: alt25 },
   { id: crypto.randomUUID(), url: image26, alt: alt26 },
   { id: crypto.randomUUID(), url: image27, alt: alt27 },
-  // below is a vertual copy of photo #25
+  // below is a virtual copy of photo #25
   // { id: crypto.randomUUID(), url: image28, alt: alt28 },
   { id: crypto.randomUUID(), url: image29, alt: alt29 },
   { id: crypto.randomUUID(), url: image30, alt: alt30 },
   { id: crypto.randomUUID(), url: image31, alt: alt31 },
   { id: crypto.randomUUID(), url: image32, alt: alt32 },
   { id: crypto.randomUUID(), url: image33, alt: alt33 },
+   */
 ];
 
 export default postPhotos;
