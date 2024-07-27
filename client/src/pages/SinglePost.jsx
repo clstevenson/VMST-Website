@@ -16,7 +16,8 @@ import { QUERY_SINGLEPOST } from "../utils/queries";
 import Spinner from "../components/Spinner";
 import { COLORS, QUERIES } from "../utils/constants";
 import * as Separator from "@radix-ui/react-separator";
-import { ChevronLeft, ChevronRight, Home } from "react-feather";
+import { Home } from "react-feather";
+import { Link } from "react-router-dom";
 
 export default function SinglePost() {
   // retrieve post ID from the route param
@@ -73,9 +74,9 @@ export default function SinglePost() {
         </Figure>
       </PostWrapper>
       <PostNav>
-        <ChevronLeft />
-        <Home />
-        <ChevronRight />
+        <NavLink to={"/"}>
+          <Home /> Go Back
+        </NavLink>
       </PostNav>
     </Wrapper>
   );
@@ -166,11 +167,21 @@ const CommentAttribution = styled.p`
   padding-right: 32px;
 `;
 
-const PostNav = styled.nav`
+const PostNav = styled.nav``;
+
+const NavLink = styled(Link)`
+  width: fit-content;
+  color: ${COLORS.accent[12]};
   display: flex;
-  gap: 48px;
-  justify-content: center;
-  margin-top: 48px;
+  gap: 8px;
+  align-items: center;
+  margin: 0 auto;
+  margin-top: 32px;
+
+  &:hover {
+    transform: scale(1.1);
+    color: ${COLORS.accent[8]};
+  }
 
   & svg {
     width: 48px;
@@ -178,10 +189,7 @@ const PostNav = styled.nav`
     stroke-width: 1.5;
     padding: 8px;
   }
-  & svg:hover {
-    transform: scale(1.1);
+  &:hover svg {
     stroke-width: 2;
-    cursor: pointer;
-    color: ${COLORS.accent[8]};
   }
 `;
