@@ -109,6 +109,8 @@ const Figure = styled.figure`
   flex: 2;
   min-width: 400px;
   max-width: 700px;
+  margin: 0 auto;
+
   & img {
     width: 100%;
     object-fit: cover;
@@ -125,6 +127,8 @@ const Figure = styled.figure`
 const Article = styled.article`
   flex: 3;
   min-width: 400px;
+  margin: 0 auto;
+  max-width: 70ch;
 
   @media ${QUERIES.mobile} {
     min-width: 300px;
@@ -134,6 +138,7 @@ const Article = styled.article`
 // eventually this will wrap around HTML content, need to possibly adjust at that point
 const ContentWrapper = styled.div`
   margin: 16px 0;
+  width: 100%;
 `;
 
 const Title = styled.h2`
@@ -150,6 +155,7 @@ const CommentSeparator = styled(Separator.Root)`
 `;
 
 const CommentsWrapper = styled.div`
+  width: 100%;
   & ul {
     list-style-type: none;
     padding-left: 0;
