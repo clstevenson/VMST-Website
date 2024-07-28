@@ -100,3 +100,12 @@ mutation EmailGroup($emailData: emailData){
   emailGroup(emailData: $emailData)
 }
 `;
+
+export const RESET_PASSWORD=gql`
+mutation ResetPassword($email: String!) {
+  resetPassword(email: $email) {
+    email
+    firstName
+  }
+}
+`;

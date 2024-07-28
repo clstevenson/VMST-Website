@@ -7,26 +7,33 @@
  * are stored in a separate file.
  */
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { X } from "react-feather";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import * as ModalStyle from "./ModalStyles";
 import ErrorMessage from "../Styled/ErrorMessage";
+import SubmitButton from "../Styled/SubmiButton";
 
 import { useMutation } from "@apollo/client";
 import Auth from "../../utils/auth";
-import { LOGIN_USER } from "../../utils/mutations";
+import { LOGIN_USER, RESET_PASSWORD } from "../../utils/mutations";
 
 const LoginContent = ({ setIsLogin, setOpen, message, setMessage }) => {
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm();
 
+  // toggle between login and password reset forms
+  const [isReset, setIsReset] = useState(false);
+
   // login checked on server
-  const [login, { error, data }] = useMutation(LOGIN_USER);
+  const [login] = useMutation(LOGIN_USER);
+  const [resetPassword] = useMutation(RESET_PASSWORD);
 
   const onSubmit = async ({ email, password }) => {
     // attempt to log in
@@ -41,6 +48,26 @@ const LoginContent = ({ setIsLogin, setOpen, message, setMessage }) => {
       // store the token in browser
       // load the account page (with greeting)
       Auth.login(data.login.token);
+    } catch (err) {
+      setMessage(`Error: ${err.message}`);
+    }
+  };
+
+  const handleReset = async () => {
+    const email = getValues("email");
+    // better to set error message using formState I think
+    if (!email) {
+      setMessage(`Error: email cannot be empty.`);
+      return;
+    }
+
+    try {
+      const { data } = await resetPassword({ variables: { email } });
+      if (data) {
+        setMessage(
+          "Your new password has been sent to your email; use it to log in."
+        );
+      }
     } catch (err) {
       setMessage(`Error: ${err.message}`);
     }
@@ -103,13 +130,9 @@ const LoginContent = ({ setIsLogin, setOpen, message, setMessage }) => {
           <Dialog.Close asChild>
             <ModalStyle.CloseButton tabIndex={0}>Close</ModalStyle.CloseButton>
           </Dialog.Close>
-          <ModalStyle.SubmitButton
-            type="submit"
-            disabled={isSubmitting}
-            tabIndex={0}
-          >
+          <SubmitButton type="submit" disabled={isSubmitting} tabIndex={0}>
             {isSubmitting ? "working..." : "Submit"}
-          </ModalStyle.SubmitButton>
+          </SubmitButton>
         </ModalStyle.DialogButtonWrapper>
       </ModalStyle.Form>
 
@@ -128,6 +151,10 @@ const LoginContent = ({ setIsLogin, setOpen, message, setMessage }) => {
           }}
         >
           Sign Up
+        </ModalStyle.CloseButton>
+        <p>Can&apos;t remember password?</p>
+        <ModalStyle.CloseButton tabIndex={0} onClick={() => handleReset()}>
+          Reset
         </ModalStyle.CloseButton>
       </ModalStyle.SignupOrLogin>
     </ModalStyle.DialogContent>
