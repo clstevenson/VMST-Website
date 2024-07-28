@@ -2,11 +2,13 @@ const { Competitor, Member, Photo, Post, User } = require('../models');
 const { signToken, AuthenticationError } = require('../utils/auth');
 const connection = require('../config/connection');
 const Mail = require('../utils/emailHandler');
+const generatePassword = require('../utils/password-generator');
+const bcrypt = require('bcrypt');
 
 const resolvers = {
   Query: {
     // get all USMS members of the VA LMSC
-    members: async () => await Member.find().sort({lastName: 1}),
+    members: async () => await Member.find().sort({ lastName: 1 }),
     // get all website users
     users: async () => await User.find(),
     // get all posts, sorted most recent first
@@ -60,17 +62,60 @@ const resolvers = {
     // user info is passed by context (ie in the token)
     editUser: async (_, args, { user }) => {
       try {
-        if (user.role !== 'admin') {
-          // only admins can update roles (or passwords for now)
-          delete args.user.role;
-          delete args.user.password;
-        }
-        // find user by email, which should be unique
-        const updatedUser = User.findByIdAndUpdate(user._id, args.user, { new: true });
+        // don't attempt to update password here
+        delete args.user.password;
+        // only admins can update roles
+        if (user.role !== 'webmaster') delete args.user.role;
+        // find user by ID
+        const updatedUser = await User.findByIdAndUpdate(user._id, args.user, { new: true });
         return updatedUser;
       } catch (err) {
         console.log(err);
       }
+    },
+    // anyone can request a password reset, which is mailed to them
+    // input has to have the email address
+    resetPassword: async (_, { email }) => {
+      // generate a new password
+      const newPassword = generatePassword(3);
+      // hash it before saving to arguments
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const user = {
+        password: hashedPassword,
+      };
+      // update the user profile with this password and return the updated value
+      const updatedUser = await User.findOneAndUpdate({email: email}, user, { new: true });
+      // email the user the new password
+      // first get the email address(es) of the webmaster(s) for user email replying
+      const webmasterEmail = await User.findOne({ role: 'webmaster' }).select('email');
+      // put together the email data
+      const mailArgs = {
+        from: 'VMST webmaster',
+        replyTo: webmasterEmail.email,
+        emails: email,
+        id: [],
+        subject: "Your VMST password has been reset",
+        plainText: `
+Hello,
+
+You have requested a password reset for the VMST website. Your new password is:
+
+${newPassword}
+
+After you use it to log in, if you wish you may change it to something more memorable.
+
+If you feel you have received this message in error, please
+contact the webmaster immediately by replying to this message.`,
+      };
+
+      try {
+        Mail(mailArgs);
+      } catch (err) {
+        console.error;
+        return false;
+      }
+
+      return updatedUser;
     },
     // add a new post
     addPost: async (_, args, { user }) => {
@@ -79,8 +124,6 @@ const resolvers = {
       return await Post.create(args);
     },
     uploadMembers: async (_, { memberData }, { user }) => {
-
-      // input is the file path to the CSV file containing the membership data
       // only the Membership Coordinator is allowed to update the Member collection
       if (user.role !== 'membership') throw AuthenticationError;
 
@@ -90,7 +133,6 @@ const resolvers = {
       if (membersCheck.length) {
         await connection.dropCollection('members');
       }
-
       return await Member.insertMany(memberData);
     },
     emailLeaders: async (_, { emailData }) => {
@@ -103,7 +145,7 @@ const resolvers = {
       mailArgs.emails = emails.map(leader => leader.email);
 
       // call mail() with mailArgs
-      if(mailArgs.emails.length > 0){
+      if (mailArgs.emails.length > 0) {
         try {
           Mail(mailArgs)
         } catch {
@@ -120,7 +162,7 @@ const resolvers = {
     emailLeadersWebmaster: async (_, { emailData }) => {
       // retrieve the emails of the leaders and webmaster from the DB
       const emails = await User.find({
-        $or: [{role: 'leader'}, {role: 'webmaster'}]
+        $or: [{ role: 'leader' }, { role: 'webmaster' }]
       }).select('email');
       // returned an array of objects with property "email" (one array item per email address)
       const mailArgs = { ...emailData };
@@ -129,7 +171,7 @@ const resolvers = {
       mailArgs.emails = emails.map(user => user.email);
 
       // call mail() with mailArgs
-      if(mailArgs.emails.length > 0){
+      if (mailArgs.emails.length > 0) {
         try {
           Mail(mailArgs)
         } catch {
@@ -154,7 +196,7 @@ const resolvers = {
       mailArgs.emails = emails.map(user => user.email);
 
       // call mail() with mailArgs
-      if(mailArgs.emails.length > 0){
+      if (mailArgs.emails.length > 0) {
         try {
           Mail(mailArgs)
         } catch {

@@ -76,13 +76,6 @@ const seedUsers = async (members) => {
     role: 'leader'
   });
   userData.push({
-    firstName: 'Chris',
-    lastName: 'Stevenson',
-    password: 'password',
-    email: 'chrislstevenson@gmail.com',
-    role: 'leader'
-  });
-  userData.push({
     firstName: 'Leonidas',
     lastName: 'Stevenson',
     password: 'password',
@@ -109,7 +102,7 @@ const seedUsers = async (members) => {
     firstName: 'Chris',
     lastName: 'Stevenson',
     password: webmasterPassword,
-    email: 'vmstwebmaster@icloud.com',
+    email: 'chrislstevenson@gmail.com',
     notifications: true,
     role: 'webmaster'
   });
