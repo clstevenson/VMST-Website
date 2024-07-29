@@ -1,7 +1,8 @@
 import styled from "styled-components";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as Label from "@radix-ui/react-label";
+import ToastMessage from "../components/ToastMessage";
 
 import SubmitButton from "../components/Styled/SubmiButton";
 import ErrorMessage from "../components/Styled/ErrorMessage";
@@ -15,6 +16,7 @@ import {
 import { QUERIES, COLORS, WEIGHTS } from "../utils/constants";
 
 export default function EmailPage2() {
+  const [emailSent, setEmailSent] = useState(false);
   const [emailLeaders, { error: leaderError }] = useMutation(EMAIL_LEADERS);
   const [emailWebmaster, { error: webmasterError }] =
     useMutation(EMAIL_WEBMASTER);
@@ -79,6 +81,7 @@ export default function EmailPage2() {
         await emailWebmaster({ variables: { emailData } });
       }
 
+      setEmailSent(true);
       reset(); // form back to default values
     } catch (err) {
       console.log({ err });
@@ -186,6 +189,7 @@ export default function EmailPage2() {
           )}
         </ErrorWrapper>
       </form>
+      {emailSent && <ToastMessage>Your message has been sent!</ToastMessage>}
     </Wrapper>
   );
 }
@@ -279,6 +283,7 @@ const EmailWrapper = styled.div`
 
 const Input = styled.input`
   all: unset;
+  padding: 4px;
   width: 100%;
   flex: 1;
   border-bottom: 1px solid ${COLORS.gray[700]};
