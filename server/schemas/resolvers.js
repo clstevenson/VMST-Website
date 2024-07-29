@@ -4,7 +4,7 @@ const connection = require("../config/connection");
 const Mail = require("../utils/emailHandler");
 const generatePassword = require("../utils/password-generator");
 const bcrypt = require("bcrypt");
-const { up } = require("inquirer/lib/utils/readline");
+// const { up } = require("inquirer/lib/utils/readline");
 
 const resolvers = {
   Query: {
