@@ -13,12 +13,19 @@
  - request an "upgraded" role from team leaders (probably they will be directed to the contact page)
  */
 
+import { useState } from "react";
 import styled from "styled-components";
 import { COLORS, WEIGHTS } from "../utils/constants.js";
 import * as Separator from "@radix-ui/react-separator";
+import * as Dialog from "@radix-ui/react-dialog";
 import Auth from "../utils/auth.js";
+import * as ModalStyles from "../components/NavBar/ModalStyles.jsx";
+import ChangePassword from "./ChangePassword.jsx";
 
 export default function User() {
+  // state of "change password" modal
+  const [open, setOpen] = useState(false);
+
   return (
     <Wrapper>
       <Title>Welcome to your user account page!</Title>
@@ -33,7 +40,7 @@ export default function User() {
 
       <p>Sorry for our dust, this page is under construction. </p>
 
-      <Separator.Root
+      {/* <Separator.Root
         style={{
           backgroundColor: "black",
           height: "2px",
@@ -41,7 +48,20 @@ export default function User() {
           margin: "6px 100px",
         }}
         aria-hidden
-      />
+      /> */}
+
+      {/* logout and password change button alignment */}
+      <ButtonWrapper>
+        <Button onClick={() => Auth.logout()}>Log out</Button>
+
+        <Dialog.Root open={open} onOpenChange={setOpen}>
+          <Dialog.Trigger asChild>
+            <Button>Change Password</Button>
+          </Dialog.Trigger>
+          <ModalStyles.DialogOverlay />
+          <ChangePassword setOpen={setOpen} />
+        </Dialog.Root>
+      </ButtonWrapper>
 
       <p>
         Things a <strong>basic user</strong> will eventually be able to do the
@@ -99,8 +119,6 @@ export default function User() {
           need assistance in various tasks.
         </li>
       </ul>
-
-      <Button onClick={() => Auth.logout()}>Log out</Button>
     </Wrapper>
   );
 }
@@ -143,15 +161,33 @@ const Image = styled.img`
   }
 `;
 
+const ButtonWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+  margin: 16px 0;
+
+  @media (max-width: 750px) {
+    gap: 16px;
+  }
+`;
+
 const Button = styled.div`
+  display: inline-block;
+  text-align: center;
   width: fit-content;
+  min-width: 160px;
   padding: 4px 8px;
-  margin-top: 16px;
   background-color: ${COLORS.accent[12]};
   color: white;
   border-radius: 4px;
   font-weight: ${WEIGHTS.medium};
   cursor: pointer;
+
+  &:hover {
+    background-color: ${COLORS.accent[10]};
+  }
 `;
 
 const Title = styled.h2`

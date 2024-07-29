@@ -17,10 +17,14 @@ export const SeparatorRoot = styled(Separator.Root)`
 
 // div containing prompt and button to switch between modals
 export const SignupOrLogin = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: grid;
   gap: 8px;
+  grid-template-columns: 3fr minmax(120px, 1fr);
+  align-items: center;
+
+  & p {
+    text-align: right;
+  }
 `;
 
 // wrapper for modal content
@@ -36,7 +40,7 @@ export const DialogContent = styled(Dialog.Content)`
   border-radius: 8px;
   background-color: white;
   position: fixed;
-  top: 30%;
+  top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 400px;
@@ -99,18 +103,6 @@ export const CloseButton = styled.button`
   }
 `;
 
-// the submit button is highlighted relative to the others
-export const SubmitButton = styled(CloseButton)`
-  background-color: ${COLORS.accent[10]};
-  color: white;
-
-  &:hover,
-  &:focus {
-    background-color: ${COLORS.accent[11]};
-    transform: scale(1.05);
-  }
-`;
-
 // displayed at top of modal
 export const DialogTitle = styled(Dialog.Title)`
   align-self: flex-start;
@@ -122,9 +114,11 @@ export const DialogTitle = styled(Dialog.Title)`
 // wrapper for "Close" and "Submit" buttons below input fields
 export const DialogButtonWrapper = styled.div`
   width: 100%;
-  display: flex;
-  justify-content: space-evenly;
-  padding: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  justify-content: space-around;
+  gap: 32px;
+  padding: 12px 24px;
 `;
 
 // styling of the backdrop of the modal

@@ -20,7 +20,7 @@
  *   - a leader will eventually be able to delete comments and suspend/ban users
  * "coach": typically a workout group coach who can email members of their group.
  *   - a coach must be a USMS member of the specific workout group they want to email
- * "admin": generally the webmaster
+ * "webmaster"
  *   - can change roles of users (eg to coach or leader)
  *   - can delete comments that are inappropriate, can suspend/ban users, will be able to reset passwords
  * "membership": can upload CSV files to update the USMS LMSC membership roles
@@ -52,7 +52,7 @@ const userSchema = new Schema({
 });
 
 userSchema.pre('save', async function (next) {
-  if (this.isNew || this.isModified('password')) {
+  if (this.isNew) {
     const saltRounds = 10;
     this.password = await bcrypt.hash(this.password, saltRounds);
   }
