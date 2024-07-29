@@ -103,18 +103,6 @@ export const CloseButton = styled.button`
   }
 `;
 
-// the submit button is highlighted relative to the others
-export const SubmitButton = styled(CloseButton)`
-  background-color: ${COLORS.accent[10]};
-  color: white;
-
-  &:hover,
-  &:focus {
-    background-color: ${COLORS.accent[11]};
-    transform: scale(1.05);
-  }
-`;
-
 // displayed at top of modal
 export const DialogTitle = styled(Dialog.Title)`
   align-self: flex-start;

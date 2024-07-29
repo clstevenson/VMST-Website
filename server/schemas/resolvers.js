@@ -4,6 +4,7 @@ const connection = require("../config/connection");
 const Mail = require("../utils/emailHandler");
 const generatePassword = require("../utils/password-generator");
 const bcrypt = require("bcrypt");
+const { up } = require("inquirer/lib/utils/readline");
 
 const resolvers = {
   Query: {
@@ -128,6 +129,26 @@ contact the webmaster immediately by replying to this message.`,
       }
 
       return updatedUser;
+    },
+    // logged-in users can change their password
+    changePassword: async (_, { password }, { user }) => {
+      try {
+        // need to has the new password then save it to the args
+        const hashedPassword = await bcrypt.hash(password, 10);
+        let updatedUser = {
+          password: hashedPassword,
+        };
+        // update user by ID
+        updatedUser = await User.findByIdAndUpdate(user._id, updatedUser, {
+          new: true,
+        });
+        if (!updatedUser) {
+          throw new Error("Something went wrong, password was not updated.");
+        }
+        return updatedUser;
+      } catch (err) {
+        console.log(err);
+      }
     },
     // add a new post
     addPost: async (_, args, { user }) => {

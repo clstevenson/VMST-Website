@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const LOGIN_USER = gql`
   mutation login($email: String!, $password: String!) {
@@ -22,8 +22,18 @@ export const ADD_POST = gql`
 `;
 
 export const ADD_USER = gql`
-  mutation addUser($firstName: String!, $lastName: String!, $email: String!, $password: String!) {
-    addUser(firstName: $firstName, lastName: $lastName, email: $email, password: $password) {
+  mutation addUser(
+    $firstName: String!
+    $lastName: String!
+    $email: String!
+    $password: String!
+  ) {
+    addUser(
+      firstName: $firstName
+      lastName: $lastName
+      email: $email
+      password: $password
+    ) {
       token
       user {
         _id
@@ -65,47 +75,61 @@ export const ADD_COMMENT = gql`
 
 // upload CSV file with LMSC Membership data
 // (only allowed for Membership Coordinator)
-export const UPLOAD_MEMBERS=gql`
-mutation UploadMembers($memberData: [MemberData]) {
-  uploadMembers(memberData: $memberData) {
-    usmsRegNo
-    firstName
-    lastName
-    club
-    workoutGroup
-    regYear
+export const UPLOAD_MEMBERS = gql`
+  mutation UploadMembers($memberData: [MemberData]) {
+    uploadMembers(memberData: $memberData) {
+      usmsRegNo
+      firstName
+      lastName
+      club
+      workoutGroup
+      regYear
+    }
   }
-}`;
-
-export const EMAIL_LEADERS=gql`
-mutation EmailLeaders($emailData: emailData) {
-  emailLeaders(emailData: $emailData)
-}
 `;
 
-export const EMAIL_LEADERSWEBMASTER=gql`
-mutation EmailLeadersWebmaster($emailData: emailData) {
-  emailLeadersWebmaster(emailData: $emailData)
-}
-`;
-
-export const EMAIL_WEBMASTER=gql`
-mutation EmailWebmaster($emailData: emailData) {
-  emailWebmaster(emailData: $emailData)
-}
-`;
-
-export const EMAIL_GROUP=gql`
-mutation EmailGroup($emailData: emailData){
-  emailGroup(emailData: $emailData)
-}
-`;
-
-export const RESET_PASSWORD=gql`
-mutation ResetPassword($email: String!) {
-  resetPassword(email: $email) {
-    email
-    firstName
+export const EMAIL_LEADERS = gql`
+  mutation EmailLeaders($emailData: emailData) {
+    emailLeaders(emailData: $emailData)
   }
-}
+`;
+
+export const EMAIL_LEADERSWEBMASTER = gql`
+  mutation EmailLeadersWebmaster($emailData: emailData) {
+    emailLeadersWebmaster(emailData: $emailData)
+  }
+`;
+
+export const EMAIL_WEBMASTER = gql`
+  mutation EmailWebmaster($emailData: emailData) {
+    emailWebmaster(emailData: $emailData)
+  }
+`;
+
+export const EMAIL_GROUP = gql`
+  mutation EmailGroup($emailData: emailData) {
+    emailGroup(emailData: $emailData)
+  }
+`;
+
+export const RESET_PASSWORD = gql`
+  mutation ResetPassword($email: String!) {
+    resetPassword(email: $email) {
+      email
+      firstName
+    }
+  }
+`;
+
+export const CHANGE_PASSWORD = gql`
+  mutation ChangePassword($password: String!) {
+    changePassword(password: $password) {
+      firstName
+      lastName
+      email
+      role
+      notifications
+      emailPermission
+    }
+  }
 `;

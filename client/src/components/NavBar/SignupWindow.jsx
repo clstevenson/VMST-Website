@@ -13,6 +13,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import * as ModalStyle from "./ModalStyles";
 import ErrorMessage from "../Styled/ErrorMessage";
+import SubmitButton from "../Styled/SubmiButton";
 
 import { useMutation } from "@apollo/client";
 import { ADD_USER } from "../../utils/mutations";
@@ -151,7 +152,7 @@ const SignupContent = ({ setIsLogin, message, setMessage }) => {
             id="confirm_password"
             aria-invalid={errors.confirmPassword ? "true" : "false"}
             {...register("confirmPassword", {
-              required: true,
+              required: "Confirmation required",
               validate: (val) => {
                 if (val !== getValues("password"))
                   return "Your passwords do not match";
@@ -168,13 +169,9 @@ const SignupContent = ({ setIsLogin, message, setMessage }) => {
           <Dialog.Close asChild>
             <ModalStyle.CloseButton tabIndex={0}>Close</ModalStyle.CloseButton>
           </Dialog.Close>
-          <ModalStyle.SubmitButton
-            disabled={isSubmitting}
-            type="submit"
-            tabIndex={0}
-          >
+          <SubmitButton disabled={isSubmitting} type="submit" tabIndex={0}>
             {isSubmitting ? "working..." : "Submit"}
-          </ModalStyle.SubmitButton>
+          </SubmitButton>
         </ModalStyle.DialogButtonWrapper>
       </ModalStyle.Form>
 
