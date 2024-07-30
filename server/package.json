@@ -16,6 +16,7 @@
         "bcrypt": "^5.0.0",
         "dotenv": "^16.4.5",
         "express": "^4.17.2",
+        "flickr-sdk": "^7.0.0-beta.7",
         "graphql": "^16.6.0",
         "jsonwebtoken": "^8.5.1",
         "mongoose": "^7.0.2",
