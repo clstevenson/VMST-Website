@@ -71,16 +71,6 @@ type Post {
   comments: [Comment]
 }
 
-type Photo {
-  _id: ID!
-  url: String!
-  caption: String
-  names: [String]
-  permission: Boolean
-  uplodatedAt: String
-  uploadedBy: ID
-}
-
 # type for issuing tokens and user data
 type Auth {
   token: ID!
@@ -118,6 +108,45 @@ input emailData {
   html: String
 }
 
+############## start Flickr typedefs ##############
+type PhotoSize {
+  label: String!
+  width: Int!
+  height: Int!
+  url: String!
+}
+
+type Photo {
+  id: String!
+  caption: String
+  url: String!
+  flickrURL: String
+  sizes: [PhotoSize]
+}
+
+type Album {
+  id: String!
+  caption: String
+  coverURL: String!
+  flickrURL: String
+}
+
+type AlbumCollection {
+  numAlbums: Int!
+  pages: Int!
+  flickrURL: String
+  album: [Album]
+}
+
+type PhotoCollection {
+  title: String
+  numPhotos: Int!
+  pages: Int!
+  flickrURL: String
+  photos: [Photo]
+}
+############## end Flickr typedefs ##############
+
 type Query {
   members: [Member]
   users: [User]
@@ -127,6 +156,11 @@ type Query {
   groups: [String]
   vmstMembers(workoutGroup: String): [Member]
   getLeaders: [User]
+  getAlbums(page: Int!, perPage: Int!): AlbumCollection
+  getAlbumPhotos(id: String!, page: Int!, perPage: Int!): PhotoCollection
+  getFeaturedPhotos(page: Int!, perPage: Int!): PhotoCollection
+  getPhotos(page: Int!, perPage: Int!, search: String): PhotoCollection
+  getPhotoSizes(id: String!): Photo
 }
 
 type Mutation {

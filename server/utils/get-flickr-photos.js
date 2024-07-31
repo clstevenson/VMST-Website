@@ -28,19 +28,19 @@
 // go to https://www.flickr.com/services/api/misc.urls.html for more details
 
 const { createFlickr } = require("flickr-sdk");
-require('dotenv').config();
+require("dotenv").config();
 
 // account info
 const flickrAPI = process.env.FLICKR_APIKEY;
-const userId = '50570696@N06';
+const userId = "50570696@N06";
 // "VMST featured" photoset
-const featuredPhotoset = '72177720319183779';
+const featuredPhotoset = "72177720319183779";
 
 const { flickr } = createFlickr(flickrAPI);
 
 // gets a list of photosets; excludes the "featured photos" photoset,
 // since that photoset can be displayed separately
-const getAlbums = async (perPage = 15, page = 1) => {
+const getAlbums = async (page = 1, perPage = 15) => {
   const response = await flickr("flickr.photosets.getList", {
     api_key: flickrAPI,
     user_id: userId,
@@ -48,36 +48,39 @@ const getAlbums = async (perPage = 15, page = 1) => {
     page: page,
   });
 
-  if (response.stat !== 'ok') {
-    throw new Error('Something went wrong retrieving the data from Flickr');
+  if (response.stat !== "ok") {
+    throw new Error("Something went wrong retrieving the data from Flickr");
   }
 
   // array of album/photoset characteristics
   const album = response.photosets.photoset
-    .map(
-      ({ id, primary, secret, server, title: { _content: caption } }) => {
-        return {
-          id, primary, secret, server, caption,
-          coverURL: `https://live.staticflickr.com/${server}/${primary}_${secret}.jpg`,
-          albumURL: `https://www.flickr.com/photos/${userId}/albums/${id}`,
-        }
-      })
+    .map(({ id, primary, secret, server, title: { _content: caption } }) => {
+      return {
+        id,
+        primary,
+        secret,
+        server,
+        caption,
+        coverURL: `https://live.staticflickr.com/${server}/${primary}_${secret}.jpg`,
+        flickrURL: `https://www.flickr.com/photos/${userId}/albums/${id}`,
+      };
+    })
     // don't want to include featured set
     .filter(({ id }) => id !== featuredPhotoset);
 
   // need total number of albums for pagination
-  let { total, pages } = response.photosets;
+  let { total: numAlbums, pages } = response.photosets;
   // subtract one for featured set, which isn't included
-  total--;
+  numAlbums--;
 
-  const albumsURL = `https://www.flickr.com/photos/${userId}/albums/`;
+  const flickrURL = `https://www.flickr.com/photos/${userId}/albums/`;
 
-  return { total, pages, albumsURL, album }
-}
+  return { numAlbums, pages, flickrURL, album };
+};
 
 // retrieve information about photos in a specific photoset/album
 // one argument is required: the album ID, as a string
-const getAlbumPhotos = async (albumId, perPage = 15, page = 1) => {
+const getAlbumPhotos = async (albumId, page = 1, perPage = 15) => {
   const response = await flickr("flickr.photosets.getPhotos", {
     api_key: flickrAPI,
     photoset_id: albumId,
@@ -85,34 +88,39 @@ const getAlbumPhotos = async (albumId, perPage = 15, page = 1) => {
     page: page,
   });
 
-  if (response.stat !== 'ok') {
-    throw new Error('Something went wrong retrieving the data from Flickr');
+  if (response.stat !== "ok") {
+    throw new Error("Something went wrong retrieving the data from Flickr");
   }
 
-  const photo = response.photoset.photo.map(
+  const photos = response.photoset.photo.map(
     ({ id, secret, server, title: caption }) => {
       return {
-        id, secret, server, caption,
+        id,
+        secret,
+        server,
+        caption,
         url: `https://live.staticflickr.com/${server}/${id}_${secret}.jpg`,
+        flickrURL: `https://www.flickr.com/photos/${userId}/${id}`,
       };
-    });
+    }
+  );
 
   // need more info for pagination and display
-  const { title, total, pages } = response.photoset;
-  const albumURL = `https://www.flickr.com/photos/${userId}/albums/${albumId}`;
+  const { title, total: numPhotos, pages } = response.photoset;
+  const flickrURL = `https://www.flickr.com/photos/${userId}/albums/${albumId}`;
 
-  return { title, total, pages, albumURL, photo };
-}
+  return { title, numPhotos, pages, flickrURL, photos };
+};
 
 // retrieves photos that are in the album that is designated to
 // holds photos specifically chosen for the website (eg for posts)
-const getFeaturedPhotos = async (perPage = 15, page = 1) => {
-  return getAlbumPhotos(featuredPhotoset, perPage, page);
-}
+const getFeaturedPhotos = async (page = 1, perPage = 15) => {
+  return getAlbumPhotos(featuredPhotoset, page, perPage);
+};
 
 // get a list of all photos in descending order of recency
 // accepts third argument as a free text search of title, description, or tags
-const getPhotos = async (perPage = 15, page = 1, searchTerm = '') => {
+const getPhotos = async (page = 1, perPage = 15, searchTerm = "") => {
   const response = await flickr("flickr.photos.search", {
     api_key: flickrAPI,
     user_id: userId,
@@ -121,24 +129,28 @@ const getPhotos = async (perPage = 15, page = 1, searchTerm = '') => {
     page: page,
   });
 
-  if (response.stat !== 'ok') {
-    throw new Error('Something went wrong retrieving the data from Flickr');
+  if (response.stat !== "ok") {
+    throw new Error("Something went wrong retrieving the data from Flickr");
   }
 
-  const photo = response.photos.photo.map(
+  const photos = response.photos.photo.map(
     ({ id, secret, server, title: caption }) => {
       return {
-        id, secret, server, caption,
+        id,
+        secret,
+        server,
+        caption,
         url: `https://live.staticflickr.com/${server}/${id}_${secret}.jpg`,
-        flickrURL: `https://live.staticflickr.com/${server}/${id}`,
-      }
-    });
+        flickrURL: `https://www.flickr.com/photos/${userId}/${id}`,
+      };
+    }
+  );
 
   const { pages, total } = response.photos;
-  const photosURL = `https://www.flickr.com/photos/${userId}/`;
+  const flickrURL = `https://www.flickr.com/photos/${userId}/`;
 
-  return { pages, total, photosURL, photo }
-}
+  return { pages, total, flickrURL, photos };
+};
 
 // return the available sizes for a specific photo
 // also returns the Flickr URL of the photo
@@ -149,26 +161,29 @@ const getPhotoSizes = async (photoId) => {
     photo_id: photoId,
   });
 
-  if (response.stat !== 'ok') {
-    throw new Error('Something went wrong retrieving the data from Flickr');
+  if (response.stat !== "ok") {
+    throw new Error("Something went wrong retrieving the data from Flickr");
   }
 
-  const size = response.sizes.size.map(
+  const sizes = response.sizes.size.map(
     ({ label, width, height, source: url }) => {
       return { label, width, height, url };
-    });
+    }
+  );
 
-  const photoURL = `https://www.flickr.com/photos/${userId}/${photoId}`;
+  // for convenience give the link to the Medium photo
+  const url = sizes.filter((photo) => photo.label === "Medium")[0].url;
+  // and the flickr page for the photo
+  const flickrURL = `https://www.flickr.com/photos/${userId}/${photoId}`;
 
-  return { photoURL, size };
-}
+  return { url, flickrURL, sizes };
+};
 
-// for testing purposes
+// for command-line troubleshooting, uncomment block below
 // async function main() {
-//   value = await getAlbums();
+//   value = await getPhotoSizes("49640458927");
 //   console.log(value);
 // }
-
 // main();
 
 module.exports = {
