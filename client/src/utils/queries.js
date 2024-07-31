@@ -91,3 +91,34 @@ export const QUERY_WORKOUT_GROUP = gql`
     }
   }
 `;
+
+export const QUERY_FEATUREDPHOTOS = gql`
+  query GetFeaturedPhotos($page: Int!, $perPage: Int!) {
+    getFeaturedPhotos(page: $page, perPage: $perPage) {
+      numPhotos
+      pages
+      flickrURL
+      photos {
+        id
+        caption
+        url
+        flickrURL
+      }
+    }
+  }
+`;
+
+export const QUERY_ALBUMS = gql`
+  query GetAlbums($page: Int!, $perPage: Int!) {
+    getAlbums(page: $page, perPage: $perPage) {
+      numAlbums
+      pages
+      flickrURL
+      album {
+        caption
+        coverURL
+        flickrURL
+      }
+    }
+  }
+`;
