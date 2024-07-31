@@ -61,7 +61,7 @@ const getAlbums = async (page = 1, perPage = 15) => {
         secret,
         server,
         caption,
-        coverURL: `https://live.staticflickr.com/${server}/${primary}_${secret}.jpg`,
+        url: `https://live.staticflickr.com/${server}/${primary}_${secret}.jpg`,
         flickrURL: `https://www.flickr.com/photos/${userId}/albums/${id}`,
       };
     })
@@ -146,10 +146,10 @@ const getPhotos = async (page = 1, perPage = 15, searchTerm = "") => {
     }
   );
 
-  const { pages, total } = response.photos;
+  const { pages, total: numPhotos } = response.photos;
   const flickrURL = `https://www.flickr.com/photos/${userId}/`;
 
-  return { pages, total, flickrURL, photos };
+  return { pages, numPhotos, flickrURL, photos };
 };
 
 // return the available sizes for a specific photo
@@ -181,7 +181,7 @@ const getPhotoSizes = async (photoId) => {
 
 // for command-line troubleshooting, uncomment block below
 // async function main() {
-//   value = await getPhotoSizes("49640458927");
+//   value = await getPhotos();
 //   console.log(value);
 // }
 // main();

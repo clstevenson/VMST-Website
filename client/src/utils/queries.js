@@ -116,7 +116,24 @@ export const QUERY_ALBUMS = gql`
       flickrURL
       album {
         caption
-        coverURL
+        url
+        flickrURL
+      }
+    }
+  }
+`;
+
+export const QUERY_PHOTOS = gql`
+  query GetPhotos($page: Int!, $perPage: Int!) {
+    getPhotos(page: $page, perPage: $perPage) {
+      title
+      numPhotos
+      pages
+      flickrURL
+      photos {
+        id
+        caption
+        url
         flickrURL
       }
     }

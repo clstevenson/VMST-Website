@@ -1,10 +1,14 @@
 import styled from "styled-components";
-import { useState } from "react";
-import { useQuery } from "@apollo/client";
+import { useState, useEffect } from "react";
+import { useLazyQuery } from "@apollo/client";
 
 import CaptionedImage from "../components/PhotoGallery/CaptionedImage";
 import { COLORS, QUERIES } from "../utils/constants";
-import { QUERY_FEATUREDPHOTOS } from "../utils/queries";
+import {
+  QUERY_ALBUMS,
+  QUERY_FEATUREDPHOTOS,
+  QUERY_PHOTOS,
+} from "../utils/queries";
 import Spinner from "../components/Spinner";
 import SelectPhotos from "../components/PhotoGallery/SelectPhotos";
 import NavPhotos from "../components/PhotoGallery/NavPhotos";
@@ -15,10 +19,46 @@ export default function Gallery() {
   const [perPage, setPerPage] = useState(15);
   // possible values of photoset: 'featured', 'albums', 'all'
   const [photoset, setPhotoset] = useState("featured");
+  const [photos, setPhotos] = useState([]);
+  const [numPhotos, setNumPhotos] = useState(0);
+  const [maxPages, setMaxPages] = useState(0);
 
-  const { loading, data, error } = useQuery(QUERY_FEATUREDPHOTOS, {
-    variables: { page, perPage },
+  const [getFeatured, { loading }] = useLazyQuery(QUERY_FEATUREDPHOTOS, {
+    onCompleted: (data) => {
+      setPhotos(data.getFeaturedPhotos.photos);
+      setNumPhotos(data.getFeaturedPhotos.numPhotos);
+      setMaxPages(data.getFeaturedPhotos.pages);
+    },
+    onError: (error) => <div>`Something went wrong: ${error.message}.`</div>,
   });
+
+  const [getAlbums] = useLazyQuery(QUERY_ALBUMS, {
+    onCompleted: (data) => {
+      setPhotos(data.getAlbums.album);
+      setNumPhotos(data.getAlbums.numAlbums);
+      setMaxPages(data.getAlbums.pages);
+    },
+    onError: (error) => <div>`Something went wrong: ${error.message}.`</div>,
+  });
+
+  const [getAllPhotos] = useLazyQuery(QUERY_PHOTOS, {
+    onCompleted: (data) => {
+      setPhotos(data.getPhotos.photos);
+      setNumPhotos(data.getPhotos.numPhotos);
+      setMaxPages(data.getPhotos.pages);
+    },
+    onError: (error) => <div>`Something went wrong: ${error.message}.`</div>,
+  });
+
+  useEffect(() => {
+    if (photoset === "featured") {
+      getFeatured({ variables: { page, perPage } });
+    } else if (photoset === "albums") {
+      getAlbums({ variables: { page, perPage } });
+    } else if (photoset === "all") {
+      getAllPhotos({ variables: { page, perPage } });
+    }
+  }, [getFeatured, page, perPage, photoset, getAlbums, getAllPhotos]);
 
   // early return while loading
   if (loading)
@@ -27,12 +67,6 @@ export default function Gallery() {
         <Spinner />
       </SpinnerWrapper>
     );
-
-  if (error) return `Error: ${error.message}`;
-
-  const photos = data && data?.getFeaturedPhotos.photos;
-  const numPhotos = data && data?.getFeaturedPhotos.numPhotos;
-  const maxPages = data && data?.getFeaturedPhotos.pages;
 
   return (
     <Wrapper>
@@ -44,6 +78,7 @@ export default function Gallery() {
           photoset={photoset}
           setPhotoset={setPhotoset}
           numPhotos={numPhotos}
+          setPage={setPage}
         />
 
         {/* click to increment/decrement page */}
@@ -60,21 +95,29 @@ export default function Gallery() {
       </HeaderWrapper>
 
       {/* Display the photos according to the photos array */}
-      <GalleryWrapper>
-        {photos.map((photo) => (
-          <CaptionedImage
-            key={photo.id}
-            src={photo.url}
-            alt={photo.caption}
-            caption={photo.caption}
-          />
-        ))}
-      </GalleryWrapper>
+      {!photos ? (
+        <SpinnerWrapper>
+          <Spinner />
+        </SpinnerWrapper>
+      ) : (
+        <GalleryWrapper>
+          {photos.map((photo) => (
+            <CaptionedImage
+              key={photo.id}
+              src={photo.url}
+              alt={photo.caption}
+              caption={photo.caption}
+            />
+          ))}
+        </GalleryWrapper>
+      )}
 
       {/* click to increment/decrement page */}
-      <NavWrapper>
-        <NavPhotos page={page} setPage={setPage} maxPages={maxPages} />
-      </NavWrapper>
+      {photos && (
+        <NavWrapper>
+          <NavPhotos page={page} setPage={setPage} maxPages={maxPages} />
+        </NavWrapper>
+      )}
     </Wrapper>
   );
 }

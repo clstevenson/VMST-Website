@@ -2,13 +2,21 @@ import styled from "styled-components";
 import * as Select from "@radix-ui/react-select";
 import { COLORS } from "../../utils/constants";
 
-export default function SelectPhotos({ photoset, setPhotoset, numPhotos }) {
+export default function SelectPhotos({
+  photoset,
+  setPhotoset,
+  numPhotos,
+  setPage,
+}) {
   return (
     <SelectWrapper>
       <Select.Root
         defaultValue={photoset}
         value={photoset}
-        onValueChange={(val) => setPhotoset(val)}
+        onValueChange={(val) => {
+          setPhotoset(val);
+          setPage(1);
+        }}
       >
         <SelectTrigger>
           <Select.Value />

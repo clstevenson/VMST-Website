@@ -65,6 +65,11 @@ const resolvers = {
       if (!response) throw new Error("Something went wrong");
       return response;
     },
+    getPhotos: async (_, { page, perPage }) => {
+      const response = await getPhotos(page, perPage);
+      if (!response) throw new Error("Something went wrong");
+      return response;
+    },
   },
   Mutation: {
     // login with email and password which returns signed JWT

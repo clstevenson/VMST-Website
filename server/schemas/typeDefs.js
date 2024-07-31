@@ -127,7 +127,7 @@ type Photo {
 type Album {
   id: String!
   caption: String
-  coverURL: String!
+  url: String!
   flickrURL: String
 }
 
