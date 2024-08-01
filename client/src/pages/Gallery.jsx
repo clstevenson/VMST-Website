@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useLazyQuery } from "@apollo/client";
 
 import CaptionedImage from "../components/PhotoGallery/CaptionedImage";
-import { COLORS, QUERIES } from "../utils/constants";
+import { COLORS, QUERIES, WEIGHTS } from "../utils/constants";
 import {
   QUERY_ALBUMS,
   QUERY_FEATUREDPHOTOS,
@@ -70,7 +70,13 @@ export default function Gallery() {
 
   return (
     <Wrapper>
-      <Title>Photo Gallery</Title>
+      <Title>
+        Photo Gallery{" "}
+        <span>
+          (click image to{" "}
+          <a href="https://www.flickr.com/photos/va_swims/">go to Flickr</a>)
+        </span>
+      </Title>
 
       <HeaderWrapper>
         {/* select which album/photoset to view */}
@@ -102,12 +108,13 @@ export default function Gallery() {
       ) : (
         <GalleryWrapper>
           {photos.map((photo) => (
-            <CaptionedImage
-              key={photo.id}
-              src={photo.url}
-              alt={photo.caption}
-              caption={photo.caption}
-            />
+            <a href={photo.flickrURL} target="_new" key={photo.id}>
+              <CaptionedImage
+                src={photo.url}
+                alt={photo.caption}
+                caption={photo.caption}
+              />
+            </a>
           ))}
         </GalleryWrapper>
       )}
@@ -115,7 +122,12 @@ export default function Gallery() {
       {/* click to increment/decrement page */}
       {photos && (
         <NavWrapper>
-          <NavPhotos page={page} setPage={setPage} maxPages={maxPages} />
+          <NavPhotos
+            page={page}
+            setPage={setPage}
+            maxPages={maxPages}
+            displaySelect={false}
+          />
         </NavWrapper>
       )}
     </Wrapper>
@@ -130,6 +142,12 @@ const Title = styled.h2`
   font-size: var(--subheading-size);
   color: ${COLORS.accent[12]};
   margin-bottom: 16px;
+  & span {
+    font-weight: ${WEIGHTS.normal};
+  }
+  & a:hover {
+    text-decoration: underline;
+  }
 `;
 
 const GalleryWrapper = styled.div`
