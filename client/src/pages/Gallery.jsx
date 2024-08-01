@@ -74,7 +74,7 @@ export default function Gallery() {
         Photo Gallery{" "}
         <span>
           (click image to{" "}
-          <a href="https://www.flickr.com/photos/va_swims/">go to Flickr</a>)
+          <a href="https://www.flickr.com/photos/va_swims/" target="_new">go to Flickr</a>)
         </span>
       </Title>
 
