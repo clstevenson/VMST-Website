@@ -3,8 +3,12 @@
  of the DB and be integrated with calls to the Flickr API. Max size displayed (in gallary) is 500 x 300px
  */
 
+// these are all "medium" size photos, appropriate for the "Gallery" page
+// which uses image sizes of 500 x 300.
+// URL format: https://live.staticflickr.com/{server-id}/{id}_{secret}.jpg
+// go to https://www.flickr.com/services/api/misc.urls.html for more details
 const image1 = "https://live.staticflickr.com/65535/49640252638_051a4c4951.jpg";
-const image2 = "https://live.staticflickr.com/65535/49006190053_4fbb4b8362_z.jpg";
+const image2 = "https://live.staticflickr.com/65535/49006190053_4fbb4b8362.jpg";
 const image3 = "https://live.staticflickr.com/6123/6018848148_85f8e94d12.jpg";
 const image4 = "https://live.staticflickr.com/448/19455280650_42eefdbd80.jpg";
 const image5 = "https://live.staticflickr.com/2860/9120490998_e453ed60f0.jpg";

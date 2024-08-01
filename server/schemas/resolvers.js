@@ -4,7 +4,13 @@ const connection = require("../config/connection");
 const Mail = require("../utils/emailHandler");
 const generatePassword = require("../utils/password-generator");
 const bcrypt = require("bcrypt");
-// const { up } = require("inquirer/lib/utils/readline");
+const {
+  getAlbums,
+  getAlbumPhotos,
+  getFeaturedPhotos,
+  getPhotos,
+  getPhotoSizes,
+} = require("../utils/get-flickr-photos");
 
 const resolvers = {
   Query: {
@@ -39,6 +45,31 @@ const resolvers = {
       }
     },
     getLeaders: async () => await User.find({ role: "leader" }),
+    getAlbums: async (_, { perPage, page }) => {
+      const response = await getAlbums(page, perPage);
+      if (!response) throw new Error("Something went wrong");
+      return response;
+    },
+    getAlbumPhotos: async (_, { id, page, perPage }) => {
+      const response = await getAlbumPhotos(id, page, perPage);
+      if (!response) throw new Error("Something went wrong");
+      return response;
+    },
+    getFeaturedPhotos: async (_, { page, perPage }) => {
+      const response = await getFeaturedPhotos(page, perPage);
+      if (!response) throw new Error("Something went wrong");
+      return response;
+    },
+    getPhotoSizes: async (_, { id }) => {
+      const response = await getPhotoSizes(id);
+      if (!response) throw new Error("Something went wrong");
+      return response;
+    },
+    getPhotos: async (_, { page, perPage }) => {
+      const response = await getPhotos(page, perPage);
+      if (!response) throw new Error("Something went wrong");
+      return response;
+    },
   },
   Mutation: {
     // login with email and password which returns signed JWT

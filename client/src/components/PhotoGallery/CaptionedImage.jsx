@@ -1,12 +1,12 @@
 /* eslint-disable react/prop-types */
 import styled from "styled-components";
-import { COLORS } from "../utils/constants";
+import { COLORS } from "../../utils/constants";
 
 export default function CaptionedImage({
   alt,
   src,
   caption,
-  height = "300px",
+  height = "400px",
 }) {
   return (
     <Figure>
