@@ -115,6 +115,7 @@ export const QUERY_ALBUMS = gql`
       pages
       flickrURL
       album {
+        id
         caption
         url
         flickrURL
