@@ -53,9 +53,9 @@ export default function SinglePost() {
                     <li key={comment._id}>
                       &quot;{comment.content}&quot;
                       <Attribution>
-                        {/* -- posted by {comment.user.firstName} on{" "} */}
-                        {/* {comment.createdAt} */}
-                        -- comment posted {comment.createdAt}
+                        -- posted by {comment.user.firstName} on{" "}
+                        {comment.createdAt}
+                        {/* -- comment posted {comment.createdAt} */}
                       </Attribution>
                     </li>
                   );
