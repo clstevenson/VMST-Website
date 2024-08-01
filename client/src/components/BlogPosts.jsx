@@ -37,7 +37,7 @@ export default function BlogPosts() {
         // use modulo operator to repeat array if necessary
         return (
           <Post key={post._id} to={`/post/${post._id}`}>
-            <Image src={post.photoURL} alt={post.photoCaption} />
+            <Image src={post.photo.url} alt={post.photo.caption} />
             <Title>{post.title}</Title>
             <Content>{post.content}</Content>
             <Date>Posted {post.createdAt}</Date>
