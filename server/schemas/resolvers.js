@@ -10,6 +10,7 @@ const {
   getFeaturedPhotos,
   getPhotos,
   getPhotoSizes,
+  getPhotoInfo,
 } = require("../utils/get-flickr-photos");
 
 const resolvers = {
@@ -67,6 +68,11 @@ const resolvers = {
     },
     getPhotos: async (_, { page, perPage }) => {
       const response = await getPhotos(page, perPage);
+      if (!response) throw new Error("Something went wrong");
+      return response;
+    },
+    getPhotoInfo: async (_, { id }) => {
+      const response = await getPhotoInfo(id);
       if (!response) throw new Error("Something went wrong");
       return response;
     },

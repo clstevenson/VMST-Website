@@ -161,6 +161,7 @@ type Query {
   getFeaturedPhotos(page: Int!, perPage: Int!): PhotoCollection
   getPhotos(page: Int!, perPage: Int!, search: String): PhotoCollection
   getPhotoSizes(id: String!): Photo
+  getPhotoInfo(id: String!): Photo
 }
 
 type Mutation {

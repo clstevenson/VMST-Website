@@ -179,9 +179,40 @@ const getPhotoSizes = async (photoId) => {
   return { url, flickrURL, sizes };
 };
 
+// get information about a single photo
+const getPhotoInfo = async (photoId) => {
+  const response = await flickr("flickr.photos.getInfo", {
+    api_key: flickrAPI,
+    photo_id: photoId,
+  });
+
+  if (response.stat !== "ok") {
+    throw new Error("Something went wrong retrieving the data from Flickr");
+  }
+
+  //extract info that might be useful;
+  // https://www.flickr.com/services/api/flickr.photos.getInfo.htm for more
+  const {
+    id,
+    secret,
+    server,
+    title: {_content: caption},
+    description: {_content: description},
+    tags: {tag: tags},
+  } = response.photo;
+
+  const url = `https://live.staticflickr.com/${server}/${id}_${secret}.jpg`;
+  const flickrURL = `https://www.flickr.com/photos/${userId}/${id}`;
+
+
+  // only need a subset of this data for GraphQL at present...
+  return {id, caption, url, flickrURL};
+
+}
+
 // for command-line troubleshooting, uncomment block below
 // async function main() {
-//   value = await getPhotos();
+//   value = await getFeaturedPhotos(1, 30);
 //   console.log(value);
 // }
 // main();
@@ -192,4 +223,5 @@ module.exports = {
   getFeaturedPhotos,
   getPhotos,
   getPhotoSizes,
+  getPhotoInfo,
 };
