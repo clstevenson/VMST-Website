@@ -19,6 +19,7 @@ export default function SinglePost() {
   const { loading, data } = useQuery(QUERY_SINGLEPOST, {
     variables: { onePostId: id },
   });
+
   const post = data?.onePost;
 
   if (loading)
@@ -52,8 +53,9 @@ export default function SinglePost() {
                     <li key={comment._id}>
                       &quot;{comment.content}&quot;
                       <Attribution>
-                        -- posted by {comment.user.firstName} on{" "}
-                        {comment.createdAt}
+                        {/* -- posted by {comment.user.firstName} on{" "} */}
+                        {/* {comment.createdAt} */}
+                        -- comment posted {comment.createdAt}
                       </Attribution>
                     </li>
                   );
