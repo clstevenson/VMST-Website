@@ -1,11 +1,11 @@
 import { forwardRef } from "react";
 import styled from "styled-components";
 import * as Select from "@radix-ui/react-select";
-import { COLORS } from "../../utils/constants";
+import { COLORS, QUERIES } from "../../utils/constants";
 
 export default function PhotosPerPage({ perPage, setPerPage, numPhotos }) {
   return (
-    <div>
+    <Wrapper>
       <Select.Root
         defaultValue={perPage}
         value={perPage}
@@ -27,9 +27,15 @@ export default function PhotosPerPage({ perPage, setPerPage, numPhotos }) {
           </Select.Viewport>
         </SelectContent>
       </Select.Root>
-    </div>
+    </Wrapper>
   );
 }
+
+const Wrapper = styled.div`
+  @media ${QUERIES.mobile} {
+    display: none;
+  }
+`;
 
 // eslint-disable-next-line react/display-name
 const SelectItem = forwardRef(({ children, ...props }, forwardedRef) => {

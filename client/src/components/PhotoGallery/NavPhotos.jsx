@@ -7,7 +7,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "react-feather";
-import { COLORS } from "../../utils/constants";
+import { COLORS, QUERIES } from "../../utils/constants";
 import range from "../../utils/range";
 
 export default function NavPhotos({
@@ -45,30 +45,32 @@ export default function NavPhotos({
         <ChevronLeft style={{ display: "block" }} />
       </NavArrow>
       {displaySelect ? (
-        <Select.Root
-          defaultValue={page}
-          value={page}
-          onValueChange={(val) => {
-            setPage(val);
-          }}
-        >
-          <SelectTrigger>
-            Page {page} of {maxPages}
-          </SelectTrigger>
-          <SelectContent>
-            <Select.ScrollUpButton />
-            <SelectViewport>
-              {range(maxPages).map((page) => {
-                return (
-                  <SelectItem key={page} value={page}>
-                    Page {page}
-                  </SelectItem>
-                );
-              })}
-            </SelectViewport>
-            <Select.ScrollDownButton />
-          </SelectContent>
-        </Select.Root>
+        <SelectWrapper>
+          <Select.Root
+            defaultValue={page}
+            value={page}
+            onValueChange={(val) => {
+              setPage(val);
+            }}
+          >
+            <SelectTrigger>
+              Page {page} of {maxPages}
+            </SelectTrigger>
+            <SelectContent>
+              <Select.ScrollUpButton />
+              <SelectViewport>
+                {range(maxPages).map((page) => {
+                  return (
+                    <SelectItem key={page} value={page}>
+                      Page {page}
+                    </SelectItem>
+                  );
+                })}
+              </SelectViewport>
+              <Select.ScrollDownButton />
+            </SelectContent>
+          </Select.Root>
+        </SelectWrapper>
       ) : (
         <span style={{ fontStyle: "italic" }}>page {page}</span>
       )}
@@ -90,6 +92,12 @@ const SelectItem = forwardRef(({ children, ...props }, forwardedRef) => {
     </StyledItem>
   );
 });
+
+const SelectWrapper = styled.div`
+  @media ${QUERIES.mobile} {
+    display: none;
+  }
+`;
 
 const Wrapper = styled.nav`
   display: flex;

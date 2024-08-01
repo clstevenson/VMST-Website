@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import * as Select from "@radix-ui/react-select";
-import { COLORS } from "../../utils/constants";
+import { COLORS, QUERIES } from "../../utils/constants";
 
 export default function SelectPhotos({
   photoset,
@@ -41,7 +41,13 @@ export default function SelectPhotos({
   );
 }
 
-const SelectWrapper = styled.div``;
+const SelectWrapper = styled.div`
+  @media ${QUERIES.mobile} {
+    & > span {
+      display: none;
+    }
+  }
+`;
 
 const SelectTrigger = styled(Select.Trigger)`
   --radix-select-trigger-width: 12ch;

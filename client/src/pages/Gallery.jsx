@@ -148,6 +148,12 @@ const Title = styled.h2`
   & a:hover {
     text-decoration: underline;
   }
+
+  @media ${QUERIES.mobile} {
+    & span {
+      display: none;
+    }
+  }
 `;
 
 const GalleryWrapper = styled.div`
