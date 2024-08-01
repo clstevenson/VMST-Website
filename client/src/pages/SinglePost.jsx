@@ -1,12 +1,5 @@
 /*
- Display a single posts and its comments. Input prop is the post ID.
-
- Need to display:
- - post photo
- - post title
- - when the post happened
- - post summary and content
- - any comments associated with the post
+ Display a single posts and its associated photo and any comments.
  */
 
 import styled from "styled-components";
@@ -26,6 +19,7 @@ export default function SinglePost() {
   const { loading, data } = useQuery(QUERY_SINGLEPOST, {
     variables: { onePostId: id },
   });
+
   const post = data?.onePost;
 
   if (loading)
@@ -48,6 +42,7 @@ export default function SinglePost() {
           )}
 
           <ContentWrapper>{post.content}</ContentWrapper>
+          <Attribution>-- posted on {post.createdAt}</Attribution>
 
           {post.comments.length > 0 && (
             <CommentsWrapper>
@@ -57,10 +52,9 @@ export default function SinglePost() {
                   return (
                     <li key={comment._id}>
                       &quot;{comment.content}&quot;
-                      <CommentAttribution>
-                        -- posted by {comment.user.firstName} on{" "}
-                        {comment.createdAt}
-                      </CommentAttribution>
+                      <Attribution>
+                        -- comment posted {comment.createdAt}
+                      </Attribution>
                     </li>
                   );
                 })}
@@ -69,8 +63,10 @@ export default function SinglePost() {
           )}
         </Article>
         <Figure>
-          <img alt={post.photoCaption} src={post.photoURL} />
-          <figcaption>{post.photoCaption}</figcaption>
+          <a href={post.photo.flickrURL} target="_new">
+            <img alt={post.photo.caption} src={post.photo.url} />
+          </a>
+          <figcaption>{post.photo.caption}</figcaption>
         </Figure>
       </PostWrapper>
       <PostNav>
@@ -117,6 +113,10 @@ const Figure = styled.figure`
   }
   & figcaption {
     font-style: italic;
+  }
+
+  & a:hover {
+    outline: auto;
   }
 
   @media ${QUERIES.mobile} {
@@ -166,7 +166,7 @@ const CommentsWrapper = styled.div`
   }
 `;
 
-const CommentAttribution = styled.p`
+const Attribution = styled.p`
   font-size: 0.9rem;
   font-style: italic;
   text-align: right;

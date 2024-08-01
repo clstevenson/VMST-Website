@@ -20,10 +20,15 @@ export const QUERY_POSTS = gql`
     posts {
       _id
       title
+      summary
       content
-      photoURL
-      photoCaption
       createdAt
+      photo {
+        id
+        caption
+        url
+        flickrURL
+      }
     }
   }
 `;
@@ -35,9 +40,12 @@ export const QUERY_SINGLEPOST = gql`
       title
       summary
       content
-      photoURL
-      photoCaption
       createdAt
+      photo {
+        caption
+        url
+        flickrURL
+      }
       comments {
         _id
         content
