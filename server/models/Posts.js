@@ -9,7 +9,6 @@
  */
 
 const { Schema, model } = require('mongoose');
-const Photo = require('./Photos');
 
 const commentSchema = new Schema(
   {
@@ -27,6 +26,26 @@ const commentSchema = new Schema(
   },
 );
 
+const photoSchema = new Schema({
+  flickrId: {
+    type: String,
+    required: true,
+  },
+  url: {
+    type: String,
+    required: true,
+  },
+  flickrURL: {
+    type: String,
+    required: true,
+  },
+  caption: String,
+},
+                               {
+                                 _id: false,
+                               }
+                              );
+
 const postSchema = new Schema(
   {
     title: {type: String, required: true,},
@@ -41,8 +60,7 @@ const postSchema = new Schema(
     },
     // below are for the posts photos, eventually replaced by sub-population document
     // comments on the post (by any user)
-    photoURL: String,
-    photoCaption: String,
+    photo: photoSchema,
     comments: [commentSchema],
   },
   {

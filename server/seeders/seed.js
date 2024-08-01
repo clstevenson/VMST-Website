@@ -139,8 +139,8 @@ const seedPosts = async () => {
   const posts = postData.map((post, index) => {
     // attach a random photo object to each
     // each photo object has properties id, url, and al
-    post.photoURL = postPhotos[index].url;
-    post.photoCaption = postPhotos[index].alt;
+    const {id: flickrId, url, flickrURL, caption} = postPhotos[index];
+    post.photo = {flickrId, url, flickrURL, caption};
 
     const commentArr = [];
     // randomly choose how many comments the post has (0-5 is the range)
