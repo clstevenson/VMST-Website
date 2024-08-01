@@ -1,53 +1,70 @@
+import { forwardRef } from "react";
 import styled from "styled-components";
-import { useForm } from "react-hook-form";
+import * as Select from "@radix-ui/react-select";
 import { COLORS } from "../../utils/constants";
 
 export default function PhotosPerPage({ perPage, setPerPage, numPhotos }) {
-  const { register, handleSubmit, getValues, setValue, reset } = useForm({
-    defaultValues: {
-      perPage: perPage,
-    },
-  });
-
-  const onSubmit = ({ perPage }) => {
-    setPerPage(parseInt(perPage));
-  };
-
   return (
-    <ControlForm onSubmit={handleSubmit(onSubmit)}>
-      <div>
-        <Input
-          type="text"
-          id="perPage"
-          {...register("perPage")}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              const value = parseInt(e.target.value);
-              if (value < 1) {
-                setPerPage(1);
-              } else if (value > numPhotos) {
-                setPerPage(numPhotos);
-                setValue("perPage", numPhotos);
-              } else setPerPage(value);
-            }
-          }}
-        />
-        <label htmlFor="perPage">photos per page</label>
-      </div>
-    </ControlForm>
+    <div>
+      <Select.Root
+        defaultValue={perPage}
+        value={perPage}
+        onValueChange={(val) => {
+          setPerPage(parseInt(val));
+        }}
+      >
+        <SelectTrigger aria-label="photos per page" asChild>
+          <button>{perPage} photos per page</button>
+        </SelectTrigger>
+        <SelectContent position="popper" align="end">
+          <Select.Viewport>
+            <SelectItem value="5">5 photos</SelectItem>
+            <SelectItem value="10">10 photos</SelectItem>
+            <SelectItem value="15">15 photos</SelectItem>
+            <SelectItem value="20">20 photos</SelectItem>
+            <SelectItem value="30">30 photos</SelectItem>
+            <SelectItem value="50">50 photos</SelectItem>
+          </Select.Viewport>
+        </SelectContent>
+      </Select.Root>
+    </div>
   );
 }
 
-const ControlForm = styled.form`
-  display: flex;
-  align-items: center;
+// eslint-disable-next-line react/display-name
+const SelectItem = forwardRef(({ children, ...props }, forwardedRef) => {
+  return (
+    <StyledItem {...props} ref={forwardedRef}>
+      <Select.ItemText>{children}</Select.ItemText>
+    </StyledItem>
+  );
+});
+
+const StyledItem = styled(Select.Item)`
+  padding: 4px 8px;
+  text-align: center;
+  &[data-highlighted] {
+    background-color: ${COLORS.accent[5]};
+    outline: none;
+  }
 `;
 
-const Input = styled.input`
-  width: 3ch;
-  margin-right: 4px;
-  text-align: center;
-  border: none;
-  border-bottom: 1.5px solid ${COLORS.accent[12]};
-  background-color: ${COLORS.accent[3]};
+const SelectTrigger = styled(Select.Trigger)`
+  width: fit-content;
+
+  &:hover {
+    cursor: pointer;
+    background-color: ${COLORS.accent[5]};
+    border: none;
+    border-radius: 4px;
+  }
+`;
+
+const SelectContent = styled(Select.Content)`
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid ${COLORS.accent[12]};
+  box-shadow: 2px 4px 8px black;
+  cursor: pointer;
+  width: max-content;
 `;
