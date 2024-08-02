@@ -75,6 +75,7 @@ type Auth {
   token: ID!
   user: User
 }
+####### input data types for convenience
 
 input UserData {
   firstName: String
@@ -101,10 +102,27 @@ input MemberData {
 input emailData {
   from: String
   replyTo: String
+  cc: String
   id: [ID]!
   subject: String!
   plainText: String
   html: String
+}
+
+input PostData {
+  title: String!
+  summary: String
+  content: String!
+  photoURL: String
+  flickrURL: String
+  caption: String
+}
+
+input PhotoData {
+  id: String!
+  caption: String
+  url: String!
+  flickrURL: String
 }
 
 ############## start Flickr typedefs ##############
@@ -117,9 +135,9 @@ type PhotoSize {
 
 type Photo {
   id: String!
-  caption: String
   url: String!
-  flickrURL: String
+  flickrURL: String!
+  caption: String
   sizes: [PhotoSize]
 }
 
@@ -169,7 +187,7 @@ type Mutation {
   editUser(user: UserData): User
   resetPassword(email: String!): User
   changePassword(password: String!): User
-  addPost(title: String!, summary: String, content: String!): Post
+  addPost(title: String!, summary: String, content: String!, photo: PhotoData): Post
   uploadMembers(memberData: [MemberData]): [Member]
   emailLeaders(emailData: emailData): Boolean
   emailWebmaster(emailData: emailData): Boolean
