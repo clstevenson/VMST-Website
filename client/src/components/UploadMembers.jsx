@@ -278,8 +278,8 @@ export default function UploadMembers() {
                 alt="generate HTML report screenshot"
               />
               <figcaption>
-                Figuring outlinining steps to generate an HTML report of all
-                current members, containing all record fields.
+                Steps to generate an HTML report of all current members and that
+                contains all possible record fields.
               </figcaption>
             </Figure>
 
@@ -469,7 +469,7 @@ const InstructionsWrapper = styled.div`
 
 const Figure = styled.figure`
   margin: 16px 0;
-  background-color: white;
+  background-color: transparent;
 
   & figcaption {
     font-style: italic;
