@@ -134,11 +134,11 @@ export const QUERY_ALBUMS = gql`
 
 export const QUERY_ALBUMPHOTOS = gql`
   query GetAlbumPhotos(
-    $getAlbumPhotosId: String!
+    $albumId: String!
     $page: Int!
     $perPage: Int!
   ) {
-    getAlbumPhotos(id: $getAlbumPhotosId, page: $page, perPage: $perPage) {
+    getAlbumPhotos(id: $albumId, page: $page, perPage: $perPage) {
       title
       pages
       photos {

@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 /* 
  Page for the form used to create a new post. Only available to leaders.
 
@@ -5,19 +6,22 @@
  */
 
 import styled from "styled-components";
-import { useEffect, useState } from "react";
+import { useEffect, useState, forwardRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { useForm } from "react-hook-form";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
-import { ChevronLeft, ChevronRight } from "react-feather";
+import * as Select from "@radix-ui/react-select";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Check,
+} from "react-feather";
 
 import Auth from "../utils/auth";
-import {
-  QUERY_FEATUREDPHOTOS,
-  QUERY_ALBUMS,
-  QUERY_ALBUMPHOTOS,
-} from "../utils/queries";
+import { QUERY_ALBUMS, QUERY_ALBUMPHOTOS } from "../utils/queries";
 import { ADD_POST } from "../utils/mutations";
 import { COLORS, QUERIES, WEIGHTS } from "../utils/constants";
 import SubmitButton from "../components/Styled/SubmiButton";
@@ -39,17 +43,32 @@ export default function CreatePost() {
 
   const featuredId = "72177720319183779";
   const [albumId, setAlbumId] = useState(featuredId);
+  const [albumList, setAlbumList] = useState([]);
   const [photos, setPhotos] = useState([]);
   const [maxPages, setMaxPages] = useState();
   const [page, setPage] = useState(1);
   const [postPhoto, setPostPhoto] = useState({});
   const [posted, setPosted] = useState(false);
 
-  const [getFeatured, { loading }] = useLazyQuery(QUERY_FEATUREDPHOTOS, {
+  useQuery(QUERY_ALBUMS, {
+    variables: { page: 1, perPage: 500 },
     onCompleted: (data) => {
-      setPhotos(data.getFeaturedPhotos.photos);
-      setMaxPages(data.getFeaturedPhotos.pages);
+      const albums = data.getAlbums.album.map((album) => {
+        const { id, caption: title } = album;
+        return { id, title };
+      });
+      setAlbumList([...albums]);
     },
+    //TODO: add error handling
+  });
+
+  const [getPhotos, { loading }] = useLazyQuery(QUERY_ALBUMPHOTOS, {
+    variables: { perPage: 16 }, // always retrieve 16 photos for grid
+    onCompleted: (data) => {
+      setPhotos(data.getAlbumPhotos.photos);
+      setMaxPages(data.getAlbumPhotos.pages);
+    },
+    //TODO: add error handling
   });
 
   useEffect(() => {
@@ -57,9 +76,8 @@ export default function CreatePost() {
     if (!Auth.loggedIn()) navigate("/");
     const { data: userProfile } = Auth.getProfile();
     if (userProfile.role !== "leader") navigate("/");
-    if (albumId === featuredId)
-      getFeatured({ variables: { page, perPage: 16 } });
-  }, [navigate, albumId, page, getFeatured]);
+    getPhotos({ variables: { albumId, page } });
+  }, [navigate, albumId, page, getPhotos]);
 
   const onSubmit = async ({ title, summary, content }) => {
     // send data to ADD_POST mutation
@@ -166,23 +184,53 @@ export default function CreatePost() {
         </h3>
 
         <PhotoNav>
-          <PhotoNavButton
-            type="button"
-            disabled={page === 1}
-            onClick={lastPage}
-          >
-            <ChevronLeft />
-          </PhotoNavButton>
-          <span>
-            Page {page} of {maxPages}
-          </span>
-          <PhotoNavButton
-            type="button"
-            disabled={page === maxPages}
-            onClick={nextPage}
-          >
-            <ChevronRight />
-          </PhotoNavButton>
+          <SelectWrapper>
+            <Select.Root
+              defaultValue={albumId}
+              value={albumId}
+              onValueChange={(val) => {
+                setAlbumId(val);
+              }}
+            >
+              <SelectTrigger>
+                <Select.Value placeholder="Photo album..." />
+                <Select.Icon />
+              </SelectTrigger>
+              <SelectContent position="popper">
+                <SelectViewport>
+                  <SelectItem value={featuredId}>
+                    <Select.ItemText>Featured photos</Select.ItemText>
+                  </SelectItem>
+                  {albumList.map((album) => {
+                    return (
+                      <SelectItem key={album.id} value={album.id}>
+                        <Select.ItemText>{album.title}</Select.ItemText>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectViewport>
+              </SelectContent>
+            </Select.Root>
+          </SelectWrapper>
+          <ChevronWrapper>
+            <PhotoNavButton
+              type="button"
+              disabled={page === 1}
+              onClick={lastPage}
+            >
+              <ChevronLeft />
+            </PhotoNavButton>
+            <span>
+              Page {page} of {maxPages}
+            </span>
+            <PhotoNavButton
+              type="button"
+              disabled={page === maxPages}
+              onClick={nextPage}
+            >
+              <ChevronRight />
+            </PhotoNavButton>
+          </ChevronWrapper>
         </PhotoNav>
 
         <TogglePhotoGrid
@@ -406,6 +454,14 @@ const PhotoNav = styled.div`
   align-items: center;
 `;
 
+const SelectWrapper = styled.div``;
+
+const ChevronWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+`;
+
 const PhotoNavButton = styled.button`
   all: unset;
   padding: 4px;
@@ -426,5 +482,36 @@ const PhotoNavButton = styled.button`
   & svg {
     width: 28px;
     height: 28px;
+  }
+`;
+
+const SelectTrigger = styled(Select.Trigger)`
+  width: 35ch;
+  display: inline-flex;
+  justify-content: space-between;
+  margin-right: 6px;
+  padding-left: 8px;
+`;
+
+const SelectContent = styled(Select.Content)`
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid ${COLORS.accent[12]};
+  box-shadow: 2px 4px 8px black;
+  cursor: pointer;
+  z-index: 99;
+  width: var(--radix-select-trigger-width);
+  height: var(--radix-select-content-available-height);
+`;
+
+const SelectViewport = styled(Select.Viewport)``;
+
+const SelectItem = styled(Select.Item)`
+  width: var(--radix-select-trigger-width);
+  padding-left: 8px;
+  margin: 8px 0;
+  &[data-highlighted] {
+    background-color: ${COLORS.accent[5]};
+    outline: none;
   }
 `;
