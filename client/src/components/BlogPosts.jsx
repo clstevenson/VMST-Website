@@ -34,7 +34,6 @@ export default function BlogPosts() {
     // to move the grid layout to this component rather than the Home page
     <>
       {posts.map((post) => {
-        // use modulo operator to repeat array if necessary
         return (
           <Post key={post._id} to={`/post/${post._id}`}>
             {post.photo && (

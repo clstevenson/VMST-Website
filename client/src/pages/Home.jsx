@@ -11,11 +11,31 @@
 import styled from "styled-components";
 import BlogPosts from "../components/BlogPosts";
 import { COLORS, QUERIES } from "../utils/constants";
+import { useEffect, useState } from "react";
+import Auth from "../utils/auth";
+import { PlusCircle } from "react-feather";
+import { Link } from "react-router-dom";
 
 export default function Home() {
+  const [role, setRole] = useState("");
+
+  useEffect(() => {
+    if (Auth.loggedIn()) {
+      const { data: userProfile } = Auth.getProfile();
+      setRole(userProfile.role);
+    }
+  }, []);
+
   return (
     <Wrapper>
-      <Title>Check out the latest from VMST!</Title>
+      <HeaderWrapper>
+        <Title>Check out the latest from VMST!</Title>
+        {role === "leader" && (
+          <CreatePost to="/post/create">
+            <PlusCircle /> New Post
+          </CreatePost>
+        )}
+      </HeaderWrapper>
       <PostWrapper>
         {/* Will want 1-2 "featured" posts */}
         {/* The rest will be photos and titles only (I think) */}
@@ -28,6 +48,7 @@ export default function Home() {
 
 const Wrapper = styled.div`
   margin: 8px 0;
+  position: relative;
 
   @media ${QUERIES.mobile} {
     margin: 2px 0;
@@ -49,4 +70,24 @@ const Title = styled.h2`
   color: ${COLORS.accent[12]};
   font-size: var(--subheading-size);
   padding-bottom: 8px;
+`;
+
+const CreatePost = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: transparent;
+  color: ${COLORS.accent[12]};
+  margin-left: auto;
+
+  &:hover {
+    background-color: ${COLORS.accent[3]};
+    cursor: pointer;
+    outline: auto;
+  }
+`;
+
+const HeaderWrapper = styled.div`
+  display: flex;
+  align-items: center;
 `;

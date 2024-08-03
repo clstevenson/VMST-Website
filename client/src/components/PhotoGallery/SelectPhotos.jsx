@@ -36,7 +36,9 @@ export default function SelectPhotos({
           </SelectViewport>
         </SelectContent>
       </Select.Root>
-      <span>({numPhotos} photos)</span>
+      <span>
+        ({numPhotos} {photoset === "albums" ? "albums" : "photos"})
+      </span>
     </SelectWrapper>
   );
 }

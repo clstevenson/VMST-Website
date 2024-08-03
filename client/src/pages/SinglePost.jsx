@@ -34,12 +34,6 @@ export default function SinglePost() {
       <PostWrapper>
         <Article>
           <Title>{post.title}</Title>
-          {post.summary && (
-            <div>
-              <h3>Summary</h3>
-              <p>{post.summary}</p>
-            </div>
-          )}
 
           <ContentWrapper>{post.content}</ContentWrapper>
           <Attribution>-- posted on {post.createdAt}</Attribution>
@@ -63,12 +57,14 @@ export default function SinglePost() {
             </CommentsWrapper>
           )}
         </Article>
-        <Figure>
-          <a href={post.photo.flickrURL} target="_new">
-            <img alt={post.photo.caption} src={post.photo.url} />
-          </a>
-          <figcaption>{post.photo.caption}</figcaption>
-        </Figure>
+        {post.photo && (
+          <Figure>
+            <a href={post.photo.flickrURL} target="_new">
+              <img alt={post.photo.caption} src={post.photo.url} />
+            </a>
+            <figcaption>{post.photo.caption}</figcaption>
+          </Figure>
+        )}
       </PostWrapper>
       <PostNav>
         <NavLink to={"/"}>
@@ -110,7 +106,6 @@ const Figure = styled.figure`
 
   & img {
     width: 100%;
-    object-fit: cover;
   }
   & figcaption {
     font-style: italic;
