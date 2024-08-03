@@ -22,6 +22,8 @@ import { ADD_POST } from "../utils/mutations";
 import { COLORS, QUERIES, WEIGHTS } from "../utils/constants";
 import SubmitButton from "../components/Styled/SubmiButton";
 import ErrorMessage from "../components/Styled/ErrorMessage";
+import ToastMessage from "../components/ToastMessage";
+import Spinner from "../components/Spinner";
 
 export default function CreatePost() {
   const navigate = useNavigate();
@@ -41,6 +43,7 @@ export default function CreatePost() {
   const [maxPages, setMaxPages] = useState();
   const [page, setPage] = useState(1);
   const [postPhoto, setPostPhoto] = useState({});
+  const [posted, setPosted] = useState(false);
 
   const [getFeatured, { loading }] = useLazyQuery(QUERY_FEATUREDPHOTOS, {
     onCompleted: (data) => {
@@ -61,21 +64,44 @@ export default function CreatePost() {
   const onSubmit = async ({ title, summary, content }) => {
     // send data to ADD_POST mutation
     try {
-      const { id, url, caption, flickrURL } = postPhoto;
-      const { data } = await addPost({
-        variables: {
-          title,
-          summary,
-          content,
-          photo: { id, url, caption, flickrURL },
-        },
-      });
-      // need a toast to convey success
-      console.log(data);
-      reset();
+      const { id, url, flickrURL } = postPhoto;
+      if (id) {
+        // photo was selected
+        const caption = getValues("caption");
+        const { data } = await addPost({
+          variables: {
+            title,
+            summary,
+            content,
+            photo: { id, url, caption, flickrURL },
+          },
+        });
+      } else {
+        const { data } = await addPost({
+          variables: {
+            title,
+            summary,
+            content,
+          },
+        });
+      }
+      // need a toast to convey success; its CB function will cleanup
+      setPosted(true);
     } catch (error) {
       console.log(`Error: ${error.message}`);
     }
+  };
+
+  const cleanup = () => {
+    // called after Toast displays
+    reset();
+    /*
+      using react-router displays stale data, unfortunately.
+      look into using SWR or react-query, and then use "navigate" (react-router)
+      rather than location (ie, refresh)
+      */
+    // navigate("/");
+    location = "/";
   };
 
   const nextPage = () => {
@@ -175,13 +201,19 @@ export default function CreatePost() {
             }
           }}
         >
-          {photos.map((photo) => {
-            return (
-              <ToggleGroupItem key={photo.id} value={photo.id} tabIndex={1}>
-                <img src={photo.url} alt={photo.caption} />
-              </ToggleGroupItem>
-            );
-          })}
+          {loading ? (
+            <SpinnerWrapper>
+              <Spinner />
+            </SpinnerWrapper>
+          ) : (
+            photos.map((photo) => {
+              return (
+                <ToggleGroupItem key={photo.id} value={photo.id} tabIndex={1}>
+                  <img src={photo.url} alt={photo.caption} />
+                </ToggleGroupItem>
+              );
+            })
+          )}
         </TogglePhotoGrid>
         {postPhoto.url && (
           <a
@@ -216,6 +248,11 @@ export default function CreatePost() {
           {isSubmitting ? "posting..." : "Post"}
         </SubmitButton>
       </SubmitWrapper>
+      {posted && (
+        <ToastMessage toastCloseEffect={cleanup} duration={1500}>
+          Success! Your new post is live.
+        </ToastMessage>
+      )}
     </FormWrapper>
   );
 }
@@ -261,6 +298,7 @@ const TogglePhotoGrid = styled(ToggleGroup.Root)`
   height: 550px;
   margin-bottom: 8px;
   gap: 4px;
+  position: relative;
 
   & img {
     width: 100%;
@@ -274,6 +312,13 @@ const TogglePhotoGrid = styled(ToggleGroup.Root)`
     grid-template-rows: repeat(4, minmax(100px, 1fr));
     height: 450px;
   }
+`;
+
+const SpinnerWrapper = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 `;
 
 const ToggleGroupItem = styled(ToggleGroup.Item)`

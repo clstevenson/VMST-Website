@@ -14,12 +14,18 @@ import { QUERY_POSTS } from "../utils/queries";
 
 import Spinner from "./Spinner";
 import { COLORS, QUERIES } from "../utils/constants";
+import { useState } from "react";
 
 // at some point will accept props capable of limiting
 // the posts to a subset of all possible posts
 export default function BlogPosts() {
-  const { loading, data } = useQuery(QUERY_POSTS);
-  const posts = data?.posts;
+  const [posts, setPosts] = useState([]);
+
+  const { loading } = useQuery(QUERY_POSTS, {
+    onCompleted: (data) => {
+      setPosts(data.posts);
+    },
+  });
 
   if (loading) {
     return (

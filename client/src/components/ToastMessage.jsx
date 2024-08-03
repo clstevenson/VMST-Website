@@ -5,8 +5,9 @@
  Input props:
  - duration in ms (default is 3000)
 - title (optional, default to empty)
-- message to display
 - toastCloseEffect, a callback function that will run when the component closes (eg to change some state)
+
+The "children" prop is the message that is displayed.
 
 See https://www.radix-ui.com/primitives/docs/components/dialog for more options.
  */
