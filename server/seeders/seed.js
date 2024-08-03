@@ -84,6 +84,13 @@ const seedUsers = async (members) => {
     lastName: "Stevenson",
     password: "password",
     email: "cstevens@richmond.edu",
+    role: "leader",
+  });
+  userData.push({
+    firstName: "Chris",
+    lastName: "Stevenson",
+    password: "password",
+    email: "chrislstevenson@yahoo.com",
     role: "coach",
   });
   userData.push({

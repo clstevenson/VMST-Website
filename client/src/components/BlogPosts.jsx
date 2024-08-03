@@ -14,12 +14,18 @@ import { QUERY_POSTS } from "../utils/queries";
 
 import Spinner from "./Spinner";
 import { COLORS, QUERIES } from "../utils/constants";
+import { useState } from "react";
 
 // at some point will accept props capable of limiting
 // the posts to a subset of all possible posts
 export default function BlogPosts() {
-  const { loading, data } = useQuery(QUERY_POSTS);
-  const posts = data?.posts;
+  const [posts, setPosts] = useState([]);
+
+  const { loading } = useQuery(QUERY_POSTS, {
+    onCompleted: (data) => {
+      setPosts(data.posts);
+    },
+  });
 
   if (loading) {
     return (
@@ -34,12 +40,17 @@ export default function BlogPosts() {
     // to move the grid layout to this component rather than the Home page
     <>
       {posts.map((post) => {
-        // use modulo operator to repeat array if necessary
         return (
           <Post key={post._id} to={`/post/${post._id}`}>
-            <Image src={post.photo.url} alt={post.photo.caption} />
+            {post.photo && (
+              <Image src={post.photo.url} alt={post.photo.caption} />
+            )}
             <Title>{post.title}</Title>
-            <Content>{post.content}</Content>
+            {post.summary ? (
+              <Content>{post.summary}</Content>
+            ) : (
+              <Content>{post.content}</Content>
+            )}
             <Date>Posted {post.createdAt}</Date>
           </Post>
         );

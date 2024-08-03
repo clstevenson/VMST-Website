@@ -12,11 +12,26 @@ export const LOGIN_USER = gql`
 `;
 
 export const ADD_POST = gql`
-  mutation Mutation($title: String!, $content: String!) {
-    addPost(title: $title, content: $content) {
-      _id
+  mutation AddPost(
+    $title: String!
+    $summary: String
+    $content: String!
+    $photo: PhotoData
+  ) {
+    addPost(
+      title: $title
+      summary: $summary
+      content: $content
+      photo: $photo
+    ) {
       title
+      summary
       content
+      photo {
+        url
+        caption
+        flickrURL
+      }
     }
   }
 `;

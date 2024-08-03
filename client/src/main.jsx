@@ -9,6 +9,7 @@ import Account from "./pages/Account";
 import Contact from "./pages/Contact";
 import AboutUs from "./pages/AboutUs";
 import SinglePost from "./pages/SinglePost.jsx";
+import CreatePost from "./pages/CreatePost.jsx";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
       {
         path: "/post/:id",
         element: <SinglePost />,
+      },
+      {
+        path: "/post/create",
+        element: <CreatePost />,
       },
       {
         path: "/about-us",

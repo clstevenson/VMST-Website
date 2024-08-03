@@ -188,10 +188,14 @@ contact the webmaster immediately by replying to this message.`,
       }
     },
     // add a new post
-    addPost: async (_, args, { user }) => {
+    addPost: async (_, { title, summary, content, photo}, { user }) => {
       // only team leaders can create posts
       if (user.role !== "leader") throw AuthenticationError;
-      return await Post.create(args);
+      const post = {
+        title, summary, content, photo
+      };
+      console.log({post});
+      return await Post.create(post);
     },
     uploadMembers: async (_, { memberData }, { user }) => {
       // only the Membership Coordinator is allowed to update the Member collection

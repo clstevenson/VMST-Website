@@ -132,6 +132,25 @@ export const QUERY_ALBUMS = gql`
   }
 `;
 
+export const QUERY_ALBUMPHOTOS = gql`
+  query GetAlbumPhotos(
+    $albumId: String!
+    $page: Int!
+    $perPage: Int!
+  ) {
+    getAlbumPhotos(id: $albumId, page: $page, perPage: $perPage) {
+      title
+      pages
+      photos {
+        id
+        url
+        flickrURL
+        caption
+      }
+    }
+  }
+`;
+
 export const QUERY_PHOTOS = gql`
   query GetPhotos($page: Int!, $perPage: Int!) {
     getPhotos(page: $page, perPage: $perPage) {
