@@ -188,6 +188,7 @@ type Mutation {
   resetPassword(email: String!): User
   changePassword(password: String!): User
   addPost(title: String!, summary: String, content: String!, photo: PhotoData): Post
+  deletePost(_id: ID!): Post
   uploadMembers(memberData: [MemberData]): [Member]
   emailLeaders(emailData: emailData): Boolean
   emailWebmaster(emailData: emailData): Boolean

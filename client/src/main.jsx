@@ -30,6 +30,10 @@ const router = createBrowserRouter([
         element: <CreatePost />,
       },
       {
+        path: "/post/:id/edit",
+        element: <CreatePost isEditing={true} />,
+      },
+      {
         path: "/about-us",
         element: <AboutUs />,
       },

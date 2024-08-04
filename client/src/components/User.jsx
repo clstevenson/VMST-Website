@@ -19,7 +19,7 @@ import { COLORS, WEIGHTS } from "../utils/constants.js";
 import * as Separator from "@radix-ui/react-separator";
 import * as Dialog from "@radix-ui/react-dialog";
 import Auth from "../utils/auth.js";
-import * as ModalStyles from "../components/NavBar/ModalStyles.jsx";
+import * as ModalStyles from "./Styled/ModalStyles.jsx";
 import ChangePassword from "./ChangePassword.jsx";
 
 export default function User() {

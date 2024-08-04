@@ -12,7 +12,7 @@ import { TooltipContent } from "./NavItem";
 import { QUERIES } from "../../utils/constants";
 import LoginContent from "./LoginWindow";
 import SignupContent from "./SignupWindow";
-import * as ModalStyle from "./ModalStyles";
+import * as ModalStyle from "../Styled/ModalStyles";
 
 export default function LoginItem() {
   // does user want to log in (or sign up)?

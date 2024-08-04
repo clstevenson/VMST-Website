@@ -5,6 +5,7 @@
 import styled from "styled-components";
 import * as Separator from "@radix-ui/react-separator";
 import * as Dialog from "@radix-ui/react-dialog";
+import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { COLORS, QUERIES, WEIGHTS } from "../../utils/constants";
 
 // dividing line between form and signup vs login prompt
@@ -27,7 +28,9 @@ export const SignupOrLogin = styled.div`
   }
 `;
 
-// wrapper for modal content
+/**********************************
+ Styles for modal content (Dialog and AlertDialog)
+ **********************************/
 export const DialogContent = styled(Dialog.Content)`
   color: ${COLORS.accent[12]};
   display: flex;
@@ -56,6 +59,74 @@ export const DialogContent = styled(Dialog.Content)`
     box-shadow: none;
   }
 `;
+
+export const AlertContent = styled(AlertDialog.Content)`
+  color: ${COLORS.accent[12]};
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  font-size: 1.1rem;
+  padding: 24px;
+  border: 1px solid ${COLORS.accent[7]};
+  border-radius: 8px;
+  background-color: white;
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: fit-content;
+  box-shadow: 2px 4px 8px ${COLORS.gray[9]};
+
+  @media ${QUERIES.mobile} {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform: translate(0, 0);
+    box-shadow: none;
+  }
+`;
+
+// displayed at top of modal
+export const DialogTitle = styled(Dialog.Title)`
+  align-self: flex-start;
+  font-size: 1.3em;
+  font-weight: ${WEIGHTS.medium};
+  color: ${COLORS.accent[12]};
+`;
+
+// wrapper for "Close" and "Submit" buttons below input fields
+export const DialogButtonWrapper = styled.div`
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  justify-content: space-around;
+  gap: 32px;
+  padding: 12px 24px;
+`;
+
+// styling of the backdrop of the modal
+export const DialogOverlay = styled(Dialog.Overlay)`
+  --filter-width: 4px;
+  backdrop-filter: blur(var(--filter-width));
+  -webkit-backdrop-filter: blur(var(--filter-width));
+  background-color: ${COLORS.overlay};
+  position: absolute;
+  inset: 0;
+`;
+
+export const AlertOverlay = styled(AlertDialog.Overlay)`
+  --filter-width: 4px;
+  backdrop-filter: blur(var(--filter-width));
+  -webkit-backdrop-filter: blur(var(--filter-width));
+  background-color: ${COLORS.overlay};
+  position: absolute;
+  inset: 0;
+`;
+
+/************** End Dialog/Alert Styling ********************/
 
 // form wrapper
 export const Form = styled.form`
@@ -101,34 +172,6 @@ export const CloseButton = styled.button`
     outline: 2px solid ${COLORS.accent[11]};
     background-color: ${COLORS.accent[4]};
   }
-`;
-
-// displayed at top of modal
-export const DialogTitle = styled(Dialog.Title)`
-  align-self: flex-start;
-  font-size: 1.3em;
-  font-weight: ${WEIGHTS.medium};
-  color: ${COLORS.accent[12]};
-`;
-
-// wrapper for "Close" and "Submit" buttons below input fields
-export const DialogButtonWrapper = styled.div`
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  justify-content: space-around;
-  gap: 32px;
-  padding: 12px 24px;
-`;
-
-// styling of the backdrop of the modal
-export const DialogOverlay = styled(Dialog.Overlay)`
-  --filter-width: 4px;
-  backdrop-filter: blur(var(--filter-width));
-  -webkit-backdrop-filter: blur(var(--filter-width));
-  background-color: ${COLORS.overlay};
-  position: absolute;
-  inset: 0;
 `;
 
 // styling/positioning of the X to close the modal

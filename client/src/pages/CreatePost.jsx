@@ -6,19 +6,13 @@
  */
 
 import styled from "styled-components";
-import { useEffect, useState, forwardRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { useForm } from "react-hook-form";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import * as Select from "@radix-ui/react-select";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  ChevronUp,
-  Check,
-} from "react-feather";
+import { ChevronLeft, ChevronRight, Check } from "react-feather";
 
 import Auth from "../utils/auth";
 import { QUERY_ALBUMS, QUERY_ALBUMPHOTOS } from "../utils/queries";
@@ -29,7 +23,7 @@ import ErrorMessage from "../components/Styled/ErrorMessage";
 import ToastMessage from "../components/ToastMessage";
 import Spinner from "../components/Spinner";
 
-export default function CreatePost() {
+export default function CreatePost({ isEditing = false }) {
   const navigate = useNavigate();
   const [addPost] = useMutation(ADD_POST);
   const {
@@ -103,6 +97,7 @@ export default function CreatePost() {
           },
         });
       }
+
       // need a toast to convey success; its CB function will cleanup
       setPosted(true);
     } catch (error) {
@@ -114,9 +109,10 @@ export default function CreatePost() {
     // called after Toast displays
     reset();
     /*
-      using react-router displays stale data, unfortunately.
+      TODO: write Apollo memory cache to reflect the added post
+      Using react-router displays stale data, unfortunately; Apollo's cache isn't updated
       look into using SWR or react-query, and then use "navigate" (react-router)
-      rather than location (ie, refresh)
+      rather than location (ie, refresh which forces a re-fetch)
       */
     // navigate("/");
     location = "/";
@@ -161,14 +157,14 @@ export default function CreatePost() {
 
         <InputWrapper>
           <label htmlFor="content">Content (required)</label>
-          <textarea
+          <TextArea
             name="content"
             id="content"
             rows={15}
             {...register("content", {
               required: "You must write something to post.",
             })}
-          ></textarea>
+          ></TextArea>
           {errors.content?.message && (
             <ErrorMessage>{errors.content.message}</ErrorMessage>
           )}
@@ -190,6 +186,7 @@ export default function CreatePost() {
               value={albumId}
               onValueChange={(val) => {
                 setAlbumId(val);
+                setPage(1);
               }}
             >
               <SelectTrigger>
@@ -200,11 +197,17 @@ export default function CreatePost() {
                 <SelectViewport>
                   <SelectItem value={featuredId}>
                     <Select.ItemText>Featured photos</Select.ItemText>
+                    <Select.ItemIndicator>
+                      <Check size={18} />
+                    </Select.ItemIndicator>
                   </SelectItem>
                   {albumList.map((album) => {
                     return (
                       <SelectItem key={album.id} value={album.id}>
                         <Select.ItemText>{album.title}</Select.ItemText>
+                        <Select.ItemIndicator>
+                          <Check size={18} />
+                        </Select.ItemIndicator>
                       </SelectItem>
                     );
                   })}
@@ -286,8 +289,7 @@ export default function CreatePost() {
           type="button"
           onClick={() => {
             reset();
-            // navigate("/");
-            location = "/";
+            navigate("/");
           }}
         >
           Close
@@ -385,6 +387,10 @@ const InputWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+
+  & input {
+    padding: 4px;
+  }
 `;
 
 const TextWrapper = styled.div`
@@ -514,4 +520,8 @@ const SelectItem = styled(Select.Item)`
     background-color: ${COLORS.accent[5]};
     outline: none;
   }
+`;
+
+const TextArea = styled.textarea`
+  padding: 4px;
 `;
