@@ -211,11 +211,9 @@ contact the webmaster immediately by replying to this message.`,
       };
       if (photo.id === "") delete post.photo;
       try {
-        const updatedPost = await Post.findOneAndReplace(
-          {_id},
-          post,
-          {new: true,}
-        );
+        const updatedPost = await Post.findOneAndReplace({ _id }, post, {
+          new: true,
+        });
         if (!updatedPost) {
           throw new Error("Something went wrong, post was not updated");
         }

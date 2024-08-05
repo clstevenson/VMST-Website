@@ -8,7 +8,7 @@
 
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-
+import parse from "html-react-parser";
 import { useQuery } from "@apollo/client";
 import { QUERY_POSTS } from "../utils/queries";
 
@@ -49,7 +49,7 @@ export default function BlogPosts() {
             {post.summary ? (
               <Content>{post.summary}</Content>
             ) : (
-              <Content>{post.content}</Content>
+              <Content>{parse(post.content)}</Content>
             )}
             <Date>Posted {post.createdAt}</Date>
           </Post>

@@ -7,7 +7,9 @@
  */
 
 import styled from "styled-components";
-import { useEffect, useState } from "react";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { useForm } from "react-hook-form";
@@ -49,6 +51,24 @@ export default function CreateEditPost({ isEditing = false }) {
   const [page, setPage] = useState(1);
   const [postPhoto, setPostPhoto] = useState({});
   const [posted, setPosted] = useState(false);
+  const [postContent, setPostContent] = useState("");
+
+  // Quill text editor options/modules
+  const quillRef = useRef(null);
+  const modules = {
+    toolbar: [
+      ["bold", "italic", "strike", "blockquote"],
+      [
+        { list: "ordered" },
+        { list: "bullet" },
+        { indent: "-1" },
+        { indent: "+1" },
+      ],
+      [{ header: 1 }, { header: 2 }],
+      [{ header: [1, 2, 3, 4, false] }],
+      ["link", "image"],
+    ],
+  };
 
   useQuery(QUERY_ALBUMS, {
     variables: { page: 1, perPage: 500 },
@@ -75,7 +95,7 @@ export default function CreateEditPost({ isEditing = false }) {
     onCompleted: (data) => {
       setValue("title", data.onePost.title);
       setValue("summary", data.onePost.summary);
-      setValue("content", data.onePost.content);
+      setPostContent(data.onePost.content);
       if (data.onePost.photo) {
         setPostPhoto(data.onePost.photo);
         setValue("caption", data.onePost.photo.caption);
@@ -100,13 +120,11 @@ export default function CreateEditPost({ isEditing = false }) {
     }
   }, [navigate, albumId, page, getPhotos, getPost, postId, isEditing]);
 
-  const onSubmit = async ({ title, summary, content }) => {
+  const onSubmit = async ({ title, summary }) => {
     // send data to ADD_POST mutation
     try {
       if (Object.keys(postPhoto).length !== 0) {
         // photo was selected
-        console.log("postPhoto object detected");
-        console.log({ postPhoto });
         const { id, url, flickrURL } = postPhoto;
         const caption = getValues("caption");
         if (isEditing) {
@@ -115,7 +133,7 @@ export default function CreateEditPost({ isEditing = false }) {
               id: postId,
               title,
               summary,
-              content,
+              content: postContent,
               photo: { id, url, caption, flickrURL },
             },
           });
@@ -124,7 +142,7 @@ export default function CreateEditPost({ isEditing = false }) {
             variables: {
               title,
               summary,
-              content,
+              content: postContent,
               photo: { id, url, caption, flickrURL },
             },
           });
@@ -132,8 +150,6 @@ export default function CreateEditPost({ isEditing = false }) {
       } else {
         if (isEditing) {
           // need to explicitly set photo ID to null in case it was removed
-          console.log("postPhoto object not detected");
-          console.log({ postPhoto });
           const photo = {
             // even without a photo, these are required fields or GraphQL throws an error
             id: "",
@@ -141,10 +157,18 @@ export default function CreateEditPost({ isEditing = false }) {
             flickrURL: "",
           };
           await editPost({
-            variables: { id: postId, title, summary, content, photo },
+            variables: {
+              id: postId,
+              title,
+              summary,
+              content: postContent,
+              photo,
+            },
           });
         } else {
-          await addPost({ variables: { title, summary, content } });
+          await addPost({
+            variables: { title, summary, content: postContent },
+          });
         }
       }
 
@@ -178,6 +202,10 @@ export default function CreateEditPost({ isEditing = false }) {
     setPage(page - 1);
   };
 
+  const handleEditorChange = (content, editor) => {
+    console.log(content);
+  };
+
   return (
     <FormWrapper aria-label="create new post" onSubmit={handleSubmit(onSubmit)}>
       <TextWrapper>
@@ -187,6 +215,7 @@ export default function CreateEditPost({ isEditing = false }) {
           <input
             type="text"
             id="title"
+            placeholder="Enter title here"
             {...register("title", {
               required: "Title is required",
             })}
@@ -195,7 +224,6 @@ export default function CreateEditPost({ isEditing = false }) {
             <ErrorMessage>{errors.title.message}</ErrorMessage>
           )}
         </InputWrapper>
-
         <InputWrapper>
           <label htmlFor="summary">Summary (optional)</label>
           <input type="text" id="summary" {...register("summary")} />
@@ -205,20 +233,23 @@ export default function CreateEditPost({ isEditing = false }) {
           </Description>
         </InputWrapper>
 
-        <InputWrapper>
+        <QuillWrapper>
           <label htmlFor="content">Content (required)</label>
-          <TextArea
-            name="content"
+          <ReactQuill
             id="content"
-            rows={15}
-            {...register("content", {
-              required: "You must write something to post.",
-            })}
-          ></TextArea>
+            theme="snow"
+            placeholder="Enter post content here"
+            modules={modules}
+            ref={quillRef}
+            value={postContent}
+            onChange={setPostContent}
+          />
+        </QuillWrapper>
+        {/*
           {errors.content?.message && (
             <ErrorMessage>{errors.content.message}</ErrorMessage>
           )}
-        </InputWrapper>
+         */}
       </TextWrapper>
 
       <PhotoWrapper>
@@ -360,6 +391,7 @@ export default function CreateEditPost({ isEditing = false }) {
 const FormWrapper = styled.form`
   /* common min width of all buttons */
   --btn-width: 12ch;
+  --label-size: 1.1rem;
   display: grid;
   grid-template-columns:
     minmax(200px, 1fr)
@@ -377,7 +409,7 @@ const FormWrapper = styled.form`
   width: 100%;
 
   & label {
-    font-size: 1.1rem;
+    font-size: var(--label-size);
     font-style: italic;
   }
 
@@ -574,4 +606,16 @@ const SelectItem = styled(Select.Item)`
 
 const TextArea = styled.textarea`
   padding: 4px;
+`;
+
+const QuillWrapper = styled.div`
+  padding: 0;
+
+  & * {
+    background-color: white;
+  }
+
+  & label {
+    background-color: revert;
+  }
 `;

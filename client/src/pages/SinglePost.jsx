@@ -8,6 +8,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@apollo/client";
 import * as Separator from "@radix-ui/react-separator";
 import { Home, Trash2, Edit } from "react-feather";
+import parse from "html-react-parser";
 
 import { QUERY_SINGLEPOST } from "../utils/queries";
 import { DELETE_POST } from "../utils/mutations";
@@ -70,7 +71,7 @@ export default function SinglePost() {
         <Article>
           <Title>{post.title}</Title>
 
-          <ContentWrapper>{post.content}</ContentWrapper>
+          <ContentWrapper>{parse(post.content)}</ContentWrapper>
           <Attribution>-- posted on {post.createdAt}</Attribution>
 
           {post.comments.length > 0 && (
@@ -209,6 +210,10 @@ const Article = styled.article`
 const ContentWrapper = styled.div`
   margin: 16px 0;
   width: 100%;
+
+  & img {
+    max-width: 100%;
+  }
 `;
 
 const Title = styled.h2`
