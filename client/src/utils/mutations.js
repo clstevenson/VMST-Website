@@ -37,6 +37,29 @@ export const ADD_POST = gql`
   }
 `;
 
+export const EDIT_POST = gql`
+  mutation EditPost(
+    $id: ID!
+    $title: String!
+    $content: String!
+    $summary: String
+    $photo: PhotoData
+  ) {
+    editPost(
+      _id: $id
+      title: $title
+      content: $content
+      summary: $summary
+      photo: $photo
+    ) {
+      _id
+      photo {
+        id
+      }
+    }
+  }
+`;
+
 export const DELETE_POST = gql`
   mutation DeletePost($id: ID!) {
     deletePost(_id: $id) {

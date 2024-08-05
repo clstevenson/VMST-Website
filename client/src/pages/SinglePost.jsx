@@ -21,14 +21,13 @@ import Alert from "../components/Alert";
 export default function SinglePost() {
   const [role, setRole] = useState("");
   const [deleted, setDeleted] = useState(false);
-  const [changed, setChanged] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
 
   // retrieve post ID from the route param
   const { id } = useParams();
   // query the DB for that post and store
   const { loading, data } = useQuery(QUERY_SINGLEPOST, {
-    variables: { onePostId: id },
+    variables: { postId: id },
   });
   const post = data?.onePost;
 
@@ -106,7 +105,12 @@ export default function SinglePost() {
         {role === "leader" && (
           <>
             <IconButton>
-              <Edit /> Edit
+              <Edit
+                onClick={() => {
+                  navigate(`/post/${id}/edit`);
+                }}
+              />{" "}
+              Edit
             </IconButton>
             <Alert
               title="Delete Post"
@@ -139,18 +143,6 @@ export default function SinglePost() {
           }}
         >
           The post has been deleted. Returning home...
-        </ToastMessage>
-      )}
-      {changed && (
-        <ToastMessage
-          duration={1000}
-          toastCloseEffect={() => {
-            // TODO: better manage memory cache and then use react-router's navigate
-            // navigate("/");
-            location = "/";
-          }}
-        >
-          Post changes have been saved. Returning home...
         </ToastMessage>
       )}
     </Wrapper>
@@ -280,6 +272,7 @@ const IconButton = styled.button`
   &:hover {
     transform: scale(1.1);
     color: ${COLORS.accent[9]};
+    cursor: pointer;
   }
   &:hover svg {
     stroke-width: 2;

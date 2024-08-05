@@ -7,7 +7,7 @@
 
 import styled from "styled-components";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { useForm } from "react-hook-form";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
@@ -15,8 +15,12 @@ import * as Select from "@radix-ui/react-select";
 import { ChevronLeft, ChevronRight, Check } from "react-feather";
 
 import Auth from "../utils/auth";
-import { QUERY_ALBUMS, QUERY_ALBUMPHOTOS } from "../utils/queries";
-import { ADD_POST } from "../utils/mutations";
+import {
+  QUERY_ALBUMS,
+  QUERY_ALBUMPHOTOS,
+  QUERY_SINGLEPOST,
+} from "../utils/queries";
+import { ADD_POST, EDIT_POST } from "../utils/mutations";
 import { COLORS, QUERIES, WEIGHTS } from "../utils/constants";
 import SubmitButton from "../components/Styled/SubmiButton";
 import ErrorMessage from "../components/Styled/ErrorMessage";
@@ -26,6 +30,7 @@ import Spinner from "../components/Spinner";
 export default function CreatePost({ isEditing = false }) {
   const navigate = useNavigate();
   const [addPost] = useMutation(ADD_POST);
+  const [editPost] = useMutation(EDIT_POST);
   const {
     register,
     handleSubmit,
@@ -65,13 +70,32 @@ export default function CreatePost({ isEditing = false }) {
     //TODO: add error handling
   });
 
+  const [getPost] = useLazyQuery(QUERY_SINGLEPOST, {
+    onCompleted: (data) => {
+      setPostPhoto(data.onePost.photo);
+      setValue("caption", data.onePost.photo.caption);
+      setValue("title", data.onePost.title);
+      setValue("summary", data.onePost.summary);
+      setValue("content", data.onePost.content);
+    },
+  });
+
+  const { postId } = useParams();
+
   useEffect(() => {
     // only logged-in leaders can view the page
     if (!Auth.loggedIn()) navigate("/");
     const { data: userProfile } = Auth.getProfile();
     if (userProfile.role !== "leader") navigate("/");
+
+    // fill in the photo picker grid
     getPhotos({ variables: { albumId, page } });
-  }, [navigate, albumId, page, getPhotos]);
+
+    // if we are editing an existing post, fill in the current values
+    if (isEditing) {
+      getPost({ variables: { postId } });
+    }
+  }, [navigate, albumId, page, getPhotos, getPost, postId, isEditing]);
 
   const onSubmit = async ({ title, summary, content }) => {
     // send data to ADD_POST mutation
@@ -80,22 +104,34 @@ export default function CreatePost({ isEditing = false }) {
       if (id) {
         // photo was selected
         const caption = getValues("caption");
-        const { data } = await addPost({
-          variables: {
-            title,
-            summary,
-            content,
-            photo: { id, url, caption, flickrURL },
-          },
-        });
+        if (isEditing) {
+          await editPost({
+            variables: {
+              id: postId,
+              title,
+              summary,
+              content,
+              photo: { id, url, caption, flickrURL },
+            },
+          });
+        } else {
+          await addPost({
+            variables: {
+              title,
+              summary,
+              content,
+              photo: { id, url, caption, flickrURL },
+            },
+          });
+        }
       } else {
-        const { data } = await addPost({
-          variables: {
-            title,
-            summary,
-            content,
-          },
-        });
+        if (isEditing) {
+          await editPost({
+            variables: { id: postId, title, summary, content },
+          });
+        } else {
+          await addPost({ variables: { title, summary, content } });
+        }
       }
 
       // need a toast to convey success; its CB function will cleanup
@@ -295,7 +331,7 @@ export default function CreatePost({ isEditing = false }) {
           Close
         </Button>
         <SubmitButton style={{ minWidth: "var(--btn-width)" }} type="submit">
-          {isSubmitting ? "posting..." : "Post"}
+          {isSubmitting ? "working..." : isEditing ? "Save" : "Post"}
         </SubmitButton>
       </SubmitWrapper>
       {posted && (
