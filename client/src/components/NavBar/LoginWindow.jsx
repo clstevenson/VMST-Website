@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 import { X } from "react-feather";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import * as ModalStyle from "./ModalStyles";
+import * as ModalStyle from "../Styled/ModalStyles";
 import ErrorMessage from "../Styled/ErrorMessage";
 import SubmitButton from "../Styled/SubmiButton";
 

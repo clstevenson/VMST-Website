@@ -24,6 +24,7 @@ export const ADD_POST = gql`
       content: $content
       photo: $photo
     ) {
+      _id
       title
       summary
       content
@@ -32,6 +33,37 @@ export const ADD_POST = gql`
         caption
         flickrURL
       }
+    }
+  }
+`;
+
+export const EDIT_POST = gql`
+  mutation EditPost(
+    $id: ID!
+    $title: String!
+    $content: String!
+    $summary: String
+    $photo: PhotoData
+  ) {
+    editPost(
+      _id: $id
+      title: $title
+      content: $content
+      summary: $summary
+      photo: $photo
+    ) {
+      _id
+      photo {
+        id
+      }
+    }
+  }
+`;
+
+export const DELETE_POST = gql`
+  mutation DeletePost($id: ID!) {
+    deletePost(_id: $id) {
+      _id
     }
   }
 `;
@@ -52,37 +84,6 @@ export const ADD_USER = gql`
       token
       user {
         _id
-      }
-    }
-  }
-`;
-
-export const ADD_THOUGHT = gql`
-  mutation addThought($thoughtText: String!) {
-    addThought(thoughtText: $thoughtText) {
-      _id
-      thoughtText
-      thoughtAuthor
-      createdAt
-      comments {
-        _id
-        commentText
-      }
-    }
-  }
-`;
-
-export const ADD_COMMENT = gql`
-  mutation addComment($thoughtId: ID!, $commentText: String!) {
-    addComment(thoughtId: $thoughtId, commentText: $commentText) {
-      _id
-      thoughtText
-      thoughtAuthor
-      createdAt
-      comments {
-        _id
-        commentText
-        createdAt
       }
     }
   }

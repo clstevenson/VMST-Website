@@ -12,6 +12,7 @@ const {
   getPhotoSizes,
   getPhotoInfo,
 } = require("../utils/get-flickr-photos");
+const { findByIdAndDelete } = require("../models/Posts");
 
 const resolvers = {
   Query: {
@@ -188,14 +189,52 @@ contact the webmaster immediately by replying to this message.`,
       }
     },
     // add a new post
-    addPost: async (_, { title, summary, content, photo}, { user }) => {
+    addPost: async (_, { title, summary, content, photo }, { user }) => {
       // only team leaders can create posts
       if (user.role !== "leader") throw AuthenticationError;
       const post = {
-        title, summary, content, photo
+        title,
+        summary,
+        content,
+        photo,
       };
-      console.log({post});
       return await Post.create(post);
+    },
+    editPost: async (_, { _id, title, summary, content, photo }, { user }) => {
+      // only leaders can delete posts
+      if (user.role !== "leader") throw AuthenticationError;
+      const post = {
+        title,
+        summary,
+        content,
+        photo,
+      };
+      if (photo.id === "") delete post.photo;
+      try {
+        const updatedPost = await Post.findOneAndReplace(
+          {_id},
+          post,
+          {new: true,}
+        );
+        if (!updatedPost) {
+          throw new Error("Something went wrong, post was not updated");
+        }
+        console.log(updatedPost);
+        return updatedPost;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    deletePost: async (_, { _id }, { user }) => {
+      // only leaders can delete posts
+      if (user.role !== "leader") throw AuthenticationError;
+      try {
+        const deletedPost = await Post.findByIdAndDelete(_id);
+        // return is null if the post is not deleted (ie, ID not found)
+        return deletedPost;
+      } catch (error) {
+        console.log(error);
+      }
     },
     uploadMembers: async (_, { memberData }, { user }) => {
       // only the Membership Coordinator is allowed to update the Member collection

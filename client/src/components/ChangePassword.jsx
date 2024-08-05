@@ -8,7 +8,7 @@ import { useState } from "react";
 import { useMutation } from "@apollo/client";
 import { useForm } from "react-hook-form";
 import * as Dialog from "@radix-ui/react-dialog";
-import * as ModalStyle from "../components/NavBar/ModalStyles";
+import * as ModalStyle from "./Styled/ModalStyles";
 import { X } from "react-feather";
 import ErrorMessage from "../components/Styled/ErrorMessage";
 import SubmitButton from "../components/Styled/SubmiButton";

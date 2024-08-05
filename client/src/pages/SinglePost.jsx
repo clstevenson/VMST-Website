@@ -3,24 +3,58 @@
  */
 
 import styled from "styled-components";
-import { useParams } from "react-router-dom";
-import { useQuery } from "@apollo/client";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useQuery, useMutation } from "@apollo/client";
+import * as Separator from "@radix-ui/react-separator";
+import { Home, Trash2, Edit } from "react-feather";
+
 import { QUERY_SINGLEPOST } from "../utils/queries";
+import { DELETE_POST } from "../utils/mutations";
 import Spinner from "../components/Spinner";
 import { COLORS, QUERIES } from "../utils/constants";
-import * as Separator from "@radix-ui/react-separator";
-import { Home } from "react-feather";
-import { Link } from "react-router-dom";
+import Auth from "../utils/auth";
+import ToastMessage from "../components/ToastMessage";
+import * as ModalStyles from "../components/Styled/ModalStyles";
+import Alert from "../components/Alert";
 
 export default function SinglePost() {
+  const [role, setRole] = useState("");
+  const [deleted, setDeleted] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+
   // retrieve post ID from the route param
   const { id } = useParams();
   // query the DB for that post and store
   const { loading, data } = useQuery(QUERY_SINGLEPOST, {
-    variables: { onePostId: id },
+    variables: { postId: id },
   });
-
   const post = data?.onePost;
+
+  const [deletePost] = useMutation(DELETE_POST);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (Auth.loggedIn()) {
+      const { data: userProfile } = Auth.getProfile();
+      setRole(userProfile.role);
+    }
+  }, []);
+
+  const handleDeletePost = () => {
+    // need an alert dialog for user to confirm
+
+    try {
+      const deletedPost = deletePost({ variables: { id } });
+
+      if (deletedPost) {
+        // trigger Toast message which navigates back to home page on close
+        setDeleted(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   if (loading)
     // early return while loading
@@ -29,6 +63,7 @@ export default function SinglePost() {
         <Spinner />
       </SpinnerWrapper>
     );
+
   return (
     <Wrapper>
       <PostWrapper>
@@ -66,11 +101,50 @@ export default function SinglePost() {
           </Figure>
         )}
       </PostWrapper>
-      <PostNav>
-        <NavLink to={"/"}>
-          <Home /> Go Back
-        </NavLink>
-      </PostNav>
+      <FooterWrapper>
+        {role === "leader" && (
+          <>
+            <IconButton>
+              <Edit
+                onClick={() => {
+                  navigate(`/post/${id}/edit`);
+                }}
+              />{" "}
+              Edit
+            </IconButton>
+            <Alert
+              title="Delete Post"
+              description="Are you sure? This action cannot be undone."
+              confirmAction={() => {
+                setAlertOpen(false);
+                handleDeletePost();
+              }}
+              actionText="Delete"
+              onOpenChange={setAlertOpen}
+              open={alertOpen}
+            >
+              <IconButton>
+                <Trash2 /> Delete
+              </IconButton>
+            </Alert>
+          </>
+        )}
+        <IconButton onClick={() => navigate("/")}>
+          <Home /> Home
+        </IconButton>
+      </FooterWrapper>
+      {deleted && (
+        <ToastMessage
+          duration={1000}
+          toastCloseEffect={() => {
+            // TODO: better manage memory cache and then use react-router's navigate
+            // navigate("/");
+            location = "/";
+          }}
+        >
+          The post has been deleted. Returning home...
+        </ToastMessage>
+      )}
     </Wrapper>
   );
 }
@@ -169,27 +243,36 @@ const Attribution = styled.p`
   padding-right: 32px;
 `;
 
-const PostNav = styled.nav``;
-
-const NavLink = styled(Link)`
+const FooterWrapper = styled.div`
   width: fit-content;
   color: ${COLORS.accent[12]};
   display: flex;
-  gap: 8px;
   align-items: center;
+  gap: 8px;
   margin: 0 auto;
   margin-top: 32px;
-
-  &:hover {
-    transform: scale(1.1);
-    color: ${COLORS.accent[8]};
-  }
 
   & svg {
     width: 48px;
     height: 48px;
     stroke-width: 1.5;
     padding: 8px;
+  }
+`;
+
+const IconButton = styled.button`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  padding: 4px 8px;
+  line-height: 1;
+
+  &:hover {
+    transform: scale(1.1);
+    color: ${COLORS.accent[9]};
+    cursor: pointer;
   }
   &:hover svg {
     stroke-width: 2;

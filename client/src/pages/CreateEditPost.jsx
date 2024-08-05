@@ -1,37 +1,37 @@
 /* eslint-disable react/display-name */
 /* 
- Page for the form used to create a new post. Only available to leaders.
+ Page for the form used to create or edit a new post. Only available to leaders.
 
-
+ The prop determines whether or not this component is being used to creeate or edit.
+ They also correspond to different routes.
  */
 
 import styled from "styled-components";
-import { useEffect, useState, forwardRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { useForm } from "react-hook-form";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import * as Select from "@radix-ui/react-select";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  ChevronUp,
-  Check,
-} from "react-feather";
+import { ChevronLeft, ChevronRight, Check } from "react-feather";
 
 import Auth from "../utils/auth";
-import { QUERY_ALBUMS, QUERY_ALBUMPHOTOS } from "../utils/queries";
-import { ADD_POST } from "../utils/mutations";
+import {
+  QUERY_ALBUMS,
+  QUERY_ALBUMPHOTOS,
+  QUERY_SINGLEPOST,
+} from "../utils/queries";
+import { ADD_POST, EDIT_POST } from "../utils/mutations";
 import { COLORS, QUERIES, WEIGHTS } from "../utils/constants";
 import SubmitButton from "../components/Styled/SubmiButton";
 import ErrorMessage from "../components/Styled/ErrorMessage";
 import ToastMessage from "../components/ToastMessage";
 import Spinner from "../components/Spinner";
 
-export default function CreatePost() {
+export default function CreateEditPost({ isEditing = false }) {
   const navigate = useNavigate();
   const [addPost] = useMutation(ADD_POST);
+  const [editPost] = useMutation(EDIT_POST);
   const {
     register,
     handleSubmit,
@@ -71,38 +71,83 @@ export default function CreatePost() {
     //TODO: add error handling
   });
 
+  const [getPost] = useLazyQuery(QUERY_SINGLEPOST, {
+    onCompleted: (data) => {
+      setValue("title", data.onePost.title);
+      setValue("summary", data.onePost.summary);
+      setValue("content", data.onePost.content);
+      if (data.onePost.photo) {
+        setPostPhoto(data.onePost.photo);
+        setValue("caption", data.onePost.photo.caption);
+      }
+    },
+  });
+
+  const { postId } = useParams();
+
   useEffect(() => {
     // only logged-in leaders can view the page
     if (!Auth.loggedIn()) navigate("/");
     const { data: userProfile } = Auth.getProfile();
     if (userProfile.role !== "leader") navigate("/");
+
+    // fill in the photo picker grid
     getPhotos({ variables: { albumId, page } });
-  }, [navigate, albumId, page, getPhotos]);
+
+    // if we are editing an existing post, fill in the current values
+    if (isEditing) {
+      getPost({ variables: { postId } });
+    }
+  }, [navigate, albumId, page, getPhotos, getPost, postId, isEditing]);
 
   const onSubmit = async ({ title, summary, content }) => {
     // send data to ADD_POST mutation
     try {
-      const { id, url, flickrURL } = postPhoto;
-      if (id) {
+      if (Object.keys(postPhoto).length !== 0) {
         // photo was selected
+        console.log("postPhoto object detected");
+        console.log({ postPhoto });
+        const { id, url, flickrURL } = postPhoto;
         const caption = getValues("caption");
-        const { data } = await addPost({
-          variables: {
-            title,
-            summary,
-            content,
-            photo: { id, url, caption, flickrURL },
-          },
-        });
+        if (isEditing) {
+          await editPost({
+            variables: {
+              id: postId,
+              title,
+              summary,
+              content,
+              photo: { id, url, caption, flickrURL },
+            },
+          });
+        } else {
+          await addPost({
+            variables: {
+              title,
+              summary,
+              content,
+              photo: { id, url, caption, flickrURL },
+            },
+          });
+        }
       } else {
-        const { data } = await addPost({
-          variables: {
-            title,
-            summary,
-            content,
-          },
-        });
+        if (isEditing) {
+          // need to explicitly set photo ID to null in case it was removed
+          console.log("postPhoto object not detected");
+          console.log({ postPhoto });
+          const photo = {
+            // even without a photo, these are required fields or GraphQL throws an error
+            id: "",
+            url: "",
+            flickrURL: "",
+          };
+          await editPost({
+            variables: { id: postId, title, summary, content, photo },
+          });
+        } else {
+          await addPost({ variables: { title, summary, content } });
+        }
       }
+
       // need a toast to convey success; its CB function will cleanup
       setPosted(true);
     } catch (error) {
@@ -114,9 +159,10 @@ export default function CreatePost() {
     // called after Toast displays
     reset();
     /*
-      using react-router displays stale data, unfortunately.
+      TODO: write Apollo memory cache to reflect the added post
+      Using react-router displays stale data, unfortunately; Apollo's cache isn't updated
       look into using SWR or react-query, and then use "navigate" (react-router)
-      rather than location (ie, refresh)
+      rather than location (ie, refresh which forces a re-fetch)
       */
     // navigate("/");
     location = "/";
@@ -161,14 +207,14 @@ export default function CreatePost() {
 
         <InputWrapper>
           <label htmlFor="content">Content (required)</label>
-          <textarea
+          <TextArea
             name="content"
             id="content"
             rows={15}
             {...register("content", {
               required: "You must write something to post.",
             })}
-          ></textarea>
+          ></TextArea>
           {errors.content?.message && (
             <ErrorMessage>{errors.content.message}</ErrorMessage>
           )}
@@ -190,6 +236,7 @@ export default function CreatePost() {
               value={albumId}
               onValueChange={(val) => {
                 setAlbumId(val);
+                setPage(1);
               }}
             >
               <SelectTrigger>
@@ -200,11 +247,17 @@ export default function CreatePost() {
                 <SelectViewport>
                   <SelectItem value={featuredId}>
                     <Select.ItemText>Featured photos</Select.ItemText>
+                    <Select.ItemIndicator>
+                      <Check size={18} />
+                    </Select.ItemIndicator>
                   </SelectItem>
                   {albumList.map((album) => {
                     return (
                       <SelectItem key={album.id} value={album.id}>
                         <Select.ItemText>{album.title}</Select.ItemText>
+                        <Select.ItemIndicator>
+                          <Check size={18} />
+                        </Select.ItemIndicator>
                       </SelectItem>
                     );
                   })}
@@ -286,14 +339,13 @@ export default function CreatePost() {
           type="button"
           onClick={() => {
             reset();
-            // navigate("/");
-            location = "/";
+            navigate("/");
           }}
         >
           Close
         </Button>
         <SubmitButton style={{ minWidth: "var(--btn-width)" }} type="submit">
-          {isSubmitting ? "posting..." : "Post"}
+          {isSubmitting ? "working..." : isEditing ? "Save" : "Post"}
         </SubmitButton>
       </SubmitWrapper>
       {posted && (
@@ -385,6 +437,10 @@ const InputWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+
+  & input {
+    padding: 4px;
+  }
 `;
 
 const TextWrapper = styled.div`
@@ -514,4 +570,8 @@ const SelectItem = styled(Select.Item)`
     background-color: ${COLORS.accent[5]};
     outline: none;
   }
+`;
+
+const TextArea = styled.textarea`
+  padding: 4px;
 `;

@@ -34,14 +34,15 @@ export const QUERY_POSTS = gql`
 `;
 
 export const QUERY_SINGLEPOST = gql`
-  query OnePost($onePostId: String!) {
-    onePost(id: $onePostId) {
+  query OnePost($postId: String!) {
+    onePost(id: $postId) {
       _id
       title
       summary
       content
       createdAt
       photo {
+        id
         caption
         url
         flickrURL
@@ -133,11 +134,7 @@ export const QUERY_ALBUMS = gql`
 `;
 
 export const QUERY_ALBUMPHOTOS = gql`
-  query GetAlbumPhotos(
-    $albumId: String!
-    $page: Int!
-    $perPage: Int!
-  ) {
+  query GetAlbumPhotos($albumId: String!, $page: Int!, $perPage: Int!) {
     getAlbumPhotos(id: $albumId, page: $page, perPage: $perPage) {
       title
       pages

@@ -40,7 +40,7 @@ export default function Home() {
         {/* Will want 1-2 "featured" posts */}
         {/* The rest will be photos and titles only (I think) */}
         {/* Photos are optional */}
-        <BlogPosts />
+        <BlogPosts role={role} />
       </PostWrapper>
     </Wrapper>
   );
