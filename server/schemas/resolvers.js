@@ -198,8 +198,29 @@ contact the webmaster immediately by replying to this message.`,
         content,
         photo,
       };
-      console.log({ post });
       return await Post.create(post);
+    },
+    editPost: async (_, { _id, title, summary, content, photo }, { user }) => {
+      // only leaders can delete posts
+      if (user.role !== "leader") throw AuthenticationError;
+      const post = {
+        title,
+        summary,
+        content,
+        photo,
+      };
+      try {
+        const updatedPost = await Post.findByIdAndUpdate(_id, post, {
+          new: true,
+        });
+        if (!updatedPost) {
+          throw new Error("Something went wrong, post was not updated");
+        }
+        console.log(updatedPost);
+        return updatedPost;
+      } catch (error) {
+        console.log(error);
+      }
     },
     deletePost: async (_, { _id }, { user }) => {
       // only leaders can delete posts
