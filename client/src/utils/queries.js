@@ -42,6 +42,7 @@ export const QUERY_SINGLEPOST = gql`
       content
       createdAt
       photo {
+        id
         caption
         url
         flickrURL

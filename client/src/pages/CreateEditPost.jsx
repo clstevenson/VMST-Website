@@ -1,8 +1,9 @@
 /* eslint-disable react/display-name */
 /* 
- Page for the form used to create a new post. Only available to leaders.
+ Page for the form used to create or edit a new post. Only available to leaders.
 
-
+ The prop determines whether or not this component is being used to creeate or edit.
+ They also correspond to different routes.
  */
 
 import styled from "styled-components";
@@ -27,7 +28,7 @@ import ErrorMessage from "../components/Styled/ErrorMessage";
 import ToastMessage from "../components/ToastMessage";
 import Spinner from "../components/Spinner";
 
-export default function CreatePost({ isEditing = false }) {
+export default function CreateEditPost({ isEditing = false }) {
   const navigate = useNavigate();
   const [addPost] = useMutation(ADD_POST);
   const [editPost] = useMutation(EDIT_POST);
@@ -72,11 +73,13 @@ export default function CreatePost({ isEditing = false }) {
 
   const [getPost] = useLazyQuery(QUERY_SINGLEPOST, {
     onCompleted: (data) => {
-      setPostPhoto(data.onePost.photo);
-      setValue("caption", data.onePost.photo.caption);
       setValue("title", data.onePost.title);
       setValue("summary", data.onePost.summary);
       setValue("content", data.onePost.content);
+      if (data.onePost.photo) {
+        setPostPhoto(data.onePost.photo);
+        setValue("caption", data.onePost.photo.caption);
+      }
     },
   });
 
@@ -100,9 +103,11 @@ export default function CreatePost({ isEditing = false }) {
   const onSubmit = async ({ title, summary, content }) => {
     // send data to ADD_POST mutation
     try {
-      const { id, url, flickrURL } = postPhoto;
-      if (id) {
+      if (Object.keys(postPhoto).length !== 0) {
         // photo was selected
+        console.log("postPhoto object detected");
+        console.log({ postPhoto });
+        const { id, url, flickrURL } = postPhoto;
         const caption = getValues("caption");
         if (isEditing) {
           await editPost({
@@ -126,8 +131,17 @@ export default function CreatePost({ isEditing = false }) {
         }
       } else {
         if (isEditing) {
+          // need to explicitly set photo ID to null in case it was removed
+          console.log("postPhoto object not detected");
+          console.log({ postPhoto });
+          const photo = {
+            // even without a photo, these are required fields or GraphQL throws an error
+            id: "",
+            url: "",
+            flickrURL: "",
+          };
           await editPost({
-            variables: { id: postId, title, summary, content },
+            variables: { id: postId, title, summary, content, photo },
           });
         } else {
           await addPost({ variables: { title, summary, content } });
