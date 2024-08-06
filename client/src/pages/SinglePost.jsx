@@ -214,6 +214,20 @@ const ContentWrapper = styled.div`
   & img {
     max-width: 100%;
   }
+  & h1 {
+    font-size: 1.2rem;
+  }
+  & h2 {
+    font-size: 1.15rem;
+  }
+  & h3 {
+    font-size: 1.1rem;
+  }
+  & h4,
+  & h5,
+  & h6 {
+    font-size: 1.05rem;
+  }
 `;
 
 const Title = styled.h2`

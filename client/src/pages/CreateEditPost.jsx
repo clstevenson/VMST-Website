@@ -9,7 +9,7 @@
 import styled from "styled-components";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { useForm } from "react-hook-form";
@@ -54,7 +54,6 @@ export default function CreateEditPost({ isEditing = false }) {
   const [postContent, setPostContent] = useState("");
 
   // Quill text editor options/modules
-  const quillRef = useRef(null);
   const modules = {
     toolbar: [
       ["bold", "italic", "strike", "blockquote"],
@@ -240,7 +239,6 @@ export default function CreateEditPost({ isEditing = false }) {
             theme="snow"
             placeholder="Enter post content here"
             modules={modules}
-            ref={quillRef}
             value={postContent}
             onChange={setPostContent}
           />
@@ -321,12 +319,10 @@ export default function CreateEditPost({ isEditing = false }) {
           type="single"
           value={postPhoto.id}
           onValueChange={(value) => {
-            console.log(value);
             if (value) {
               const photo = photos.filter((photo) => photo.id === value)[0];
               setPostPhoto(photo);
               setValue("caption", photo.caption);
-              console.log(photo.url);
             } else {
               setPostPhoto({});
               setValue("caption", "");
@@ -602,10 +598,6 @@ const SelectItem = styled(Select.Item)`
     background-color: ${COLORS.accent[5]};
     outline: none;
   }
-`;
-
-const TextArea = styled.textarea`
-  padding: 4px;
 `;
 
 const QuillWrapper = styled.div`

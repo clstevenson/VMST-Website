@@ -16,7 +16,6 @@
 import { useState } from "react";
 import styled from "styled-components";
 import { COLORS, WEIGHTS } from "../utils/constants.js";
-import * as Separator from "@radix-ui/react-separator";
 import * as Dialog from "@radix-ui/react-dialog";
 import Auth from "../utils/auth.js";
 import * as ModalStyles from "./Styled/ModalStyles.jsx";
@@ -39,16 +38,6 @@ export default function User() {
       </Figure>
 
       <p>Sorry for our dust, this page is under construction. </p>
-
-      {/* <Separator.Root
-        style={{
-          backgroundColor: "black",
-          height: "2px",
-          width: "200px",
-          margin: "6px 100px",
-        }}
-        aria-hidden
-      /> */}
 
       {/* logout and password change button alignment */}
       <ButtonWrapper>
