@@ -49,7 +49,8 @@ export default function Alert({
 const ActionButton = styled(ModalStyles.CloseButton)`
   color: ${COLORS.text};
   background-color: ${COLORS.urgent_light};
-  border-color: black;
+  border-color: ${COLORS.urgent};
+  border-width: 2px;
 
   &:hover {
     background-color: ${COLORS.urgent};

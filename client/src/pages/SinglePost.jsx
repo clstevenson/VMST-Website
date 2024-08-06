@@ -206,27 +206,38 @@ const Article = styled.article`
   }
 `;
 
-// eventually this will wrap around HTML content, need to possibly adjust at that point
+// this wraps around HTML content
 const ContentWrapper = styled.div`
   margin: 16px 0;
   width: 100%;
 
+  /* 
+   For now all (smaller) images will float right. Eventually let the user decide (for the entire post)
+   whether to float left or right, or whether images are blocks spanning the entire width
+   */
   & img {
     max-width: 100%;
+    float: left;
+    margin: 4px 8px;
+    margin-left: 0;
   }
   & h1 {
     font-size: 1.2rem;
+    clear: both;
   }
   & h2 {
     font-size: 1.15rem;
+    clear: both;
   }
   & h3 {
     font-size: 1.1rem;
+    clear: both;
   }
   & h4,
   & h5,
   & h6 {
     font-size: 1.05rem;
+    clear: both;
   }
 `;
 
@@ -241,10 +252,12 @@ const CommentSeparator = styled(Separator.Root)`
   width: 60%;
   background-color: ${COLORS.gray[9]};
   margin: 16px auto;
+  clear: both;
 `;
 
 const CommentsWrapper = styled.div`
   width: 100%;
+
   & ul {
     list-style-type: none;
     padding-left: 0;
