@@ -209,16 +209,22 @@ contact the webmaster immediately by replying to this message.`,
         content,
         photo,
       };
-      if (photo.id === "") delete post.photo;
       try {
-        const updatedPost = await Post.findOneAndReplace({ _id }, post, {
-          new: true,
-        });
+        let updatedPost;
+        if (photo.id) {
+          updatedPost = await Post.findOneAndUpdate({ _id }, post, {
+            new: true,
+          });
+        } else {
+          updatedPost = await Post.findOneAndUpdate(
+            { _id },
+            { title, summary, content, $unset: { photo: 1 } },
+            { new: true }
+          );
+        }
         if (!updatedPost) {
           throw new Error("Something went wrong, post was not updated");
         }
-        console.log(updatedPost);
-        return updatedPost;
       } catch (error) {
         console.log(error);
       }

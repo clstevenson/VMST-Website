@@ -102,7 +102,7 @@ const Title = styled.h2`
 `;
 
 // limit to 2 lines of text, with ellipses...
-const Content = styled.p`
+const Content = styled.div`
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
