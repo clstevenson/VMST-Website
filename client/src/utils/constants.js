@@ -40,7 +40,7 @@ export const COLORS = {
   // error/attention needed
   urgent_text: "hsl(351deg 63% 24%)",
   urgent: "hsl(358deg 75% 59%)",
-  urgent_light: "hsl(359deg 92% 96%)",
+  urgent_light: "hsl(359deg 92% 90%)",
 };
 
 export const WEIGHTS = {

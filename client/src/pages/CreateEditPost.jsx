@@ -43,15 +43,27 @@ export default function CreateEditPost({ isEditing = false }) {
     formState: { errors, isSubmitting },
   } = useForm();
 
+  // controls album (photoset) being displayed
   const featuredId = "72177720319183779";
   const [albumId, setAlbumId] = useState(featuredId);
+  // array/list of all possible albums
   const [albumList, setAlbumList] = useState([]);
+  // array of photos in grid
   const [photos, setPhotos] = useState([]);
+  // number of pages of photos in photoset
   const [maxPages, setMaxPages] = useState();
+  // current page of photos being displayed
   const [page, setPage] = useState(1);
+  // photo chosen for the post (on home page)
   const [postPhoto, setPostPhoto] = useState({});
+  // has the post been added to the DB?
   const [posted, setPosted] = useState(false);
+  // HTML-formatted content of Quill editor
   const [postContent, setPostContent] = useState("");
+  // (error) message to display under the editor
+  const [message, setMessage] = useState("");
+
+  const { postId } = useParams();
 
   // Quill text editor options/modules
   const modules = {
@@ -102,8 +114,6 @@ export default function CreateEditPost({ isEditing = false }) {
     },
   });
 
-  const { postId } = useParams();
-
   useEffect(() => {
     // only logged-in leaders can view the page
     if (!Auth.loggedIn()) navigate("/");
@@ -120,6 +130,11 @@ export default function CreateEditPost({ isEditing = false }) {
   }, [navigate, albumId, page, getPhotos, getPost, postId, isEditing]);
 
   const onSubmit = async ({ title, summary }) => {
+    // make sure there is content
+    if (!postContent) {
+      setMessage("Content cannot be empty.");
+      return;
+    }
     // send data to ADD_POST mutation
     try {
       if (Object.keys(postPhoto).length !== 0) {
@@ -178,17 +193,27 @@ export default function CreateEditPost({ isEditing = false }) {
     }
   };
 
+  // function called after Toast display closes
   const cleanup = () => {
-    // called after Toast displays
+    // reset the form and set states to initial values
     reset();
+    setMessage("");
+    setPosted(false);
+    setPostContent("");
+    setPostPhoto({});
+
+    // go back to previous page in history
     /*
       TODO: write Apollo memory cache to reflect the added post
       Using react-router displays stale data, unfortunately; Apollo's cache isn't updated
       look into using SWR or react-query, and then use "navigate" (react-router)
       rather than location (ie, refresh which forces a re-fetch)
       */
-    // navigate("/");
-    location = "/";
+    // navigate(-1);
+
+    // for the time being, force a (time-consuming) refresh and refetch
+    const backURL = isEditing ? `/post/${postId}` : "/";
+    location = backURL;
   };
 
   const nextPage = () => {
@@ -199,10 +224,6 @@ export default function CreateEditPost({ isEditing = false }) {
   const lastPage = () => {
     if (page === 1) return;
     setPage(page - 1);
-  };
-
-  const handleEditorChange = (content, editor) => {
-    console.log(content);
   };
 
   return (
@@ -243,11 +264,13 @@ export default function CreateEditPost({ isEditing = false }) {
             onChange={setPostContent}
           />
         </QuillWrapper>
-        {/*
-          {errors.content?.message && (
-            <ErrorMessage>{errors.content.message}</ErrorMessage>
-          )}
-         */}
+        <Description style={{ marginTop: "-18px" }}>
+          If you use images, please choose small sizes to avoid database bloat.
+          The image will float left (text flowing to the right of the image) in
+          the final post; eventually this will be under user control.
+        </Description>
+        {/* error message to display */}
+        {message && <ErrorMessage>{message}</ErrorMessage>}
       </TextWrapper>
 
       <PhotoWrapper>
@@ -344,17 +367,22 @@ export default function CreateEditPost({ isEditing = false }) {
           )}
         </TogglePhotoGrid>
         {postPhoto.url && (
-          <a
-            href={postPhoto.flickrURL}
-            target="_new"
-            style={{
-              margin: "6px 0",
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            <ChosenPhoto src={postPhoto.url} alt={postPhoto.caption} />
-          </a>
+          <>
+            <a
+              href={postPhoto.flickrURL}
+              target="_new"
+              style={{
+                margin: "6px 0",
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <ChosenPhoto src={postPhoto.url} alt={postPhoto.caption} />
+            </a>
+            <PhotoDescription>
+              click photo for download options
+            </PhotoDescription>
+          </>
         )}
         <InputWrapper>
           <label htmlFor="caption">Photo caption</label>
@@ -366,7 +394,7 @@ export default function CreateEditPost({ isEditing = false }) {
           type="button"
           onClick={() => {
             reset();
-            navigate("/");
+            navigate(-1);
           }}
         >
           Close
@@ -522,6 +550,11 @@ const Description = styled.p`
   font-size: 0.8rem;
 `;
 
+const PhotoDescription = styled(Description)`
+  margin: 0 auto;
+  margin-top: -16px;
+`;
+
 const ChosenPhoto = styled.img`
   width: min(80%, 400px);
   max-width: 100%;
@@ -600,6 +633,7 @@ const SelectItem = styled(Select.Item)`
   }
 `;
 
+// Used to style the contents of the Quill editor
 const QuillWrapper = styled.div`
   padding: 0;
 
@@ -609,5 +643,9 @@ const QuillWrapper = styled.div`
 
   & label {
     background-color: revert;
+  }
+
+  & p {
+    font-size: 1rem;
   }
 `;
