@@ -3,10 +3,12 @@ import Auth from "../utils/auth";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
+import * as Separator from "@radix-ui/react-separator";
 
 import { COLORS, WEIGHTS } from "../utils/constants.js";
 import User from "../components/User";
 import UploadMembers from "../components/UploadMembers.jsx";
+import Communication from "../components/Communication.jsx";
 
 export default function Account() {
   const navigate = useNavigate();
@@ -35,7 +37,7 @@ export default function Account() {
           <TabsTrigger value="email">Communication</TabsTrigger>
         )}
         {userProfile.role === "leader" && (
-          <TabsTrigger value="relays">Relays</TabsTrigger>
+          <TabsTrigger value="meets">Meets</TabsTrigger>
         )}
         {userProfile.role === "webmaster" && (
           <TabsTrigger value="webmaster">Website Mgmt</TabsTrigger>
@@ -47,15 +49,25 @@ export default function Account() {
       <Tabs.Content value="membership">
         <UploadMembers />
       </Tabs.Content>
-      <Tabs.Content value="email"></Tabs.Content>
-      <Tabs.Content value="relays"></Tabs.Content>
+      <Tabs.Content value="email">
+        <Communication />
+      </Tabs.Content>
+      <Tabs.Content value="meets">
+        <p>Upcoming capabilities for this page:</p>
+        <ul>
+          <li>upload/manage competitors for a specific meet</li>
+          <li>manage competitions (eg delete meet after no longer needed)</li>
+          <li>construct relays</li>
+          <li>post relays to home page</li>
+        </ul>
+      </Tabs.Content>
       <Tabs.Content value="webmaster"></Tabs.Content>
     </TabsRoot>
   );
 }
 
 const TabsRoot = styled(Tabs.Root)`
-  width: min(1200px, 100%);
+  width: min(1400px, 100%);
   margin: 8px auto;
   border: 1px solid ${COLORS.accent[12]};
   border-radius: 8px;

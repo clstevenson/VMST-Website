@@ -270,7 +270,7 @@ export default function CreateEditPost({ isEditing = false }) {
             our Flickr account
           </a>{" "}
           for images to use. If you use images, please choose small sizes (eg{" "}
-          <span>Small240</span> or <span>Small320</span>) to avoid database
+          <span>Small240</span> or <span>Small320</span>) to reduce database
           bloat. The image will float left (text flowing to the right of the
           image) in the final post.
         </QuillDescription>

@@ -71,6 +71,7 @@ export const QUERY_LEADERS = gql`
   }
 `;
 
+// query called by membership coordinator
 export const QUERY_MEMBERS = gql`
   query Members {
     members {
@@ -88,15 +89,17 @@ export const QUERY_MEMBERS = gql`
   }
 `;
 
-export const QUERY_WORKOUT_GROUP = gql`
-  query WORKOUT_GROUPS {
-    members {
+// query called by team leaders and WO group coaches
+export const QUERY_VMST = gql`
+  query GetVMST {
+    vmstMembers {
       _id
+      usmsId
       firstName
       lastName
-      club
       workoutGroup
-      usmsId
+      regYear
+      emailExclude
     }
   }
 `;

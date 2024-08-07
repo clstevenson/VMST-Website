@@ -33,13 +33,13 @@ const resolvers = {
     groups: async () =>
       await Member.find({ club: "VMST" }).distinct("workoutGroup"),
     // get members of a specific workout group (or all of VMST)
-    vmstMembers: async (_, { workoutGroup }) => {
-      let swimmers = [];
+    vmstMembers: async () => {
       try {
-        if (workoutGroup.toLowerCase() === "vmst") {
-          swimmers = await Member.find({ club: "VMST" });
-        } else {
-          swimmers = await Member.find({ workoutGroup: workoutGroup });
+        const swimmers = await Member.find({
+          club: "VMST",
+        });
+        if (swimmers.length === 0) {
+          throw new Error("Didn't find any VMST swimmers");
         }
         return swimmers;
       } catch (err) {
