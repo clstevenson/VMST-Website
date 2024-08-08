@@ -3,7 +3,7 @@ import styled from "styled-components";
 import * as Select from "@radix-ui/react-select";
 import { COLORS, QUERIES } from "../../utils/constants";
 
-export default function PhotosPerPage({ perPage, setPerPage, numPhotos }) {
+export default function PhotosPerPage({ perPage, setPerPage, setPage }) {
   return (
     <Wrapper>
       <Select.Root
@@ -11,6 +11,8 @@ export default function PhotosPerPage({ perPage, setPerPage, numPhotos }) {
         value={perPage}
         onValueChange={(val) => {
           setPerPage(parseInt(val));
+          // go to the first page after changing the per-page value
+          setPage(1);
         }}
       >
         <SelectTrigger aria-label="photos per page" asChild>
