@@ -227,7 +227,10 @@ export default function CreateEditPost({ isEditing = false }) {
   };
 
   return (
-    <FormWrapper aria-label="create new post" onSubmit={handleSubmit(onSubmit)}>
+    <FormWrapper
+      aria-label="create/edit new post"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <TextWrapper>
         {/* contains text input forms for title, summary, content */}
         <InputWrapper>

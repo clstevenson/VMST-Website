@@ -14,9 +14,8 @@ import "react-quill/dist/quill.snow.css";
 import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { useForm } from "react-hook-form";
 import * as Checkbox from "@radix-ui/react-checkbox";
-import { Check, ChevronDown, ChevronRight } from "react-feather";
+import { Check, ChevronRight } from "react-feather";
 import * as Accordian from "@radix-ui/react-accordion";
-import AccordianItem from "../components/AccordianItem";
 
 // TODO: Need query for VMST members only, maybe "QUERY_CLUB" with
 // an argument of "VMST"
@@ -27,25 +26,39 @@ import SubmitButton from "../components/Styled/SubmiButton";
 import ErrorMessage from "../components/Styled/ErrorMessage";
 import ToastMessage from "../components/ToastMessage";
 import Spinner from "../components/Spinner";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 // from the list of (VMST) members return the list of distinct WO groups
 // (using this utility means avoiding a DB query)
 import getGroups from "../utils/getGroups";
 
-export default function Communication() {
-  // list of people receiving emails (array of member objects)
-  const [recipients, setRecipients] = useState([]);
+export default function Communication({ setTab }) {
   // list of all VMST swimmers (array of member objects)
   const [swimmers, setSwimmers] = useState([]);
   // list of unique VMST workout groups
   const [groups, setGroups] = useState([]);
   // list of members who have opted out of emails (array of member objects)
   const [optOut, setOptOut] = useState([]);
+  // list of recipients chosen by the user
+  const [recipients, setRecipients] = useState([]);
   // HTML-formatted content of Quill editory
   const [emailContent, setEmailContent] = useState("");
   // (error) message to display under the editor
   const [message, setMessage] = useState("");
+  // ref for quill editor
+  const quillRef = useRef(null);
+  // status for Toast message
+  const [sent, setSent] = useState(false);
+
+  //set up for react-hook-form
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    setValue,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm();
 
   useQuery(QUERY_VMST, {
     onCompleted: (data) => {
@@ -59,6 +72,8 @@ export default function Communication() {
       setOptOut([...excluded]);
     },
   });
+
+  const [emailGroup] = useMutation(EMAIL_GROUP);
 
   // Quill text editor options/modules (note: no images allowed in emails)
   const modules = {
@@ -76,8 +91,45 @@ export default function Communication() {
     ],
   };
 
+  //submission handler (to send email)
+  const onSubmit = async ({ subject }) => {
+    // need recipients, subject, and content in both HTML and text formats
+    if (!emailContent) {
+      setMessage("Email message cannot be empty.");
+      return;
+    } else {
+      try {
+        const quill = quillRef.current.getEditor();
+        const plainText = quill.getText();
+        const emailData = {
+          id: recipients.map((member) => member._id),
+          subject,
+          // need to eliminate extra whitespace between paragraphs
+          html: emailContent.replaceAll("<p><br></p>", ""),
+          plainText,
+        };
+        await emailGroup({ variables: { emailData } });
+        // trigger toast if successful
+        setSent(true);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const cleanup = () => {
+    // cleanup
+    reset();
+    setEmailContent("");
+    setMessage("");
+    setRecipients([]);
+    // I don't know why but I seem to need to force a re-render to fully reset recipients
+    // switching tabs seems to work
+    setTab("user");
+  };
+
   return (
-    <Form>
+    <Form aria-label="send email" onSubmit={handleSubmit(onSubmit)}>
       <Wrapper>
         <MessageWrapper>
           <Title>Email VMST Members</Title>
@@ -91,10 +143,11 @@ export default function Communication() {
                 period. It is best not to approach these limits.
               </Description>
             )}
-            <p>
+            {/* Display recipients */}
+            <p key="recipients">
               {recipients
-                .map(({ firstName, lastName }) => {
-                  return `${firstName} ${lastName}`;
+                .map((member) => {
+                  return `${member.firstName} ${member.lastName}`;
                 })
                 .join(", ")}
             </p>
@@ -102,10 +155,21 @@ export default function Communication() {
 
           <SubjectWrapper>
             <label htmlFor="subject">Subject: </label>
-            <input type="text" id="subject" />
+            <input
+              type="text"
+              id="subject"
+              {...register("subject", {
+                required: "Subject is required",
+              })}
+            />
+            {errors.subject?.message && (
+              <ErrorMessage>{errors.subject.message}</ErrorMessage>
+            )}
           </SubjectWrapper>
           <QuillWrapper>
-            <label htmlFor="email">Content</label>
+            <label htmlFor="email">
+              Compose your message in the editor below
+            </label>
             <ReactQuill
               id="email"
               theme="snow"
@@ -113,13 +177,17 @@ export default function Communication() {
               modules={modules}
               value={emailContent}
               onChange={setEmailContent}
+              ref={quillRef}
             />
           </QuillWrapper>
+          <Description style={{ marginTop: "-12px" }}>
+            Note that your email will be visible to the recipients.
+          </Description>
           {/* error message to display */}
           {message && <ErrorMessage>{message}</ErrorMessage>}
         </MessageWrapper>
         <RecipientSelectionWrapper>
-          <Title>Select recipients</Title>
+          <Title>Select Recipients</Title>
           <h4>By workout group</h4>
           <GroupWrapper>
             {groups.map((group) => {
@@ -127,6 +195,7 @@ export default function Communication() {
                 <CheckboxWrapper key={group.name} id={group.name}>
                   <CheckboxRoot
                     onCheckedChange={(checked) => {
+                      // get current recipients
                       const currentRecipients = recipients;
                       if (checked) {
                         // add group members who have not opted out of emails
@@ -135,10 +204,12 @@ export default function Communication() {
                             swimmer.workoutGroup === group.name &&
                             !swimmer.emailExclude
                         );
+                        // add group to the rec
                         const newRecipients = [
                           ...currentRecipients,
                           ...groupMembers,
                         ];
+                        // upudate state
                         setRecipients([...newRecipients]);
                       } else if (!checked) {
                         // remove group members from current list
@@ -198,10 +269,15 @@ export default function Communication() {
             type="submit"
             disabled={recipients.length === 0 || recipients.length > 100}
           >
-            Submit
+            {isSubmitting ? "sending..." : "Submit"}
           </SubmitButton>
         </ButtonWrapper>
       </Wrapper>
+      {sent && (
+        <ToastMessage duration={1500} toastCloseEffect={cleanup}>
+          Success! Your email was sent.
+        </ToastMessage>
+      )}
     </Form>
   );
 }
@@ -220,6 +296,7 @@ const Wrapper = styled.div`
 
 const MessageWrapper = styled.div`
   max-width: var(--max-prose-width);
+  width: 100%;
   grid-area: message;
   display: flex;
   flex-direction: column;

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import Auth from "../utils/auth";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 import * as Separator from "@radix-ui/react-separator";
 
@@ -12,6 +12,7 @@ import Communication from "../components/Communication.jsx";
 
 export default function Account() {
   const navigate = useNavigate();
+  const [tab, setTab] = useState("user");
 
   // if not logged in, redirect to home page
   useEffect(() => {
@@ -27,7 +28,7 @@ export default function Account() {
 
   // other roles have tabs (ie more things they can do)
   return (
-    <TabsRoot defaultValue="user">
+    <TabsRoot defaultValue="user" value={tab} onValueChange={setTab}>
       <TabsList aria-label="Account page">
         <TabsTrigger value="user">User Settings</TabsTrigger>
         {userProfile.role === "membership" && (
@@ -50,7 +51,7 @@ export default function Account() {
         <UploadMembers />
       </Tabs.Content>
       <Tabs.Content value="email">
-        <Communication />
+        <Communication setTab={setTab} />
       </Tabs.Content>
       <Tabs.Content value="meets">
         <p>Upcoming capabilities for this page:</p>

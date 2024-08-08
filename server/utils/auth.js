@@ -40,7 +40,7 @@ module.exports = {
     return req;
   },
   signToken: function ({ email, role, _id }) {
-    const payload = { email, role, _id };
+    const payload = { role, _id };
     return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
   },
 };

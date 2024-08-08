@@ -333,10 +333,11 @@ contact the webmaster immediately by replying to this message.`,
       // only team leaders or coaches can email WO groups
       if (user.role !== "leader" && user.role !== "coach")
         throw AuthenticationError;
-      // retrieve the emails of the workout group me
+      // retrieve the emails of the recipients (from their id's)
       const group = await Member.find({ _id: { $in: emailData.id } }).select(
         "emails"
       );
+
       // returned an array of objects with property "email" (one array item per leader in input)
       const mailArgs = { ...emailData };
       delete mailArgs.id;
@@ -344,8 +345,12 @@ contact the webmaster immediately by replying to this message.`,
       group.forEach((member) => {
         emailArray = [...emailArray, ...member.emails];
       });
-
       mailArgs.emails = emailArray;
+
+      // need to know who to reply to (ie the leader or coach who is sending the message)
+      const sender = await User.findById(user._id).select("email");
+      mailArgs.from = sender.email;
+      mailArgs.replyTo = sender.email;
 
       // call mail() with mailArgs
       if (mailArgs.emails.length > 0) {
