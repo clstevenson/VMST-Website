@@ -31,6 +31,7 @@ import { useRef, useState } from "react";
 // from the list of (VMST) members return the list of distinct WO groups
 // (using this utility means avoiding a DB query)
 import getGroups from "../utils/getGroups";
+import AccordianItem from "./AccordianItem";
 
 export default function Communication({ setTab }) {
   // list of all VMST swimmers (array of member objects)
@@ -76,7 +77,7 @@ export default function Communication({ setTab }) {
   const [emailGroup] = useMutation(EMAIL_GROUP);
 
   // Quill text editor options/modules (note: no images allowed in emails)
-  const modules = {
+  const quillModules = {
     toolbar: [
       ["bold", "italic", "strike", "blockquote"],
       [
@@ -89,6 +90,7 @@ export default function Communication({ setTab }) {
       [{ header: [1, 2, 3, 4, false] }],
       ["link"],
     ],
+    keyboard: { bindings: { tab: false } },
   };
 
   //submission handler (to send email)
@@ -101,6 +103,7 @@ export default function Communication({ setTab }) {
       try {
         const quill = quillRef.current.getEditor();
         const plainText = quill.getText();
+        console.log(htmlText);
         const emailData = {
           id: recipients.map((member) => member._id),
           subject,
@@ -108,6 +111,7 @@ export default function Communication({ setTab }) {
           html: emailContent.replaceAll("<p><br></p>", ""),
           plainText,
         };
+        // send email to recipients
         await emailGroup({ variables: { emailData } });
         // trigger toast if successful
         setSent(true);
@@ -118,13 +122,14 @@ export default function Communication({ setTab }) {
   };
 
   const cleanup = () => {
-    // cleanup
+    // cleanup after sending an email
     reset();
     setEmailContent("");
     setMessage("");
     setRecipients([]);
     // I don't know why but I seem to need to force a re-render to fully reset recipients
-    // switching tabs seems to work
+    // switching tabs seems to work; forceupdate does not
+    // This is only an issue after submitting the form; clicking Cancel works just fine
     setTab("user");
   };
 
@@ -174,7 +179,7 @@ export default function Communication({ setTab }) {
               id="email"
               theme="snow"
               placeholder="Enter email message here"
-              modules={modules}
+              modules={quillModules}
               value={emailContent}
               onChange={setEmailContent}
               ref={quillRef}
@@ -188,83 +193,85 @@ export default function Communication({ setTab }) {
         </MessageWrapper>
         <RecipientSelectionWrapper>
           <Title>Select Recipients</Title>
-          <h4>By workout group</h4>
-          <GroupWrapper>
-            {groups.map((group) => {
-              return (
-                <CheckboxWrapper key={group.name} id={group.name}>
-                  <CheckboxRoot
-                    onCheckedChange={(checked) => {
-                      // get current recipients
-                      const currentRecipients = recipients;
-                      if (checked) {
-                        // add group members who have not opted out of emails
-                        const groupMembers = swimmers.filter(
-                          (swimmer) =>
-                            swimmer.workoutGroup === group.name &&
-                            !swimmer.emailExclude
-                        );
-                        // add group to the rec
-                        const newRecipients = [
-                          ...currentRecipients,
-                          ...groupMembers,
-                        ];
-                        // upudate state
-                        setRecipients([...newRecipients]);
-                      } else if (!checked) {
-                        // remove group members from current list
-                        const newRecipients = currentRecipients.filter(
-                          ({ workoutGroup }) => workoutGroup !== group.name
-                        );
-                        setRecipients([...newRecipients]);
-                      }
-                    }}
-                  >
-                    <Checkbox.Indicator>
-                      <Check />
-                    </Checkbox.Indicator>
-                  </CheckboxRoot>
-                  <label htmlFor={group.name}>
-                    {group.name} ({group.count})
-                  </label>
-                </CheckboxWrapper>
-              );
-            })}
-          </GroupWrapper>
+
           <Accordian.Root type="single" collapsible>
-            <Accordian.Item value="opt-out">
-              <Accordian.AccordionHeader asChild>
-                <AccordianTrigger>
-                  <p>
-                    <TriggerWrapper>
-                      <Chevron />
-                    </TriggerWrapper>
-                    Opted out of emails
-                  </p>
-                </AccordianTrigger>
-              </Accordian.AccordionHeader>
-              <Accordian.Content>
-                <Description>
-                  The following VMST members will NOT receive messages sent from
-                  here:
-                </Description>
-                {optOut.map((member) => {
+            {/* Select entire workout groups */}
+            <AccordianItem title="Workout Groups">
+              <GroupWrapper>
+                {groups.map((group) => {
                   return (
-                    <p
-                      key={member._id}
-                      style={{ fontSize: "0.8rem", fontStyle: "italic" }}
-                    >
-                      {member.firstName} {member.lastName}{" "}
-                      {member.workoutGroup && `(${member.workoutGroup})`}
-                    </p>
+                    <CheckboxWrapper key={group.name} id={group.name}>
+                      <CheckboxRoot
+                        onCheckedChange={(checked) => {
+                          // get current recipients
+                          const currentRecipients = recipients;
+                          if (checked) {
+                            // add group members who have not opted out of emails
+                            const groupMembers = swimmers.filter(
+                              (swimmer) =>
+                                swimmer.workoutGroup === group.name &&
+                                !swimmer.emailExclude
+                            );
+                            // add group to the rec
+                            const newRecipients = [
+                              ...currentRecipients,
+                              ...groupMembers,
+                            ];
+                            // upudate state
+                            setRecipients([...newRecipients]);
+                          } else if (!checked) {
+                            // remove group members from current list
+                            const newRecipients = currentRecipients.filter(
+                              ({ workoutGroup }) => workoutGroup !== group.name
+                            );
+                            setRecipients([...newRecipients]);
+                          }
+                        }}
+                      >
+                        <Checkbox.Indicator>
+                          <Check />
+                        </Checkbox.Indicator>
+                      </CheckboxRoot>
+                      <label htmlFor={group.name}>
+                        {group.name} ({group.count})
+                      </label>
+                    </CheckboxWrapper>
                   );
                 })}
-              </Accordian.Content>
-            </Accordian.Item>
+              </GroupWrapper>
+            </AccordianItem>
+            {/* List the folks who won't receive emails */}
+            <AccordianItem title="Opted Out">
+              <Description style={{ marginBottom: "6px" }}>
+                The following VMST members will NOT receive messages sent from
+                here:
+              </Description>
+              {optOut.map((member) => {
+                return (
+                  <p
+                    key={member._id}
+                    style={{ fontSize: "0.8rem", fontStyle: "italic" }}
+                  >
+                    {member.firstName} {member.lastName}{" "}
+                    {member.workoutGroup && `(${member.workoutGroup})`}
+                  </p>
+                );
+              })}
+            </AccordianItem>
           </Accordian.Root>
         </RecipientSelectionWrapper>
         <ButtonWrapper>
-          <Button type="button">Cancel</Button>
+          <Button
+            type="button"
+            onClick={() => {
+              reset();
+              setEmailContent("");
+              setMessage("");
+              setRecipients([]);
+            }}
+          >
+            Cancel
+          </Button>
           <SubmitButton
             type="submit"
             disabled={recipients.length === 0 || recipients.length > 100}

@@ -23,8 +23,8 @@ export default function AccordianItem({ title, children }) {
   return (
     <Accordian.Item value={itemValue}>
       <Accordian.Header asChild>
-        <AccordianTrigger>
-          <Title tabIndex={-1}>
+        <AccordianTrigger asChild>
+          <Title>
             <TriggerWrapper>
               <Chevron />
             </TriggerWrapper>
@@ -45,9 +45,7 @@ const TriggerWrapper = styled.span`
 `;
 
 const AccordianTrigger = styled(Accordian.Trigger)`
-  background-color: transparent;
   margin: 16px 0;
-  border: none;
 `;
 
 const Chevron = styled(ChevronRight)`
