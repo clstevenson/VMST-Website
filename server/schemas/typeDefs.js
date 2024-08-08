@@ -21,6 +21,7 @@ type User {
   email: String!
   password: String!
   role: String!
+  group: String
   notifications: Boolean
   emailPermission: Boolean
 }
@@ -83,6 +84,7 @@ input UserData {
   email: String
   password: String
   role: String
+  group: String
   notifications: Boolean
   emailPermission: Boolean
 }
@@ -166,7 +168,7 @@ type PhotoCollection {
 
 type Query {
   members: [Member]
-  users: [User]
+  users(id: ID): [User]
   posts: [Post]
   onePost(id: String!): Post
   competitors: [Competitor]

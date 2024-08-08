@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const secret = process.env.SECRET_KEY;
-const expiration = "6h";
+const expiration = "48h";
 // 10-min expiration for dev purposes
 // const expiration = 60 * 10;
 
@@ -39,8 +39,8 @@ module.exports = {
     // return the request object so it can be passed to the resolver as `context`
     return req;
   },
-  signToken: function ({ email, role, _id }) {
-    const payload = { role, _id };
+  signToken: function ({ role, firstName, _id, group}) {
+    const payload = { role, firstName, _id, group };
     return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
   },
 };

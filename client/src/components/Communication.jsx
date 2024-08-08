@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* 
  Component for the "Communication" tab for Leaders and Coaches
  A form that allows the user to compose emails (in a rich text editor) for members of VMST subgroups.
@@ -17,15 +18,12 @@ import * as Checkbox from "@radix-ui/react-checkbox";
 import { Check, ChevronRight } from "react-feather";
 import * as Accordian from "@radix-ui/react-accordion";
 
-// TODO: Need query for VMST members only, maybe "QUERY_CLUB" with
-// an argument of "VMST"
 import { QUERY_VMST } from "../utils/queries";
 import { EMAIL_GROUP } from "../utils/mutations";
 import { COLORS, QUERIES, WEIGHTS } from "../utils/constants";
 import SubmitButton from "../components/Styled/SubmiButton";
 import ErrorMessage from "../components/Styled/ErrorMessage";
 import ToastMessage from "../components/ToastMessage";
-import Spinner from "../components/Spinner";
 import { useRef, useState } from "react";
 
 // from the list of (VMST) members return the list of distinct WO groups
@@ -33,7 +31,7 @@ import { useRef, useState } from "react";
 import getGroups from "../utils/getGroups";
 import AccordianItem from "./AccordianItem";
 
-export default function Communication({ setTab }) {
+export default function Communication({ setTab, userProfile }) {
   // list of all VMST swimmers (array of member objects)
   const [swimmers, setSwimmers] = useState([]);
   // list of unique VMST workout groups
@@ -133,6 +131,19 @@ export default function Communication({ setTab }) {
     setTab("user");
   };
 
+  if (userProfile.role === "coach" && !userProfile.group) {
+    // coach needs to have a group specified
+    return (
+      <NoGroupWrapper>
+        <p>
+          You have the role of coach but you do not have an affiliated workout
+          group, which is not allowed. Please contact the webmaster.
+        </p>
+        <Button onClick={() => setTab("user")}>Back</Button>
+      </NoGroupWrapper>
+    );
+  }
+
   return (
     <Form aria-label="send email" onSubmit={handleSubmit(onSubmit)}>
       <Wrapper>
@@ -200,8 +211,14 @@ export default function Communication({ setTab }) {
               <GroupWrapper>
                 {groups.map((group) => {
                   return (
-                    <CheckboxWrapper key={group.name} id={group.name}>
+                    <CheckboxWrapper key={group.name}>
                       <CheckboxRoot
+                        id={group.name}
+                        name={group.name}
+                        disabled={
+                          userProfile.role !== "leader" &&
+                          userProfile.group !== group.name
+                        }
                         onCheckedChange={(checked) => {
                           // get current recipients
                           const currentRecipients = recipients;
@@ -232,9 +249,18 @@ export default function Communication({ setTab }) {
                           <Check />
                         </Checkbox.Indicator>
                       </CheckboxRoot>
-                      <label htmlFor={group.name}>
+                      <GroupLabel
+                        htmlFor={group.name}
+                        style={{
+                          "--groupColor":
+                            userProfile.role === "leader" ||
+                            userProfile.group === group.name
+                              ? "black"
+                              : `${COLORS.gray[8]}`,
+                        }}
+                      >
                         {group.name} ({group.count})
-                      </label>
+                      </GroupLabel>
                     </CheckboxWrapper>
                   );
                 })}
@@ -385,14 +411,22 @@ const CheckboxWrapper = styled.div`
   gap: 8px;
 `;
 
+const GroupLabel = styled.label`
+  color: var(--groupColor);
+`;
+
 const CheckboxRoot = styled(Checkbox.Root)`
   all: "unset";
   background-color: transparent;
-  border: 1px solid ${COLORS.gray[8]};
+  border: 1px solid ${COLORS.gray[11]};
   width: 25px;
   height: 25px;
   border-radius: 4px;
   box-shadow: 1px 2px 4px ${COLORS.gray[8]};
+
+  &[data-disabled] {
+    border: 1px solid ${COLORS.gray[8]};
+  }
 `;
 
 const GroupWrapper = styled.div`
@@ -419,5 +453,18 @@ const AccordianTrigger = styled(Accordian.Trigger)`
 const Chevron = styled(ChevronRight)`
   ${AccordianTrigger}[data-state='open'] & {
     transform: rotate(90deg);
+  }
+`;
+
+const NoGroupWrapper = styled.div`
+  width: min(100%, var(--max-prose-width));
+  margin: 24px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+
+  & p {
+    font-size: 1.1rem;
   }
 `;
