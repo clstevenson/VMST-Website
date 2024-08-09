@@ -436,26 +436,6 @@ const GroupWrapper = styled.div`
   gap: 4px;
 `;
 
-const TriggerWrapper = styled.span`
-  display: inline-block;
-  position: absolute;
-  transform: translate(calc(-100% - 4px), 0px);
-  line-height: 0;
-`;
-
-const AccordianTrigger = styled(Accordian.Trigger)`
-  background-color: transparent;
-  margin: 8px 0;
-  padding-left: 22px;
-  border: none;
-`;
-
-const Chevron = styled(ChevronRight)`
-  ${AccordianTrigger}[data-state='open'] & {
-    transform: rotate(90deg);
-  }
-`;
-
 const NoGroupWrapper = styled.div`
   width: min(100%, var(--max-prose-width));
   margin: 24px auto;

@@ -36,8 +36,6 @@ class AuthService {
   login(idToken) {
     // Saves user token to localStorage
     localStorage.setItem("id_token", idToken);
-    //TODO: figure out how to do the redirect with client-side routing
-    window.location.assign("/me");
   }
 
   logout() {

@@ -24,7 +24,7 @@ export default function Account() {
   const { data: userProfile } = Auth.getProfile();
 
   // early return: if basic user, don't show tabs
-  if (userProfile.role === "user") return <User />;
+  if (userProfile.role === "user") return <User userProfile={userProfile} />;
 
   // other roles have tabs (ie more things they can do)
   return (
@@ -45,13 +45,13 @@ export default function Account() {
         )}
       </TabsList>
       <Tabs.Content value="user" asChild>
-        <User />
+        <User userProfile={userProfile} />
       </Tabs.Content>
       <Tabs.Content value="membership">
         <UploadMembers />
       </Tabs.Content>
       <Tabs.Content value="email">
-        <Communication setTab={setTab} />
+        <Communication setTab={setTab} userProfile={userProfile} />
       </Tabs.Content>
       <Tabs.Content value="meets">
         <p>Upcoming capabilities for this page:</p>
