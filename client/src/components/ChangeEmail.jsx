@@ -6,30 +6,61 @@
  */
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as ModalStyle from "./Styled/ModalStyles";
 import { X } from "react-feather";
+import { useLazyQuery } from "@apollo/client";
+
+import { QUERY_EMAIL } from "../utils/queries";
 import ErrorMessage from "../components/Styled/ErrorMessage";
 import SubmitButton from "../components/Styled/SubmiButton";
-import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+import Spinner from "./Spinner";
+import styled from "styled-components";
 
 export default function ChangeEmail({ setOpen, user, setUser }) {
   // general message to display
   const [message, setMessage] = useState("");
-  // react-hook-form methods
-  const {
-    register,
-    handleSubmit,
-    getValues,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm();
+  // constrolled form values
+  const [email, setEmail] = useState("");
+  const [confirmation, setConfirmation] = useState("");
+  // check if email already being used
+  const [emailDuplicate, setEmailDuplicate] = useState(false);
 
-  const onSubmit = async (data) => {
+  // email validation; this is the regex the HTML form uses for validation
+  const emailRegex =
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
+  const [emailExists, { loading }] = useLazyQuery(QUERY_EMAIL, {
+    onCompleted: (data) => {
+      if (data.emailExists === null) {
+        setMessage("");
+        return;
+      }
+      if (data.emailExists._id) {
+        setMessage(
+          "That email address is already in use; please choose another."
+        );
+        setEmailDuplicate(true);
+      }
+    },
+  });
+
+  const handleSubmit = async (evt) => {
+    evt.preventDefault();
+    // if "duplicate email" error has been thrown return early
+    if (emailDuplicate) return;
+    // check that the emails match, return early if they don't
+    if (email !== confirmation) {
+      setMessage("Emails do not match");
+      return;
+    }
     // use setUser to update the email address
-    setUser({ ...user, email: data.email });
-    reset();
+    setUser({ ...user, email });
+    // clean up
+    setEmailDuplicate(false);
+    setMessage("");
+    setEmail("");
+    setConfirmation("");
     setOpen(false);
   };
 
@@ -48,24 +79,31 @@ export default function ChangeEmail({ setOpen, user, setUser }) {
 
         <ModalStyle.Form
           aria-labelledby="change email"
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={(evt) => handleSubmit(evt)}
         >
           {/* password input */}
           <ModalStyle.InputWrapper>
             <label htmlFor="email">New email</label>
             <ModalStyle.Input
               id="email"
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /^([a-zA-Z0-9_.-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/,
-                  message: "Not a valid email address",
-                },
-              })}
+              type="email"
+              value={email}
+              onBlur={(e) => {
+                // if empty don't do anything
+                if (email === "") return;
+                // check that it is a valid email address first (avoid query if possible)
+                if (!emailRegex.test(email)) {
+                  setMessage("Not a valid email address");
+                  return;
+                }
+                // check if email is already being used
+                emailExists({ variables: { email: e.target.value } });
+              }}
+              onChange={(e) => {
+                if (message) setMessage("");
+                setEmail(e.target.value);
+              }}
             />
-            {errors.password?.message && (
-              <ErrorMessage>{errors.password.message}</ErrorMessage>
-            )}
           </ModalStyle.InputWrapper>
 
           {/* confirmation input */}
@@ -73,27 +111,17 @@ export default function ChangeEmail({ setOpen, user, setUser }) {
             <label htmlFor="confirmation">Confirm email</label>
             <ModalStyle.Input
               id="confirmation"
-              {...register("confirmation", {
-                required: "Confirmation required",
-                validate: (val) => {
-                  if (val !== getValues("email"))
-                    return "Your email addresses do not match";
-                  return true;
-                },
-              })}
+              type="email"
+              value={confirmation}
+              onChange={(e) => setConfirmation(e.target.value)}
             />
-            {errors.confirmation?.message && (
-              <ErrorMessage>{errors.confirmation.message}</ErrorMessage>
-            )}
           </ModalStyle.InputWrapper>
 
           <ModalStyle.DialogButtonWrapper>
             <Dialog.Close asChild>
-              <ModalStyle.CloseButton tabIndex={0}>
-                Close
-              </ModalStyle.CloseButton>
+              <ModalStyle.CloseButton>Close</ModalStyle.CloseButton>
             </Dialog.Close>
-            <SubmitButton disabled={isSubmitting} type="submit">
+            <SubmitButton disabled={emailDuplicate} type="submit">
               OK
             </SubmitButton>
           </ModalStyle.DialogButtonWrapper>
@@ -105,3 +133,10 @@ export default function ChangeEmail({ setOpen, user, setUser }) {
     </>
   );
 }
+
+const SpinnerWrapper = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+`;

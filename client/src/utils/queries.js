@@ -14,6 +14,14 @@ export const QUERY_USER = gql`
   }
 `;
 
+export const QUERY_EMAIL = gql`
+  query EmailExists($email: String!) {
+    emailExists(email: $email) {
+      _id
+    }
+  }
+`;
+
 export const QUERY_POSTS = gql`
   query getPosts {
     posts {

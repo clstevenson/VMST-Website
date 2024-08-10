@@ -169,6 +169,7 @@ type PhotoCollection {
 type Query {
   members: [Member]
   users(id: ID): [User]
+  emailExists(email: String!): User
   posts: [Post]
   onePost(id: String!): Post
   competitors: [Competitor]

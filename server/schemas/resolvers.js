@@ -20,7 +20,6 @@ const resolvers = {
     members: async () => await Member.find().sort({ lastName: 1 }),
     // get website users (or maybe a single user)
     users: async (_, { id }) => {
-      console.log(id);
       if (id) {
         // return a single user (as an array to match typedef)
         const user = await User.findById(id);
@@ -29,6 +28,11 @@ const resolvers = {
         const users = await User.find();
         return users;
       }
+    },
+    // test if a given email address already exists (since it must be unique)
+    emailExists: async (_, { email }) => {
+      const user = await User.findOne({ email: email });
+      return user;
     },
     // get all posts, sorted most recent first
     posts: async () => await Post.find().sort({ createdAt: -1 }),
