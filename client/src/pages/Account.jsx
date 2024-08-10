@@ -73,6 +73,7 @@ const TabsRoot = styled(Tabs.Root)`
   border: 1px solid ${COLORS.accent[12]};
   border-radius: 8px;
   padding: 16px;
+  box-shadow: var(--main-box-shadow);
 `;
 
 const TabsList = styled(Tabs.List)`

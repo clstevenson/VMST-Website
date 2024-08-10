@@ -64,6 +64,8 @@ html {
   /* color of bkgd "behind" the content */
   /* background-color: hsl(267deg 25% 50% / 0.2); */
   --subheading-size: 1.4rem;  /* usually an h2 element */
+  /* common box shadow */
+  --main-box-shadow: 2px 4px 6px ${COLORS.gray[9]};
   /* settings for navigation links */
   --nav-border-radius: 6px 6px 0 0;
   --nav-focus-outline: 2px solid ${COLORS.accent[9]};

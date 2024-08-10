@@ -290,9 +290,6 @@ const Wrapper = styled.div`
     "user member"
     "button button";
   padding: 16px;
-  border: 1px solid ${COLORS.accent[12]};
-  border-radius: 4px;
-  box-shadow: 2px 4px 8px ${COLORS.gray[8]};
 
   @media (max-width: 800px) {
     grid-template-columns: 1fr;
