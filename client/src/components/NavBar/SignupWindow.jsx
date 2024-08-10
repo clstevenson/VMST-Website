@@ -7,7 +7,6 @@
  * are stored in a separate file.
  */
 
-import { useState } from "react";
 import { X } from "react-feather";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";

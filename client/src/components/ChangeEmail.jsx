@@ -14,7 +14,6 @@ import { useLazyQuery } from "@apollo/client";
 import { QUERY_EMAIL } from "../utils/queries";
 import ErrorMessage from "../components/Styled/ErrorMessage";
 import SubmitButton from "../components/Styled/SubmiButton";
-import Spinner from "./Spinner";
 import styled from "styled-components";
 
 export default function ChangeEmail({ setOpen, user, setUser }) {
@@ -97,7 +96,7 @@ export default function ChangeEmail({ setOpen, user, setUser }) {
                   return;
                 }
                 // check if email is already being used
-                emailExists({ variables: { email: e.target.value } });
+                emailExists({ variables: { email: email } });
               }}
               onChange={(e) => {
                 if (message) setMessage("");

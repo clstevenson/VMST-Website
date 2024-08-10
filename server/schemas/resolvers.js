@@ -132,7 +132,7 @@ const resolvers = {
         const updatedUser = await User.findByIdAndUpdate(args._id, args.user, {
           new: true,
         });
-        if (!updatedUser) throw new Error("Something went wrong");
+        if (!updatedUser) throw AuthenticationError;
         return updatedUser;
       } catch (err) {
         console.log(err);
