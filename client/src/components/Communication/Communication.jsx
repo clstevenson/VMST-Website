@@ -7,29 +7,32 @@
  - leaders can email any VMST member (up to gmail limit)
 
  The main part of the content will contain the message composing editor (using Quill).  Recipients (and their count) will be listed on the form. There will also be (in the sidebar) a text input that can be used to search/filter/select recipients. This sidebar will be hidden for smaller screens but can slide out when clicked.
+
+ Input props:
+ - setTab in order to activate a different tab
+ - userProfile, the data payload from the stored token
  */
 
 import styled from "styled-components";
+import { useRef, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import { useForm } from "react-hook-form";
-import * as Checkbox from "@radix-ui/react-checkbox";
-import { Check, ChevronRight } from "react-feather";
-import * as Accordian from "@radix-ui/react-accordion";
 
-import { QUERY_VMST } from "../utils/queries";
-import { EMAIL_GROUP } from "../utils/mutations";
-import { COLORS, QUERIES, WEIGHTS } from "../utils/constants";
-import SubmitButton from "../components/Styled/SubmiButton";
-import ErrorMessage from "../components/Styled/ErrorMessage";
-import ToastMessage from "../components/ToastMessage";
-import { useRef, useState } from "react";
+import { QUERY_VMST } from "../../utils/queries";
+import { EMAIL_GROUP } from "../../utils/mutations";
+import { COLORS, QUERIES } from "../../utils/constants";
+import ToastMessage from "../ToastMessage";
+import SubmitButton from "../Styled/SubmiButton";
+import ErrorMessage from "../Styled/ErrorMessage";
+import RecipientsDisplay from "./RecipientsDisplay";
+import Combobox from "./RecipientsCombobox";
+import GroupSelection from "./GroupSelection";
 
 // from the list of (VMST) members return the list of distinct WO groups
 // (using this utility means avoiding a DB query)
-import getGroups from "../utils/getGroups";
-import AccordianItem from "./AccordianItem";
+import getGroups from "../../utils/getGroups";
 
 export default function Communication({ setTab, userProfile }) {
   // list of all VMST swimmers (array of member objects)
@@ -61,7 +64,21 @@ export default function Communication({ setTab, userProfile }) {
 
   useQuery(QUERY_VMST, {
     onCompleted: (data) => {
-      const members = data.vmstMembers;
+      let members = data.vmstMembers;
+      // if a coach, limit to members of their WO group
+      if (userProfile.role === "coach") {
+        members = members.filter(
+          ({ workoutGroup }) => workoutGroup === userProfile.group
+        );
+      }
+
+      members = members.map((member) => {
+        return {
+          name: `${member.firstName} ${member.lastName}`,
+          ...member,
+        };
+      });
+
       setSwimmers([...members]);
       // retrieve wo group names and tallies
       const woGroups = getGroups(data.vmstMembers);
@@ -101,7 +118,6 @@ export default function Communication({ setTab, userProfile }) {
       try {
         const quill = quillRef.current.getEditor();
         const plainText = quill.getText();
-        console.log(htmlText);
         const emailData = {
           id: recipients.map((member) => member._id),
           subject,
@@ -131,8 +147,8 @@ export default function Communication({ setTab, userProfile }) {
     setTab("user");
   };
 
+  // coach needs to have a group specified to access this tab
   if (userProfile.role === "coach" && !userProfile.group) {
-    // coach needs to have a group specified
     return (
       <NoGroupWrapper>
         <p>
@@ -149,25 +165,18 @@ export default function Communication({ setTab, userProfile }) {
       <Wrapper>
         <MessageWrapper>
           <Title>Email VMST Members</Title>
-          <RecipientsDisplayWrapper>
-            <NumRecipients color={recipients.length}>
-              Recipients: {recipients.length} selected
-            </NumRecipients>
-            {recipients.length > 100 && (
-              <Description style={{ fontSize: "0.9rem" }}>
-                Sending limits: 100 recipients/email, 500 recipients in a 24h
-                period. It is best not to approach these limits.
-              </Description>
-            )}
-            {/* Display recipients */}
-            <p key="recipients">
-              {recipients
-                .map((member) => {
-                  return `${member.firstName} ${member.lastName}`;
-                })
-                .join(", ")}
-            </p>
-          </RecipientsDisplayWrapper>
+
+          {/*
+            Display people who will be receiving this email, with warnings as appropriate
+          */}
+          <RecipientsDisplay recipients={recipients} />
+
+          {/* Select/search for individual recipients */}
+          <Combobox
+            recipients={recipients}
+            setRecipients={setRecipients}
+            swimmers={swimmers}
+          />
 
           <SubjectWrapper>
             <label htmlFor="subject">Subject: </label>
@@ -182,6 +191,7 @@ export default function Communication({ setTab, userProfile }) {
               <ErrorMessage>{errors.subject.message}</ErrorMessage>
             )}
           </SubjectWrapper>
+
           <QuillWrapper>
             <label htmlFor="email">
               Compose your message in the editor below
@@ -196,96 +206,22 @@ export default function Communication({ setTab, userProfile }) {
               ref={quillRef}
             />
           </QuillWrapper>
-          <Description style={{ marginTop: "-12px" }}>
-            Note that your email will be visible to the recipients.
-          </Description>
+
           {/* error message to display */}
           {message && <ErrorMessage>{message}</ErrorMessage>}
         </MessageWrapper>
-        <RecipientSelectionWrapper>
-          <Title>Select Recipients</Title>
 
-          <Accordian.Root type="single" collapsible>
-            {/* Select entire workout groups */}
-            <AccordianItem title="Workout Groups">
-              <GroupWrapper>
-                {groups.map((group) => {
-                  return (
-                    <CheckboxWrapper key={group.name}>
-                      <CheckboxRoot
-                        id={group.name}
-                        name={group.name}
-                        disabled={
-                          userProfile.role !== "leader" &&
-                          userProfile.group !== group.name
-                        }
-                        onCheckedChange={(checked) => {
-                          // get current recipients
-                          const currentRecipients = recipients;
-                          if (checked) {
-                            // add group members who have not opted out of emails
-                            const groupMembers = swimmers.filter(
-                              (swimmer) =>
-                                swimmer.workoutGroup === group.name &&
-                                !swimmer.emailExclude
-                            );
-                            // add group to the rec
-                            const newRecipients = [
-                              ...currentRecipients,
-                              ...groupMembers,
-                            ];
-                            // upudate state
-                            setRecipients([...newRecipients]);
-                          } else if (!checked) {
-                            // remove group members from current list
-                            const newRecipients = currentRecipients.filter(
-                              ({ workoutGroup }) => workoutGroup !== group.name
-                            );
-                            setRecipients([...newRecipients]);
-                          }
-                        }}
-                      >
-                        <Checkbox.Indicator>
-                          <Check />
-                        </Checkbox.Indicator>
-                      </CheckboxRoot>
-                      <GroupLabel
-                        htmlFor={group.name}
-                        style={{
-                          "--groupColor":
-                            userProfile.role === "leader" ||
-                            userProfile.group === group.name
-                              ? "black"
-                              : `${COLORS.gray[8]}`,
-                        }}
-                      >
-                        {group.name} ({group.count})
-                      </GroupLabel>
-                    </CheckboxWrapper>
-                  );
-                })}
-              </GroupWrapper>
-            </AccordianItem>
-            {/* List the folks who won't receive emails */}
-            <AccordianItem title="Opted Out">
-              <Description style={{ marginBottom: "6px" }}>
-                The following VMST members will NOT receive messages sent from
-                here:
-              </Description>
-              {optOut.map((member) => {
-                return (
-                  <p
-                    key={member._id}
-                    style={{ fontSize: "0.8rem", fontStyle: "italic" }}
-                  >
-                    {member.firstName} {member.lastName}{" "}
-                    {member.workoutGroup && `(${member.workoutGroup})`}
-                  </p>
-                );
-              })}
-            </AccordianItem>
-          </Accordian.Root>
+        <RecipientSelectionWrapper>
+          <GroupSelection
+            recipients={recipients}
+            setRecipients={setRecipients}
+            userProfile={userProfile}
+            groups={groups}
+            swimmers={swimmers}
+            optOut={optOut}
+          />
         </RecipientSelectionWrapper>
+
         <ButtonWrapper>
           <Button
             type="button"
@@ -325,6 +261,14 @@ const Wrapper = styled.div`
   grid-template-areas:
     "message recipients"
     "button button";
+
+  @media ${QUERIES.tabletAndLess} {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "message"
+      "recipients"
+      "button";
+  }
 `;
 
 const MessageWrapper = styled.div`
@@ -337,6 +281,7 @@ const MessageWrapper = styled.div`
 `;
 
 const RecipientSelectionWrapper = styled.div`
+  max-width: var(--max-prose-width);
   grid-area: recipients;
   width: 100%;
 `;
@@ -365,10 +310,6 @@ const QuillWrapper = styled.div`
   }
 `;
 
-const Description = styled.p`
-  font-size: 0.8rem;
-`;
-
 const SubjectWrapper = styled.div`
   display: flex;
   gap: 8px;
@@ -381,18 +322,6 @@ const SubjectWrapper = styled.div`
   }
 `;
 
-const RecipientsDisplayWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const NumRecipients = styled.p`
-  color: ${({ color }) => {
-    if (color === 0 || color > 100) return `${COLORS.urgent}`;
-  }};
-`;
-
 const ButtonWrapper = styled.div`
   padding: 16px;
   grid-area: button;
@@ -403,37 +332,6 @@ const ButtonWrapper = styled.div`
 const Button = styled(SubmitButton)`
   background-color: ${COLORS.accent[3]};
   color: black;
-`;
-
-const CheckboxWrapper = styled.div`
-  all: "unset";
-  display: flex;
-  gap: 8px;
-`;
-
-const GroupLabel = styled.label`
-  color: var(--groupColor);
-`;
-
-const CheckboxRoot = styled(Checkbox.Root)`
-  all: "unset";
-  background-color: transparent;
-  border: 1px solid ${COLORS.gray[11]};
-  width: 25px;
-  height: 25px;
-  border-radius: 4px;
-  box-shadow: 1px 2px 4px ${COLORS.gray[8]};
-
-  &[data-disabled] {
-    border: 1px solid ${COLORS.gray[8]};
-  }
-`;
-
-const GroupWrapper = styled.div`
-  display: grid;
-  /* grid-template-columns: 1fr 1fr; */
-  grid-template-columns: repeat(2, minmax(130px, 1fr));
-  gap: 4px;
 `;
 
 const NoGroupWrapper = styled.div`

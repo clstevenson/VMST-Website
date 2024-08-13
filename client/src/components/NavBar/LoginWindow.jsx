@@ -8,7 +8,6 @@
  */
 
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import { X } from "react-feather";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
@@ -28,8 +27,6 @@ const LoginContent = ({ setIsLogin, setOpen, message, setMessage }) => {
     formState: { errors, isSubmitting },
   } = useForm();
 
-  const navigate = useNavigate();
-
   // login checked on server
   const [login] = useMutation(LOGIN_USER);
   const [resetPassword] = useMutation(RESET_PASSWORD);
@@ -45,9 +42,7 @@ const LoginContent = ({ setIsLogin, setOpen, message, setMessage }) => {
       setOpen(false);
 
       // store the token in browser
-      // load the account page (with greeting)
       Auth.login(data.login.token);
-      navigate("/me");
     } catch (err) {
       setMessage(`Error: ${err.message}`);
     }

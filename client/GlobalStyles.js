@@ -70,6 +70,8 @@ html {
   --nav-border-radius: 6px 6px 0 0;
   --nav-focus-outline: 2px solid ${COLORS.accent[9]};
   --nav-focus-color: ${COLORS.accent[9]};
+  /* background color associated with editable properties */
+  --change-background-color: ${COLORS.accent[3]};
   /* Uncomment line below to always display scrollbar (avoiding related shift) */
   overflow: scroll;
 }

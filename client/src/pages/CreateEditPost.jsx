@@ -299,10 +299,11 @@ export default function CreateEditPost({ isEditing = false }) {
                 setPage(1);
               }}
             >
-              <SelectTrigger>
-                <Select.Value placeholder="Photo album..." />
+              <SelectTrigger tabIndex={1}>
+                <Select.Value />
                 <Select.Icon />
               </SelectTrigger>
+
               <SelectContent position="popper">
                 <SelectViewport>
                   <SelectItem value={featuredId}>

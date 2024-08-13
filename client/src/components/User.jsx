@@ -8,9 +8,11 @@
  change a few basic account settings:
  - change password and/or email address
  - manage communication preferences (whether to receive emails; notification of new posts)
- - display USMS info, including USMS number and ID and club affiliation, if user is an LMSC member
- - manage display preferences (eg dark mode, whether to change banner photos and how often, etc)
+ - TODO: display USMS info, including USMS number and ID and club affiliation, if user is an LMSC member
+ - TODO: manage display preferences (eg dark mode, whether to change banner photos and how often, etc)
  - request an "upgraded" role from team leaders (probably they will be directed to the contact page)
+
+ Input prop is the data payload from the token stored from logging in; see auth.js (server-side) for that info. Currently it includes role, _id (for User), and group (really impotant only if role is "coach").
  */
 
 import { useState } from "react";
@@ -36,6 +38,7 @@ import ErrorMessage from "./Styled/ErrorMessage.jsx";
 import ToastMessage from "../components/ToastMessage";
 import { Check } from "react-feather";
 import AccordianItem from "./AccordianItem.jsx";
+import MinorButton from "./Styled/MinorButton.jsx";
 
 export default function User({ userProfile }) {
   // state of modals
@@ -326,7 +329,7 @@ export default function User({ userProfile }) {
             <AccordianItem title="Role: Coach" titlePadding="24px">
               <p>
                 A role of &quot;coach&quot; is intended for coaches of workout
-                groups, or someone designated by them to communicate with
+                groups, or someone designated by them, to communicate with
                 workout groups on their behalf. A coach{" "}
                 <em>
                   <strong>MUST</strong>
@@ -373,12 +376,15 @@ export default function User({ userProfile }) {
             </AccordianItem>
             <AccordianItem title="Role: Leader" titlePadding="24px">
               <p>
-                The role of VMST Team Leader is meant to be shared by those who
-                are authorized to communicate with any VMST team member on
-                official team business. It is intended that this would be the
-                three VMST Board Members, though they may designate others for
-                this role if they wish. A person with the role of
-                &quot;leader&quot; will be able to email any VMST member.
+                A person with the role of &quot;leader&quot; (ie, a VMST team
+                leader) will be able to email any VMST member. Leaders will also
+                be able to create posts that appear on the home page (and are
+                seen by all visitors to the site) as well as edit/delete
+                existing posts. This role is meant to be shared by those who are
+                authorized to communicate with any VMST team member on official
+                team business or to create/edit posts to the website. It is
+                intended that this would be the three VMST Board Members, though
+                they may designate others for this role if they wish.
               </p>
               <p>
                 Note that, at present, we are using a personal gmail account to
@@ -442,13 +448,20 @@ export default function User({ userProfile }) {
                   value={roleJustification}
                   onChange={(evt) => setRoleJustification(evt.target.value)}
                 />
-                <MinorButton
-                  type="button"
-                  onClick={handleRoleRequest}
-                  disabled={roleJustification === "" || role === user.role}
-                >
-                  Submit Request
-                </MinorButton>
+                <RoleSubmitWrapper>
+                  <MinorButton
+                    type="button"
+                    onClick={handleRoleRequest}
+                    disabled={roleJustification === "" || role === user.role}
+                  >
+                    Submit Request
+                  </MinorButton>
+                  {(roleJustification === "" || role === user.role) && (
+                    <Description>
+                      Role must change and justification cannot be blank
+                    </Description>
+                  )}
+                </RoleSubmitWrapper>
               </RoleRequestWrapper>
               {requestMessage && <ErrorMessage>{requestMessage}</ErrorMessage>}
             </AccordianItem>
@@ -505,8 +518,6 @@ export default function User({ userProfile }) {
 }
 
 const Wrapper = styled.div`
-  /* background color associated with editable properties */
-  --change-background-color: ${COLORS.accent[3]};
   margin: 16px auto;
   display: grid;
   gap: 24px;
@@ -594,19 +605,6 @@ const EmailInputWrapper = styled(InputWrapper)`
 const CommunicationsWrapper = styled(NameWrapper)`
   display: flex;
   flex-direction: column;
-`;
-
-const MinorButton = styled.button`
-  width: fit-content;
-  background-color: var(--change-background-color);
-  border-radius: 4px;
-  border: 1px solid ${COLORS.accent[11]};
-  padding: 2px 6px;
-
-  &:hover:not(:disabled) {
-    background-color: ${COLORS.accent[4]};
-    transform: scale(1.05);
-  }
 `;
 
 const Highlighted = styled.span`
@@ -750,4 +748,12 @@ const RadioGroupIndicator = styled(RadioGroup.Indicator)`
   width: 12px;
   height: 12px;
   background-color: ${COLORS.accent[8]};
+`;
+
+const RoleSubmitWrapper = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  justify-items: start;
+  gap: 8px;
 `;

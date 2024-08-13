@@ -3,12 +3,11 @@ import Auth from "../utils/auth";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
-import * as Separator from "@radix-ui/react-separator";
 
 import { COLORS, WEIGHTS } from "../utils/constants.js";
 import User from "../components/User";
 import UploadMembers from "../components/UploadMembers.jsx";
-import Communication from "../components/Communication.jsx";
+import Communication from "../components/Communication/";
 
 export default function Account() {
   const navigate = useNavigate();
@@ -44,16 +43,16 @@ export default function Account() {
           <TabsTrigger value="webmaster">Website Mgmt</TabsTrigger>
         )}
       </TabsList>
-      <Tabs.Content value="user" asChild>
+      <TabsContent value="user" asChild>
         <User userProfile={userProfile} />
-      </Tabs.Content>
-      <Tabs.Content value="membership">
+      </TabsContent>
+      <TabsContent value="membership">
         <UploadMembers />
-      </Tabs.Content>
-      <Tabs.Content value="email">
+      </TabsContent>
+      <TabsContent value="email">
         <Communication setTab={setTab} userProfile={userProfile} />
-      </Tabs.Content>
-      <Tabs.Content value="meets">
+      </TabsContent>
+      <TabsContent value="meets">
         <p>Upcoming capabilities for this page:</p>
         <ul>
           <li>upload/manage competitors for a specific meet</li>
@@ -61,8 +60,8 @@ export default function Account() {
           <li>construct relays</li>
           <li>post relays to home page</li>
         </ul>
-      </Tabs.Content>
-      <Tabs.Content value="webmaster"></Tabs.Content>
+      </TabsContent>
+      <TabsContent value="webmaster"></TabsContent>
     </TabsRoot>
   );
 }
@@ -80,6 +79,10 @@ const TabsList = styled(Tabs.List)`
   border-bottom: 1px solid ${COLORS.accent[12]};
 `;
 
+const TabsContent = styled(Tabs.Content)`
+  outline: none;
+`;
+
 const TabsTrigger = styled(Tabs.Trigger)`
   all: unset;
   font-family: inherit;
@@ -88,6 +91,10 @@ const TabsTrigger = styled(Tabs.Trigger)`
   border: 1px solid ${COLORS.gray[9]};
   border-bottom: none;
   border-radius: var(--nav-border-radius);
+
+  &:focus {
+    outline: auto;
+  }
 
   &:hover {
     cursor: pointer;
