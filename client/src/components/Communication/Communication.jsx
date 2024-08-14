@@ -14,7 +14,7 @@
  */
 
 import styled from "styled-components";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useQuery, useMutation } from "@apollo/client";
@@ -27,7 +27,7 @@ import ToastMessage from "../ToastMessage";
 import SubmitButton from "../Styled/SubmiButton";
 import ErrorMessage from "../Styled/ErrorMessage";
 import RecipientsDisplay from "./RecipientsDisplay";
-import Combobox from "./RecipientsCombobox";
+import RecipientsCombobox from "./RecipientsCombobox";
 import GroupSelection from "./GroupSelection";
 
 // from the list of (VMST) members return the list of distinct WO groups
@@ -62,7 +62,7 @@ export default function Communication({ setTab, userProfile }) {
     formState: { errors, isSubmitting },
   } = useForm();
 
-  useQuery(QUERY_VMST, {
+  const { loading } = useQuery(QUERY_VMST, {
     onCompleted: (data) => {
       let members = data.vmstMembers;
       // if a coach, limit to members of their WO group
@@ -80,7 +80,7 @@ export default function Communication({ setTab, userProfile }) {
       });
 
       setSwimmers([...members]);
-      // retrieve wo group names and tallies
+      // retrieve WO group names and tallies
       const woGroups = getGroups(data.vmstMembers);
       setGroups([...woGroups]);
       // determine which members have opted out of emails
@@ -172,11 +172,13 @@ export default function Communication({ setTab, userProfile }) {
           <RecipientsDisplay recipients={recipients} />
 
           {/* Select/search for individual recipients */}
-          <Combobox
-            recipients={recipients}
-            setRecipients={setRecipients}
-            swimmers={swimmers}
-          />
+          {!loading && (
+            <RecipientsCombobox
+              recipients={recipients}
+              setRecipients={setRecipients}
+              swimmers={swimmers}
+            />
+          )}
 
           <SubjectWrapper>
             <label htmlFor="subject">Subject: </label>

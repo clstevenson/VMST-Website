@@ -1,24 +1,60 @@
 /* eslint-disable react/prop-types */
 /* 
  Constructs a combobox for choosing individual recipients. I had to make this from scratch so need to pay attention closely to the WAI ARIA guide:
-
  https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
+
+ Navigation of popup items with arrow keys was inspired by:
+ https://dev.to/rafi993/roving-focus-in-react-with-custom-hooks-1ln 
  */
 
 import styled from "styled-components";
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 import { COLORS } from "../../utils/constants";
 import ListSwimmer from "./ListSwimmer";
 import InputSwimmer from "./InputSwimmer";
 
-export default function Combobox({ recipients, setRecipients, swimmers }) {
+export default function RecipientsCombobox({
+  recipients,
+  setRecipients,
+  swimmers,
+}) {
   // controlled state of "select recipients" popover
   const [openPopover, setOpenPopover] = useState(false);
   // controlled value of swimmer search (to add recipients)
   const [searchSwimmers, setSearchSwimmers] = useState("");
   // ref for container of popup (containing list of swimmers)
   const popoverRef = useRef(null);
+  // ref for the text input
+  const inputRef = useRef(null);
+  // use the Rove Focus hook for keyboard nav of the names in the popup
+  const [focus, setFocus] = useState(-1);
+
+  // up/down arrows decrement or increment the value of the focus state
+  const handleKeyDown = useCallback(
+    (evt) => {
+      if (evt.key === "ArrowDown") {
+        evt.preventDefault();
+        setFocus((prev) => prev + 1);
+      } else if (evt.key === "ArrowUp") {
+        evt.preventDefault();
+        if (focus > -1) setFocus((prev) => prev - 1);
+      } else if (
+        evt.key === "ArrowLeft" ||
+        evt.key === "ArrowRight" ||
+        evt.key === "Home" ||
+        evt.key === "End"
+      ) {
+        inputRef.current.focus();
+      }
+    },
+    [focus]
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
 
   return (
     <Wrapper>
@@ -29,10 +65,18 @@ export default function Combobox({ recipients, setRecipients, swimmers }) {
         openPopover={openPopover}
         setOpenPopover={setOpenPopover}
         popoverRef={popoverRef}
+        focus={focus}
+        setFocus={setFocus}
+        inputRef={inputRef}
       />
       {/* conditional render of popup */}
       {openPopover && (
-        <RecipientsPopover ref={popoverRef}>
+        <RecipientsPopover
+          id="cb1-listbox"
+          ref={popoverRef}
+          role="listbox"
+          aria-label="Swimmers to Email"
+        >
           {swimmers
             // don't include opt-outs
             .filter(({ emailExclude }) => !emailExclude)
@@ -47,13 +91,17 @@ export default function Combobox({ recipients, setRecipients, swimmers }) {
                   .includes(searchSwimmers.toLocaleLowerCase());
               }
             })
-            .map((swimmer) => {
+            .map((swimmer, index) => {
               return (
                 <ListSwimmer
                   key={swimmer._id}
                   swimmer={swimmer}
                   recipients={recipients}
                   setRecipients={setRecipients}
+                  index={index}
+                  setFocus={setFocus}
+                  focus={focus}
+                  inputRef={inputRef}
                 />
               );
             })}
@@ -67,7 +115,9 @@ const Wrapper = styled.div`
   position: relative;
 `;
 
-const RecipientsPopover = styled.div`
+const RecipientsPopover = styled.ul`
+  list-style-type: none;
+  padding-left: 0;
   position: absolute;
   display: flex;
   flex-direction: column;

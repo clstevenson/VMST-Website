@@ -18,13 +18,15 @@ export default function InputSwimmer({
   openPopover,
   setOpenPopover,
   popoverRef,
+  setFocus,
+  inputRef,
 }) {
   const popoverButtonRef = useRef(null);
 
   useEffect(() => {
     // press Esc key
     const handleKeyDown = (evt) => {
-      if (evt.code === "Escape") {
+      if (evt.key === "Escape") {
         setOpenPopover(false);
         setSearchSwimmers("");
       }
@@ -58,6 +60,12 @@ export default function InputSwimmer({
       <InputSearch
         type="text"
         id="search"
+        ref={inputRef}
+        role="combobox"
+        aria-haspopup={openPopover}
+        aria-autocomplete="list"
+        aria-controls="cb1-listbox"
+        aria-expanded={openPopover}
         placeholder="Find recipients..."
         value={searchSwimmers}
         onChange={(evt) => {
@@ -66,11 +74,15 @@ export default function InputSwimmer({
         }}
         onFocus={() => {
           setOpenPopover(true);
+          // keep focus on input box
+          setFocus(-1);
         }}
       />
       {/* Button to trigger popup */}
       <button
         type="button"
+        aria-controls="cb1-listbox"
+        aria-expanded={openPopover}
         onClick={() => {
           setOpenPopover((prev) => !prev);
         }}
