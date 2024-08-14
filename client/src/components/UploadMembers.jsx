@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import styled from "styled-components";
 import * as Accordian from "@radix-ui/react-accordion";
 
@@ -13,12 +13,11 @@ import getGroups from "../utils/getGroups";
 import { COLORS, QUERIES, WEIGHTS } from "../utils/constants";
 import SubmitButton from "./Styled/SubmiButton";
 
-// global variable representing the members in the DB
-let currentMembers = [];
-
 export default function UploadMembers() {
   // state representing new members data uploaded from user
   const [members, setMembers] = useState([]);
+  // state representing the DB (and what is displayed in the table)
+  const [currentMembers, setCurrentMembers] = useState([]);
   // state representing member information in DB to be displayed in the table
   // (may be filtered and/or paginated version of DB membership data)
   const [display, setDisplay] = useState([]);
@@ -38,7 +37,17 @@ export default function UploadMembers() {
   const [upload, { error }] = useMutation(UPLOAD_MEMBERS);
 
   // retrieve DB membership info
-  const { loading, data } = useQuery(QUERY_MEMBERS);
+  useQuery(QUERY_MEMBERS, {
+    onCompleted: (data) => {
+      setCurrentMembers(data.members);
+      setNumMembers(data.members.length);
+      setNumVMST(
+        data.members.filter((member) => member.club === "VMST").length
+      );
+      setGroups(getGroups(data.members));
+      displayMembers(data.members);
+    },
+  });
 
   // function to extract data to display in members table
   const displayMembers = (members) => {
@@ -55,23 +64,8 @@ export default function UploadMembers() {
     setDisplay(displayData);
   };
 
-  // this variable will contain the content of the DB for the function
-  // initially it is set from the DB query
-  currentMembers = data?.members || [];
-
-  useEffect(() => {
-    if (currentMembers.length > 0) {
-      setNumMembers(currentMembers.length);
-      setNumVMST(
-        currentMembers.filter((member) => member.club === "VMST").length
-      );
-      setGroups(getGroups(currentMembers));
-      displayMembers(currentMembers);
-    }
-  }, [data]);
-
   // file input onchange event handler, which parses the CSV file
-  const handleFile = (e) => {
+  const handleFile = async (e) => {
     setFile(e.target.value);
     setMessage("");
     let reader = new FileReader();
@@ -119,17 +113,17 @@ export default function UploadMembers() {
       setMessage(`There was a problem: ${error}`);
     } else {
       // update the variable representing members in DB
-      currentMembers = data.uploadMembers;
+      setCurrentMembers(data.uploadMembers);
       // update some state vars: members, member stats
       // these will trigger update of the member table (should that be a spearate component?)
-      setNumMembers(currentMembers.length);
+      setNumMembers(data.uploadMembers.length);
       setNumVMST(
-        currentMembers.filter((member) => member.club === "VMST").length
+        data.uploadMembers.filter((member) => member.club === "VMST").length
       );
-      setGroups(getGroups(currentMembers));
+      setGroups(getGroups(data.uploadMembers));
 
       // display the new data
-      displayMembers(currentMembers);
+      displayMembers(data.uploadMembers);
     }
 
     //reset state variables
@@ -329,7 +323,7 @@ export default function UploadMembers() {
         There are currently {numMembers} members in the LMSC, {numVMST} of whom
         are in VMST.
         <br />
-        VMST workout groups: {groups.join(", ")}.
+        VMST workout groups: {groups.map(({ name }) => name).join(", ")}.
       </p>
 
       {/* filter the table by name or club/group */}
@@ -391,7 +385,7 @@ export default function UploadMembers() {
               <th scope="row">{member.fullName}</th>
               <td>
                 <a
-                  href={`https://www.usms.org/people/${member.usmsId}`}
+                  href={`https://www.usms.org/people/${member.usmsRegNo.slice(-5)}`}
                   target="_new"
                 >
                   {member.usmsRegNo}
