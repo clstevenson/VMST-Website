@@ -14,7 +14,7 @@
 
 import { useRef } from "react";
 import styled from "styled-components";
-import { COLORS, WEIGHTS } from "../utils/constants";
+import { COLORS, WEIGHTS } from "../../utils/constants";
 
 const FileUploader = ({
   handleFile,

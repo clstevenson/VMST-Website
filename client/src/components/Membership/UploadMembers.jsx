@@ -1,24 +1,23 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import styled from "styled-components";
-import * as Accordian from "@radix-ui/react-accordion";
 
-import AccordianItem from "./AccordianItem";
 import FileUploader from "./FileUploader";
-import Auth from "../utils/auth";
+import Auth from "../../utils/auth";
 import { useQuery, useMutation } from "@apollo/client";
-import { UPLOAD_MEMBERS } from "../utils/mutations";
-import { QUERY_MEMBERS } from "../utils/queries";
+import { UPLOAD_MEMBERS } from "../../utils/mutations";
+import { QUERY_MEMBERS } from "../../utils/queries";
 import papa from "papaparse";
-import getGroups from "../utils/getGroups";
-import { COLORS, QUERIES, WEIGHTS } from "../utils/constants";
-import SubmitButton from "./Styled/SubmiButton";
-
-// global variable representing the members in the DB
-let currentMembers = [];
+import getGroups from "../../utils/getGroups";
+import { COLORS, QUERIES, WEIGHTS } from "../../utils/constants";
+import SubmitButton from "../Styled/SubmiButton";
+import ToastMessage from "../ToastMessage";
+import Instructions from "./Instructions";
 
 export default function UploadMembers() {
   // state representing new members data uploaded from user
   const [members, setMembers] = useState([]);
+  // state representing the DB (and what is displayed in the table)
+  const [currentMembers, setCurrentMembers] = useState([]);
   // state representing member information in DB to be displayed in the table
   // (may be filtered and/or paginated version of DB membership data)
   const [display, setDisplay] = useState([]);
@@ -36,9 +35,21 @@ export default function UploadMembers() {
   // mutation to update the Members collection in the CB
   // (used in form onSubmit event handler)
   const [upload, { error }] = useMutation(UPLOAD_MEMBERS);
+  // state representing success of DB update
+  const [updated, setUpdated] = useState(false);
 
   // retrieve DB membership info
-  const { loading, data } = useQuery(QUERY_MEMBERS);
+  useQuery(QUERY_MEMBERS, {
+    onCompleted: (data) => {
+      setCurrentMembers(data.members);
+      setNumMembers(data.members.length);
+      setNumVMST(
+        data.members.filter((member) => member.club === "VMST").length
+      );
+      setGroups(getGroups(data.members));
+      displayMembers(data.members);
+    },
+  });
 
   // function to extract data to display in members table
   const displayMembers = (members) => {
@@ -55,23 +66,8 @@ export default function UploadMembers() {
     setDisplay(displayData);
   };
 
-  // this variable will contain the content of the DB for the function
-  // initially it is set from the DB query
-  currentMembers = data?.members || [];
-
-  useEffect(() => {
-    if (currentMembers.length > 0) {
-      setNumMembers(currentMembers.length);
-      setNumVMST(
-        currentMembers.filter((member) => member.club === "VMST").length
-      );
-      setGroups(getGroups(currentMembers));
-      displayMembers(currentMembers);
-    }
-  }, [data]);
-
   // file input onchange event handler, which parses the CSV file
-  const handleFile = (e) => {
+  const handleFile = async (e) => {
     setFile(e.target.value);
     setMessage("");
     let reader = new FileReader();
@@ -119,17 +115,20 @@ export default function UploadMembers() {
       setMessage(`There was a problem: ${error}`);
     } else {
       // update the variable representing members in DB
-      currentMembers = data.uploadMembers;
+      setCurrentMembers(data.uploadMembers);
       // update some state vars: members, member stats
       // these will trigger update of the member table (should that be a spearate component?)
-      setNumMembers(currentMembers.length);
+      setNumMembers(data.uploadMembers.length);
       setNumVMST(
-        currentMembers.filter((member) => member.club === "VMST").length
+        data.uploadMembers.filter((member) => member.club === "VMST").length
       );
-      setGroups(getGroups(currentMembers));
+      setGroups(getGroups(data.uploadMembers));
 
       // display the new data
-      displayMembers(currentMembers);
+      displayMembers(data.uploadMembers);
+
+      // show Toast Message
+      setUpdated(true);
     }
 
     //reset state variables
@@ -268,68 +267,13 @@ export default function UploadMembers() {
       {/* when message is not an empty string, it is displayed */}
       {message && <p> {message} </p>}
 
-      <InstructionsWrapper>
-        <AccordianRoot collapsible>
-          <AccordianItem title="Instructions on generating membership CSV file">
-            <p>The steps are shown in the following figure.</p>
-            <Figure>
-              <Image
-                src="./assets/MemberReportGeneration1.png"
-                alt="generate HTML report screenshot"
-              />
-              <figcaption>
-                Steps to generate an HTML report of all current members and that
-                contains all possible record fields.
-              </figcaption>
-            </Figure>
-
-            <ol>
-              <li>
-                After logging into the Registration section of the USMS
-                Site/Database Administration, click the "Member Report" item on
-                the "Report" drop-down menu.
-              </li>
-              <li>
-                Click on "Select all" to display all available fields in the
-                report.
-              </li>
-              <li>
-                Choose the years to generate all current members. That will
-                always involve checking the current year; in the months of Nov
-                and Dec you will also need to check the next calendar year.
-              </li>
-              <li>Choose the "HTML" report type.</li>
-              <li>Click on the button to generate the report.</li>
-            </ol>
-
-            <p>
-              After the report appears you will get a display like the one shown
-              in the figure below. Check to make sure that all members seem to
-              be included in the report and that all fields were generated (you
-              will have to scroll horizontally to verify). Then click on the CSV
-              button to download the report as a text file with Comma Separated
-              Values. This is the file you will import.
-            </p>
-
-            <Figure>
-              <Image
-                src="./assets/MemberReportGeneration2.png"
-                alt="download member report as a file"
-              />
-              <figcaption>
-                Click the CSV button to download the generated report in the CSV
-                file format suitable for import.
-              </figcaption>
-            </Figure>
-          </AccordianItem>
-        </AccordianRoot>
-      </InstructionsWrapper>
+      <Instructions />
 
       <p>
         There are currently {numMembers} members in the LMSC, {numVMST} of whom
         are in VMST.
         <br />
-        VMST workout groups: {groups.join(", ")}.
+        VMST workout groups: {groups.map(({ name }) => name).join(", ")}.
       </p>
 
       {/* filter the table by name or club/group */}
@@ -391,7 +335,7 @@ export default function UploadMembers() {
               <th scope="row">{member.fullName}</th>
               <td>
                 <a
-                  href={`https://www.usms.org/people/${member.usmsId}`}
+                  href={`https://www.usms.org/people/${member.usmsRegNo.slice(-5)}`}
                   target="_new"
                 >
                   {member.usmsRegNo}
@@ -404,6 +348,11 @@ export default function UploadMembers() {
           ))}
         </tbody>
       </MemberTable>
+      {updated && (
+        <ToastMessage toastCloseEffect={() => setUpdated(false)}>
+          The membership database has been updated!
+        </ToastMessage>
+      )}
     </Wrapper>
   );
 }
@@ -414,10 +363,6 @@ const Wrapper = styled.div`
   /* border: 1px solid ${COLORS.accent[12]}; */
   /* border-radius: 8px; */
   padding: 16px;
-`;
-
-const Image = styled.img`
-  width: 100%;
 `;
 
 const FileUploadInstructions = styled.span`
@@ -450,31 +395,6 @@ const UpdateButton = styled(SubmitButton)`
 const FileWrapper = styled.div`
   display: flex;
   align-items: center;
-`;
-
-const AccordianRoot = styled(Accordian.Root)`
-  margin: 0 32px;
-`;
-
-const InstructionsWrapper = styled.div`
-  border: 1px solid ${COLORS.accent[10]};
-  border-radius: 8px;
-  background-color: ${COLORS.accent[2]};
-  margin: 16px 0;
-
-  & p {
-    margin: 16px 0;
-  }
-`;
-
-const Figure = styled.figure`
-  margin: 16px 0;
-  background-color: transparent;
-
-  & figcaption {
-    font-style: italic;
-    border-top: 1px dotted ${COLORS.gray[7]};
-  }
 `;
 
 const SearchWrapper = styled.div`
