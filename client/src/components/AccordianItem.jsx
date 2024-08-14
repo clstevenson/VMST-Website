@@ -55,6 +55,7 @@ const Chevron = styled(ChevronRight)`
 `;
 
 const Title = styled.button`
+  text-align: left;
   font-size: 1rem;
   color: ${COLORS.accent[12]};
   font-weight: ${WEIGHTS.medium};
