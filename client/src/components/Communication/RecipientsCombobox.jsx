@@ -31,24 +31,27 @@ export default function RecipientsCombobox({
   const [focus, setFocus] = useState(-1);
 
   // up/down arrows decrement or increment the value of the focus state
+  // only take action if popup is open
   const handleKeyDown = useCallback(
     (evt) => {
-      if (evt.key === "ArrowDown") {
-        evt.preventDefault();
-        setFocus((prev) => prev + 1);
-      } else if (evt.key === "ArrowUp") {
-        evt.preventDefault();
-        if (focus > -1) setFocus((prev) => prev - 1);
-      } else if (
-        evt.key === "ArrowLeft" ||
-        evt.key === "ArrowRight" ||
-        evt.key === "Home" ||
-        evt.key === "End"
-      ) {
-        inputRef.current.focus();
+      if (openPopover) {
+        if (evt.key === "ArrowDown") {
+          evt.preventDefault();
+          setFocus((prev) => prev + 1);
+        } else if (evt.key === "ArrowUp") {
+          evt.preventDefault();
+          if (focus > -1) setFocus((prev) => prev - 1);
+        } else if (
+          evt.key === "ArrowLeft" ||
+          evt.key === "ArrowRight" ||
+          evt.key === "Home" ||
+          evt.key === "End"
+        ) {
+          inputRef.current.focus();
+        }
       }
     },
-    [focus]
+    [focus, openPopover]
   );
 
   useEffect(() => {

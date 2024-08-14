@@ -11,6 +11,7 @@ import { Check } from "react-feather";
 import AccordianItem from "../AccordianItem";
 import { Description } from "../Styled/Description";
 import { CheckboxRoot } from "../Styled/CheckboxRoot";
+import { COLORS } from "../../utils/constants";
 
 export default function GroupSelection({
   recipients,
