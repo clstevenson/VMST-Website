@@ -1,17 +1,17 @@
 import { useState } from "react";
 import styled from "styled-components";
-import * as Accordian from "@radix-ui/react-accordion";
 
-import AccordianItem from "./AccordianItem";
 import FileUploader from "./FileUploader";
-import Auth from "../utils/auth";
+import Auth from "../../utils/auth";
 import { useQuery, useMutation } from "@apollo/client";
-import { UPLOAD_MEMBERS } from "../utils/mutations";
-import { QUERY_MEMBERS } from "../utils/queries";
+import { UPLOAD_MEMBERS } from "../../utils/mutations";
+import { QUERY_MEMBERS } from "../../utils/queries";
 import papa from "papaparse";
-import getGroups from "../utils/getGroups";
-import { COLORS, QUERIES, WEIGHTS } from "../utils/constants";
-import SubmitButton from "./Styled/SubmiButton";
+import getGroups from "../../utils/getGroups";
+import { COLORS, QUERIES, WEIGHTS } from "../../utils/constants";
+import SubmitButton from "../Styled/SubmiButton";
+import ToastMessage from "../ToastMessage";
+import Instructions from "./Instructions";
 
 export default function UploadMembers() {
   // state representing new members data uploaded from user
@@ -35,6 +35,8 @@ export default function UploadMembers() {
   // mutation to update the Members collection in the CB
   // (used in form onSubmit event handler)
   const [upload, { error }] = useMutation(UPLOAD_MEMBERS);
+  // state representing success of DB update
+  const [updated, setUpdated] = useState(false);
 
   // retrieve DB membership info
   useQuery(QUERY_MEMBERS, {
@@ -124,6 +126,9 @@ export default function UploadMembers() {
 
       // display the new data
       displayMembers(data.uploadMembers);
+
+      // show Toast Message
+      setUpdated(true);
     }
 
     //reset state variables
@@ -262,62 +267,7 @@ export default function UploadMembers() {
       {/* when message is not an empty string, it is displayed */}
       {message && <p> {message} </p>}
 
-      <InstructionsWrapper>
-        <AccordianRoot collapsible>
-          <AccordianItem title="Instructions on generating membership CSV file">
-            <p>The steps are shown in the following figure.</p>
-            <Figure>
-              <Image
-                src="./assets/MemberReportGeneration1.png"
-                alt="generate HTML report screenshot"
-              />
-              <figcaption>
-                Steps to generate an HTML report of all current members and that
-                contains all possible record fields.
-              </figcaption>
-            </Figure>
-
-            <ol>
-              <li>
-                After logging into the Registration section of the USMS
-                Site/Database Administration, click the "Member Report" item on
-                the "Report" drop-down menu.
-              </li>
-              <li>
-                Click on "Select all" to display all available fields in the
-                report.
-              </li>
-              <li>
-                Choose the years to generate all current members. That will
-                always involve checking the current year; in the months of Nov
-                and Dec you will also need to check the next calendar year.
-              </li>
-              <li>Choose the "HTML" report type.</li>
-              <li>Click on the button to generate the report.</li>
-            </ol>
-
-            <p>
-              After the report appears you will get a display like the one shown
-              in the figure below. Check to make sure that all members seem to
-              be included in the report and that all fields were generated (you
-              will have to scroll horizontally to verify). Then click on the CSV
-              button to download the report as a text file with Comma Separated
-              Values. This is the file you will import.
-            </p>
-
-            <Figure>
-              <Image
-                src="./assets/MemberReportGeneration2.png"
-                alt="download member report as a file"
-              />
-              <figcaption>
-                Click the CSV button to download the generated report in the CSV
-                file format suitable for import.
-              </figcaption>
-            </Figure>
-          </AccordianItem>
-        </AccordianRoot>
-      </InstructionsWrapper>
+      <Instructions />
 
       <p>
         There are currently {numMembers} members in the LMSC, {numVMST} of whom
@@ -398,6 +348,11 @@ export default function UploadMembers() {
           ))}
         </tbody>
       </MemberTable>
+      {updated && (
+        <ToastMessage toastCloseEffect={() => setUpdated(false)}>
+          The membership database has been updated!
+        </ToastMessage>
+      )}
     </Wrapper>
   );
 }
@@ -408,10 +363,6 @@ const Wrapper = styled.div`
   /* border: 1px solid ${COLORS.accent[12]}; */
   /* border-radius: 8px; */
   padding: 16px;
-`;
-
-const Image = styled.img`
-  width: 100%;
 `;
 
 const FileUploadInstructions = styled.span`
@@ -444,31 +395,6 @@ const UpdateButton = styled(SubmitButton)`
 const FileWrapper = styled.div`
   display: flex;
   align-items: center;
-`;
-
-const AccordianRoot = styled(Accordian.Root)`
-  margin: 0 32px;
-`;
-
-const InstructionsWrapper = styled.div`
-  border: 1px solid ${COLORS.accent[10]};
-  border-radius: 8px;
-  background-color: ${COLORS.accent[2]};
-  margin: 16px 0;
-
-  & p {
-    margin: 16px 0;
-  }
-`;
-
-const Figure = styled.figure`
-  margin: 16px 0;
-  background-color: transparent;
-
-  & figcaption {
-    font-style: italic;
-    border-top: 1px dotted ${COLORS.gray[7]};
-  }
 `;
 
 const SearchWrapper = styled.div`

@@ -6,7 +6,7 @@ import * as Tabs from "@radix-ui/react-tabs";
 
 import { COLORS, WEIGHTS } from "../utils/constants.js";
 import User from "../components/User";
-import UploadMembers from "../components/UploadMembers.jsx";
+import UploadMembers from "../components/Membership/";
 import Communication from "../components/Communication/";
 
 export default function Account() {
