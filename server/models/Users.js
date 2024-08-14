@@ -47,6 +47,8 @@ const userSchema = new Schema({
     // must be one of the following values
     enum: ['user', 'leader', 'coach', 'membership', 'webmaster'],
   },
+  // workout group is needed for "coach" role
+  group: {type: String, default: ""},
   notifications: {type: Boolean, default: false,},
   emailPermission: {type: Boolean, default: true,}
 });

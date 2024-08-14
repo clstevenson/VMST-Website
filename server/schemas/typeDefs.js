@@ -21,6 +21,7 @@ type User {
   email: String!
   password: String!
   role: String!
+  group: String
   notifications: Boolean
   emailPermission: Boolean
 }
@@ -83,6 +84,7 @@ input UserData {
   email: String
   password: String
   role: String
+  group: String
   notifications: Boolean
   emailPermission: Boolean
 }
@@ -166,7 +168,8 @@ type PhotoCollection {
 
 type Query {
   members: [Member]
-  users: [User]
+  users(id: ID): [User]
+  emailExists(email: String!): User
   posts: [Post]
   onePost(id: String!): Post
   competitors: [Competitor]
@@ -184,7 +187,7 @@ type Query {
 type Mutation {
   login(email: String!, password: String!): Auth
   addUser(firstName: String!, lastName: String!, email: String!, password: String!): Auth
-  editUser(user: UserData): User
+  editUser(_id: ID!, user: UserData): User
   resetPassword(email: String!): User
   changePassword(password: String!): User
   addPost(title: String!, summary: String, content: String!, photo: PhotoData): Post

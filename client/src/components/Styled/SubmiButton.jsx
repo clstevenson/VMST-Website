@@ -24,10 +24,15 @@ const SubmitButton = styled.button`
     padding: 4px 16px;
   }
 
-  &:hover,
-  &:focus {
+  &:hover:not(:disabled),
+  &:focus:not(:disabled) {
     background-color: ${COLORS.accent[11]};
     transform: scale(1.05);
+  }
+
+  &:disabled {
+    background-color: ${COLORS.gray[9]};
+    border-color: ${COLORS.gray[11]};
   }
 `;
 

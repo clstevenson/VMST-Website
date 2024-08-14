@@ -13,7 +13,7 @@ import * as Accordian from "@radix-ui/react-accordion";
 import { ChevronRight } from "react-feather";
 import { COLORS, WEIGHTS } from "../utils/constants";
 
-export default function AccordianItem({ title, children }) {
+export default function AccordianItem({ title, titlePadding = 0, children }) {
   // get a unique "value" string from the title prop
   const itemValue = title
     .toLowerCase()
@@ -23,8 +23,8 @@ export default function AccordianItem({ title, children }) {
   return (
     <Accordian.Item value={itemValue}>
       <Accordian.Header asChild>
-        <AccordianTrigger>
-          <Title tabIndex={-1}>
+        <AccordianTrigger asChild>
+          <Title style={{ "--title-padding": titlePadding }}>
             <TriggerWrapper>
               <Chevron />
             </TriggerWrapper>
@@ -45,9 +45,7 @@ const TriggerWrapper = styled.span`
 `;
 
 const AccordianTrigger = styled(Accordian.Trigger)`
-  background-color: transparent;
   margin: 16px 0;
-  border: none;
 `;
 
 const Chevron = styled(ChevronRight)`
@@ -63,6 +61,7 @@ const Title = styled.button`
   position: relative;
   background-color: transparent;
   border: none;
+  padding-left: var(--title-padding);
 
   /* indicate to user that the title is clickable */
   &:hover {

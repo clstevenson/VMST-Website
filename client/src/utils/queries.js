@@ -1,16 +1,23 @@
 import { gql } from "@apollo/client";
 
 export const QUERY_USER = gql`
-  query user($username: String!) {
-    user(username: $username) {
-      _id
-      username
+  query getUser($id: ID) {
+    users(id: $id) {
+      firstName
+      lastName
       email
-      thoughts {
-        _id
-        thoughtText
-        createdAt
-      }
+      role
+      group
+      notifications
+      emailPermission
+    }
+  }
+`;
+
+export const QUERY_EMAIL = gql`
+  query EmailExists($email: String!) {
+    emailExists(email: $email) {
+      _id
     }
   }
 `;
@@ -71,6 +78,7 @@ export const QUERY_LEADERS = gql`
   }
 `;
 
+// query called by membership coordinator
 export const QUERY_MEMBERS = gql`
   query Members {
     members {
@@ -88,15 +96,17 @@ export const QUERY_MEMBERS = gql`
   }
 `;
 
-export const QUERY_WORKOUT_GROUP = gql`
-  query WORKOUT_GROUPS {
-    members {
+// query called by team leaders and WO group coaches
+export const QUERY_VMST = gql`
+  query GetVMST {
+    vmstMembers {
       _id
+      usmsId
       firstName
       lastName
-      club
       workoutGroup
-      usmsId
+      regYear
+      emailExclude
     }
   }
 `;

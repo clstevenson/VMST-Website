@@ -74,7 +74,10 @@ export default function Gallery() {
         Photo Gallery{" "}
         <span>
           (click image to{" "}
-          <a href="https://www.flickr.com/photos/va_swims/" target="_new">go to Flickr</a>)
+          <a href="https://www.flickr.com/photos/va_swims/" target="_new">
+            go to Flickr
+          </a>
+          )
         </span>
       </Title>
 
@@ -92,11 +95,11 @@ export default function Gallery() {
           <NavPhotos page={page} setPage={setPage} maxPages={maxPages} />
         </NavWrapper>
 
-        {/* control how many photos per page */}
+        {/* control how many photos per page, resetting to page 1 on change */}
         <PhotosPerPage
           perPage={perPage}
           setPerPage={setPerPage}
-          numPhotos={numPhotos}
+          setPage={setPage}
         />
       </HeaderWrapper>
 

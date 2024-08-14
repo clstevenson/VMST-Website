@@ -227,7 +227,10 @@ export default function CreateEditPost({ isEditing = false }) {
   };
 
   return (
-    <FormWrapper aria-label="create new post" onSubmit={handleSubmit(onSubmit)}>
+    <FormWrapper
+      aria-label="create/edit new post"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <TextWrapper>
         {/* contains text input forms for title, summary, content */}
         <InputWrapper>
@@ -264,11 +267,16 @@ export default function CreateEditPost({ isEditing = false }) {
             onChange={setPostContent}
           />
         </QuillWrapper>
-        <Description style={{ marginTop: "-18px" }}>
-          If you use images, please choose small sizes to avoid database bloat.
-          The image will float left (text flowing to the right of the image) in
-          the final post; eventually this will be under user control.
-        </Description>
+        <QuillDescription>
+          Check out{" "}
+          <a href="https://www.flickr.com/photos/va_swims/" target="_new">
+            our Flickr account
+          </a>{" "}
+          for images to use. If you use images, please choose small sizes (eg{" "}
+          <span>Small240</span> or <span>Small320</span>) to reduce database
+          bloat. The image will float left (text flowing to the right of the
+          image) in the final post.
+        </QuillDescription>
         {/* error message to display */}
         {message && <ErrorMessage>{message}</ErrorMessage>}
       </TextWrapper>
@@ -291,10 +299,11 @@ export default function CreateEditPost({ isEditing = false }) {
                 setPage(1);
               }}
             >
-              <SelectTrigger>
-                <Select.Value placeholder="Photo album..." />
+              <SelectTrigger tabIndex={1}>
+                <Select.Value />
                 <Select.Icon />
               </SelectTrigger>
+
               <SelectContent position="popper">
                 <SelectViewport>
                   <SelectItem value={featuredId}>
@@ -550,6 +559,15 @@ const Description = styled.p`
   font-size: 0.8rem;
 `;
 
+const QuillDescription = styled(Description)`
+  margin-top: -18px;
+  font-size: 0.95rem;
+
+  & span {
+    font-family: monospace;
+  }
+`;
+
 const PhotoDescription = styled(Description)`
   margin: 0 auto;
   margin-top: -16px;
@@ -646,6 +664,6 @@ const QuillWrapper = styled.div`
   }
 
   & p {
-    font-size: 1rem;
+    font-size: 1.05rem;
   }
 `;

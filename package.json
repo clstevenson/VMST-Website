@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Spikey1289/VMST-Communication-Website.git"
+    "url": "https://github.com/clstevenson/VMST-Website"
   },
-  "author": "Ian Stevenson, Chris Stevenson, De'Sean Pair, Brian Guthie",
+  "author": "Chris Stevenson, Ian Stevenson, De'Sean Pair, Brian Guthie",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Spikey1289/VMST-Communication-Website/issues"
+    "url": "https://github.com/clstevenson/VMST-Website/issues"
   },
-  "homepage": "https://github.com/Spikey1289/VMST-Communication-Website#readme",
+  "homepage": "https://github.com/clstevenson/VMST-Website#readme",
   "devDependencies": {
     "concurrently": "^8.2.2"
   }

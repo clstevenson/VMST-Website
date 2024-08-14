@@ -1,15 +1,17 @@
 import styled from "styled-components";
 import Auth from "../utils/auth";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 
 import { COLORS, WEIGHTS } from "../utils/constants.js";
 import User from "../components/User";
 import UploadMembers from "../components/UploadMembers.jsx";
+import Communication from "../components/Communication/";
 
 export default function Account() {
   const navigate = useNavigate();
+  const [tab, setTab] = useState("user");
 
   // if not logged in, redirect to home page
   useEffect(() => {
@@ -21,11 +23,11 @@ export default function Account() {
   const { data: userProfile } = Auth.getProfile();
 
   // early return: if basic user, don't show tabs
-  if (userProfile.role === "user") return <User />;
+  if (userProfile.role === "user") return <User userProfile={userProfile} />;
 
   // other roles have tabs (ie more things they can do)
   return (
-    <TabsRoot defaultValue="user">
+    <TabsRoot defaultValue="user" value={tab} onValueChange={setTab}>
       <TabsList aria-label="Account page">
         <TabsTrigger value="user">User Settings</TabsTrigger>
         {userProfile.role === "membership" && (
@@ -35,35 +37,50 @@ export default function Account() {
           <TabsTrigger value="email">Communication</TabsTrigger>
         )}
         {userProfile.role === "leader" && (
-          <TabsTrigger value="relays">Relays</TabsTrigger>
+          <TabsTrigger value="meets">Meets</TabsTrigger>
         )}
         {userProfile.role === "webmaster" && (
           <TabsTrigger value="webmaster">Website Mgmt</TabsTrigger>
         )}
       </TabsList>
-      <Tabs.Content value="user" asChild>
-        <User />
-      </Tabs.Content>
-      <Tabs.Content value="membership">
+      <TabsContent value="user" asChild>
+        <User userProfile={userProfile} />
+      </TabsContent>
+      <TabsContent value="membership">
         <UploadMembers />
-      </Tabs.Content>
-      <Tabs.Content value="email"></Tabs.Content>
-      <Tabs.Content value="relays"></Tabs.Content>
-      <Tabs.Content value="webmaster"></Tabs.Content>
+      </TabsContent>
+      <TabsContent value="email">
+        <Communication setTab={setTab} userProfile={userProfile} />
+      </TabsContent>
+      <TabsContent value="meets">
+        <p>Upcoming capabilities for this page:</p>
+        <ul>
+          <li>upload/manage competitors for a specific meet</li>
+          <li>manage competitions (eg delete meet after no longer needed)</li>
+          <li>construct relays</li>
+          <li>post relays to home page</li>
+        </ul>
+      </TabsContent>
+      <TabsContent value="webmaster"></TabsContent>
     </TabsRoot>
   );
 }
 
 const TabsRoot = styled(Tabs.Root)`
-  width: min(1200px, 100%);
+  width: min(1400px, 100%);
   margin: 8px auto;
   border: 1px solid ${COLORS.accent[12]};
   border-radius: 8px;
   padding: 16px;
+  box-shadow: var(--main-box-shadow);
 `;
 
 const TabsList = styled(Tabs.List)`
   border-bottom: 1px solid ${COLORS.accent[12]};
+`;
+
+const TabsContent = styled(Tabs.Content)`
+  outline: none;
 `;
 
 const TabsTrigger = styled(Tabs.Trigger)`
@@ -74,6 +91,10 @@ const TabsTrigger = styled(Tabs.Trigger)`
   border: 1px solid ${COLORS.gray[9]};
   border-bottom: none;
   border-radius: var(--nav-border-radius);
+
+  &:focus {
+    outline: auto;
+  }
 
   &:hover {
     cursor: pointer;

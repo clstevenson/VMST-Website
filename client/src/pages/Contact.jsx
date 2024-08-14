@@ -2,8 +2,8 @@ import styled from "styled-components";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as Label from "@radix-ui/react-label";
-import ToastMessage from "../components/ToastMessage";
 
+import ToastMessage from "../components/ToastMessage";
 import SubmitButton from "../components/Styled/SubmiButton";
 import ErrorMessage from "../components/Styled/ErrorMessage";
 
@@ -200,7 +200,7 @@ const Wrapper = styled.div`
   border: 1px solid ${COLORS.accent[12]};
   padding: 8px 24px 16px 48px;
   border-radius: 8px;
-  box-shadow: 2px 4px 6px ${COLORS.gray[9]};
+  box-shadow: var(--main-box-shadow);
 `;
 
 const ErrorWrapper = styled.div`

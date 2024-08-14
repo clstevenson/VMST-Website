@@ -7,7 +7,6 @@
  * are stored in a separate file.
  */
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { X } from "react-feather";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -28,9 +27,6 @@ const LoginContent = ({ setIsLogin, setOpen, message, setMessage }) => {
     formState: { errors, isSubmitting },
   } = useForm();
 
-  // toggle between login and password reset forms
-  const [isReset, setIsReset] = useState(false);
-
   // login checked on server
   const [login] = useMutation(LOGIN_USER);
   const [resetPassword] = useMutation(RESET_PASSWORD);
@@ -46,7 +42,6 @@ const LoginContent = ({ setIsLogin, setOpen, message, setMessage }) => {
       setOpen(false);
 
       // store the token in browser
-      // load the account page (with greeting)
       Auth.login(data.login.token);
     } catch (err) {
       setMessage(`Error: ${err.message}`);

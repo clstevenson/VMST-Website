@@ -117,7 +117,7 @@ const Wrapper = styled.article`
   border: 1px solid ${COLORS.accent[12]};
   padding: 8px 24px 16px 48px;
   border-radius: 8px;
-  box-shadow: 2px 4px 6px ${COLORS.gray[9]};
+  box-shadow: var(--main-box-shadow);
   background-color: ${COLORS.accent[2]};
 `;
 

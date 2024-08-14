@@ -18,8 +18,22 @@ const resolvers = {
   Query: {
     // get all USMS members of the VA LMSC
     members: async () => await Member.find().sort({ lastName: 1 }),
-    // get all website users
-    users: async () => await User.find(),
+    // get website users (or maybe a single user)
+    users: async (_, { id }) => {
+      if (id) {
+        // return a single user (as an array to match typedef)
+        const user = await User.findById(id);
+        return [user];
+      } else {
+        const users = await User.find();
+        return users;
+      }
+    },
+    // test if a given email address already exists (since it must be unique)
+    emailExists: async (_, { email }) => {
+      const user = await User.findOne({ email: email });
+      return user;
+    },
     // get all posts, sorted most recent first
     posts: async () => await Post.find().sort({ createdAt: -1 }),
     // get a single post with all comments
@@ -30,16 +44,18 @@ const resolvers = {
     competitors: async () => await Competitor.find(),
     // get list of unique workout groups
     // GraphQL returns an object of the form { groups: [...list of unique groups ...] }
+    // Note that there is a client-side JS utility that does the same thing, given
+    // an input of members, without having to query the DB
     groups: async () =>
       await Member.find({ club: "VMST" }).distinct("workoutGroup"),
-    // get members of a specific workout group (or all of VMST)
-    vmstMembers: async (_, { workoutGroup }) => {
-      let swimmers = [];
+    // get all members of VMST
+    vmstMembers: async () => {
       try {
-        if (workoutGroup.toLowerCase() === "vmst") {
-          swimmers = await Member.find({ club: "VMST" });
-        } else {
-          swimmers = await Member.find({ workoutGroup: workoutGroup });
+        const swimmers = await Member.find({
+          club: "VMST",
+        });
+        if (swimmers.length === 0) {
+          throw new Error("Didn't find any VMST swimmers");
         }
         return swimmers;
       } catch (err) {
@@ -100,17 +116,23 @@ const resolvers = {
       const token = signToken(user);
       return { token, user };
     },
-    // user info is passed by context (ie in the token)
+    // a logged-in user can change their own info
+    // the webmaster can change anyone's info
+    // user ID is as an argument (so the webmaster can change it)
+    // but a token is needed in order to edit a user
     editUser: async (_, args, { user }) => {
       try {
+        // must be logged-in to proceed
+        if (!user) throw AuthenticationError;
         // don't attempt to update password here
         delete args.user.password;
         // only admins can update roles
         if (user.role !== "webmaster") delete args.user.role;
-        // find user by ID
-        const updatedUser = await User.findByIdAndUpdate(user._id, args.user, {
+        // ID must be part of the args (not obtained from token)
+        const updatedUser = await User.findByIdAndUpdate(args._id, args.user, {
           new: true,
         });
+        if (!updatedUser) throw AuthenticationError;
         return updatedUser;
       } catch (err) {
         console.log(err);
@@ -333,10 +355,11 @@ contact the webmaster immediately by replying to this message.`,
       // only team leaders or coaches can email WO groups
       if (user.role !== "leader" && user.role !== "coach")
         throw AuthenticationError;
-      // retrieve the emails of the workout group me
+      // retrieve the emails of the recipients (from their id's)
       const group = await Member.find({ _id: { $in: emailData.id } }).select(
         "emails"
       );
+
       // returned an array of objects with property "email" (one array item per leader in input)
       const mailArgs = { ...emailData };
       delete mailArgs.id;
@@ -344,8 +367,12 @@ contact the webmaster immediately by replying to this message.`,
       group.forEach((member) => {
         emailArray = [...emailArray, ...member.emails];
       });
-
       mailArgs.emails = emailArray;
+
+      // need to know who to reply to (ie the leader or coach who is sending the message)
+      const sender = await User.findById(user._id).select("email");
+      mailArgs.from = sender.email;
+      mailArgs.replyTo = sender.email;
 
       // call mail() with mailArgs
       if (mailArgs.emails.length > 0) {
