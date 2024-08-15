@@ -33,6 +33,7 @@ const FileUploader = ({
       {/* activate ("click") the hidden file input element when the Button is clicked */}
       <Button
         style={delegated.style}
+        type="button"
         onClick={() => hiddenFileInput.current.click()}
       >
         {children}
