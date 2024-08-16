@@ -104,6 +104,7 @@ export const QUERY_VMST = gql`
       usmsId
       firstName
       lastName
+      gender
       workoutGroup
       regYear
       emailExclude

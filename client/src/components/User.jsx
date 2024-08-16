@@ -19,7 +19,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import * as Dialog from "@radix-ui/react-dialog";
-import * as Checkbox from "@radix-ui/react-checkbox";
 import * as Accordian from "@radix-ui/react-accordion";
 import * as Label from "@radix-ui/react-label";
 import * as RadioGroup from "@radix-ui/react-radio-group";
@@ -39,6 +38,8 @@ import ToastMessage from "../components/ToastMessage";
 import { Check } from "react-feather";
 import AccordianItem from "./AccordianItem.jsx";
 import MinorButton from "./Styled/MinorButton.jsx";
+import { FieldSet } from "./Styled/FieldSet.jsx";
+import { CheckboxRoot, CheckboxIndicator } from "./Styled/Checkbox.jsx";
 
 export default function User({ userProfile }) {
   // state of modals
@@ -547,34 +548,10 @@ const UserForm = styled.form`
   gap: 16px;
 `;
 
-const NameWrapper = styled.fieldset`
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px dotted ${COLORS.gray[9]};
+const NameWrapper = styled(FieldSet)`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-
-  & legend {
-    border-radius: 4px;
-    display: inline-block;
-    background-color: ${COLORS.accent[12]};
-    color: ${COLORS.accent[2]};
-    padding: 3px 6px;
-    width: max-content;
-  }
-
-  & input[type="text"] {
-    background-color: var(--change-background-color);
-    padding: 0 4px;
-    border: none;
-    width: 100%;
-  }
-
-  & input[type="text"]:hover {
-    background-color: ${COLORS.accent[4]};
-    outline: auto;
-  }
 
   @media ${QUERIES.tabletAndLess} {
     grid-template-columns: 1fr;
@@ -613,27 +590,6 @@ const Highlighted = styled.span`
 
 const YellowHighlight = styled.span`
   background-color: ${COLORS.secondary_light};
-`;
-
-const CheckboxRoot = styled(Checkbox.Root)`
-  all: "unset";
-  background-color: transparent;
-  border: 1px solid ${COLORS.gray[11]};
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
-  box-shadow: 1px 2px 4px ${COLORS.gray[8]};
-  margin-right: 6px;
-
-  &[data-disabled] {
-    border: 1px solid ${COLORS.gray[8]};
-  }
-`;
-
-const CheckboxIndicator = styled(Checkbox.Indicator)`
-  display: flex;
-  justify-content: center;
-  align-items: center;
 `;
 
 // membership info

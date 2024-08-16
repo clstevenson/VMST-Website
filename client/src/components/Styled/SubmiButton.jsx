@@ -16,7 +16,7 @@ const SubmitButton = styled.button`
   border-radius: 4px;
   outline-offset: 0;
   color: white;
-  /* Make the button easy for touchscreen users to tap */
+  box-shadow: 2px 4px 6px ${COLORS.gray[10]};
   min-height: 44px;
   min-width: 44px;
 
@@ -27,7 +27,13 @@ const SubmitButton = styled.button`
   &:hover:not(:disabled),
   &:focus:not(:disabled) {
     background-color: ${COLORS.accent[11]};
-    transform: scale(1.05);
+    cursor: pointer;
+  }
+
+  &:active:not(:disabled) {
+    background-color: ${COLORS.accent[10]};
+    box-shadow: 1px 2px 2px ${COLORS.gray[10]};
+    transform: translateY(2px);
   }
 
   &:disabled {

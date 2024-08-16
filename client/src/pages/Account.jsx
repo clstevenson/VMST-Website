@@ -8,6 +8,7 @@ import { COLORS, WEIGHTS } from "../utils/constants.js";
 import User from "../components/User";
 import UploadMembers from "../components/Membership/";
 import Communication from "../components/Communication/";
+import Meets from "../components/Meets/";
 
 export default function Account() {
   const navigate = useNavigate();
@@ -53,13 +54,7 @@ export default function Account() {
         <Communication setTab={setTab} userProfile={userProfile} />
       </TabsContent>
       <TabsContent value="meets">
-        <p>Upcoming capabilities for this page:</p>
-        <ul>
-          <li>upload/manage competitors for a specific meet</li>
-          <li>manage competitions (eg delete meet after no longer needed)</li>
-          <li>construct relays</li>
-          <li>post relays to home page</li>
-        </ul>
+        <Meets />
       </TabsContent>
       <TabsContent value="webmaster"></TabsContent>
     </TabsRoot>

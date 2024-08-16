@@ -10,7 +10,7 @@ import { Check } from "react-feather";
 
 import AccordianItem from "../AccordianItem";
 import { Description } from "../Styled/Description";
-import { CheckboxRoot } from "../Styled/CheckboxRoot";
+import { CheckboxRoot } from "../Styled/Checkbox";
 import { COLORS } from "../../utils/constants";
 
 export default function GroupSelection({
