@@ -23,13 +23,11 @@ import { CheckboxRoot, CheckboxIndicator } from "../Styled/Checkbox";
 export default function Meets() {
   // state used to pass messages to user (sometimes errors)
   const [message, setMessage] = useState("");
-  // state representing currently selected file
-  const [file, setFile] = useState("");
   // array of objects containing competitors in the meet being displayed
   const [competitors, setCompetitors] = useState([]);
   // array of relay event numbers for user to assign actual events
   const [relayEventNumbers, setRelayEventNumbers] = useState([]);
-  // list of all VMST team members (array of member objects)
+  // list of all VMST team members (array of member objects) obtained on initial render
   const [members, setMembers] = useState([]);
 
   //set up for react-hook-form
@@ -37,7 +35,6 @@ export default function Meets() {
     register,
     handleSubmit,
     getValues,
-    setValue,
     reset,
     formState: { errors, isSubmitting },
   } = useForm();
@@ -50,7 +47,6 @@ export default function Meets() {
 
   // file input onchange event handler, which parses the CSV file
   const handleFile = async (e) => {
-    setFile(e.target.value);
     setMessage("");
     let reader = new FileReader();
     reader.readAsText(e.target.files[0]);
@@ -96,6 +92,8 @@ export default function Meets() {
           ({ gender }) => gender === swimmer.gender
         );
         const match = matchUSMS(swimmer, filteredMembers);
+        // by default include in email messages
+        match[0].include = true;
         // add the top match to the swimmer object (want permanent rec)
         return { ...swimmer, member: match[0] };
       });
@@ -109,8 +107,50 @@ export default function Meets() {
     };
   };
 
-  const onSubmit = async (data) => {
-    console.log(data);
+  const onSubmit = async ({ meetName, startDate, endDate }) => {
+    // let's trim the fat a bit
+    const meetSwimmers = competitors.map((swimmer) => {
+      const { _id: memberId, include: includeEmail } = swimmer.member;
+      const savedSwimmer = { ...swimmer };
+      delete savedSwimmer.id; // saving in DB will generate a unique ID, don't need this one
+      delete savedSwimmer.member;
+      return {
+        ...savedSwimmer,
+        memberId,
+        includeEmail,
+      };
+    });
+
+    // object to save in DB
+    const meet = {
+      meetName,
+      startDate,
+      endDate,
+      relayEventNumbers,
+      meetSwimmers,
+    };
+    // save in DB
+    console.log(meet);
+    /*
+    Array of objects with the following properties
+    - meetName: string
+    - startDate: string
+    - endDate: string
+    - relayEventNumbers: array of strings with pattern "R##"
+    - meetSwimmers: array of objects with properties firstName, lastName, gender, meetAge, relays (array of numbers), memberId (for reference to the Members table for later lookup as needed), and includeEmail (a boolean on whether to include the person on email messages)
+    */
+
+    // Toast success
+
+    // cleanup; eventually will be passed to ToastMessage component
+    resetForm();
+  };
+
+  const resetForm = () => {
+    reset();
+    setMessage("");
+    setCompetitors([]);
+    setRelayEventNumbers([]);
   };
 
   return (
@@ -156,7 +196,7 @@ export default function Meets() {
         <legend>Meet Information</legend>
 
         <MeetNameDate>
-          <InputWrapper>
+          <InputWrapper style={{ gridArea: "name" }}>
             <LabelRoot htmlFor="meet-name">Meet Name</LabelRoot>
             <input
               type="text"
@@ -165,11 +205,13 @@ export default function Meets() {
                 required: "Meet name is required",
               })}
             />
-            {errors.meetName?.message && (
-              <ErrorMessage>{errors.meetName.message}</ErrorMessage>
-            )}
           </InputWrapper>
-          <InputWrapper>
+          {errors.meetName?.message && (
+            <ErrorMessage style={{ gridArea: "errorName" }}>
+              {errors.meetName.message}
+            </ErrorMessage>
+          )}
+          <InputWrapper style={{ gridArea: "start" }}>
             <LabelRoot htmlFor="start-date">Start date</LabelRoot>
             <input
               type="date"
@@ -178,11 +220,13 @@ export default function Meets() {
                 required: "Start date is required",
               })}
             />
-            {errors.startDate?.message && (
-              <ErrorMessage>{errors.startDate.message}</ErrorMessage>
-            )}
           </InputWrapper>
-          <InputWrapper>
+          {errors.startDate?.message && (
+            <ErrorMessage style={{ gridArea: "errorStart" }}>
+              {errors.startDate.message}
+            </ErrorMessage>
+          )}
+          <InputWrapper style={{ gridArea: "end" }}>
             <LabelRoot htmlFor="end-date">End date (optional)</LabelRoot>
             <input
               type="date"
@@ -190,12 +234,17 @@ export default function Meets() {
               {...register("endDate", {
                 validate: (val) => {
                   if (val && val < getValues("startDate"))
-                    return "End date cannot be before the start date";
+                    return "End date must be after start date";
                   return true;
                 },
               })}
             />
           </InputWrapper>
+          {errors.endDate?.message && (
+            <ErrorMessage style={{ gridArea: "errorEnd" }}>
+              {errors.endDate.message}
+            </ErrorMessage>
+          )}
         </MeetNameDate>
 
         {/*
@@ -246,7 +295,7 @@ export default function Meets() {
                 </tr>
               </thead>
               <tbody>
-                {competitors.map((swimmer) => {
+                {competitors.map((swimmer, index) => {
                   return (
                     <tr key={swimmer.id}>
                       {/* Roster upload data */}
@@ -271,7 +320,15 @@ export default function Meets() {
                         </a>
                       </td>
                       <td style={{ textAlign: "center" }}>
-                        <Checkbox defaultChecked>
+                        <Checkbox
+                          checked={swimmer.member.include}
+                          onCheckedChange={(checked) => {
+                            // toggle the "member.include" property for this swimmer
+                            const allCompetitors = competitors;
+                            allCompetitors[index].member.include = checked;
+                            setCompetitors([...allCompetitors]);
+                          }}
+                        >
                           <CheckboxIndicator>
                             <Check strokeWidth={3} />
                           </CheckboxIndicator>
@@ -287,7 +344,9 @@ export default function Meets() {
       </MeetInfo>
       <SubmitButtonWrapper>
         <SubmitButton>Save Meet</SubmitButton>
-        <Button type="button">Reset Info</Button>
+        <Button type="button" onClick={resetForm}>
+          Reset Info
+        </Button>
       </SubmitButtonWrapper>
     </Form>
   );
@@ -371,18 +430,19 @@ const MeetInfo = styled(FieldSet)`
 `;
 
 const MeetNameDate = styled.div`
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  grid-template-areas:
+    "name start end"
+    "errorName errorStart errorEnd";
   gap: 6px;
 
-  & input[type="text"] {
-    flex: 1;
-    min-width: 15ch;
+  & ${ErrorMessage} {
+    justify-self: center;
+    margin-top: -6px;
   }
 
   @media (max-width: 800px) {
-    flex-direction: column;
-    align-items: flex-start;
   }
 `;
 
@@ -391,10 +451,10 @@ const InputWrapper = styled.div`
   display: flex;
   gap: 6px;
   align-items: center;
-  flex: 0;
 
-  ${MeetNameDate} &:first-of-type {
+  & input[type="text"] {
     flex: 1;
+    min-width: 15ch;
   }
 `;
 

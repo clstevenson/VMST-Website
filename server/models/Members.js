@@ -43,7 +43,6 @@ const memberSchema = new Schema(
       },
     },
     toJSON: { virtuals: true }, // access virtuals
-    // id: false,  // usmsRegNo is already unique identifier
   }
 );
 
