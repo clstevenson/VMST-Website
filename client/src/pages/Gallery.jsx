@@ -72,12 +72,12 @@ export default function Gallery() {
     <Wrapper>
       <Title>
         Photo Gallery{" "}
-        <span>
-          (click image to{" "}
+        <span style={{ fontSize: "1.05rem" }}>
+          (click caption to{" "}
           <a href="https://www.flickr.com/photos/va_swims/" target="_new">
-            go to Flickr
-          </a>
-          )
+            open in Flickr
+          </a>{" "}
+          in a new tab)
         </span>
       </Title>
 
@@ -111,13 +111,13 @@ export default function Gallery() {
       ) : (
         <GalleryWrapper>
           {photos.map((photo) => (
-            <a href={photo.flickrURL} target="_new" key={photo.id}>
-              <CaptionedImage
-                src={photo.url}
-                alt={photo.caption}
-                caption={photo.caption}
-              />
-            </a>
+            <CaptionedImage
+              key={photo.id}
+              src={photo.url}
+              alt={photo.caption}
+              caption={photo.caption}
+              url={photo.flickrURL}
+            />
           ))}
         </GalleryWrapper>
       )}

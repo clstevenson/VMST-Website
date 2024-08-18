@@ -5,13 +5,16 @@ import { COLORS } from "../../utils/constants";
 export default function CaptionedImage({
   alt,
   src,
+  url,
   caption,
   height = "400px",
 }) {
   return (
     <Figure>
       <Image alt={alt} src={src} style={{ height }} />
-      <FigCaption>{caption}</FigCaption>
+      <a href={url} target="_new">
+        <FigCaption>{caption}</FigCaption>
+      </a>
     </Figure>
   );
 }
@@ -22,13 +25,6 @@ const Figure = styled.figure`
   border: 1px solid ${COLORS.gray[8]};
   border-radius: 4px;
   box-shadow: 1px 2px 4px ${COLORS.gray[8]};
-
-  &:hover {
-    outline: auto;
-    background-color: ${COLORS.accent[2]};
-    /* mimics a link to the full post, which isn't in place yet */
-    cursor: pointer;
-  }
 `;
 
 const Image = styled.img`
@@ -44,4 +40,8 @@ const FigCaption = styled.figcaption`
   -webkit-line-clamp: 1;
   text-overflow: ellipsis;
   overflow: hidden;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;

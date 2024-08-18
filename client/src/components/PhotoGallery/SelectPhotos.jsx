@@ -67,7 +67,7 @@ const SelectContent = styled(Select.Content)`
   border: 1px solid ${COLORS.accent[12]};
   box-shadow: 2px 4px 8px black;
   cursor: pointer;
-  /* width: var(--radix-select-trigger-width); */
+  width: var(--radix-select-trigger-width);
 `;
 
 const SelectViewport = styled(Select.Viewport)``;
