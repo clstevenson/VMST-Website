@@ -3,6 +3,7 @@ import styled from "styled-components";
 import * as Label from "@radix-ui/react-label";
 import * as Accordian from "@radix-ui/react-accordion";
 import * as Separator from "@radix-ui/react-separator";
+import * as Select from "@radix-ui/react-select";
 import papa from "papaparse";
 import { useForm } from "react-hook-form";
 import { useQuery, useMutation } from "@apollo/client";
@@ -35,6 +36,7 @@ export default function Meets() {
     register,
     handleSubmit,
     getValues,
+    setValue,
     reset,
     formState: { errors, isSubmitting },
   } = useForm();
@@ -74,7 +76,7 @@ export default function Meets() {
         // return object subset
         .map((swimmer) => {
           return {
-            id: crypto.randomUUID(),
+            _id: crypto.randomUUID(),
             firstName: swimmer.First,
             lastName: swimmer.Last,
             meetAge: swimmer[ageProp],
@@ -107,12 +109,17 @@ export default function Meets() {
     };
   };
 
-  const onSubmit = async ({ meetName, startDate, endDate }) => {
+  const onSubmit = async ({ meetName, startDate, endDate, course }) => {
+    // early return if no meet swimmers in memory
+    if (competitors.length === 0) {
+      setMessage("No meet roster is loaded");
+      return;
+    }
     // let's trim the fat a bit
     const meetSwimmers = competitors.map((swimmer) => {
       const { _id: memberId, include: includeEmail } = swimmer.member;
       const savedSwimmer = { ...swimmer };
-      delete savedSwimmer.id; // saving in DB will generate a unique ID, don't need this one
+      delete savedSwimmer._id; // saving in DB will generate a unique ID, no longer need this
       delete savedSwimmer.member;
       return {
         ...savedSwimmer,
@@ -124,6 +131,7 @@ export default function Meets() {
     // object to save in DB
     const meet = {
       meetName,
+      course,
       startDate,
       endDate,
       relayEventNumbers,
@@ -134,6 +142,7 @@ export default function Meets() {
     /*
     Array of objects with the following properties
     - meetName: string
+    - course: string
     - startDate: string
     - endDate: string
     - relayEventNumbers: array of strings with pattern "R##"
@@ -198,53 +207,80 @@ export default function Meets() {
         <MeetNameDate>
           <InputWrapper style={{ gridArea: "name" }}>
             <LabelRoot htmlFor="meet-name">Meet Name</LabelRoot>
+
             <input
               type="text"
               id="meet-name"
               {...register("meetName", {
-                required: "Meet name is required",
+                required: "Meet name required",
               })}
             />
+            {errors.meetName?.message && (
+              <ErrorMessage>{errors.meetName.message}</ErrorMessage>
+            )}
           </InputWrapper>
-          {errors.meetName?.message && (
-            <ErrorMessage style={{ gridArea: "errorName" }}>
-              {errors.meetName.message}
-            </ErrorMessage>
-          )}
-          <InputWrapper style={{ gridArea: "start" }}>
+          {/* user selects course */}
+          <InputWrapper style={{ gridArea: "course" }}>
+            <LabelRoot htmlFor="course">Course</LabelRoot>
+            <Select.Root
+              onValueChange={(value) => setValue("course", value)}
+              {...register("course", {
+                required: "Course required",
+              })}
+            >
+              <SelectTrigger id="course">
+                <Select.Value placeholder="Select" />
+                <Select.Icon />
+              </SelectTrigger>
+              <SelectContent position="popper">
+                <Select.Viewport>
+                  <SelectItem value="SCY">
+                    <Select.ItemText>SCY</Select.ItemText>
+                  </SelectItem>
+                  <SelectItem value="SCM">
+                    <Select.ItemText>SCM</Select.ItemText>
+                  </SelectItem>
+                  <SelectItem value="LCM">
+                    <Select.ItemText>LCM</Select.ItemText>
+                  </SelectItem>
+                </Select.Viewport>
+              </SelectContent>
+            </Select.Root>
+            {errors.course?.message && (
+              <ErrorMessage>{errors.course.message}</ErrorMessage>
+            )}
+          </InputWrapper>
+
+          <StartDate>
             <LabelRoot htmlFor="start-date">Start date</LabelRoot>
             <input
               type="date"
               id="start-date"
               {...register("startDate", {
-                required: "Start date is required",
+                required: "Start date required",
               })}
             />
-          </InputWrapper>
-          {errors.startDate?.message && (
-            <ErrorMessage style={{ gridArea: "errorStart" }}>
-              {errors.startDate.message}
-            </ErrorMessage>
-          )}
-          <InputWrapper style={{ gridArea: "end" }}>
+            {errors.startDate?.message && (
+              <ErrorMessage>{errors.startDate.message}</ErrorMessage>
+            )}
+          </StartDate>
+          <EndDate>
             <LabelRoot htmlFor="end-date">End date (optional)</LabelRoot>
             <input
-              type="date"
               id="end-date"
+              type="date"
               {...register("endDate", {
                 validate: (val) => {
                   if (val && val < getValues("startDate"))
-                    return "End date must be after start date";
+                    return "End must be after start";
                   return true;
                 },
               })}
             />
-          </InputWrapper>
-          {errors.endDate?.message && (
-            <ErrorMessage style={{ gridArea: "errorEnd" }}>
-              {errors.endDate.message}
-            </ErrorMessage>
-          )}
+            {errors.endDate?.message && (
+              <ErrorMessage>{errors.endDate.message}</ErrorMessage>
+            )}
+          </EndDate>
         </MeetNameDate>
 
         {/*
@@ -297,7 +333,7 @@ export default function Meets() {
               <tbody>
                 {competitors.map((swimmer, index) => {
                   return (
-                    <tr key={swimmer.id}>
+                    <tr key={swimmer._id}>
                       {/* Roster upload data */}
                       <th scope="row">
                         {swimmer.firstName} {swimmer.lastName}
@@ -342,6 +378,11 @@ export default function Meets() {
           </TableWrap>
         )}
       </MeetInfo>
+      {message && (
+        <ErrorMessage style={{ gridArea: "message", justifySelf: "center" }}>
+          {message}
+        </ErrorMessage>
+      )}
       <SubmitButtonWrapper>
         <SubmitButton>Save Meet</SubmitButton>
         <Button type="button" onClick={resetForm}>
@@ -359,6 +400,7 @@ const Form = styled.form`
   grid-template-areas:
     "upload saved"
     "info info"
+    "message message"
     "button button";
   gap: 8px;
   // all inputs have some padding
@@ -423,55 +465,80 @@ const MeetSaved = styled(FieldSet)`
 
 const MeetInfo = styled(FieldSet)`
   grid-area: info;
-  & input {
-    border: none;
-    border-bottom: 1px solid ${COLORS.accent[12]};
-  }
 `;
 
 const MeetNameDate = styled.div`
   display: grid;
-  grid-template-columns: 1fr auto auto;
-  grid-template-areas:
-    "name start end"
-    "errorName errorStart errorEnd";
-  gap: 6px;
-
-  & ${ErrorMessage} {
-    justify-self: center;
-    margin-top: -6px;
-  }
+  grid-template-columns: 1fr auto auto auto;
+  grid-template-areas: "name course start end";
+  gap: 12px;
+  align-items: start;
 
   @media (max-width: 800px) {
-  }
-`;
-
-const InputWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  gap: 6px;
-  align-items: center;
-
-  & input[type="text"] {
-    flex: 1;
-    min-width: 15ch;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "name course" "start end";
   }
 `;
 
 const LabelRoot = styled(Label.Root)`
   all: unset;
-  padding: 0;
+  padding: 0 4px;
   margin: 0;
   width: max-content;
+  font-size: 1.05rem;
+`;
 
-  @media ${QUERIES.tabletAndLess} {
-    width: min-content;
-  }
+const InputWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
 
-  @media (max-width: 800px) {
-    /* switches to flex-column */
-    width: max-content;
+  & input[type="text"] {
+    flex: 1;
+    min-width: 25ch;
   }
+`;
+
+const SelectTrigger = styled(Select.Trigger)`
+  width: 8ch;
+  margin-right: 6px;
+  padding-left: 8px;
+  display: inline-flex;
+  justify-content: space-between;
+`;
+const SelectContent = styled(Select.Content)`
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid ${COLORS.accent[12]};
+  box-shadow: 2px 4px 8px black;
+  cursor: pointer;
+  width: var(--radix-select-trigger-width);
+`;
+const SelectItem = styled(Select.Item)`
+  width: var(--radix-select-trigger-width);
+  padding-left: 8px;
+  margin: 2px 0;
+  font-size: 1.1rem;
+  &[data-highlighted] {
+    background-color: ${COLORS.accent[5]};
+    outline: none;
+  }
+`;
+
+const StartDate = styled.div`
+  min-width: max-content;
+  grid-area: start;
+  display: flex;
+  flex-direction: column;
+  & input {
+    border: none;
+    border-bottom: 1px solid black;
+  }
+`;
+
+const EndDate = styled(StartDate)`
+  grid-area: end;
 `;
 
 const SeparatorRoot = styled(Separator.Root)`
