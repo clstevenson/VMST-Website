@@ -15,7 +15,6 @@
 
 import { useRef } from "react";
 import styled from "styled-components";
-import { COLORS, WEIGHTS } from "../utils/constants";
 import MinorButton from "./Styled/MinorButton";
 
 const FileUploader = ({

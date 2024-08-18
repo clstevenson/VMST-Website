@@ -22,22 +22,23 @@ import matchUSMS from "../../utils/matchUSMS";
 import { CheckboxRoot, CheckboxIndicator } from "../Styled/Checkbox";
 
 export default function Meets() {
-  // state used to pass messages to user (sometimes errors)
-  const [message, setMessage] = useState("");
   // array of objects containing competitors in the meet being displayed
   const [competitors, setCompetitors] = useState([]);
   // array of relay event numbers for user to assign actual events
   const [relayEventNumbers, setRelayEventNumbers] = useState([]);
   // list of all VMST team members (array of member objects) obtained on initial render
   const [members, setMembers] = useState([]);
+  // controlled state of "course" selector
+  const [course, setCourse] = useState("");
 
   //set up for react-hook-form
   const {
     register,
     handleSubmit,
     getValues,
-    setValue,
     reset,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm();
 
@@ -49,9 +50,20 @@ export default function Meets() {
 
   // file input onchange event handler, which parses the CSV file
   const handleFile = async (e) => {
-    setMessage("");
     let reader = new FileReader();
     reader.readAsText(e.target.files[0]);
+
+    // use react-hook-form to display any file read errors
+    clearErrors("file");
+    reader.onerror = () => {
+      console.log(reader.error);
+      setError("file", {
+        type: "custom",
+        message: `File read error: ${reader.error}`,
+      });
+    };
+
+    // parsing file and setting connected variables
     reader.onload = () => {
       const results = papa.parse(reader.result, {
         header: true,
@@ -102,19 +114,26 @@ export default function Meets() {
 
       setRelayEventNumbers([...relayEvents]);
       setCompetitors([...matchedCompetitors]);
-    };
-    reader.onerror = () => {
-      console.log(reader.error);
-      setMessage(`File read error: ${reader.error}`);
+      // roster is in memory now, can clear that error
+      clearErrors("roster");
     };
   };
 
-  const onSubmit = async ({ meetName, startDate, endDate, course }) => {
-    // early return if no meet swimmers in memory
-    if (competitors.length === 0) {
-      setMessage("No meet roster is loaded");
+  const onSubmit = async ({ meetName, startDate, endDate }) => {
+    // use react-hook-form for some errors, early return if any found
+    if (competitors.length === 0 || !course) {
+      if (competitors.length === 0)
+        setError("roster", {
+          type: "custom",
+          message: "No meet roster found in memory",
+        });
+
+      if (!course)
+        setError("course", { type: "custom", message: "Course required" });
+
       return;
     }
+
     // let's trim the fat a bit
     const meetSwimmers = competitors.map((swimmer) => {
       const { _id: memberId, include: includeEmail } = swimmer.member;
@@ -157,7 +176,8 @@ export default function Meets() {
 
   const resetForm = () => {
     reset();
-    setMessage("");
+    clearErrors();
+    setCourse("");
     setCompetitors([]);
     setRelayEventNumbers([]);
   };
@@ -177,7 +197,7 @@ export default function Meets() {
           {/* Once file is uploaded and parsed, another button should appear (?) */}
         </ButtonWrapper>
         {/* any errors from file upload? */}
-        {message && <ErrorMessage>{message}</ErrorMessage>}
+        {errors.file && <ErrorMessage>{errors.file.message}</ErrorMessage>}
         <Accordian.Root collapsible>
           <AccordianItem
             title="Instructions: generating a meet roster file"
@@ -215,7 +235,7 @@ export default function Meets() {
                 required: "Meet name required",
               })}
             />
-            {errors.meetName?.message && (
+            {errors.meetName && (
               <ErrorMessage>{errors.meetName.message}</ErrorMessage>
             )}
           </InputWrapper>
@@ -223,10 +243,13 @@ export default function Meets() {
           <InputWrapper style={{ gridArea: "course" }}>
             <LabelRoot htmlFor="course">Course</LabelRoot>
             <Select.Root
-              onValueChange={(value) => setValue("course", value)}
-              {...register("course", {
-                required: "Course required",
-              })}
+              value={course}
+              onValueChange={(val) => {
+                if (val) {
+                  setCourse(val);
+                  clearErrors("course");
+                }
+              }}
             >
               <SelectTrigger id="course">
                 <Select.Value placeholder="Select" />
@@ -246,7 +269,7 @@ export default function Meets() {
                 </Select.Viewport>
               </SelectContent>
             </Select.Root>
-            {errors.course?.message && (
+            {errors.course && (
               <ErrorMessage>{errors.course.message}</ErrorMessage>
             )}
           </InputWrapper>
@@ -260,7 +283,7 @@ export default function Meets() {
                 required: "Start date required",
               })}
             />
-            {errors.startDate?.message && (
+            {errors.startDate && (
               <ErrorMessage>{errors.startDate.message}</ErrorMessage>
             )}
           </StartDate>
@@ -277,7 +300,7 @@ export default function Meets() {
                 },
               })}
             />
-            {errors.endDate?.message && (
+            {errors.endDate && (
               <ErrorMessage>{errors.endDate.message}</ErrorMessage>
             )}
           </EndDate>
@@ -378,9 +401,9 @@ export default function Meets() {
           </TableWrap>
         )}
       </MeetInfo>
-      {message && (
+      {errors.roster && (
         <ErrorMessage style={{ gridArea: "message", justifySelf: "center" }}>
-          {message}
+          {errors.roster.message}
         </ErrorMessage>
       )}
       <SubmitButtonWrapper>
