@@ -1,4 +1,4 @@
-const { Competitor, Member, Photo, Post, User } = require("../models");
+const { Meets, Member, Photo, Post, User } = require("../models");
 const { signToken, AuthenticationError } = require("../utils/auth");
 const connection = require("../config/connection");
 const Mail = require("../utils/emailHandler");
@@ -13,6 +13,7 @@ const {
   getPhotoInfo,
 } = require("../utils/get-flickr-photos");
 const { findByIdAndDelete } = require("../models/Posts");
+const Meet = require("../models/Meets");
 
 const resolvers = {
   Query: {
@@ -40,8 +41,6 @@ const resolvers = {
     // can't populate users directly, need to populate comments that are nested
     onePost: async (_, { id }) =>
       await Post.findById(id).populate("comments.user"),
-    // get all competitors
-    competitors: async () => await Competitor.find(),
     // get list of unique workout groups
     // GraphQL returns an object of the form { groups: [...list of unique groups ...] }
     // Note that there is a client-side JS utility that does the same thing, given
@@ -210,9 +209,25 @@ contact the webmaster immediately by replying to this message.`,
         console.log(err);
       }
     },
+    // add a new meet
+    addMeet: async (_, { meet, meetSwimmers, relays }, { user }) => {
+      // only leaders can add meets
+      if (user.role !== "leader") throw AuthenticationError;
+      const newMeet = {
+        ...meet,
+        meetSwimmers,
+        relays,
+      };
+      try {
+        return await Meet.create(newMeet);
+      } catch (error) {
+        console.log(error);
+      }
+    },
     // add a new post
     addPost: async (_, { title, summary, content, photo }, { user }) => {
       // only team leaders can create posts
+      console.log({ user });
       if (user.role !== "leader") throw AuthenticationError;
       const post = {
         title,

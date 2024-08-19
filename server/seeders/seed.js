@@ -193,6 +193,7 @@ const seedPosts = async () => {
  * In production the CSV file would be uploaded directly and the user would be prompted to enter the
  * meet information. There would need to be some additional data munging to match what I did in XL.
  **/
+/**
 const seedCompetitors = async () => {
   // import the data (see comment above for origin)
   const competitorData = require("./competitors.json");
@@ -316,6 +317,7 @@ const seedCompetitors = async () => {
   const competitors = await Competitor.insertMany(swimmers);
   return competitors;
 };
+ */
 
 connection.once("open", async () => {
   console.log("Connected to DB");

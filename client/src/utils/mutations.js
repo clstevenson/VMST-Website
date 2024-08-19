@@ -106,6 +106,7 @@ export const UPLOAD_MEMBERS = gql`
   mutation UploadMembers($memberData: [MemberData]) {
     uploadMembers(memberData: $memberData) {
       usmsRegNo
+      usmsId
       firstName
       lastName
       club
@@ -157,6 +158,22 @@ export const CHANGE_PASSWORD = gql`
       role
       notifications
       emailPermission
+    }
+  }
+`;
+
+export const ADD_MEET = gql`
+  mutation AddMeet(
+    $meet: MeetData
+    $meetSwimmers: [CompetitorData]
+    $relays: [RelayData]
+  ) {
+    addMeet(meet: $meet, meetSwimmers: $meetSwimmers, relays: $relays) {
+      _id
+      meetName
+      course
+      startDate
+      endDate
     }
   }
 `;

@@ -1,5 +1,4 @@
 const typeDefs = `
-# Meet is embedded in Competitors
 type Member {
   _id: ID!
   usmsRegNo: String!
@@ -26,14 +25,19 @@ type User {
   emailPermission: Boolean
 }
 
-type Meet {
+# Competitor is embedded in Meet
+type Competitor {
   _id: ID!
-  title: String!
-  startDate: String!
-  endDate: String
+  firstName: String!
+  lastName: String!
+  gender: String!
+  meetAge: Int!
+  relays: [Int]
+  usmsId: String
+  includeEmails: Boolean
 }
 
-# Relay is embedded in Competitors
+# Relay is embedded in Meet
 type Relay {
   _id: ID!
   eventNum: String!
@@ -42,15 +46,14 @@ type Relay {
   relayGender: String
 }
 
-type Competitor {
+type Meet {
   _id: ID!
-  firstName: String!
-  lastName: String!
-  gender: String!
-  age: Int!
-  meet: Meet!
-  relay: [Relay]
-  usmsId: String
+  meetName: String!
+  course: String!
+  startDate: String!
+  endDate: String
+  meetSwimmers: [Competitor]
+  relays: [Relay]
 }
 
 # Comments are embedded in Posts
@@ -91,6 +94,7 @@ input UserData {
 
 input MemberData {
   usmsRegNo: String!
+  usmsId: String!
   firstName: String!
   lastName: String!
   gender: String!
@@ -125,6 +129,30 @@ input PhotoData {
   caption: String
   url: String!
   flickrURL: String
+}
+
+input MeetData {
+  meetName: String!
+  course: String!
+  startDate: String!
+  endDate: String
+}
+
+input CompetitorData {
+  firstName: String!
+  lastName: String!
+  gender: String!
+  meetAge: Int!
+  relays: [Int]
+  usmsId: String
+  includeEmail: Boolean!
+}
+
+input RelayData {
+  eventNum: String!
+  distance: Int
+  relayStroke: String
+  relayGender: String
 }
 
 ############## start Flickr typedefs ##############
@@ -172,7 +200,6 @@ type Query {
   emailExists(email: String!): User
   posts: [Post]
   onePost(id: String!): Post
-  competitors: [Competitor]
   groups: [String]
   vmstMembers(workoutGroup: String): [Member]
   getLeaders: [User]
@@ -193,6 +220,7 @@ type Mutation {
   addPost(title: String!, summary: String, content: String!, photo: PhotoData): Post
   editPost(_id: ID!, title: String!, summary: String, content: String!, photo: PhotoData): Post
   deletePost(_id: ID!): Post
+  addMeet(meet: MeetData, meetSwimmers: [CompetitorData], relays: [RelayData]): Meet
   uploadMembers(memberData: [MemberData]): [Member]
   emailLeaders(emailData: emailData): Boolean
   emailWebmaster(emailData: emailData): Boolean

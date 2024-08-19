@@ -98,6 +98,7 @@ export default function UploadMembers() {
     const memberData = members.map((member) => {
       const obj = {};
       obj.usmsRegNo = member["USMS Number"];
+      obj.usmsId = member["USMS Number"].slice(-5);
       obj.firstName = member["First Name"];
       obj.lastName = member["Last Name"];
       obj.gender = member.Gender;

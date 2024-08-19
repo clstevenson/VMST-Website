@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { useQuery, useMutation } from "@apollo/client";
 
 import { QUERY_VMST } from "../../utils/queries";
+import { ADD_MEET } from "../../utils/mutations";
 import { FieldSet } from "../Styled/FieldSet";
 import { QUERIES } from "../../utils/constants";
 import ErrorMessage from "../../components/Styled/ErrorMessage";
@@ -11,6 +12,7 @@ import SubmitButton from "../Styled/SubmiButton";
 import MinorButton from "../Styled/MinorButton";
 import MeetUpload from "./MeetUpload";
 import MeetInfo from "./MeetInfo";
+import ToastMessage from "../ToastMessage";
 
 export default function Meets() {
   // array of objects containing competitors in the meet being displayed
@@ -21,6 +23,10 @@ export default function Meets() {
   const [members, setMembers] = useState([]);
   // controlled state of "course" selector
   const [course, setCourse] = useState("");
+  // mutations to add/edit meets
+  const [addMeet] = useMutation(ADD_MEET);
+  // status of meet in memory
+  const [saved, setSaved] = useState(false);
 
   //set up for react-hook-form
   const {
@@ -55,13 +61,13 @@ export default function Meets() {
 
     // let's trim the fat a bit
     const meetSwimmers = competitors.map((swimmer) => {
-      const { _id: memberId, include: includeEmail } = swimmer.member;
+      const { usmsId, include: includeEmail } = swimmer.member;
       const savedSwimmer = { ...swimmer };
       delete savedSwimmer._id; // saving in DB will generate a unique ID, no longer need this
       delete savedSwimmer.member;
       return {
         ...savedSwimmer,
-        memberId,
+        usmsId,
         includeEmail,
       };
     });
@@ -72,25 +78,29 @@ export default function Meets() {
       course,
       startDate,
       endDate,
-      relayEventNumbers,
-      meetSwimmers,
     };
+    const relays = relayEventNumbers.map((relayNum) => {
+      return { eventNum: relayNum };
+    });
     // save in DB
-    console.log(meet);
-    /*
-    Array of objects with the following properties
-    - meetName: string
-    - course: string
-    - startDate: string
-    - endDate: string
-    - relayEventNumbers: array of strings with pattern "R##"
-    - meetSwimmers: array of objects with properties firstName, lastName, gender, meetAge, relays (array of numbers), memberId (for reference to the Members table for later lookup as needed), and includeEmail (a boolean on whether to include the person on email messages)
-    */
-
-    // Toast success
-
-    // cleanup; eventually will be passed to ToastMessage component
-    resetForm();
+    try {
+      await addMeet({
+        variables: {
+          meet,
+          meetSwimmers,
+          relays,
+        },
+      });
+      // Toast success
+      setSaved(true);
+      // cleanup; eventually will be passed to ToastMessage component
+    } catch (error) {
+      // use react-hook-form to display message
+      setError("save", {
+        type: "custom",
+        message: `Error saving meet: ${error.message}`,
+      });
+    }
   };
 
   const resetForm = () => {
@@ -99,6 +109,7 @@ export default function Meets() {
     setCourse("");
     setCompetitors([]);
     setRelayEventNumbers([]);
+    setSaved(false);
   };
 
   return (
@@ -137,12 +148,22 @@ export default function Meets() {
           {errors.roster.message}
         </ErrorMessage>
       )}
+      {errors.save && (
+        <ErrorMessage style={{ gridArea: "message", justifySelf: "center" }}>
+          {errors.save.message}
+        </ErrorMessage>
+      )}
       <SubmitButtonWrapper>
         <SubmitButton>Save Meet</SubmitButton>
         <Button type="button" onClick={resetForm}>
           Reset Info
         </Button>
       </SubmitButtonWrapper>
+      {saved && (
+        <ToastMessage toastCloseEffect={resetForm}>
+          Meet has been saved!
+        </ToastMessage>
+      )}
     </Form>
   );
 }
