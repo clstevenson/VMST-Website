@@ -54,7 +54,7 @@ export default function Account() {
         <Communication setTab={setTab} userProfile={userProfile} />
       </TabsContent>
       <TabsContent value="meets">
-        <Meets />
+        <Meets setTab={setTab} />
       </TabsContent>
       <TabsContent value="webmaster"></TabsContent>
     </TabsRoot>

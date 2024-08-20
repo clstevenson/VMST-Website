@@ -16,6 +16,7 @@ export default function MeetUpload({
   members,
   setRelayEventNumbers,
   setCompetitors,
+  uploadCloseEffect,
 }) {
   // file input onchange event handler, which parses the CSV file
   const handleFile = async (e) => {
@@ -62,6 +63,7 @@ export default function MeetUpload({
             lastName: swimmer.Last,
             meetAge: swimmer[ageProp],
             gender: swimmer.Sex,
+            includeEmail: true, // by default
             relays: relayEvents
               .map((relay) => swimmer[relay])
               .filter((number) => number !== null),
@@ -75,16 +77,15 @@ export default function MeetUpload({
           ({ gender }) => gender === swimmer.gender
         );
         const match = matchUSMS(swimmer, filteredMembers);
-        // by default include in email messages
-        match[0].include = true;
         // add the top match to the swimmer object (want permanent rec)
         return { ...swimmer, member: match[0] };
       });
 
       setRelayEventNumbers([...relayEvents]);
       setCompetitors([...matchedCompetitors]);
-      // roster is in memory now, can clear that error
+      // reset form and errors
       clearErrors("roster");
+      uploadCloseEffect();
     };
   };
 

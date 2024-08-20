@@ -2,11 +2,12 @@ import { useState } from "react";
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import { useQuery, useMutation } from "@apollo/client";
+import dayjs from "dayjs";
 
-import { QUERY_VMST } from "../../utils/queries";
+import { QUERY_VMST, QUERY_MEETS } from "../../utils/queries";
 import { ADD_MEET } from "../../utils/mutations";
 import { FieldSet } from "../Styled/FieldSet";
-import { QUERIES } from "../../utils/constants";
+import { COLORS, QUERIES } from "../../utils/constants";
 import ErrorMessage from "../../components/Styled/ErrorMessage";
 import SubmitButton from "../Styled/SubmiButton";
 import MinorButton from "../Styled/MinorButton";
@@ -14,7 +15,7 @@ import MeetUpload from "./MeetUpload";
 import MeetInfo from "./MeetInfo";
 import ToastMessage from "../ToastMessage";
 
-export default function Meets() {
+export default function Meets({ setTab }) {
   // array of objects containing competitors in the meet being displayed
   const [competitors, setCompetitors] = useState([]);
   // array of relay event numbers for user to assign actual events
@@ -27,48 +28,65 @@ export default function Meets() {
   const [addMeet] = useMutation(ADD_MEET);
   // status of meet in memory
   const [saved, setSaved] = useState(false);
+  // results of meet query
+  const [allMeets, setAllMeets] = useState([]);
+  // (saved) meet whose info is currently displayed
+  const [currentMeet, setCurrentMeet] = useState({});
+  // controlled form inputs
+  const [meetName, setMeetName] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   //set up for react-hook-form
   const {
-    register,
     handleSubmit,
-    reset,
     setError,
     clearErrors,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm();
 
+  // get all VMST members on initial render
   useQuery(QUERY_VMST, {
     onCompleted: (data) => {
       setMembers([...data.vmstMembers]);
     },
   });
 
-  const onSubmit = async ({ meetName, startDate, endDate }) => {
+  // retrieve all stored meets on initial render
+  const { refetch } = useQuery(QUERY_MEETS, {
+    onCompleted: (data) => {
+      setAllMeets([...data.meets]);
+    },
+  });
+
+  const onSubmit = async () => {
     // use react-hook-form for some errors, early return if any found
-    if (competitors.length === 0 || !course) {
+    if (competitors.length === 0 || (endDate && endDate < startDate)) {
       if (competitors.length === 0)
         setError("roster", {
           type: "custom",
           message: "No meet roster found in memory",
         });
 
-      if (!course)
-        setError("course", { type: "custom", message: "Course required" });
+      if (endDate < startDate) {
+        setError("endDate", {
+          type: "custom",
+          message: "End date must be after start date",
+        });
+      }
 
       return;
     }
 
     // let's trim the fat a bit
     const meetSwimmers = competitors.map((swimmer) => {
-      const { usmsId, include: includeEmail } = swimmer.member;
+      const { usmsId } = swimmer.member;
       const savedSwimmer = { ...swimmer };
       delete savedSwimmer._id; // saving in DB will generate a unique ID, no longer need this
       delete savedSwimmer.member;
       return {
         ...savedSwimmer,
         usmsId,
-        includeEmail,
       };
     });
 
@@ -83,17 +101,13 @@ export default function Meets() {
       return { eventNum: relayNum };
     });
     // save in DB
+    const newMeet = { meet, meetSwimmers, relays };
     try {
-      await addMeet({
-        variables: {
-          meet,
-          meetSwimmers,
-          relays,
-        },
-      });
-      // Toast success
+      await addMeet({ variables: newMeet });
+      // trigger Toast message of success
       setSaved(true);
-      // cleanup; eventually will be passed to ToastMessage component
+      // update state variable from DB to include this meet
+      refetch();
     } catch (error) {
       // use react-hook-form to display message
       setError("save", {
@@ -104,12 +118,39 @@ export default function Meets() {
   };
 
   const resetForm = () => {
-    reset();
     clearErrors();
+    setMeetName("");
     setCourse("");
+    setStartDate("");
+    setEndDate("");
     setCompetitors([]);
     setRelayEventNumbers([]);
     setSaved(false);
+  };
+
+  const loadMeet = (meet) => {
+    setCourse(meet.course);
+    setMeetName(meet.meetName);
+    setStartDate(meet.startDate);
+    if (meet.endDate) setEndDate(meet.endDate);
+    // use the USMS ID to add the member info for each meet swimmer
+    // note that if the meet was from a different registration year then there
+    // could be problems (like not finding a match)
+    const meetSwimmers = meet.meetSwimmers.map((swimmer) => {
+      // match on USMS ID, only take first match ()
+      let member;
+      const results = members.filter(({ usmsId }) => usmsId === swimmer.usmsId);
+      if (results.length > 0) member = results[0];
+      else
+        member = {
+          usmsId: swimmer.usmsId,
+          firstName: "",
+          lastName: "",
+          gender: "",
+        };
+      return { ...swimmer, member };
+    });
+    setCompetitors([...meetSwimmers]);
   };
 
   return (
@@ -122,25 +163,56 @@ export default function Meets() {
         members={members}
         setRelayEventNumbers={setRelayEventNumbers}
         setCompetitors={setCompetitors}
+        uploadCloseEffect={() => {
+          setCourse("");
+          setMeetName("");
+          setStartDate("");
+          setEndDate("");
+        }}
       />
 
       <MeetSaved>
         <legend>Saved Meets</legend>
-        <ul>
-          <li>list of meets (title and date)</li>
-          <li>each meet has a button to delete</li>
-          <li>each meet has a button to display its data</li>
-        </ul>
+        {allMeets.length === 0 ? (
+          <p>No meets in database</p>
+        ) : (
+          <>
+            <p>
+              Saved meets with start dates are shown below. Click the meet to
+              load its information (with option to edit or delete).
+            </p>
+
+            <MeetGrid>
+              {allMeets.map((meet) => {
+                return (
+                  <MinorButton
+                    onClick={() => loadMeet(meet)}
+                    type="button"
+                    key={meet._id}
+                  >
+                    <p>{meet.meetName}</p>
+                    <p>{dayjs(meet.startDate).format("M/D/YY")} </p>
+                  </MinorButton>
+                );
+              })}
+            </MeetGrid>
+          </>
+        )}
       </MeetSaved>
 
       <MeetInfo
         competitors={competitors}
         setCompetitors={setCompetitors}
-        register={register}
-        errors={errors}
-        clearErrors={clearErrors}
         course={course}
         setCourse={setCourse}
+        errors={errors}
+        clearErrors={clearErrors}
+        meetName={meetName}
+        setMeetName={setMeetName}
+        startDate={startDate}
+        setStartDate={setStartDate}
+        endDate={endDate}
+        setEndDate={setEndDate}
       />
 
       {errors.roster && (
@@ -160,7 +232,14 @@ export default function Meets() {
         </Button>
       </SubmitButtonWrapper>
       {saved && (
-        <ToastMessage toastCloseEffect={resetForm}>
+        <ToastMessage
+          toastCloseEffect={() => {
+            resetForm();
+            // unfortunately stale data in "Saved Meets" necessitates switching tabs
+            setTab("user");
+          }}
+          duration={2000}
+        >
           Meet has been saved!
         </ToastMessage>
       )}
@@ -206,4 +285,19 @@ const Button = styled(MinorButton)`
 
 const MeetSaved = styled(FieldSet)`
   grid-area: saved;
+
+  & p {
+    margin: 4px 0;
+  }
+`;
+
+const MeetGrid = styled.div`
+  display: grid;
+  gap: 4px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+
+  & ${MinorButton} {
+    width: auto;
+    position: relative;
+  }
 `;

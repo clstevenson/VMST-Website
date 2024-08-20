@@ -2,6 +2,7 @@
 import styled from "styled-components";
 import * as Select from "@radix-ui/react-select";
 import * as Label from "@radix-ui/react-label";
+import dayjs from "dayjs";
 
 import RosterTable from "./RosterTable";
 import ErrorMessage from "../Styled/ErrorMessage";
@@ -11,11 +12,16 @@ import { COLORS } from "../../utils/constants";
 export default function MeetInfo({
   competitors,
   setCompetitors,
-  register,
   errors,
   clearErrors,
   course,
   setCourse,
+  meetName,
+  setMeetName,
+  startDate,
+  setStartDate,
+  endDate,
+  setEndDate,
 }) {
   return (
     <Wrapper>
@@ -24,27 +30,23 @@ export default function MeetInfo({
       <MeetNameDate>
         <InputWrapper style={{ gridArea: "name" }}>
           <LabelRoot htmlFor="meet-name">Meet Name</LabelRoot>
-
           <input
             type="text"
             id="meet-name"
-            {...register("meetName", {
-              required: "Meet name required",
-            })}
+            required
+            value={meetName}
+            onChange={(evt) => setMeetName(evt.target.value)}
           />
-          {errors.meetName && (
-            <ErrorMessage>{errors.meetName.message}</ErrorMessage>
-          )}
         </InputWrapper>
         {/* user selects course */}
         <InputWrapper style={{ gridArea: "course" }}>
           <LabelRoot htmlFor="course">Course</LabelRoot>
           <Select.Root
+            required
             value={course}
             onValueChange={(val) => {
               if (val) {
                 setCourse(val);
-                clearErrors("course");
               }
             }}
           >
@@ -66,9 +68,6 @@ export default function MeetInfo({
               </Select.Viewport>
             </SelectContent>
           </Select.Root>
-          {errors.course && (
-            <ErrorMessage>{errors.course.message}</ErrorMessage>
-          )}
         </InputWrapper>
 
         <StartDate>
@@ -76,26 +75,21 @@ export default function MeetInfo({
           <input
             type="date"
             id="start-date"
-            {...register("startDate", {
-              required: "Start date required",
-            })}
+            required
+            value={startDate}
+            onChange={(evt) => setStartDate(evt.target.value)}
           />
-          {errors.startDate && (
-            <ErrorMessage>{errors.startDate.message}</ErrorMessage>
-          )}
         </StartDate>
         <EndDate>
           <LabelRoot htmlFor="end-date">End date (optional)</LabelRoot>
           <input
             id="end-date"
             type="date"
-            {...register("endDate", {
-              validate: (val) => {
-                if (val && val < getValues("startDate"))
-                  return "End must be after start";
-                return true;
-              },
-            })}
+            value={endDate}
+            onChange={(evt) => {
+              setEndDate(evt.target.value);
+              clearErrors("endDate");
+            }}
           />
           {errors.endDate && (
             <ErrorMessage>{errors.endDate.message}</ErrorMessage>

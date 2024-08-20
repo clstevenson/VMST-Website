@@ -46,17 +46,11 @@ const meetSchema = new Schema({
     required: true,
   },
   startDate: {
-    type: Date,
+    type: String,
     required: true,
-    get: (d) => d.toLocaleDateString(),
   },
   // TODO: validate that endDate >= startDate
-  endDate: {
-    type: Date,
-    get: (d) => {
-      if (d) return d.toLocaleDateString();
-    },
-  },
+  endDate: String,
   meetSwimmers: [competitors],
   relays: [relaySchema],
 });

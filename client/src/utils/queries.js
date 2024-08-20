@@ -112,6 +112,36 @@ export const QUERY_VMST = gql`
   }
 `;
 
+// get a list of meets that have been saved into memory
+export const QUERY_MEETS = gql`
+  query getMeets {
+    meets {
+      _id
+      meetName
+      course
+      startDate
+      endDate
+      meetSwimmers {
+        _id
+        firstName
+        lastName
+        gender
+        meetAge
+        relays
+        usmsId
+        includeEmail
+      }
+      relays {
+        _id
+        eventNum
+        distance
+        relayStroke
+        relayGender
+      }
+    }
+  }
+`;
+
 export const QUERY_FEATUREDPHOTOS = gql`
   query GetFeaturedPhotos($page: Int!, $perPage: Int!) {
     getFeaturedPhotos(page: $page, perPage: $perPage) {

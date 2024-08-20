@@ -61,6 +61,7 @@ const resolvers = {
         console.log(err);
       }
     },
+    meets: async () => await Meet.find(),
     getLeaders: async () => await User.find({ role: "leader" }),
     getAlbums: async (_, { perPage, page }) => {
       const response = await getAlbums(page, perPage);

@@ -82,11 +82,11 @@ export default function RosterTable({ competitors, setCompetitors }) {
                 </td>
                 <td style={{ textAlign: "center" }}>
                   <Checkbox
-                    checked={swimmer.member.include}
+                    checked={swimmer.includeEmail}
                     onCheckedChange={(checked) => {
-                      // toggle the "member.include" property for this swimmer
+                      // toggle the "includeEmail" property for this swimmer
                       const allCompetitors = competitors;
-                      allCompetitors[index].member.include = checked;
+                      allCompetitors[index].includeEmail = checked;
                       setCompetitors([...allCompetitors]);
                     }}
                   >

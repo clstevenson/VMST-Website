@@ -34,7 +34,7 @@ type Competitor {
   meetAge: Int!
   relays: [Int]
   usmsId: String
-  includeEmails: Boolean
+  includeEmail: Boolean
 }
 
 # Relay is embedded in Meet
@@ -202,6 +202,7 @@ type Query {
   onePost(id: String!): Post
   groups: [String]
   vmstMembers(workoutGroup: String): [Member]
+  meets: [Meet]
   getLeaders: [User]
   getAlbums(page: Int!, perPage: Int!): AlbumCollection
   getAlbumPhotos(id: String!, page: Int!, perPage: Int!): PhotoCollection
