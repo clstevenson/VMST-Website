@@ -2,17 +2,16 @@ import { useState } from "react";
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import { useQuery, useMutation } from "@apollo/client";
-import dayjs from "dayjs";
 
 import { QUERY_VMST, QUERY_MEETS } from "../../utils/queries";
 import { ADD_MEET, DELETE_MEET } from "../../utils/mutations";
-import { FieldSet } from "../Styled/FieldSet";
 import { COLORS, QUERIES } from "../../utils/constants";
 import ErrorMessage from "../../components/Styled/ErrorMessage";
 import SubmitButton from "../Styled/SubmiButton";
 import MinorButton from "../Styled/MinorButton";
 import MeetUpload from "./MeetUpload";
 import MeetInfo from "./MeetInfo";
+import { SavedMeets } from "./SavedMeets";
 import ToastMessage from "../ToastMessage";
 import Alert from "../Alert";
 
@@ -195,42 +194,9 @@ export default function Meets({ setTab }) {
         members={members}
         setRelayEventNumbers={setRelayEventNumbers}
         setCompetitors={setCompetitors}
-        uploadCloseEffect={() => {
-          setCourse("");
-          setMeetName("");
-          setStartDate("");
-          setEndDate("");
-        }}
       />
 
-      <MeetSaved>
-        <legend>Saved Meets</legend>
-        {allMeets.length === 0 ? (
-          <p>No meets in database</p>
-        ) : (
-          <>
-            <p>
-              Saved meets with start dates are shown below. Click the meet to
-              load its information (with option to edit or delete).
-            </p>
-
-            <MeetGrid>
-              {allMeets.map((meet) => {
-                return (
-                  <MinorButton
-                    onClick={() => loadMeet(meet)}
-                    type="button"
-                    key={meet._id}
-                  >
-                    <p>{meet.meetName}</p>
-                    <p>{dayjs(meet.startDate).format("M/D/YY")} </p>
-                  </MinorButton>
-                );
-              })}
-            </MeetGrid>
-          </>
-        )}
-      </MeetSaved>
+      <SavedMeets allMeets={allMeets} loadMeet={loadMeet} />
 
       <MeetInfo
         competitors={competitors}
@@ -346,24 +312,5 @@ const DeleteButton = styled(SubmitButton)`
   &:active:not(:disabled),
   &:focus:not(:disabled) {
     background-color: ${COLORS.urgent};
-  }
-`;
-
-const MeetSaved = styled(FieldSet)`
-  grid-area: saved;
-
-  & p {
-    margin: 4px 0;
-  }
-`;
-
-const MeetGrid = styled.div`
-  display: grid;
-  gap: 4px;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-
-  & ${MinorButton} {
-    width: auto;
-    position: relative;
   }
 `;
