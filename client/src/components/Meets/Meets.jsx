@@ -299,7 +299,7 @@ export default function Meets({ setTab }) {
 const Form = styled.form`
   padding: 16px 8px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 5fr 4fr;
   grid-template-areas:
     "upload saved"
     "info info"
