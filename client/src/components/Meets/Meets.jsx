@@ -1,3 +1,8 @@
+/* eslint-disable react/prop-types */
+/* 
+  This component is displayed in the "Meets" tab for leaders. It allows them to upload meet rosters and save Meets to the database. It finds matches between meet rosters and VMST members, allowing for email communication. It also includes information about relay availability, informing communciations and setting up the potential for an eventual Relay Build tool.
+ */
+
 import { useState } from "react";
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
@@ -5,15 +10,13 @@ import { useQuery, useMutation } from "@apollo/client";
 
 import { QUERY_VMST, QUERY_MEETS } from "../../utils/queries";
 import { ADD_MEET, DELETE_MEET } from "../../utils/mutations";
-import { COLORS, QUERIES } from "../../utils/constants";
+import { QUERIES } from "../../utils/constants";
 import ErrorMessage from "../../components/Styled/ErrorMessage";
-import SubmitButton from "../Styled/SubmiButton";
-import MinorButton from "../Styled/MinorButton";
 import MeetUpload from "./MeetUpload";
 import MeetInfo from "./MeetInfo";
+import { MeetButtons } from "./MeetFormButtons";
 import { SavedMeets } from "./SavedMeets";
 import ToastMessage from "../ToastMessage";
-import Alert from "../Alert";
 
 export default function Meets({ setTab }) {
   // array of objects containing competitors in the meet being displayed
@@ -42,8 +45,6 @@ export default function Meets({ setTab }) {
   const [endDate, setEndDate] = useState("");
   // displaying/editing an existing meet?
   const [isEditing, setIsEditing] = useState(false);
-  // state controlling the Alert dialog box
-  const [alertOpen, setAlertOpen] = useState(false);
 
   //set up for react-hook-form
   const {
@@ -186,7 +187,7 @@ export default function Meets({ setTab }) {
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      {/* upload meet roster from CSV file */}
+      {/* Upload meet roster from CSV file */}
       <MeetUpload
         clearErrors={clearErrors}
         setError={setError}
@@ -196,8 +197,14 @@ export default function Meets({ setTab }) {
         setCompetitors={setCompetitors}
       />
 
+      {/* 
+       Display previously saved meets (retrieved from DB) as buttons that can be clicked to show their info
+       */}
       <SavedMeets allMeets={allMeets} loadMeet={loadMeet} />
 
+      {/* 
+        Display meet information and roster, allowing user to modify aspects of them (and save changes).
+       */}
       <MeetInfo
         competitors={competitors}
         setCompetitors={setCompetitors}
@@ -223,28 +230,16 @@ export default function Meets({ setTab }) {
           {errors.save.message}
         </ErrorMessage>
       )}
-      <SubmitButtonWrapper>
-        <SubmitButton>{isEditing ? "Save Changes" : "Save Meet"}</SubmitButton>
-        <Button type="button" onClick={resetForm}>
-          Reset Form
-        </Button>
-        {isEditing && (
-          <Alert
-            title="Delete Meet"
-            description="Are you sure? This action cannot be undone."
-            confirmAction={() => {
-              setAlertOpen(false);
-              handleDeleteMeet();
-            }}
-            cancelAction={() => setAlertOpen(false)}
-            actionText="Delete"
-            onOpenChange={setAlertOpen}
-            open={alertOpen}
-          >
-            <DeleteButton type="button">Delete Meet</DeleteButton>
-          </Alert>
-        )}
-      </SubmitButtonWrapper>
+
+      {/*
+        Displayed buttons allow CRUD operations for the Meets database
+      */}
+      <MeetButtons
+        isEditing={isEditing}
+        handleDeleteMeet={handleDeleteMeet}
+        resetForm={resetForm}
+      />
+
       {showToast && (
         <ToastMessage
           toastCloseEffect={() => {
@@ -284,33 +279,5 @@ const Form = styled.form`
       "saved"
       "info"
       "button";
-  }
-`;
-
-const SubmitButtonWrapper = styled.div`
-  grid-area: button;
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-
-  & button {
-    max-width: 200px;
-    flex: 1;
-  }
-`;
-
-const Button = styled(MinorButton)`
-  padding: 4px 24px;
-`;
-
-const DeleteButton = styled(SubmitButton)`
-  background-color: ${COLORS.urgent_light};
-  color: ${COLORS.urgent_text};
-  border-color: ${COLORS.urgent};
-
-  &:hover:not(:disabled),
-  &:active:not(:disabled),
-  &:focus:not(:disabled) {
-    background-color: ${COLORS.urgent};
   }
 `;

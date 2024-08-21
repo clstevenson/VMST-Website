@@ -1,4 +1,7 @@
 /* eslint-disable react/prop-types */
+/* 
+ This component enables the upload of a CSV file containing meet rosters and their relay availability. The component also includes (as an accordian) instructions to generate that CSV file.
+ */
 import styled from "styled-components";
 import papa from "papaparse";
 import * as Accordian from "@radix-ui/react-accordion";

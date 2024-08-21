@@ -1,4 +1,7 @@
 /* eslint-disable react/prop-types */
+/*
+  This is the main part of the Meet form. It allows the user to enter information about the meet (title, dates, course) and displays the meet roster and the closest matches with the USMS membership database. That is important since it will associate an email address with each competitor. The user will have a chance to examine the match; if it doesn't seem reasonable, they can toggle off meet communication for that person. 
+ */
 import styled from "styled-components";
 import * as Select from "@radix-ui/react-select";
 import * as Label from "@radix-ui/react-label";
