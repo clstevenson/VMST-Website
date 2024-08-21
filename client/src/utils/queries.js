@@ -122,7 +122,6 @@ export const QUERY_MEETS = gql`
       startDate
       endDate
       meetSwimmers {
-        _id
         firstName
         lastName
         gender
@@ -132,11 +131,7 @@ export const QUERY_MEETS = gql`
         includeEmail
       }
       relays {
-        _id
         eventNum
-        distance
-        relayStroke
-        relayGender
       }
     }
   }

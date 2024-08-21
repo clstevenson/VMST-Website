@@ -223,6 +223,7 @@ type Mutation {
   deletePost(_id: ID!): Post
   addMeet(meet: MeetData, meetSwimmers: [CompetitorData], relays: [RelayData]): Meet
   deleteMeet(_id: ID!): Meet
+  editMeet(_id: ID!, meet: MeetData, meetSwimmers: [CompetitorData], relays: [RelayData]): Meet
   uploadMembers(memberData: [MemberData]): [Member]
   emailLeaders(emailData: emailData): Boolean
   emailWebmaster(emailData: emailData): Boolean

@@ -30,7 +30,6 @@ export default function MeetUpload({
     // use react-hook-form to display any file read errors
     clearErrors("file");
     reader.onerror = () => {
-      console.log(reader.error);
       setError("file", {
         type: "custom",
         message: `File read error: ${reader.error}`,

@@ -225,6 +225,24 @@ contact the webmaster immediately by replying to this message.`,
         console.log(error);
       }
     },
+    // edit a meet
+    editMeet: async (_, { _id, meet, meetSwimmers, relays }, { user }) => {
+      // only leaders can edit meets
+      if (user.role !== "leader") throw AuthenticationError;
+      const changedMeet = {
+        ...meet,
+        meetSwimmers,
+        relays,
+      };
+      try {
+        const updatedMeet = await Meet.findByIdAndUpdate({ _id }, changedMeet, {
+          new: true,
+        });
+        return updatedMeet;
+      } catch (error) {
+        console.log(error);
+      }
+    },
     // delete a meet
     deleteMeet: async (_, { _id }, { user }) => {
       // only leaders can delete meets

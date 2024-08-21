@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import { useQuery, useMutation } from "@apollo/client";
 
 import { QUERY_VMST, QUERY_MEETS } from "../../utils/queries";
-import { ADD_MEET, DELETE_MEET } from "../../utils/mutations";
+import { ADD_MEET, DELETE_MEET, EDIT_MEET } from "../../utils/mutations";
 import { QUERIES } from "../../utils/constants";
 import ErrorMessage from "../../components/Styled/ErrorMessage";
 import MeetUpload from "./MeetUpload";
@@ -30,6 +30,7 @@ export default function Meets({ setTab }) {
   // mutations to add/edit/delete meets
   const [addMeet] = useMutation(ADD_MEET);
   const [deleteMeet] = useMutation(DELETE_MEET);
+  const [editMeet] = useMutation(EDIT_MEET);
   // trigger to show Toast
   const [showToast, setShowToast] = useState(false);
   // status of meet in memory
@@ -64,7 +65,57 @@ export default function Meets({ setTab }) {
   // retrieve all stored meets on initial render
   const { refetch } = useQuery(QUERY_MEETS, {
     onCompleted: (data) => {
-      setAllMeets([...data.meets]);
+      // need to strip out the __typenames. The "delete" method doesn't work, need to find a better way
+      // https://www.apollographql.com/docs/react/api/link/apollo-link-remove-typename/
+      // https://stackoverflow.com/questions/52786220/how-to-fix-graphql-mutations-typename-errors
+      // Another option is to leave the typename in and only update the fields that have changed, which seems better to me (less bandwidth for one thing)
+      const meets = data.meets.map(
+        ({
+          _id,
+          meetName,
+          course,
+          startDate,
+          endDate,
+          meetSwimmers: swimmers,
+          relays: meetRelays,
+        }) => {
+          const meetSwimmers = swimmers.map(
+            ({
+              firstName,
+              lastName,
+              gender,
+              meetAge,
+              relays,
+              usmsId,
+              includeEmail,
+            }) => {
+              return {
+                firstName,
+                lastName,
+                gender,
+                meetAge,
+                relays,
+                usmsId,
+                includeEmail,
+              };
+            }
+          );
+          const relays = meetRelays.map(({ eventNum }) => {
+            return { eventNum };
+          });
+          return {
+            _id,
+            meetName,
+            course,
+            startDate,
+            endDate,
+            meetSwimmers,
+            relays,
+          };
+        }
+      );
+      console.log(meets);
+      setAllMeets([...meets]);
     },
   });
 
@@ -110,13 +161,20 @@ export default function Meets({ setTab }) {
       return { eventNum: relayNum };
     });
     // save in DB
-    const newMeet = { meet, meetSwimmers, relays };
     try {
-      await addMeet({ variables: newMeet });
+      if (isEditing) {
+        const changedMeet = { id: currentMeetId, meet, meetSwimmers, relays };
+        console.log({ changedMeet });
+        await editMeet({ variables: changedMeet });
+      } else {
+        const newMeet = { meet, meetSwimmers, relays };
+        console.log(newMeet);
+        await addMeet({ variables: newMeet });
+      }
       // trigger Toast message of success
       setShowToast(true);
       setSaved(true);
-      // update state variable from DB to include this meet
+      // update state variable from DB to include the new/updated meet
       refetch();
     } catch (error) {
       // use react-hook-form to display message
