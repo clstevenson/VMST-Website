@@ -177,3 +177,14 @@ export const ADD_MEET = gql`
     }
   }
 `;
+
+export const DELETE_MEET = gql`
+  mutation DeleteMeet($id: ID!) {
+    deleteMeet(_id: $id) {
+      _id
+      meetName
+      course
+      startDate
+    }
+  }
+`;

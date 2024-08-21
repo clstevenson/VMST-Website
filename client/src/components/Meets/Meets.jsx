@@ -5,7 +5,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import dayjs from "dayjs";
 
 import { QUERY_VMST, QUERY_MEETS } from "../../utils/queries";
-import { ADD_MEET } from "../../utils/mutations";
+import { ADD_MEET, DELETE_MEET } from "../../utils/mutations";
 import { FieldSet } from "../Styled/FieldSet";
 import { COLORS, QUERIES } from "../../utils/constants";
 import ErrorMessage from "../../components/Styled/ErrorMessage";
@@ -14,6 +14,7 @@ import MinorButton from "../Styled/MinorButton";
 import MeetUpload from "./MeetUpload";
 import MeetInfo from "./MeetInfo";
 import ToastMessage from "../ToastMessage";
+import Alert from "../Alert";
 
 export default function Meets({ setTab }) {
   // array of objects containing competitors in the meet being displayed
@@ -24,18 +25,26 @@ export default function Meets({ setTab }) {
   const [members, setMembers] = useState([]);
   // controlled state of "course" selector
   const [course, setCourse] = useState("");
-  // mutations to add/edit meets
+  // mutations to add/edit/delete meets
   const [addMeet] = useMutation(ADD_MEET);
+  const [deleteMeet] = useMutation(DELETE_MEET);
+  // trigger to show Toast
+  const [showToast, setShowToast] = useState(false);
   // status of meet in memory
   const [saved, setSaved] = useState(false);
+  const [deleted, setDeleted] = useState(false);
   // results of meet query
   const [allMeets, setAllMeets] = useState([]);
   // (saved) meet whose info is currently displayed
-  const [currentMeet, setCurrentMeet] = useState({});
+  const [currentMeetId, setCurrentMeetId] = useState("");
   // controlled form inputs
   const [meetName, setMeetName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  // displaying/editing an existing meet?
+  const [isEditing, setIsEditing] = useState(false);
+  // state controlling the Alert dialog box
+  const [alertOpen, setAlertOpen] = useState(false);
 
   //set up for react-hook-form
   const {
@@ -105,6 +114,7 @@ export default function Meets({ setTab }) {
     try {
       await addMeet({ variables: newMeet });
       // trigger Toast message of success
+      setShowToast(true);
       setSaved(true);
       // update state variable from DB to include this meet
       refetch();
@@ -126,6 +136,10 @@ export default function Meets({ setTab }) {
     setCompetitors([]);
     setRelayEventNumbers([]);
     setSaved(false);
+    setDeleted(false);
+    setShowToast(false);
+    setIsEditing(false);
+    setCurrentMeetId("");
   };
 
   const loadMeet = (meet) => {
@@ -151,6 +165,24 @@ export default function Meets({ setTab }) {
       return { ...swimmer, member };
     });
     setCompetitors([...meetSwimmers]);
+    setCurrentMeetId(meet._id);
+    // toggle editing switch
+    setIsEditing(true);
+  };
+
+  const handleDeleteMeet = async () => {
+    // callback function to delete a meet
+    try {
+      await deleteMeet({ variables: { id: currentMeetId } });
+      // refresh list of meets from DB
+      refetch();
+      // trigger a Toast Message
+      setShowToast(true);
+      setDeleted(true);
+    } catch (error) {
+      console.log(error);
+      // display error to user
+    }
   };
 
   return (
@@ -226,12 +258,28 @@ export default function Meets({ setTab }) {
         </ErrorMessage>
       )}
       <SubmitButtonWrapper>
-        <SubmitButton>Save Meet</SubmitButton>
+        <SubmitButton>{isEditing ? "Save Changes" : "Save Meet"}</SubmitButton>
         <Button type="button" onClick={resetForm}>
-          Reset Info
+          Reset Form
         </Button>
+        {isEditing && (
+          <Alert
+            title="Delete Meet"
+            description="Are you sure? This action cannot be undone."
+            confirmAction={() => {
+              setAlertOpen(false);
+              handleDeleteMeet();
+            }}
+            cancelAction={() => setAlertOpen(false)}
+            actionText="Delete"
+            onOpenChange={setAlertOpen}
+            open={alertOpen}
+          >
+            <DeleteButton type="button">Delete Meet</DeleteButton>
+          </Alert>
+        )}
       </SubmitButtonWrapper>
-      {saved && (
+      {showToast && (
         <ToastMessage
           toastCloseEffect={() => {
             resetForm();
@@ -240,7 +288,8 @@ export default function Meets({ setTab }) {
           }}
           duration={2000}
         >
-          Meet has been saved!
+          {saved && "Meet has been saved!"}
+          {deleted && "Meet has been deleted!"}
         </ToastMessage>
       )}
     </Form>
@@ -277,10 +326,27 @@ const SubmitButtonWrapper = styled.div`
   display: flex;
   gap: 16px;
   justify-content: center;
+
+  & button {
+    max-width: 200px;
+    flex: 1;
+  }
 `;
 
 const Button = styled(MinorButton)`
   padding: 4px 24px;
+`;
+
+const DeleteButton = styled(SubmitButton)`
+  background-color: ${COLORS.urgent_light};
+  color: ${COLORS.urgent_text};
+  border-color: ${COLORS.urgent};
+
+  &:hover:not(:disabled),
+  &:active:not(:disabled),
+  &:focus:not(:disabled) {
+    background-color: ${COLORS.urgent};
+  }
 `;
 
 const MeetSaved = styled(FieldSet)`

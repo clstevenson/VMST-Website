@@ -225,10 +225,20 @@ contact the webmaster immediately by replying to this message.`,
         console.log(error);
       }
     },
+    // delete a meet
+    deleteMeet: async (_, { _id }, { user }) => {
+      // only leaders can delete meets
+      if (user.role !== "leader") throw AuthenticationError;
+      try {
+        const deletedMeet = await Meet.findByIdAndDelete(_id);
+        return deletedMeet;
+      } catch (error) {
+        console.log(error);
+      }
+    },
     // add a new post
     addPost: async (_, { title, summary, content, photo }, { user }) => {
       // only team leaders can create posts
-      console.log({ user });
       if (user.role !== "leader") throw AuthenticationError;
       const post = {
         title,

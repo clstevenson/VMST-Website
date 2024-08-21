@@ -120,6 +120,7 @@ export default function SinglePost() {
                 setAlertOpen(false);
                 handleDeletePost();
               }}
+              cancelAction={() => setAlertOpen(false)}
               actionText="Delete"
               onOpenChange={setAlertOpen}
               open={alertOpen}

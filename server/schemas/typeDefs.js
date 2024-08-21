@@ -222,6 +222,7 @@ type Mutation {
   editPost(_id: ID!, title: String!, summary: String, content: String!, photo: PhotoData): Post
   deletePost(_id: ID!): Post
   addMeet(meet: MeetData, meetSwimmers: [CompetitorData], relays: [RelayData]): Meet
+  deleteMeet(_id: ID!): Meet
   uploadMembers(memberData: [MemberData]): [Member]
   emailLeaders(emailData: emailData): Boolean
   emailWebmaster(emailData: emailData): Boolean
