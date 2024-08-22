@@ -7,10 +7,11 @@ import styled from "styled-components";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import * as Accordian from "@radix-ui/react-accordion";
 import { Check } from "react-feather";
+import dayjs from "dayjs";
 
 import AccordianItem from "../AccordianItem";
 import { Description } from "../Styled/Description";
-import { CheckboxRoot } from "../Styled/CheckboxRoot";
+import { CheckboxRoot } from "../Styled/Checkbox";
 import { COLORS } from "../../utils/constants";
 
 export default function GroupSelection({
@@ -20,6 +21,7 @@ export default function GroupSelection({
   groups,
   swimmers,
   optOut,
+  meets,
 }) {
   return (
     <Accordian.Root type="multiple">
@@ -83,6 +85,64 @@ export default function GroupSelection({
           })}
         </GroupWrapper>
       </AccordianItem>
+      {/* Commucate with competitors in meets */}
+      <AccordianItem title="Email Swimmers in Meets" titlePadding="24px">
+        <MeetWrapper>
+          {meets.map((meet) => {
+            return (
+              <CheckboxWrapper key={meet._id}>
+                <CheckboxRoot
+                  id={meet._id}
+                  name={meet._id}
+                  onCheckedChange={(checked) => {
+                    // get current recipients
+                    const currentRecipients = recipients;
+                    if (checked) {
+                      const competitors = meet.meetSwimmers
+                        // only competitors whose matches are positive
+                        .filter(({ includeEmail }) => includeEmail)
+                        .map(({ usmsId }) => {
+                          // return membership object matched on USMS ID
+                          const member = swimmers.filter(
+                            (member) => member.usmsId === usmsId
+                          );
+                          if (member) return member[0];
+                        })
+                        // omit opt-outs
+                        .filter((member) => !member.emailExclude);
+                      // then create a new recipients variable that combines current and the meet swimmers
+                      setRecipients([...currentRecipients, ...competitors]);
+                    } else if (!checked) {
+                      // create function that returns true if the input USMS ID belongs to
+                      // one of the competitors
+                      const isCompetitor = (usmsId) => {
+                        return meet.meetSwimmers.some(
+                          (competitor) => competitor.usmsId === usmsId
+                        );
+                      };
+                      // only return recipients who are NOT competitors
+                      // (ie remove competitors from current recipients list)
+                      const newRecipients = currentRecipients.filter(
+                        (recipient) => !isCompetitor(recipient.usmsId)
+                      );
+                      // update the recipients
+                      setRecipients([...newRecipients]);
+                    }
+                  }}
+                >
+                  <Checkbox.Indicator>
+                    <Check />
+                  </Checkbox.Indicator>
+                </CheckboxRoot>
+                <label htmlFor={meet._id}>
+                  {meet.meetName}&mdash;{dayjs(meet.startDate).format("M/D/YY")}{" "}
+                  ({meet.meetSwimmers.length})
+                </label>
+              </CheckboxWrapper>
+            );
+          })}
+        </MeetWrapper>
+      </AccordianItem>
       {/* List the folks who won't receive emails */}
       <AccordianItem title="Swimmers Who Have Opted Out" titlePadding="24px">
         <Description style={{ marginBottom: "6px" }}>
@@ -118,5 +178,11 @@ const GroupWrapper = styled.div`
   display: grid;
   /* grid-template-columns: 1fr 1fr; */
   grid-template-columns: repeat(2, minmax(130px, 1fr));
+  gap: 4px;
+`;
+
+const MeetWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
   gap: 4px;
 `;

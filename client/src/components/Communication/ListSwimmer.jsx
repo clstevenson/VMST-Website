@@ -8,7 +8,7 @@ import { Check } from "react-feather";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import * as Label from "@radix-ui/react-label";
 
-import { CheckboxRoot } from "../Styled/CheckboxRoot";
+import { CheckboxRoot } from "../Styled/Checkbox";
 import { COLORS } from "../../utils/constants";
 import { useCallback, useEffect, useRef } from "react";
 

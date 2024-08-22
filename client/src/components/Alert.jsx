@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* 
  Alert dialog box based on styled Radix primitive.
  Input props:

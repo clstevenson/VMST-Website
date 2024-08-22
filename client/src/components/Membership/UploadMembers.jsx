@@ -1,15 +1,17 @@
 import { useState } from "react";
 import styled from "styled-components";
 
-import FileUploader from "./FileUploader";
 import Auth from "../../utils/auth";
 import { useQuery, useMutation } from "@apollo/client";
 import { UPLOAD_MEMBERS } from "../../utils/mutations";
 import { QUERY_MEMBERS } from "../../utils/queries";
 import papa from "papaparse";
+
+import FileUploader from "../FileUploader";
 import getGroups from "../../utils/getGroups";
 import { COLORS, QUERIES, WEIGHTS } from "../../utils/constants";
 import SubmitButton from "../Styled/SubmiButton";
+import Table from "../Styled/Table";
 import ToastMessage from "../ToastMessage";
 import Instructions from "./Instructions";
 
@@ -72,15 +74,18 @@ export default function UploadMembers() {
     setMessage("");
     let reader = new FileReader();
     reader.readAsText(e.target.files[0]);
-    reader.onload = async () => {
-      const results = await papa.parse(reader.result, {
+    reader.onload = () => {
+      const results = papa.parse(reader.result, {
         header: true,
         dynamicTyping: true,
         skipEmptyLines: true,
       });
       setMembers([...results.data]);
     };
-    reader.onerror = () => console.log(reader.error);
+    reader.onerror = () => {
+      console.log(reader.error);
+      setMessage(`File read error: ${reader.error}`);
+    };
   };
 
   // form submit event handler extracts the good parts of the data
@@ -93,6 +98,7 @@ export default function UploadMembers() {
     const memberData = members.map((member) => {
       const obj = {};
       obj.usmsRegNo = member["USMS Number"];
+      obj.usmsId = member["USMS Number"].slice(-5);
       obj.firstName = member["First Name"];
       obj.lastName = member["Last Name"];
       obj.gender = member.Gender;
@@ -319,7 +325,7 @@ export default function UploadMembers() {
         {/* </Col> */}
       </form>
 
-      <MemberTable>
+      <Table>
         <thead>
           <tr>
             <th scope="col">Name</th>
@@ -347,7 +353,7 @@ export default function UploadMembers() {
             </tr>
           ))}
         </tbody>
-      </MemberTable>
+      </Table>
       {updated && (
         <ToastMessage toastCloseEffect={() => setUpdated(false)}>
           The membership database has been updated!
@@ -442,41 +448,5 @@ const InputWrapper = styled.div`
     border: 1px solid ${COLORS.gray[8]};
     background-color: ${COLORS.accent[2]};
     padding: 4px;
-  }
-`;
-
-// all children elements/nodes of the table are styled here as well
-const MemberTable = styled.table`
-  margin: 6px auto;
-  table-layout: fixed;
-  border-collapse: collapse;
-
-  // default is left-aligned
-  & * {
-    text-align: left;
-  }
-
-  & thead {
-    border-top: 2px solid ${COLORS.accent[12]};
-    border-bottom: 2px solid ${COLORS.accent[12]};
-    background-color: ${COLORS.accent[4]};
-  }
-
-  & th,
-  & td {
-    padding: 4px 8px;
-
-    @media ${QUERIES.mobile} {
-      padding: 4px 6px;
-    }
-  }
-
-  // zebra-stripes
-  & tbody tr:nth-child(even) {
-    background-color: ${COLORS.accent[3]};
-  }
-
-  & tbody {
-    border-bottom: 2px solid ${COLORS.accent[12]};
   }
 `;

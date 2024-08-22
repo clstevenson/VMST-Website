@@ -104,9 +104,35 @@ export const QUERY_VMST = gql`
       usmsId
       firstName
       lastName
+      gender
       workoutGroup
       regYear
       emailExclude
+    }
+  }
+`;
+
+// get a list of meets that have been saved into memory
+export const QUERY_MEETS = gql`
+  query getMeets {
+    meets {
+      _id
+      meetName
+      course
+      startDate
+      endDate
+      meetSwimmers {
+        firstName
+        lastName
+        gender
+        meetAge
+        relays
+        usmsId
+        includeEmail
+      }
+      relays {
+        eventNum
+      }
     }
   }
 `;

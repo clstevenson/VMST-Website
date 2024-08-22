@@ -3,6 +3,7 @@
 
  Props needed:
  - title: the "prompt" (header) of the closed accordian
+ - titlePadding: a string value to give a left offset (including units) for the clickable accordian title. A value of zero (the default) has the chevron indicator in the margin and the title text aligned with the left of the container. A value of "24px" is appropriate to align the chevron with the left side.
  - children: the elements that are revealed when the accordian opens
 
  The title needs to be unique because it is used as the basis for the Accordian.Item value. The title is converted to lower case and then spaces are converted to dashes before using as the value. Any question marks are also stripped out. So for example, 'Who are we?' will become 'who-are-we'.
@@ -55,6 +56,7 @@ const Chevron = styled(ChevronRight)`
 `;
 
 const Title = styled.button`
+  text-align: left;
   font-size: 1rem;
   color: ${COLORS.accent[12]};
   font-weight: ${WEIGHTS.medium};

@@ -14,8 +14,15 @@ export const CheckboxRoot = styled(Checkbox.Root)`
   height: 25px;
   border-radius: 4px;
   box-shadow: 1px 2px 4px ${COLORS.gray[8]};
+  margin-right: 4px;
 
   &[data-disabled] {
     border: 1px solid ${COLORS.gray[8]};
   }
+`;
+
+export const CheckboxIndicator = styled(Checkbox.Indicator)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
