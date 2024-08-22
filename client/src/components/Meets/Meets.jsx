@@ -114,7 +114,6 @@ export default function Meets({ setTab }) {
           };
         }
       );
-      console.log(meets);
       setAllMeets([...meets]);
     },
   });
@@ -164,7 +163,6 @@ export default function Meets({ setTab }) {
     try {
       if (isEditing) {
         const changedMeet = { id: currentMeetId, meet, meetSwimmers, relays };
-        console.log({ changedMeet });
         await editMeet({ variables: changedMeet });
       } else {
         const newMeet = { meet, meetSwimmers, relays };

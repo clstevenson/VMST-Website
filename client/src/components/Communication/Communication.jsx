@@ -20,7 +20,7 @@ import "react-quill/dist/quill.snow.css";
 import { useQuery, useMutation } from "@apollo/client";
 import { useForm } from "react-hook-form";
 
-import { QUERY_VMST } from "../../utils/queries";
+import { QUERY_VMST, QUERY_MEETS } from "../../utils/queries";
 import { EMAIL_GROUP } from "../../utils/mutations";
 import { COLORS, QUERIES } from "../../utils/constants";
 import ToastMessage from "../ToastMessage";
@@ -51,13 +51,13 @@ export default function Communication({ setTab, userProfile }) {
   const quillRef = useRef(null);
   // status for Toast message
   const [sent, setSent] = useState(false);
+  // list of meets from database
+  const [meets, setMeets] = useState([]);
 
   //set up for react-hook-form
   const {
     register,
     handleSubmit,
-    getValues,
-    setValue,
     reset,
     formState: { errors, isSubmitting },
   } = useForm();
@@ -86,6 +86,23 @@ export default function Communication({ setTab, userProfile }) {
       // determine which members have opted out of emails
       const excluded = members.filter((member) => member.emailExclude);
       setOptOut([...excluded]);
+    },
+  });
+
+  useQuery(QUERY_MEETS, {
+    onCompleted: (data) => {
+      // retrieve the meets to a state variable
+      const allMeets = data.meets.map(
+        ({ _id, meetName, startDate, meetSwimmers: swimmers }) => {
+          const meetSwimmers = swimmers.map(
+            ({ firstName, lastName, usmsId, includeEmail }) => {
+              return { firstName, lastName, usmsId, includeEmail };
+            }
+          );
+          return { _id, meetName, startDate, meetSwimmers };
+        }
+      );
+      setMeets([...allMeets]);
     },
   });
 
@@ -220,6 +237,7 @@ export default function Communication({ setTab, userProfile }) {
             userProfile={userProfile}
             groups={groups}
             swimmers={swimmers}
+            meets={meets}
             optOut={optOut}
           />
         </RecipientSelectionWrapper>
