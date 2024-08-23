@@ -12,7 +12,6 @@ The primary purpose of this website is to facilitate communication between VMST 
 ## Table of Contents
 - [Installation](#installation)
 - [Use](#use)
-- [Questions](#questions)
 - [Contributions](#contributions)
 - [License](#license)
 
