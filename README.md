@@ -12,7 +12,6 @@ The primary purpose of this website is to facilitate communication between VMST 
 ## Table of Contents
 - [Installation](#installation)
 - [Use](#use)
-- [Questions](#questions)
 - [Contributions](#contributions)
 - [License](#license)
 
@@ -32,7 +31,7 @@ There are a number of intended uses of this website:
 - VMST coaches can create an account to allow them to communicate with the members of their workout group
 - VMST team leaders can email any VMST team member and can upload meet rosters, allowing them to email swimmers going to an upcoming competition and to construct relays. Leaders are also able to create new blog posts, or update/delete existing posts.
 
-A visitor to the website will be greeted with the latest news (as blog posts), as whosn in the screenshot below.
+A visitor to the website will be greeted with the latest news (as blog posts), as shown in the screenshot below.
 
 ![VMST homepage](VMST_Website_ScreenShot.png)
 
