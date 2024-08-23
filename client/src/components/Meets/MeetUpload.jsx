@@ -118,7 +118,14 @@ export default function MeetUpload({
             Assistant page. Probably there is a way to do this from the entry
             web site, but one way that should always work is to go to the Club
             Assistant web site and click the link to show the upcoming USMS swim
-            meets, as shown in the figure below.
+            meets, as shown in the figure below. (Here is a{" "}
+            <a
+              href="https://www.clubassistant.com/meets.cfm?ngb=USMS"
+              target="_new"
+            >
+              direct link
+            </a>{" "}
+            to the page of upcoming USMS meets.)
           </p>
           <Figure>
             <img
