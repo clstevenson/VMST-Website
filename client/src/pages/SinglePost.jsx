@@ -74,7 +74,7 @@ export default function SinglePost() {
           <ContentWrapper>{parse(post.content)}</ContentWrapper>
           <Attribution>-- posted on {post.createdAt}</Attribution>
 
-          {post.comments.length > 0 && (
+          {/* {post.comments.length > 0 && (
             <CommentsWrapper>
               <CommentSeparator />
               <ul>
@@ -91,7 +91,7 @@ export default function SinglePost() {
                 })}
               </ul>
             </CommentsWrapper>
-          )}
+          )} */}
         </Article>
         {post.photo && (
           <Figure>
