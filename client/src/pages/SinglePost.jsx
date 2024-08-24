@@ -19,6 +19,8 @@ import ToastMessage from "../components/ToastMessage";
 import Alert from "../components/Alert";
 
 export default function SinglePost() {
+  // user's can add, edit, or delete posts
+  const [isLeader, setIsLeader] = useState(false);
   // toggle to display Toast confirming deletion
   const [deleted, setDeleted] = useState(false);
   // toggle to display alert to confirm post deletion
@@ -35,8 +37,12 @@ export default function SinglePost() {
   const [deletePost] = useMutation(DELETE_POST);
   const navigate = useNavigate();
 
-  // leaders have the option to edit/delete posts
-  const { data: userProfile } = Auth.getProfile();
+  useEffect(() => {
+    if (Auth.loggedIn()) {
+      const role = Auth.getProfile().data.role;
+      setIsLeader(role === "leader");
+    }
+  }, []);
 
   const handleDeletePost = () => {
     try {
@@ -68,11 +74,11 @@ export default function SinglePost() {
           <ContentWrapper>{parse(post.content)}</ContentWrapper>
           <Attribution>-- posted on {post.createdAt}</Attribution>
 
-          {/* 
+          {/*
            Eventually will have comment functionality but for now
            let's not try to display them
            */}
-          {/* 
+          {/*
           {post.comments.length > 0 && (
             <CommentsWrapper>
               <CommentSeparator />
@@ -103,7 +109,7 @@ export default function SinglePost() {
         )}
       </PostWrapper>
       <FooterWrapper>
-        {userProfile.role === "leader" && (
+        {isLeader && (
           <>
             <IconButton>
               <Edit
@@ -212,7 +218,7 @@ const ContentWrapper = styled.div`
   margin: 16px 0;
   width: 100%;
 
-  /* 
+  /*
    For now all (smaller) images will float right. Eventually let the user decide (for the entire post)
    whether to float left or right, or whether images are blocks spanning the entire width
    */
