@@ -16,12 +16,12 @@ import Spinner from "../components/Spinner";
 import { COLORS, QUERIES } from "../utils/constants";
 import Auth from "../utils/auth";
 import ToastMessage from "../components/ToastMessage";
-import * as ModalStyles from "../components/Styled/ModalStyles";
 import Alert from "../components/Alert";
 
 export default function SinglePost() {
-  const [role, setRole] = useState("");
+  // toggle to display Toast confirming deletion
   const [deleted, setDeleted] = useState(false);
+  // toggle to display alert to confirm post deletion
   const [alertOpen, setAlertOpen] = useState(false);
 
   // retrieve post ID from the route param
@@ -35,16 +35,10 @@ export default function SinglePost() {
   const [deletePost] = useMutation(DELETE_POST);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (Auth.loggedIn()) {
-      const { data: userProfile } = Auth.getProfile();
-      setRole(userProfile.role);
-    }
-  }, []);
+  // leaders have the option to edit/delete posts
+  const { data: userProfile } = Auth.getProfile();
 
   const handleDeletePost = () => {
-    // need an alert dialog for user to confirm
-
     try {
       const deletedPost = deletePost({ variables: { id } });
 
@@ -74,7 +68,12 @@ export default function SinglePost() {
           <ContentWrapper>{parse(post.content)}</ContentWrapper>
           <Attribution>-- posted on {post.createdAt}</Attribution>
 
-          {/* {post.comments.length > 0 && (
+          {/* 
+           Eventually will have comment functionality but for now
+           let's not try to display them
+           */}
+          {/* 
+          {post.comments.length > 0 && (
             <CommentsWrapper>
               <CommentSeparator />
               <ul>
@@ -91,7 +90,8 @@ export default function SinglePost() {
                 })}
               </ul>
             </CommentsWrapper>
-          )} */}
+          )}
+                        */}
         </Article>
         {post.photo && (
           <Figure>
@@ -103,7 +103,7 @@ export default function SinglePost() {
         )}
       </PostWrapper>
       <FooterWrapper>
-        {role === "leader" && (
+        {userProfile.role === "leader" && (
           <>
             <IconButton>
               <Edit
