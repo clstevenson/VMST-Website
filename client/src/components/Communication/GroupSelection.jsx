@@ -11,7 +11,7 @@ import dayjs from "dayjs";
 
 import AccordianItem from "../AccordianItem";
 import { Description } from "../Styled/Description";
-import { CheckboxRoot } from "../Styled/Checkbox";
+import { CheckboxRoot, CheckboxIndicator } from "../Styled/Checkbox";
 import { COLORS } from "../../utils/constants";
 
 export default function GroupSelection({
@@ -64,9 +64,9 @@ export default function GroupSelection({
                     }
                   }}
                 >
-                  <Checkbox.Indicator>
+                  <CheckboxIndicator>
                     <Check />
-                  </Checkbox.Indicator>
+                  </CheckboxIndicator>
                 </CheckboxRoot>
                 <GroupLabel
                   htmlFor={group.name}
@@ -85,7 +85,9 @@ export default function GroupSelection({
           })}
         </GroupWrapper>
       </AccordianItem>
-      {/* Commucate with competitors in meets */}
+      {/*
+        Communicate with competitors in meets: list all meets in DB and allow user to check or uncheck them to email the competitors. Coaches can only add swimmers in their group.
+      */}
       <AccordianItem title="Email Swimmers in Meets" titlePadding="24px">
         <MeetWrapper>
           {meets.map((meet) => {
@@ -109,7 +111,9 @@ export default function GroupSelection({
                           if (member) return member[0];
                         })
                         // omit opt-outs
-                        .filter((member) => !member.emailExclude);
+                        .filter((member) => {
+                          if (member) return !member.emailExclude;
+                        });
                       // then create a new recipients variable that combines current and the meet swimmers
                       setRecipients([...currentRecipients, ...competitors]);
                     } else if (!checked) {
@@ -141,6 +145,12 @@ export default function GroupSelection({
               </CheckboxWrapper>
             );
           })}
+          {userProfile.role === "coach" && (
+            <Description>
+              Note: only competitors from {userProfile.group} are added when a
+              meet is selected.
+            </Description>
+          )}
         </MeetWrapper>
       </AccordianItem>
       {/* List the folks who won't receive emails */}
