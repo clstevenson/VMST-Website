@@ -14,7 +14,7 @@
  */
 
 import styled from "styled-components";
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useQuery, useMutation } from "@apollo/client";
@@ -29,10 +29,12 @@ import ErrorMessage from "../Styled/ErrorMessage";
 import RecipientsDisplay from "./RecipientsDisplay";
 import RecipientsCombobox from "./RecipientsCombobox";
 import GroupSelection from "./GroupSelection";
+import { CheckboxRoot, CheckboxIndicator } from "../Styled/Checkbox";
 
 // from the list of (VMST) members return the list of distinct WO groups
 // (using this utility means avoiding a DB query)
 import getGroups from "../../utils/getGroups";
+import { Check } from "react-feather";
 
 export default function Communication({ setTab, userProfile }) {
   // list of all VMST swimmers (array of member objects)
@@ -41,9 +43,9 @@ export default function Communication({ setTab, userProfile }) {
   const [groups, setGroups] = useState([]);
   // list of members who have opted out of emails (array of member objects)
   const [optOut, setOptOut] = useState([]);
-  // list of recipients chosen by the user
+  // list of recipients chosen by the user (array of member objects)
   const [recipients, setRecipients] = useState([]);
-  // HTML-formatted content of Quill editory
+  // HTML-formatted content of Quill editor
   const [emailContent, setEmailContent] = useState("");
   // (error) message to display under the editor
   const [message, setMessage] = useState("");
@@ -181,7 +183,11 @@ export default function Communication({ setTab, userProfile }) {
     <Form aria-label="send email" onSubmit={handleSubmit(onSubmit)}>
       <Wrapper>
         <MessageWrapper>
-          <Title>Email VMST Members</Title>
+          {userProfile.role === "coach" ? (
+            <Title>Email {userProfile.group} Members</Title>
+          ) : (
+            <Title>Email VMST Members</Title>
+          )}
 
           {/*
             Display people who will be receiving this email, with warnings as appropriate

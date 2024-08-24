@@ -369,6 +369,7 @@ const Wrapper = styled.div`
   /* border: 1px solid ${COLORS.accent[12]}; */
   /* border-radius: 8px; */
   padding: 16px;
+  margin: 0 auto;
 `;
 
 const FileUploadInstructions = styled.span`
