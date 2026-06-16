@@ -70,7 +70,7 @@ export default function Communication({ setTab, userProfile }) {
       // if a coach, limit to members of their WO group
       if (userProfile.role === "coach") {
         members = members.filter(
-          ({ workoutGroup }) => workoutGroup === userProfile.group
+          ({ workoutGroup }) => workoutGroup === userProfile.group,
         );
       }
 
@@ -99,10 +99,10 @@ export default function Communication({ setTab, userProfile }) {
           const meetSwimmers = swimmers.map(
             ({ firstName, lastName, usmsId, includeEmail }) => {
               return { firstName, lastName, usmsId, includeEmail };
-            }
+            },
           );
           return { _id, meetName, startDate, meetSwimmers };
-        }
+        },
       );
       setMeets([...allMeets]);
     },
@@ -194,14 +194,32 @@ export default function Communication({ setTab, userProfile }) {
           */}
           <RecipientsDisplay recipients={recipients} />
 
-          {/* Select/search for individual recipients */}
-          {!loading && (
-            <RecipientsCombobox
-              recipients={recipients}
-              setRecipients={setRecipients}
-              swimmers={swimmers}
-            />
-          )}
+          <SelectionWrapper>
+            {/* Select/search for individual recipients */}
+            {!loading && (
+              <RecipientsCombobox
+                recipients={recipients}
+                setRecipients={setRecipients}
+                swimmers={swimmers}
+              />
+            )}
+
+            {/*
+            Toggle select or deselect all recipients.
+            If at least one recipient exists it should say "Deselect All" and clicking will do that.
+            If there are no recipients, it shoudl say "Select All" and add all swimmers
+            (except opt-outs)
+            */}
+            <SelectButton
+              type="button"
+              onClick={() => {
+                reset();
+                setRecipients([]);
+              }}
+            >
+              Select All
+            </SelectButton>
+          </SelectionWrapper>
 
           <SubjectWrapper>
             <label htmlFor="subject">Subject: </label>
@@ -312,6 +330,15 @@ const RecipientSelectionWrapper = styled.div`
   width: 100%;
 `;
 
+const SelectionWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+  max-width: var(--max-prose-width);
+  width: 100%;
+`;
+
 const Title = styled.h2`
   font-size: var(--subheading-size);
   color: ${COLORS.accent[12]};
@@ -357,6 +384,12 @@ const ButtonWrapper = styled.div`
 
 const Button = styled(SubmitButton)`
   background-color: ${COLORS.accent[3]};
+  color: black;
+`;
+
+const SelectButton = styled(SubmitButton)`
+  background-color: ${COLORS.accent[3]};
+  margin: 0px auto 0px 36px;
   color: black;
 `;
 
