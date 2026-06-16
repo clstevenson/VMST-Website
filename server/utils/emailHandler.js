@@ -1,38 +1,37 @@
 const nodemailer = require("nodemailer");
-require('dotenv').config();
+require("dotenv").config();
 
 let mailConfig, user, name, transporter;
 
 // theres a bug with the env file, it won't get the email or password, check it out
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
   //actual fields for sending real emails
   mailConfig = {
     service: "gmail",
     auth: {
       user: process.env.EMAIL,
       pass: process.env.EMAIL_PASSWORD,
-    }
-  }
+    },
+  };
 } else {
   //fields for testing on ethereal
   mailConfig = {
-    host: 'smtp.ethereal.email',
+    host: "smtp.ethereal.email",
     port: 587,
     auth: {
-      user: 'vada80@ethereal.email',
-      pass: 'nSjzC6JTYW75W4pQnj'
-    }
-  }
+      user: "darlene.torphy@ethereal.email",
+      pass: "sRpuJdCsZvEfzzSUuU",
+    },
+  };
 }
 
 const Mail = async (mailData) => {
   transporter = nodemailer.createTransport(mailConfig);
 
-  transporter.verify(function(error) {
+  transporter.verify(function (error) {
     if (error) {
       console.log("error setting up smtp server\n\n");
       console.error;
-
     } else {
       console.log("server ready to take msgs");
     }
@@ -52,6 +51,6 @@ const Mail = async (mailData) => {
 
   console.log("message sent: %s", info.messageId);
   transporter = null;
-}
+};
 
 module.exports = Mail;
