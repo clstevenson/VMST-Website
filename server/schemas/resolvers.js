@@ -1,5 +1,11 @@
-const { Meets, Member, Photo, Post, User } = require("../models");
-const { signToken, AuthenticationError } = require("../utils/auth");
+const { Member, Post, User } = require("../models");
+const {
+  signToken,
+  AuthenticationError,
+  signRefreshToken,
+  setRefreshCookie,
+} = require("../utils/auth");
+
 const connection = require("../config/connection");
 const Mail = require("../utils/emailHandler");
 const generatePassword = require("../utils/password-generator");
@@ -96,7 +102,7 @@ const resolvers = {
   },
   Mutation: {
     // login with email and password which returns signed JWT
-    login: async (_, { email, password }) => {
+    login: async (_, { email, password }, { res }) => {
       const user = await User.findOne({ email: email });
       // no user with that email
       if (!user) throw AuthenticationError;
@@ -104,17 +110,19 @@ const resolvers = {
       const correctPW = await user.isCorrectPassword(password);
       if (!correctPW) throw AuthenticationError;
       // sign the token and return it with the user
-      const token = signToken(user);
-      return { token, user };
+      const accessToken = signToken(user);
+      const refreshToken = signRefreshToken(user);
+      setRefreshCookie(res, refreshToken);
+      return { token: accessToken, user };
     },
     // create new user, four required inputs, returns signed JWT
-    addUser: async (_, { firstName, lastName, email, password }) => {
+    addUser: async (_, { firstName, lastName, email, password }, { res }) => {
       const user = await User.create({ firstName, lastName, email, password });
-      // return with error message if no user created
       if (!user) throw AuthenticationError;
-      // sign the JWT and return with the user
-      const token = signToken(user);
-      return { token, user };
+      const accessToken = signToken(user);
+      const refreshToken = signRefreshToken(user);
+      setRefreshCookie(res, refreshToken);
+      return { token: accessToken, user };
     },
     // a logged-in user can change their own info
     // the webmaster can change anyone's info
@@ -122,7 +130,6 @@ const resolvers = {
     // but a token is needed in order to edit a user
     editUser: async (_, args, { user }) => {
       try {
-        // must be logged-in to proceed
         if (!user) throw AuthenticationError;
         // don't attempt to update password here
         delete args.user.password;
@@ -159,7 +166,7 @@ const resolvers = {
       // email the user the new password
       // first get the email address(es) of the webmaster(s) for user email replying
       const webmasterEmail = await User.findOne({ role: "webmaster" }).select(
-        "email"
+        "email",
       );
       // put together the email data
       const mailArgs = {
@@ -285,7 +292,7 @@ contact the webmaster immediately by replying to this message.`,
           updatedPost = await Post.findOneAndUpdate(
             { _id },
             { title, summary, content, $unset: { photo: 1 } },
-            { new: true }
+            { new: true },
           );
         }
         if (!updatedPost) {
@@ -401,7 +408,7 @@ contact the webmaster immediately by replying to this message.`,
         throw AuthenticationError;
       // retrieve the emails of the recipients (from their id's)
       const group = await Member.find({ _id: { $in: emailData.id } }).select(
-        "emails"
+        "emails",
       );
 
       // returned an array of objects with property "email" (one array item per leader in input)
