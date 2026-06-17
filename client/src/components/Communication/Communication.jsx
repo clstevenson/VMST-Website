@@ -4,7 +4,7 @@
  A form that allows the user to compose emails (in a rich text editor) for members of VMST subgroups.
 
  - coaches can email members of their WO group
- - leaders can email any VMST member (up to gmail limit)
+ - leaders can email any VMST member
 
  The main part of the content will contain the message composing editor (using Quill).  Recipients (and their count) will be listed on the form. There will also be (in the sidebar) a text input that can be used to search/filter/select recipients. This sidebar will be hidden for smaller screens but can slide out when clicked.
 
@@ -29,12 +29,11 @@ import ErrorMessage from "../Styled/ErrorMessage";
 import RecipientsDisplay from "./RecipientsDisplay";
 import RecipientsCombobox from "./RecipientsCombobox";
 import GroupSelection from "./GroupSelection";
-import { CheckboxRoot, CheckboxIndicator } from "../Styled/Checkbox";
 
 // from the list of (VMST) members return the list of distinct WO groups
 // (using this utility means avoiding a DB query)
 import getGroups from "../../utils/getGroups";
-import { Check } from "react-feather";
+import MinorButton from "../Styled/MinorButton";
 
 export default function Communication({ setTab, userProfile }) {
   // list of all VMST swimmers (array of member objects)
@@ -55,6 +54,8 @@ export default function Communication({ setTab, userProfile }) {
   const [sent, setSent] = useState(false);
   // list of meets from database
   const [meets, setMeets] = useState([]);
+  // boolean for (de)select all button toggle
+  const [anySelected, setAnySelected] = useState(false);
 
   //set up for react-hook-form
   const {
@@ -127,7 +128,7 @@ export default function Communication({ setTab, userProfile }) {
     keyboard: { bindings: { tab: false } },
   };
 
-  //submission handler (to send email)
+  // submission handler (to send email)
   const onSubmit = async ({ subject }) => {
     // need recipients, subject, and content in both HTML and text formats
     if (!emailContent) {
@@ -154,6 +155,20 @@ export default function Communication({ setTab, userProfile }) {
     }
   };
 
+  // Toggle between selecting all or selecting nonee
+  const toggleSelectAll = () => {
+    if (anySelected) {
+      // remove all recepients
+      setRecipients([]);
+      setAnySelected(false);
+    } else {
+      // select all recipients
+      setAnySelected(true);
+      const members = swimmers.filter((swimmer) => !swimmer.emailExclude);
+      setRecipients(members);
+    }
+  };
+
   const cleanup = () => {
     // cleanup after sending an email
     reset();
@@ -164,6 +179,7 @@ export default function Communication({ setTab, userProfile }) {
     // switching tabs seems to work; forceupdate does not
     // This is only an issue after submitting the form; clicking Cancel works just fine
     setTab("user");
+    setAnySelected(false);
   };
 
   // coach needs to have a group specified to access this tab
@@ -204,20 +220,14 @@ export default function Communication({ setTab, userProfile }) {
               />
             )}
 
-            {/*
-            Toggle select or deselect all recipients.
-            If at least one recipient exists it should say "Deselect All" and clicking will do that.
-            If there are no recipients, it shoudl say "Select All" and add all swimmers
-            (except opt-outs)
-            */}
+            {/* Toggle select or deselect all recipients. */}
             <SelectButton
               type="button"
               onClick={() => {
-                reset();
-                setRecipients([]);
+                toggleSelectAll();
               }}
             >
-              Select All
+              {anySelected ? "Deselect All" : "Select All"}
             </SelectButton>
           </SelectionWrapper>
 
@@ -263,6 +273,7 @@ export default function Communication({ setTab, userProfile }) {
             swimmers={swimmers}
             meets={meets}
             optOut={optOut}
+            setAnySelected={setAnySelected}
           />
         </RecipientSelectionWrapper>
 
@@ -280,7 +291,7 @@ export default function Communication({ setTab, userProfile }) {
           </Button>
           <SubmitButton
             type="submit"
-            disabled={recipients.length === 0 || recipients.length > 100}
+            disabled={recipients.length === 0 || recipients.length > 500}
           >
             {isSubmitting ? "sending..." : "Submit"}
           </SubmitButton>
@@ -387,9 +398,9 @@ const Button = styled(SubmitButton)`
   color: black;
 `;
 
-const SelectButton = styled(SubmitButton)`
-  background-color: ${COLORS.accent[3]};
+const SelectButton = styled(MinorButton)`
   margin: 0px auto 0px 36px;
+  padding: 4px 24px;
   color: black;
 `;
 

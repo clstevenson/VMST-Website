@@ -22,6 +22,7 @@ export default function GroupSelection({
   swimmers,
   optOut,
   meets,
+  setAnySelected,
 }) {
   return (
     <Accordian.Root type="multiple">
@@ -55,12 +56,19 @@ export default function GroupSelection({
                       ];
                       // upudate state
                       setRecipients([...newRecipients]);
+                      setAnySelected(true);
                     } else if (!checked) {
                       // remove group members from current list
                       const newRecipients = currentRecipients.filter(
                         ({ workoutGroup }) => workoutGroup !== group.name,
                       );
                       setRecipients([...newRecipients]);
+                      // toggle Select All/None as appropriate
+                      if (newRecipients.length > 0) {
+                        setAnySelected(true);
+                      } else {
+                        setAnySelected(false);
+                      }
                     }
                   }}
                 >
