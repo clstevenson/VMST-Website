@@ -15,16 +15,15 @@ export default function RecipientsDisplay({ recipients }) {
           It is best not to approach these limits.
         </Description>
       )}
-      {/* <MinorButton type="button" onClick={() => setRecipients([])}>
-              Clear Recipients List
-            </MinorButton> */}
-      {/* Display recipients */}
+      {/* Display recipients if fewer than 50 */}
       <p key="recipients" style={{ minHeight: "2pc" }}>
-        {recipients
-          .map((member) => {
-            return `${member.firstName} ${member.lastName}`;
-          })
-          .join(", ")}
+        {recipients.length > 100
+          ? "...too many to display (view or search dropdown list)..."
+          : recipients
+              .map((member) => {
+                return `${member.firstName} ${member.lastName}`;
+              })
+              .join(", ")}
       </p>
     </Wrapper>
   );
