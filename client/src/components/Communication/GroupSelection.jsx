@@ -22,11 +22,12 @@ export default function GroupSelection({
   swimmers,
   optOut,
   meets,
+  setAnySelected,
 }) {
   return (
     <Accordian.Root type="multiple">
       {/* Select entire workout groups */}
-      <AccordianItem title="Email Entire Workout Groups" titlePadding="24px">
+      <AccordianItem title="Email Workout Groups" titlePadding="24px">
         <GroupWrapper>
           {groups.map((group) => {
             return (
@@ -46,7 +47,7 @@ export default function GroupSelection({
                       const groupMembers = swimmers.filter(
                         (swimmer) =>
                           swimmer.workoutGroup === group.name &&
-                          !swimmer.emailExclude
+                          !swimmer.emailExclude,
                       );
                       // add group to the rec
                       const newRecipients = [
@@ -55,12 +56,19 @@ export default function GroupSelection({
                       ];
                       // upudate state
                       setRecipients([...newRecipients]);
+                      setAnySelected(true);
                     } else if (!checked) {
                       // remove group members from current list
                       const newRecipients = currentRecipients.filter(
-                        ({ workoutGroup }) => workoutGroup !== group.name
+                        ({ workoutGroup }) => workoutGroup !== group.name,
                       );
                       setRecipients([...newRecipients]);
+                      // toggle Select All/None as appropriate
+                      if (newRecipients.length > 0) {
+                        setAnySelected(true);
+                      } else {
+                        setAnySelected(false);
+                      }
                     }
                   }}
                 >
@@ -106,7 +114,7 @@ export default function GroupSelection({
                         .map(({ usmsId }) => {
                           // return membership object matched on USMS ID
                           const member = swimmers.filter(
-                            (member) => member.usmsId === usmsId
+                            (member) => member.usmsId === usmsId,
                           );
                           if (member) return member[0];
                         })
@@ -121,13 +129,13 @@ export default function GroupSelection({
                       // one of the competitors
                       const isCompetitor = (usmsId) => {
                         return meet.meetSwimmers.some(
-                          (competitor) => competitor.usmsId === usmsId
+                          (competitor) => competitor.usmsId === usmsId,
                         );
                       };
                       // only return recipients who are NOT competitors
                       // (ie remove competitors from current recipients list)
                       const newRecipients = currentRecipients.filter(
-                        (recipient) => !isCompetitor(recipient.usmsId)
+                        (recipient) => !isCompetitor(recipient.usmsId),
                       );
                       // update the recipients
                       setRecipients([...newRecipients]);
@@ -139,8 +147,9 @@ export default function GroupSelection({
                   </Checkbox.Indicator>
                 </CheckboxRoot>
                 <label htmlFor={meet._id}>
-                  {meet.meetName}&mdash;{dayjs(meet.startDate).format("M/D/YY")}{" "}
-                  ({meet.meetSwimmers.length})
+                  {meet.meetName}&mdash;
+                  {dayjs(meet.startDate).format("M/D/YY")} (
+                  {meet.meetSwimmers.length})
                 </label>
               </CheckboxWrapper>
             );

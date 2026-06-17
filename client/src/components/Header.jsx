@@ -9,8 +9,10 @@ import NavBar from "./NavBar";
 export default function Header() {
   return (
     <Wrapper>
-      {/* <Image src="/assets/VMST-logo-green.gif" alt="VMST logo" /> */}
-      <Image src="/assets/VMST-logo-white.png" alt="VMST logo" />
+      <a href="/">
+        {/* <Image src="/assets/VMST-logo-green.gif" alt="VMST logo" /> */}
+        <Image src="/assets/VMST-logo-white.png" alt="VMST logo" />{" "}
+      </a>
       <Title>Virginia Masters Swim Team</Title>
       <ShortTitle>Virginia Masters</ShortTitle>
       <Nav>
@@ -60,7 +62,7 @@ const ShortTitle = styled.h1`
 
 const Nav = styled.nav`
   margin-left: auto;
-`
+`;
 
 const Image = styled.img`
   display: block;
