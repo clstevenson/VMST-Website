@@ -30,11 +30,23 @@ export default function GroupSelection({
       <AccordianItem title="Email Workout Groups" titlePadding="24px">
         <GroupWrapper>
           {groups.map((group) => {
+            // group is "checked" only if all of its (email-eligible) members
+            // are currently in the recipients list
+            const groupMembers = swimmers.filter(
+              (swimmer) =>
+                swimmer.workoutGroup === group.name && !swimmer.emailExclude,
+            );
+            const checked =
+              groupMembers.length > 0 &&
+              groupMembers.every((member) =>
+                recipients.some((recipient) => recipient._id === member._id),
+              );
             return (
               <CheckboxWrapper key={group.name}>
                 <CheckboxRoot
                   id={group.name}
                   name={group.name}
+                  checked={checked}
                   disabled={
                     userProfile.role !== "leader" &&
                     userProfile.group !== group.name
@@ -99,11 +111,25 @@ export default function GroupSelection({
       <AccordianItem title="Email Swimmers in Meets" titlePadding="24px">
         <MeetWrapper>
           {meets.map((meet) => {
+            // meet is "checked" only if all of its (email-eligible) matched
+            // competitors are currently in the recipients list
+            const meetMembers = meet.meetSwimmers
+              .filter(({ includeEmail }) => includeEmail)
+              .map(({ usmsId }) =>
+                swimmers.find((member) => member.usmsId === usmsId),
+              )
+              .filter((member) => member && !member.emailExclude);
+            const checked =
+              meetMembers.length > 0 &&
+              meetMembers.every((member) =>
+                recipients.some((recipient) => recipient._id === member._id),
+              );
             return (
               <CheckboxWrapper key={meet._id}>
                 <CheckboxRoot
                   id={meet._id}
                   name={meet._id}
+                  checked={checked}
                   onCheckedChange={(checked) => {
                     // get current recipients
                     const currentRecipients = recipients;
