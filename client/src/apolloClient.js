@@ -25,6 +25,7 @@ const errorLink = onError(({ graphQLErrors, operation, forward }) => {
     return new Observable((observer) => {
       AuthService.refreshAccessToken().then((token) => {
         if (!token) {
+          AuthService.logout();
           observer.error(new Error("Session expired"));
           return;
         }
