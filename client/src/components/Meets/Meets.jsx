@@ -251,6 +251,12 @@ export default function Meets({ setTab }) {
         members={members}
         setRelayEventNumbers={setRelayEventNumbers}
         setCompetitors={setCompetitors}
+        uploadCloseEffect={() => {
+          setCourse("");
+          setMeetName("");
+          setStartDate("");
+          setEndDate("");
+        }}
       />
 
       {/* 
