@@ -81,7 +81,14 @@ export default function MeetUpload({
         );
         const match = matchUSMS(swimmer, filteredMembers);
         // add the top match to the swimmer object (want permanent rec)
-        return { ...swimmer, member: match[0] };
+        // fall back to an empty placeholder if no USMS match was found
+        const member = match[0] || {
+          usmsId: "",
+          firstName: "",
+          lastName: "",
+          gender: "",
+        };
+        return { ...swimmer, member };
       });
 
       setRelayEventNumbers([...relayEvents]);
