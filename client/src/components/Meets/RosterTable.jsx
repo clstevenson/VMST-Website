@@ -21,13 +21,11 @@ export default function RosterTable({ competitors, setCompetitors }) {
         In order to email the competitors, we must match them with their USMS
         registration. Please review the matches in the table below for accuracy;
         clicking the USMS ID to view the member&apos;s public profile can help.
-        If there is a descrepancy, uncheck the box (so the person is not
-        included in emails) and{" "}
-        <a href="mailto:VAmembership@usms.org">
-          contact the membership coordinator
-        </a>
-        . Note that the results page on the public profile can also be useful in
-        constructing relays.
+        If there is no USMS ID then the swimmer is not on the most recently
+        uploaded VMST roster (and will not get an email). If there is a
+        descrepancy, uncheck the box (so the person is not included in emails)
+        and contact the LMSC membership coordinator. Note that the results page
+        on the public profile can also be useful in constructing relays.
       </p>
       <SwimmerTable>
         <thead>

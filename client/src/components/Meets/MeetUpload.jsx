@@ -88,7 +88,8 @@ export default function MeetUpload({
           lastName: "",
           gender: "",
         };
-        return { ...swimmer, member };
+        // don't include unmatched swimmers in emails by default
+        return { ...swimmer, member, includeEmail: Boolean(match[0]) };
       });
 
       setRelayEventNumbers([...relayEvents]);
