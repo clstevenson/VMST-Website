@@ -124,6 +124,7 @@ export default function GroupSelection({
                         });
                       // then create a new recipients variable that combines current and the meet swimmers
                       setRecipients([...currentRecipients, ...competitors]);
+                      setAnySelected(true);
                     } else if (!checked) {
                       // create function that returns true if the input USMS ID belongs to
                       // one of the competitors
@@ -139,6 +140,12 @@ export default function GroupSelection({
                       );
                       // update the recipients
                       setRecipients([...newRecipients]);
+                      // toggle Select All/None as appropriate
+                      if (newRecipients.length > 0) {
+                        setAnySelected(true);
+                      } else {
+                        setAnySelected(false);
+                      }
                     }
                   }}
                 >
