@@ -199,6 +199,7 @@ contact the webmaster immediately by replying to this message.`,
     },
     // logged-in users can change their password
     changePassword: async (_, { password }, { user }) => {
+      if (!user) throw AuthenticationError;
       try {
         // need to has the new password then save it to the args
         const hashedPassword = await bcrypt.hash(password, 10);

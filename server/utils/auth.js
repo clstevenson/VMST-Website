@@ -1,5 +1,7 @@
 const { GraphQLError } = require("graphql");
 const jwt = require("jsonwebtoken");
+const ms = require("ms");
+const User = require("../models/Users");
 require("dotenv").config();
 
 const secret = process.env.SECRET_KEY;
@@ -47,23 +49,28 @@ module.exports = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      // needs to match refreshExpiration (in units of ms)
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: ms(refreshExpiration),
     });
   },
 
   // Mount as a REST route: POST /refresh
-  refreshHandler: function (req, res) {
+  refreshHandler: async function (req, res) {
     const token = req.cookies?.refresh_token;
     if (!token) return res.status(401).json({ message: "No refresh token" });
 
     try {
       const { _id } = jwt.verify(token, refreshSecret);
-      // possible friction point: role change since last login
-      // user needs to manually log out and log back in to pick up change
-      const newAccessToken = jwt.sign({ data: { _id } }, secret, {
-        expiresIn: accessExpiration,
-      });
+      // look up current role/group so a refreshed access token carries the
+      // same authorization data as a fresh login, not just the user id
+      const user = await User.findById(_id);
+      if (!user) {
+        return res.status(403).json({ message: "User no longer exists" });
+      }
+      const newAccessToken = jwt.sign(
+        { data: { role: user.role, _id: user._id, group: user.group } },
+        secret,
+        { expiresIn: accessExpiration },
+      );
       return res.json({ accessToken: newAccessToken });
     } catch {
       return res
