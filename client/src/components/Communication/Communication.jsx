@@ -34,6 +34,7 @@ import GroupSelection from "./GroupSelection";
 // (using this utility means avoiding a DB query)
 import getGroups from "../../utils/getGroups";
 import MinorButton from "../Styled/MinorButton";
+import useMediaQuery from "../../utils/useMediaQuery";
 
 export default function Communication({ setTab, userProfile }) {
   // list of all VMST swimmers (array of member objects)
@@ -111,20 +112,30 @@ export default function Communication({ setTab, userProfile }) {
 
   const [emailGroup] = useMutation(EMAIL_GROUP);
 
+  // simplify the toolbar on phones, where the full set of tools doesn't fit
+  const isMobile = useMediaQuery(QUERIES.mobile);
+
   // Quill text editor options/modules (note: no images allowed in emails)
   const quillModules = {
-    toolbar: [
-      ["bold", "italic", "strike", "blockquote"],
-      [
-        { list: "ordered" },
-        { list: "bullet" },
-        { indent: "-1" },
-        { indent: "+1" },
-      ],
-      [{ header: 1 }, { header: 2 }],
-      [{ header: [1, 2, 3, 4, false] }],
-      ["link"],
-    ],
+    toolbar: isMobile
+      ? [
+          ["bold", "italic"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          [{ header: [1, 2, 3, 4, false] }],
+          ["link"],
+        ]
+      : [
+          ["bold", "italic", "strike", "blockquote"],
+          [
+            { list: "ordered" },
+            { list: "bullet" },
+            { indent: "-1" },
+            { indent: "+1" },
+          ],
+          [{ header: 1 }, { header: 2 }],
+          [{ header: [1, 2, 3, 4, false] }],
+          ["link"],
+        ],
     keyboard: { bindings: { tab: false } },
   };
 
@@ -250,6 +261,10 @@ export default function Communication({ setTab, userProfile }) {
               Compose your message in the editor below
             </label>
             <ReactQuill
+              // Quill builds its toolbar once at mount and won't rebuild it from
+              // a changed `modules` prop; force a remount when the breakpoint is
+              // crossed so the simplified mobile toolbar actually takes effect
+              key={isMobile ? "mobile" : "desktop"}
               id="email"
               theme="snow"
               placeholder="Enter email message here"
