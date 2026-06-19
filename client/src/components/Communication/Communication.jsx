@@ -15,8 +15,6 @@
 
 import styled from "styled-components";
 import { useRef, useState } from "react";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
 import { useQuery, useMutation } from "@apollo/client";
 import { useForm } from "react-hook-form";
 
@@ -26,6 +24,7 @@ import { COLORS, QUERIES } from "../../utils/constants";
 import ToastMessage from "../ToastMessage";
 import SubmitButton from "../Styled/SubmiButton";
 import ErrorMessage from "../Styled/ErrorMessage";
+import Editor from "../Editor";
 import RecipientsDisplay from "./RecipientsDisplay";
 import RecipientsCombobox from "./RecipientsCombobox";
 import GroupSelection from "./GroupSelection";
@@ -147,8 +146,7 @@ export default function Communication({ setTab, userProfile }) {
       return;
     } else {
       try {
-        const quill = quillRef.current.getEditor();
-        const plainText = quill.getText();
+        const plainText = quillRef.current.getText();
         const emailData = {
           id: recipients.map((member) => member._id),
           subject,
@@ -260,17 +258,16 @@ export default function Communication({ setTab, userProfile }) {
             <label htmlFor="email">
               Compose your message in the editor below
             </label>
-            <ReactQuill
+            <Editor
               // Quill builds its toolbar once at mount and won't rebuild it from
               // a changed `modules` prop; force a remount when the breakpoint is
               // crossed so the simplified mobile toolbar actually takes effect
               key={isMobile ? "mobile" : "desktop"}
               id="email"
-              theme="snow"
               placeholder="Enter email message here"
               modules={quillModules}
-              value={emailContent}
-              onChange={setEmailContent}
+              defaultValue={emailContent}
+              onTextChange={setEmailContent}
               ref={quillRef}
             />
           </QuillWrapper>
@@ -297,6 +294,9 @@ export default function Communication({ setTab, userProfile }) {
             type="button"
             onClick={() => {
               reset();
+              // the editor is uncontrolled, so clearing emailContent alone
+              // won't clear the visible editor -- clear it imperatively too
+              quillRef.current?.setText("");
               setEmailContent("");
               setMessage("");
               setRecipients([]);
