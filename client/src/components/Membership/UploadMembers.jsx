@@ -323,35 +323,37 @@ export default function UploadMembers() {
         {/* </Col> */}
       </form>
 
-      <Table>
-        <thead>
-          <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Reg num</th>
-            <th scope="col">Club</th>
-            <th scope="col">WO grp</th>
-            <th scope="col">Reg yr</th>
-          </tr>
-        </thead>
-        <tbody>
-          {display?.map((member) => (
-            <tr key={member.usmsRegNo}>
-              <th scope="row">{member.fullName}</th>
-              <td>
-                <a
-                  href={`https://www.usms.org/people/${member.usmsRegNo.slice(-5)}`}
-                  target="_new"
-                >
-                  {member.usmsRegNo}
-                </a>
-              </td>
-              <td>{member.club}</td>
-              <td>{member.workoutGroup}</td>
-              <td>{member.regYear}</td>
+      <TableScroll>
+        <Table>
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Reg num</th>
+              <th scope="col">Club</th>
+              <th scope="col">WO grp</th>
+              <th scope="col">Reg yr</th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {display?.map((member) => (
+              <tr key={member.usmsRegNo}>
+                <th scope="row">{member.fullName}</th>
+                <td>
+                  <a
+                    href={`https://www.usms.org/people/${member.usmsRegNo.slice(-5)}`}
+                    target="_new"
+                  >
+                    {member.usmsRegNo}
+                  </a>
+                </td>
+                <td>{member.club}</td>
+                <td>{member.workoutGroup}</td>
+                <td>{member.regYear}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </TableScroll>
       {updated && (
         <ToastMessage toastCloseEffect={() => setUpdated(false)}>
           The membership database has been updated!
@@ -432,6 +434,13 @@ const ClearSearchButton = styled.button`
     min-height: 44px;
     margin-left: 0;
   }
+`;
+
+const TableScroll = styled.div`
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  contain: layout;
 `;
 
 const InputWrapper = styled.div`
