@@ -4,16 +4,19 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 
-import { COLORS, WEIGHTS } from "../utils/constants.js";
+import { COLORS, WEIGHTS, QUERIES } from "../utils/constants.js";
 import User from "../components/User";
 import UploadMembers from "../components/Membership/";
 import Communication from "../components/Communication/";
 import Meets from "../components/Meets/";
+import useMediaQuery from "../utils/useMediaQuery.js";
 
 export default function Account() {
   const navigate = useNavigate();
   const [tab, setTab] = useState("user");
   const { user: userProfile, isLoading } = useAuth();
+  // simplify the tab labels on phones
+  const isMobile = useMediaQuery(QUERIES.mobile);
 
   // if not logged in, redirect to home page -- but only once the auth
   // check (including a possible silent token refresh) has settled
@@ -33,18 +36,26 @@ export default function Account() {
   return (
     <TabsRoot defaultValue="user" value={tab} onValueChange={setTab}>
       <TabsList aria-label="Account page">
-        <TabsTrigger value="user">User Settings</TabsTrigger>
+        <TabsTrigger value="user">
+          {isMobile ? "User" : "User Settings"}
+        </TabsTrigger>
         {userProfile.role === "membership" && (
-          <TabsTrigger value="membership">Update Membership</TabsTrigger>
+          <TabsTrigger value="membership">
+            {isMobile ? "Membership" : "Update Membership"}
+          </TabsTrigger>
         )}
         {(userProfile.role === "leader" || userProfile.role === "coach") && (
-          <TabsTrigger value="email">Communication</TabsTrigger>
+          <TabsTrigger value="email">
+            {isMobile ? "Comms" : "Communication"}
+          </TabsTrigger>
         )}
         {userProfile.role === "leader" && (
           <TabsTrigger value="meets">Meets</TabsTrigger>
         )}
         {userProfile.role === "webmaster" && (
-          <TabsTrigger value="webmaster">Website Mgmt</TabsTrigger>
+          <TabsTrigger value="webmaster">
+            {isMobile ? "Website" : "Website Mgmt"}
+          </TabsTrigger>
         )}
       </TabsList>
       <TabsContent value="user" asChild>
