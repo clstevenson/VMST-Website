@@ -25,22 +25,21 @@ const Meet = require("../models/Meets");
 const resolvers = {
   Query: {
     // get all USMS members of the VA LMSC
-    members: async () => await Member.find().sort({ lastName: 1 }),
-    // get website users (or maybe a single user)
-    users: async (_, { id }) => {
-      if (id) {
-        // return a single user (as an array to match typedef)
-        const user = await User.findById(id);
-        return [user];
-      } else {
-        const users = await User.find();
-        return users;
-      }
+    members: async (_, __, { user }) => {
+      requireRole(user, "membership");
+      return await Member.find().sort({ lastName: 1 });
     },
-    // test if a given email address already exists (since it must be unique)
-    emailExists: async (_, { email }) => {
-      const user = await User.findOne({ email: email });
-      return user;
+    // get a user's own profile (no one can look up anyone else's, including webmaster)
+    user: async (_, { id }, { user }) => {
+      requireRole(user);
+      if (id !== user._id) throw AuthenticationError;
+      return await User.findById(id);
+    },
+    // test if a given email address already exists (since it must be unique);
+    // only used by an already-logged-in user changing their email
+    emailExists: async (_, { email }, { user }) => {
+      requireRole(user);
+      return await User.findOne({ email: email });
     },
     // get all posts, sorted most recent first
     posts: async () => await Post.find().sort({ createdAt: -1 }),
@@ -55,7 +54,8 @@ const resolvers = {
     groups: async () =>
       await Member.find({ club: "VMST" }).distinct("workoutGroup"),
     // get all members of VMST
-    vmstMembers: async () => {
+    vmstMembers: async (_, __, { user }) => {
+      requireRole(user, "leader", "coach");
       try {
         const swimmers = await Member.find({
           club: "VMST",
@@ -68,8 +68,14 @@ const resolvers = {
         console.log(err);
       }
     },
-    meets: async () => await Meet.find(),
-    getLeaders: async () => await User.find({ role: "leader" }),
+    meets: async (_, __, { user }) => {
+      requireRole(user, "leader", "coach");
+      return await Meet.find();
+    },
+    getLeaders: async (_, __, { user }) => {
+      requireRole(user, "webmaster");
+      return await User.find({ role: "leader" });
+    },
     getAlbums: async (_, { perPage, page }) => {
       const response = await getAlbums(page, perPage);
       if (!response) throw new Error("Something went wrong");
