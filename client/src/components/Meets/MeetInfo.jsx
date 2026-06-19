@@ -5,12 +5,11 @@
 import styled from "styled-components";
 import * as Select from "@radix-ui/react-select";
 import * as Label from "@radix-ui/react-label";
-import dayjs from "dayjs";
 
 import RosterTable from "./RosterTable";
 import ErrorMessage from "../Styled/ErrorMessage";
 import { FieldSet } from "../Styled/FieldSet";
-import { COLORS } from "../../utils/constants";
+import { COLORS, QUERIES } from "../../utils/constants";
 
 export default function MeetInfo({
   competitors,
@@ -113,6 +112,7 @@ export default function MeetInfo({
 
 const Wrapper = styled(FieldSet)`
   grid-area: info;
+  min-width: 0;
 `;
 
 const MeetNameDate = styled.div`
@@ -125,6 +125,11 @@ const MeetNameDate = styled.div`
   @media (max-width: 800px) {
     grid-template-columns: 1fr auto;
     grid-template-areas: "name course" "start end";
+  }
+
+  @media ${QUERIES.mobile} {
+    grid-template-columns: 1fr;
+    grid-template-areas: "name" "course" "start" "end";
   }
 `;
 
@@ -145,6 +150,11 @@ const InputWrapper = styled.div`
   & input[type="text"] {
     flex: 1;
     min-width: 25ch;
+
+    @media ${QUERIES.mobile} {
+      min-width: 0;
+      width: 100%;
+    }
   }
 `;
 

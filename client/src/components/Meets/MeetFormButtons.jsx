@@ -5,7 +5,7 @@
 
 import styled from "styled-components";
 import { useState } from "react";
-import { COLORS } from "../../utils/constants";
+import { COLORS, QUERIES } from "../../utils/constants";
 import SubmitButton from "../Styled/SubmiButton";
 import MinorButton from "../Styled/MinorButton";
 import Alert from "../Alert";
@@ -49,6 +49,15 @@ const SubmitButtonWrapper = styled.div`
   & button {
     max-width: 200px;
     flex: 1;
+  }
+
+  @media ${QUERIES.mobile} {
+    flex-direction: column;
+    align-items: stretch;
+
+    & button {
+      max-width: none;
+    }
   }
 `;
 

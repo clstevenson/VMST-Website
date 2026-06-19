@@ -107,7 +107,7 @@ export default function User({ userProfile }) {
       if (!updatedUser) {
         // need to send a message to the user
         setMessage(
-          "Something went wrong on the server; possibly the email address you chose is already in use."
+          "Something went wrong on the server; possibly the email address you chose is already in use.",
         );
         return;
       }
@@ -626,6 +626,10 @@ const ButtonWrapper = styled.div`
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
+
+  @media ${QUERIES.mobile} {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const Button = styled(SubmitButton)`
@@ -677,6 +681,7 @@ const RoleRequestWrapper = styled(NameWrapper)`
 
 const RadioGroupRoot = styled(RadioGroup.Root)`
   display: flex;
+  flex-wrap: wrap;
   gap: 24px;
 `;
 
