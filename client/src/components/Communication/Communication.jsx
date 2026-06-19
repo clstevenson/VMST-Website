@@ -348,6 +348,12 @@ const SelectionWrapper = styled.div`
   align-items: center;
   max-width: var(--max-prose-width);
   width: 100%;
+
+  @media ${QUERIES.mobile} {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
 `;
 
 const Title = styled.h2`
@@ -402,6 +408,10 @@ const SelectButton = styled(MinorButton)`
   margin: 0px auto 0px 36px;
   padding: 4px 24px;
   color: black;
+
+  @media ${QUERIES.mobile} {
+    margin: 0 auto;
+  }
 `;
 
 const NoGroupWrapper = styled.div`
