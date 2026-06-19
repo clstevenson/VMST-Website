@@ -7,8 +7,6 @@
  */
 
 import styled from "styled-components";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
@@ -29,6 +27,7 @@ import SubmitButton from "../components/Styled/SubmiButton";
 import ErrorMessage from "../components/Styled/ErrorMessage";
 import ToastMessage from "../components/ToastMessage";
 import Spinner from "../components/Spinner";
+import Editor from "../components/Editor";
 
 export default function CreateEditPost({ isEditing = false }) {
   const navigate = useNavigate();
@@ -64,6 +63,10 @@ export default function CreateEditPost({ isEditing = false }) {
   const [postContent, setPostContent] = useState("");
   // (error) message to display under the editor
   const [message, setMessage] = useState("");
+  // the editor is uncontrolled and only reads postContent once, at mount;
+  // when editing, postContent loads asynchronously, so the editor must not
+  // mount until that initial content has arrived
+  const [contentReady, setContentReady] = useState(!isEditing);
 
   const { postId } = useParams();
 
@@ -109,6 +112,7 @@ export default function CreateEditPost({ isEditing = false }) {
       setValue("title", data.onePost.title);
       setValue("summary", data.onePost.summary);
       setPostContent(data.onePost.content);
+      setContentReady(true);
       if (data.onePost.photo) {
         setPostPhoto(data.onePost.photo);
         setValue("caption", data.onePost.photo.caption);
@@ -266,14 +270,15 @@ export default function CreateEditPost({ isEditing = false }) {
 
         <QuillWrapper>
           <label htmlFor="content">Content (required)</label>
-          <ReactQuill
-            id="content"
-            theme="snow"
-            placeholder="Enter post content here"
-            modules={modules}
-            value={postContent}
-            onChange={setPostContent}
-          />
+          {contentReady && (
+            <Editor
+              id="content"
+              placeholder="Enter post content here"
+              modules={modules}
+              defaultValue={postContent}
+              onTextChange={setPostContent}
+            />
+          )}
         </QuillWrapper>
         <QuillDescription>
           Check out{" "}
