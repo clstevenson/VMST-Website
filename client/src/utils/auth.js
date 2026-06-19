@@ -1,11 +1,13 @@
 // use this to decode a token and get the user's information out of it
-import decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
+
+const TOKEN_COOKIE = "access_token";
 
 // create a new class to instantiate for a user
 class AuthService {
   // get user data
   getProfile() {
-    return decode(this.getToken());
+    return jwtDecode(this.getToken());
   }
 
   // check if user's logged in
@@ -19,29 +21,59 @@ class AuthService {
   // check if token is expired
   isTokenExpired(token) {
     try {
-      const decoded = decode(token);
-      if (decoded.exp < Date.now() / 1000) {
-        return true;
-      } else return false;
-    } catch (err) {
-      return false;
+      const decoded = jwtDecode(token);
+      return decoded.exp < Date.now() / 1000;
+    } catch {
+      // malformed token can't be trusted, treat as expired
+      return true;
     }
   }
 
   getToken() {
-    // Retrieves the user token from localStorage
-    return localStorage.getItem("id_token");
+    // Retrieves the access token from its (non-httpOnly) cookie
+    const match = document.cookie.match(/(?:^|;\s*)access_token=([^;]+)/);
+    return match ? match[1] : null;
+  }
+
+  // store the access token as a cookie, expiring at the same time as the JWT itself
+  setToken(token) {
+    const { exp } = jwtDecode(token);
+    const expires = new Date(exp * 1000).toUTCString();
+    const secure = window.location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `${TOKEN_COOKIE}=${token}; expires=${expires}; path=/; SameSite=Strict${secure}`;
+  }
+
+  // ask the server for a new access token using the httpOnly refresh cookie
+  // returns the new token on success, or null if the refresh token is missing/expired
+  async refreshAccessToken() {
+    try {
+      const res = await fetch("/refresh", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) return null;
+      const { accessToken } = await res.json();
+      this.setToken(accessToken);
+      return accessToken;
+    } catch {
+      return null;
+    }
   }
 
   login(idToken) {
-    // Saves user token to localStorage
-    localStorage.setItem("id_token", idToken);
+    this.setToken(idToken);
     window.location.assign("/me");
   }
 
-  logout() {
-    // Clear user token and profile data from localStorage
-    localStorage.removeItem("id_token");
+  async logout() {
+    // The refresh_token cookie is httpOnly -- only the server can clear it
+    try {
+      await fetch("/logout", { method: "POST", credentials: "include" });
+    } catch {
+      // best-effort; still clear the local cookie and navigate away below
+    }
+    // Clear the access token cookie
+    document.cookie = `${TOKEN_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
     window.location.assign("/");
   }
 }

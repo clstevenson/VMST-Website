@@ -1,5 +1,12 @@
-const { Meets, Member, Photo, Post, User } = require("../models");
-const { signToken, AuthenticationError } = require("../utils/auth");
+const { Member, Post, User } = require("../models");
+const {
+  signToken,
+  AuthenticationError,
+  signRefreshToken,
+  setRefreshCookie,
+  requireRole,
+} = require("../utils/auth");
+
 const connection = require("../config/connection");
 const Mail = require("../utils/emailHandler");
 const generatePassword = require("../utils/password-generator");
@@ -96,7 +103,7 @@ const resolvers = {
   },
   Mutation: {
     // login with email and password which returns signed JWT
-    login: async (_, { email, password }) => {
+    login: async (_, { email, password }, { res }) => {
       const user = await User.findOne({ email: email });
       // no user with that email
       if (!user) throw AuthenticationError;
@@ -104,26 +111,27 @@ const resolvers = {
       const correctPW = await user.isCorrectPassword(password);
       if (!correctPW) throw AuthenticationError;
       // sign the token and return it with the user
-      const token = signToken(user);
-      return { token, user };
+      const accessToken = signToken(user);
+      const refreshToken = signRefreshToken(user);
+      setRefreshCookie(res, refreshToken);
+      return { token: accessToken, user };
     },
     // create new user, four required inputs, returns signed JWT
-    addUser: async (_, { firstName, lastName, email, password }) => {
+    addUser: async (_, { firstName, lastName, email, password }, { res }) => {
       const user = await User.create({ firstName, lastName, email, password });
-      // return with error message if no user created
       if (!user) throw AuthenticationError;
-      // sign the JWT and return with the user
-      const token = signToken(user);
-      return { token, user };
+      const accessToken = signToken(user);
+      const refreshToken = signRefreshToken(user);
+      setRefreshCookie(res, refreshToken);
+      return { token: accessToken, user };
     },
     // a logged-in user can change their own info
     // the webmaster can change anyone's info
     // user ID is as an argument (so the webmaster can change it)
     // but a token is needed in order to edit a user
     editUser: async (_, args, { user }) => {
+      requireRole(user);
       try {
-        // must be logged-in to proceed
-        if (!user) throw AuthenticationError;
         // don't attempt to update password here
         delete args.user.password;
         // only admins can update roles
@@ -159,7 +167,7 @@ const resolvers = {
       // email the user the new password
       // first get the email address(es) of the webmaster(s) for user email replying
       const webmasterEmail = await User.findOne({ role: "webmaster" }).select(
-        "email"
+        "email",
       );
       // put together the email data
       const mailArgs = {
@@ -192,6 +200,7 @@ contact the webmaster immediately by replying to this message.`,
     },
     // logged-in users can change their password
     changePassword: async (_, { password }, { user }) => {
+      requireRole(user);
       try {
         // need to has the new password then save it to the args
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -213,7 +222,7 @@ contact the webmaster immediately by replying to this message.`,
     // add a new meet
     addMeet: async (_, { meet, meetSwimmers, relays }, { user }) => {
       // only leaders can add meets
-      if (user.role !== "leader") throw AuthenticationError;
+      requireRole(user, "leader");
       const newMeet = {
         ...meet,
         meetSwimmers,
@@ -228,7 +237,7 @@ contact the webmaster immediately by replying to this message.`,
     // edit a meet
     editMeet: async (_, { _id, meet, meetSwimmers, relays }, { user }) => {
       // only leaders can edit meets
-      if (user.role !== "leader") throw AuthenticationError;
+      requireRole(user, "leader");
       const changedMeet = {
         ...meet,
         meetSwimmers,
@@ -246,7 +255,7 @@ contact the webmaster immediately by replying to this message.`,
     // delete a meet
     deleteMeet: async (_, { _id }, { user }) => {
       // only leaders can delete meets
-      if (user.role !== "leader") throw AuthenticationError;
+      requireRole(user, "leader");
       try {
         const deletedMeet = await Meet.findByIdAndDelete(_id);
         return deletedMeet;
@@ -257,7 +266,7 @@ contact the webmaster immediately by replying to this message.`,
     // add a new post
     addPost: async (_, { title, summary, content, photo }, { user }) => {
       // only team leaders can create posts
-      if (user.role !== "leader") throw AuthenticationError;
+      requireRole(user, "leader");
       const post = {
         title,
         summary,
@@ -268,7 +277,7 @@ contact the webmaster immediately by replying to this message.`,
     },
     editPost: async (_, { _id, title, summary, content, photo }, { user }) => {
       // only leaders can delete posts
-      if (user.role !== "leader") throw AuthenticationError;
+      requireRole(user, "leader");
       const post = {
         title,
         summary,
@@ -285,7 +294,7 @@ contact the webmaster immediately by replying to this message.`,
           updatedPost = await Post.findOneAndUpdate(
             { _id },
             { title, summary, content, $unset: { photo: 1 } },
-            { new: true }
+            { new: true },
           );
         }
         if (!updatedPost) {
@@ -297,7 +306,7 @@ contact the webmaster immediately by replying to this message.`,
     },
     deletePost: async (_, { _id }, { user }) => {
       // only leaders can delete posts
-      if (user.role !== "leader") throw AuthenticationError;
+      requireRole(user, "leader");
       try {
         const deletedPost = await Post.findByIdAndDelete(_id);
         // return is null if the post is not deleted (ie, ID not found)
@@ -308,7 +317,7 @@ contact the webmaster immediately by replying to this message.`,
     },
     uploadMembers: async (_, { memberData }, { user }) => {
       // only the Membership Coordinator is allowed to update the Member collection
-      if (user.role !== "membership") throw AuthenticationError;
+      requireRole(user, "membership");
 
       // update the Members collection in the DB
       // first delete the members collection if it exists
@@ -397,11 +406,10 @@ contact the webmaster immediately by replying to this message.`,
     },
     emailGroup: async (_, { emailData }, { user }) => {
       // only team leaders or coaches can email WO groups
-      if (user.role !== "leader" && user.role !== "coach")
-        throw AuthenticationError;
+      requireRole(user, "leader", "coach");
       // retrieve the emails of the recipients (from their id's)
       const group = await Member.find({ _id: { $in: emailData.id } }).select(
-        "emails"
+        "emails",
       );
 
       // returned an array of objects with property "email" (one array item per leader in input)

@@ -3,7 +3,7 @@
  */
 
 import styled from "styled-components";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@apollo/client";
 import * as Separator from "@radix-ui/react-separator";
@@ -14,13 +14,14 @@ import { QUERY_SINGLEPOST } from "../utils/queries";
 import { DELETE_POST } from "../utils/mutations";
 import Spinner from "../components/Spinner";
 import { COLORS, QUERIES } from "../utils/constants";
-import Auth from "../utils/auth";
+import { useAuth } from "../context/AuthContext";
 import ToastMessage from "../components/ToastMessage";
 import Alert from "../components/Alert";
 
 export default function SinglePost() {
   // user's can add, edit, or delete posts
-  const [isLeader, setIsLeader] = useState(false);
+  const { user } = useAuth();
+  const isLeader = user?.role === "leader";
   // toggle to display Toast confirming deletion
   const [deleted, setDeleted] = useState(false);
   // toggle to display alert to confirm post deletion
@@ -36,13 +37,6 @@ export default function SinglePost() {
 
   const [deletePost] = useMutation(DELETE_POST);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (Auth.loggedIn()) {
-      const role = Auth.getProfile().data.role;
-      setIsLeader(role === "leader");
-    }
-  }, []);
 
   const handleDeletePost = () => {
     try {
