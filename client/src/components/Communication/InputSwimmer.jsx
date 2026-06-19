@@ -97,7 +97,9 @@ const InputSearch = styled.input`
   background-image: url("/assets/search.svg");
   background-repeat: no-repeat;
   padding-left: 30px;
-  width: 300px;
+  width: 100%;
+  max-width: 300px;
+  min-width: 0;
 `;
 
 const SelectInputWrapper = styled.div`
