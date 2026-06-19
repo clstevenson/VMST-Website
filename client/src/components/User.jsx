@@ -369,7 +369,7 @@ export default function User({ userProfile }) {
                 If you think there is some mistake in your WO group roll (eg,
                 you think someone is a member who is not on the list or it has
                 not been updated recently), please{" "}
-                <a href="mailto: VAmembership@usms.org">
+                <a href="mailto: clearscreen100@gmail.com">
                   email the LMSC Membership Coordinator
                 </a>{" "}
                 with your concerns.
@@ -401,7 +401,7 @@ export default function User({ userProfile }) {
                 If you need to send a message to all members, there are two
                 options. VMST can pay for an account with a higher send limit,
                 or you can send such messages through the{" "}
-                <a href="mailto:VAmembership@usms.org">
+                <a href="mailto:clearscreen100@gmail.com">
                   LMSC Membership Coordinator
                 </a>
                 .

@@ -47,7 +47,7 @@ There are three additional types of users beyond the basic. Clicking on the "Req
 There are also two "hidden" roles that are related to administration of the website.
 
 - website administrators for tasks such as comment moderation, resetting passwords, and website maintenance.
-- the Virginia LMSC Membership Coordinator (email: VAMembership@usms.org) is responsible for updating the website's USMS membership database so that current emails of all VMST members can be used for communication. There should be only one user with this role, and they will need to update the membership data routinely, roughly every 1-2 weeks and on request of team leadership.
+- the Virginia LMSC Membership Coordinator (email: clearscreen100@gmail.com) is responsible for updating the website's USMS membership database so that current emails of all VMST members can be used for communication. There should be only one user with this role, and they will need to update the membership data routinely, roughly every 1-2 weeks and on request of team leadership.
 
 When a leader or coach logs in, they are presented with additional tabs on the user page. One of those is the communications page, which allows the coach or leader to send emails to VMST members. A screenshot example is shown below, showing how a coach might communicate with their group members. A rich text editor is used in case the coach/leader wants to apply additional formatting to the message.
 

@@ -106,7 +106,7 @@ const seedUsers = async (members) => {
     firstName: "Christopher",
     lastName: "Stevenson",
     password: membershipPassword,
-    email: "VAMembership@usms.org",
+    email: "clearscreen100@gmail.com",
     role: "membership",
   });
   // add webmaster
