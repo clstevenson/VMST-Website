@@ -190,9 +190,9 @@ contact the webmaster immediately by replying to this message.`,
       };
 
       try {
-        Mail(mailArgs);
+        await Mail(mailArgs);
       } catch (err) {
-        console.error;
+        console.error(err);
         return false;
       }
 
@@ -341,9 +341,9 @@ contact the webmaster immediately by replying to this message.`,
       // call mail() with mailArgs
       if (mailArgs.emails.length > 0) {
         try {
-          Mail(mailArgs);
-        } catch {
-          console.error;
+          await Mail(mailArgs);
+        } catch (err) {
+          console.error(err);
           return false;
         }
       } else {
@@ -367,9 +367,9 @@ contact the webmaster immediately by replying to this message.`,
       // call mail() with mailArgs
       if (mailArgs.emails.length > 0) {
         try {
-          Mail(mailArgs);
-        } catch {
-          console.error;
+          await Mail(mailArgs);
+        } catch (err) {
+          console.error(err);
           return false;
         }
       } else {
@@ -392,9 +392,9 @@ contact the webmaster immediately by replying to this message.`,
       // call mail() with mailArgs
       if (mailArgs.emails.length > 0) {
         try {
-          Mail(mailArgs);
-        } catch {
-          console.error;
+          await Mail(mailArgs);
+        } catch (err) {
+          console.error(err);
           return false;
         }
       } else {
@@ -429,9 +429,9 @@ contact the webmaster immediately by replying to this message.`,
       // call mail() with mailArgs
       if (mailArgs.emails.length > 0) {
         try {
-          Mail(mailArgs);
-        } catch {
-          console.error;
+          await Mail(mailArgs);
+        } catch (err) {
+          console.error(err);
           return false;
         }
       } else {
