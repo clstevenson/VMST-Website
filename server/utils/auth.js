@@ -10,12 +10,22 @@ const refreshSecret = process.env.REFRESH_SECRET_KEY;
 const accessExpiration = process.env.ACCESS_TOKEN_EXPIRY || "15m";
 const refreshExpiration = process.env.REFRESH_TOKEN_EXPIRY || "7d";
 
+const AuthenticationError = new GraphQLError("Could not authenticate user.", {
+  extensions: {
+    code: "UNAUTHENTICATED",
+  },
+});
+
 module.exports = {
-  AuthenticationError: new GraphQLError("Could not authenticate user.", {
-    extensions: {
-      code: "UNAUTHENTICATED",
-    },
-  }),
+  AuthenticationError,
+
+  // throws AuthenticationError unless user exists and (when roles are given) has one of them;
+  // bakes the null-check into the role check so it can't be omitted by accident
+  requireRole: function (user, ...roles) {
+    if (!user || (roles.length && !roles.includes(user.role))) {
+      throw AuthenticationError;
+    }
+  },
 
   authMiddleware: function ({ req, res }) {
     // if present token is in the header of the request

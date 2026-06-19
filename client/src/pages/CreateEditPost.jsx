@@ -33,6 +33,7 @@ import Spinner from "../components/Spinner";
 export default function CreateEditPost({ isEditing = false }) {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
+  const isLeader = user?.role === "leader";
   const [addPost] = useMutation(ADD_POST);
   const [editPost] = useMutation(EDIT_POST);
   const {
@@ -118,11 +119,11 @@ export default function CreateEditPost({ isEditing = false }) {
   useEffect(() => {
     // only logged-in leaders can view the page; wait for the auth check
     // (including a possible silent token refresh) to settle first
-    if (!isLoading && (!user || user.role !== "leader")) navigate("/");
-  }, [isLoading, user, navigate]);
+    if (!isLoading && !isLeader) navigate("/");
+  }, [isLoading, isLeader, navigate]);
 
   useEffect(() => {
-    if (isLoading || !user || user.role !== "leader") return;
+    if (isLoading || !isLeader) return;
 
     // fill in the photo picker grid
     getPhotos({ variables: { albumId, page } });
@@ -131,7 +132,7 @@ export default function CreateEditPost({ isEditing = false }) {
     if (isEditing) {
       getPost({ variables: { postId } });
     }
-  }, [isLoading, user, albumId, page, getPhotos, getPost, postId, isEditing]);
+  }, [isLoading, isLeader, albumId, page, getPhotos, getPost, postId, isEditing]);
 
   const onSubmit = async ({ title, summary }) => {
     // make sure there is content
@@ -231,7 +232,7 @@ export default function CreateEditPost({ isEditing = false }) {
   };
 
   // still resolving the session, or about to redirect away
-  if (isLoading || !user || user.role !== "leader") return null;
+  if (isLoading || !isLeader) return null;
 
   return (
     <FormWrapper
