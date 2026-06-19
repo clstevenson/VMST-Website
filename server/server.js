@@ -2,7 +2,7 @@ const express = require("express");
 const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
 
-const { authMiddleware, refreshHandler } = require("./utils/auth");
+const { authMiddleware, refreshHandler, logoutHandler } = require("./utils/auth");
 const { typeDefs, resolvers } = require("./schemas");
 
 const path = require("path");
@@ -21,6 +21,7 @@ const startApolloServer = async () => {
   app.use(cookieParser());
 
   app.post("/refresh", refreshHandler);
+  app.post("/logout", logoutHandler);
 
   app.use(
     "/graphql",

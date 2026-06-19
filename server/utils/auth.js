@@ -63,6 +63,17 @@ module.exports = {
     });
   },
 
+  // Mount as a REST route: POST /logout
+  // clears the httpOnly refresh cookie, which client JS can never do on its own
+  logoutHandler: function (_req, res) {
+    res.clearCookie("refresh_token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+    return res.status(204).end();
+  },
+
   // Mount as a REST route: POST /refresh
   refreshHandler: async function (req, res) {
     const token = req.cookies?.refresh_token;

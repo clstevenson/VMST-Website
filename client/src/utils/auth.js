@@ -65,7 +65,13 @@ class AuthService {
     window.location.assign("/me");
   }
 
-  logout() {
+  async logout() {
+    // The refresh_token cookie is httpOnly -- only the server can clear it
+    try {
+      await fetch("/logout", { method: "POST", credentials: "include" });
+    } catch {
+      // best-effort; still clear the local cookie and navigate away below
+    }
     // Clear the access token cookie
     document.cookie = `${TOKEN_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
     window.location.assign("/");
