@@ -24,6 +24,7 @@ const LoginContent = ({ setIsLogin, setOpen, message, setMessage }) => {
     register,
     handleSubmit,
     getValues,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm();
 
@@ -44,7 +45,14 @@ const LoginContent = ({ setIsLogin, setOpen, message, setMessage }) => {
       // store the token in browser
       Auth.login(data.login.token);
     } catch (err) {
-      setMessage(`Error: ${err.message}`);
+      // server gives the same error for "no such email" and "wrong
+      // password"; show it where the user is most likely to act on it
+      // (re-typing the password) rather than a generic banner
+      if (err.graphQLErrors?.length) {
+        setError("password", { message: "Incorrect password" });
+      } else {
+        setMessage(`Error: ${err.message}`);
+      }
     }
   };
 

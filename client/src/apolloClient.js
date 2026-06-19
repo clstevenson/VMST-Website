@@ -20,8 +20,17 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
+// these mutations are unauthenticated by design: an UNAUTHENTICATED error
+// from them means "the credentials just submitted are wrong," not "the
+// session's access token expired," so they must not trigger a silent
+// refresh + logout/redirect.
+const UNAUTHENTICATED_EXEMPT_OPS = ["login", "addUser"];
+
 const errorLink = onError(({ graphQLErrors, operation, forward }) => {
-  if (graphQLErrors?.some((e) => e.extensions?.code === "UNAUTHENTICATED")) {
+  if (
+    !UNAUTHENTICATED_EXEMPT_OPS.includes(operation.operationName) &&
+    graphQLErrors?.some((e) => e.extensions?.code === "UNAUTHENTICATED")
+  ) {
     return new Observable((observer) => {
       AuthService.refreshAccessToken().then((token) => {
         if (!token) {
