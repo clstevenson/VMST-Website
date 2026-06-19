@@ -3,6 +3,7 @@ const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
 
 const { authMiddleware, refreshHandler, logoutHandler } = require("./utils/auth");
+const loginLimiter = require("./utils/rateLimiter");
 const { typeDefs, resolvers } = require("./schemas");
 
 const path = require("path");
@@ -25,6 +26,7 @@ const startApolloServer = async () => {
 
   app.use(
     "/graphql",
+    loginLimiter,
     expressMiddleware(server, {
       context: ({ req, res }) => authMiddleware({ req, res }),
     }),
