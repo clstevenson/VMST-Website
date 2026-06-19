@@ -11,20 +11,13 @@
 import styled from "styled-components";
 import BlogPosts from "../components/BlogPosts";
 import { COLORS, QUERIES } from "../utils/constants";
-import { useEffect, useState } from "react";
-import Auth from "../utils/auth";
+import { useAuth } from "../context/AuthContext";
 import { PlusCircle } from "react-feather";
 import { Link } from "react-router-dom";
 
 export default function Home() {
-  const [role, setRole] = useState("");
-
-  useEffect(() => {
-    if (Auth.loggedIn()) {
-      const { data: userProfile } = Auth.getProfile();
-      setRole(userProfile.role);
-    }
-  }, []);
+  const { user } = useAuth();
+  const role = user?.role ?? "";
 
   return (
     <Wrapper>

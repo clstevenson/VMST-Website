@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 
-import Auth from "../../utils/auth";
+import { useAuth } from "../../context/AuthContext";
 import { useQuery, useMutation } from "@apollo/client";
 import { UPLOAD_MEMBERS } from "../../utils/mutations";
 import { QUERY_MEMBERS } from "../../utils/queries";
@@ -16,6 +16,7 @@ import ToastMessage from "../ToastMessage";
 import Instructions from "./Instructions";
 
 export default function UploadMembers() {
+  const { user } = useAuth();
   // state representing new members data uploaded from user
   const [members, setMembers] = useState([]);
   // state representing the DB (and what is displayed in the table)
@@ -222,11 +223,8 @@ export default function UploadMembers() {
     }
   };
 
-  // find out role
-  let role;
-  Auth.loggedIn() ? (role = Auth.getProfile().data.role) : (role = "");
   // only the membership coordinator has access to this page
-  if (role !== "membership") {
+  if (user?.role !== "membership") {
     throw new Error("Not authorized to view this page");
   }
 

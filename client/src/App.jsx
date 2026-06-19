@@ -8,23 +8,26 @@ import Header from "./components/Header";
 import styled from "styled-components";
 import { COLORS } from "./utils/constants";
 import client from "./apolloClient";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   return (
     <ApolloProvider client={client}>
-      <GlobalStyles />
-      <Sidebar />
-      <Wrapper>
-        <Header />
-        {/* Maybe use a global state to turn Banner on/off as needed */}
-        {/* Prop is duraction each image is displayed, in sec */}
-        <Banner duration={30 * 60} />
-        <Main>
-          <Outlet />
-        </Main>
-        <Footer />
-      </Wrapper>
-      <Sidebar />
+      <AuthProvider>
+        <GlobalStyles />
+        <Sidebar />
+        <Wrapper>
+          <Header />
+          {/* Maybe use a global state to turn Banner on/off as needed */}
+          {/* Prop is duraction each image is displayed, in sec */}
+          <Banner duration={30 * 60} />
+          <Main>
+            <Outlet />
+          </Main>
+          <Footer />
+        </Wrapper>
+        <Sidebar />
+      </AuthProvider>
     </ApolloProvider>
   );
 }

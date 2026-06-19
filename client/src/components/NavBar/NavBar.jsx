@@ -14,7 +14,7 @@ import * as Tooltip from "@radix-ui/react-tooltip";
 
 import { NavItem } from "./NavItem";
 import LoginItem from "./LoginItem";
-import Auth from "../../utils/auth";
+import { useAuth } from "../../context/AuthContext";
 import { COLORS, QUERIES } from "../../utils/constants";
 
 // TODO address accessibility concerns (possibly by using Radix navigation component if that is workable)
@@ -22,6 +22,7 @@ import { COLORS, QUERIES } from "../../utils/constants";
 // - screenreader should only read off the item once
 // - ESC to unselect/unfocus? (Is that needed for accessbility?)
 export default function NavBar() {
+  const { user, isLoading } = useAuth();
   return (
     <Wrapper>
       <Tooltip.Provider delayDuration={0}>
@@ -29,11 +30,11 @@ export default function NavBar() {
         <NavItem href="/about-us" label="About" icon={Info} />
         <NavItem href="/gallery" label="Photos" icon={Image} />
         <NavItem href="/contact" label="Contact" icon={Send} />
-        {Auth.loggedIn() ? (
+        {!isLoading && (user ? (
           <NavItem href="/me" label="User" icon={User} />
         ) : (
           <LoginItem />
-        )}
+        ))}
       </Tooltip.Provider>
     </Wrapper>
   );

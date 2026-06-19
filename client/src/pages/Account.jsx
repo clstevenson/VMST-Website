@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import Auth from "../utils/auth";
+import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
@@ -13,15 +13,18 @@ import Meets from "../components/Meets/";
 export default function Account() {
   const navigate = useNavigate();
   const [tab, setTab] = useState("user");
+  const { user: userProfile, isLoading } = useAuth();
 
-  // if not logged in, redirect to home page
+  // if not logged in, redirect to home page -- but only once the auth
+  // check (including a possible silent token refresh) has settled
   useEffect(() => {
-    if (!Auth.loggedIn()) {
+    if (!isLoading && !userProfile) {
       navigate("/");
     }
-  }, [navigate]);
+  }, [isLoading, userProfile, navigate]);
 
-  const { data: userProfile } = Auth.getProfile();
+  // still resolving the session, or about to redirect away: render nothing
+  if (isLoading || !userProfile) return null;
 
   // early return: if basic user, don't show tabs
   if (userProfile.role === "user") return <User userProfile={userProfile} />;

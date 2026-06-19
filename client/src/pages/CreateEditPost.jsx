@@ -17,7 +17,7 @@ import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import * as Select from "@radix-ui/react-select";
 import { ChevronLeft, ChevronRight, Check } from "react-feather";
 
-import Auth from "../utils/auth";
+import { useAuth } from "../context/AuthContext";
 import {
   QUERY_ALBUMS,
   QUERY_ALBUMPHOTOS,
@@ -32,6 +32,7 @@ import Spinner from "../components/Spinner";
 
 export default function CreateEditPost({ isEditing = false }) {
   const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
   const [addPost] = useMutation(ADD_POST);
   const [editPost] = useMutation(EDIT_POST);
   const {
@@ -115,10 +116,13 @@ export default function CreateEditPost({ isEditing = false }) {
   });
 
   useEffect(() => {
-    // only logged-in leaders can view the page
-    if (!Auth.loggedIn()) navigate("/");
-    const { data: userProfile } = Auth.getProfile();
-    if (userProfile.role !== "leader") navigate("/");
+    // only logged-in leaders can view the page; wait for the auth check
+    // (including a possible silent token refresh) to settle first
+    if (!isLoading && (!user || user.role !== "leader")) navigate("/");
+  }, [isLoading, user, navigate]);
+
+  useEffect(() => {
+    if (isLoading || !user || user.role !== "leader") return;
 
     // fill in the photo picker grid
     getPhotos({ variables: { albumId, page } });
@@ -127,7 +131,7 @@ export default function CreateEditPost({ isEditing = false }) {
     if (isEditing) {
       getPost({ variables: { postId } });
     }
-  }, [navigate, albumId, page, getPhotos, getPost, postId, isEditing]);
+  }, [isLoading, user, albumId, page, getPhotos, getPost, postId, isEditing]);
 
   const onSubmit = async ({ title, summary }) => {
     // make sure there is content
@@ -225,6 +229,9 @@ export default function CreateEditPost({ isEditing = false }) {
     if (page === 1) return;
     setPage(page - 1);
   };
+
+  // still resolving the session, or about to redirect away
+  if (isLoading || !user || user.role !== "leader") return null;
 
   return (
     <FormWrapper

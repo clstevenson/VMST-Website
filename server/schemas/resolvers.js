@@ -129,8 +129,8 @@ const resolvers = {
     // user ID is as an argument (so the webmaster can change it)
     // but a token is needed in order to edit a user
     editUser: async (_, args, { user }) => {
+      if (!user) throw AuthenticationError;
       try {
-        if (!user) throw AuthenticationError;
         // don't attempt to update password here
         delete args.user.password;
         // only admins can update roles
@@ -221,7 +221,7 @@ contact the webmaster immediately by replying to this message.`,
     // add a new meet
     addMeet: async (_, { meet, meetSwimmers, relays }, { user }) => {
       // only leaders can add meets
-      if (user.role !== "leader") throw AuthenticationError;
+      if (!user || user.role !== "leader") throw AuthenticationError;
       const newMeet = {
         ...meet,
         meetSwimmers,
@@ -236,7 +236,7 @@ contact the webmaster immediately by replying to this message.`,
     // edit a meet
     editMeet: async (_, { _id, meet, meetSwimmers, relays }, { user }) => {
       // only leaders can edit meets
-      if (user.role !== "leader") throw AuthenticationError;
+      if (!user || user.role !== "leader") throw AuthenticationError;
       const changedMeet = {
         ...meet,
         meetSwimmers,
@@ -254,7 +254,7 @@ contact the webmaster immediately by replying to this message.`,
     // delete a meet
     deleteMeet: async (_, { _id }, { user }) => {
       // only leaders can delete meets
-      if (user.role !== "leader") throw AuthenticationError;
+      if (!user || user.role !== "leader") throw AuthenticationError;
       try {
         const deletedMeet = await Meet.findByIdAndDelete(_id);
         return deletedMeet;
@@ -265,7 +265,7 @@ contact the webmaster immediately by replying to this message.`,
     // add a new post
     addPost: async (_, { title, summary, content, photo }, { user }) => {
       // only team leaders can create posts
-      if (user.role !== "leader") throw AuthenticationError;
+      if (!user || user.role !== "leader") throw AuthenticationError;
       const post = {
         title,
         summary,
@@ -276,7 +276,7 @@ contact the webmaster immediately by replying to this message.`,
     },
     editPost: async (_, { _id, title, summary, content, photo }, { user }) => {
       // only leaders can delete posts
-      if (user.role !== "leader") throw AuthenticationError;
+      if (!user || user.role !== "leader") throw AuthenticationError;
       const post = {
         title,
         summary,
@@ -305,7 +305,7 @@ contact the webmaster immediately by replying to this message.`,
     },
     deletePost: async (_, { _id }, { user }) => {
       // only leaders can delete posts
-      if (user.role !== "leader") throw AuthenticationError;
+      if (!user || user.role !== "leader") throw AuthenticationError;
       try {
         const deletedPost = await Post.findByIdAndDelete(_id);
         // return is null if the post is not deleted (ie, ID not found)
@@ -316,7 +316,7 @@ contact the webmaster immediately by replying to this message.`,
     },
     uploadMembers: async (_, { memberData }, { user }) => {
       // only the Membership Coordinator is allowed to update the Member collection
-      if (user.role !== "membership") throw AuthenticationError;
+      if (!user || user.role !== "membership") throw AuthenticationError;
 
       // update the Members collection in the DB
       // first delete the members collection if it exists
@@ -405,7 +405,7 @@ contact the webmaster immediately by replying to this message.`,
     },
     emailGroup: async (_, { emailData }, { user }) => {
       // only team leaders or coaches can email WO groups
-      if (user.role !== "leader" && user.role !== "coach")
+      if (!user || (user.role !== "leader" && user.role !== "coach"))
         throw AuthenticationError;
       // retrieve the emails of the recipients (from their id's)
       const group = await Member.find({ _id: { $in: emailData.id } }).select(
