@@ -155,11 +155,20 @@ export default function Communication({ setTab, userProfile }) {
           plainText,
         };
         // send email to recipients
-        await emailGroup({ variables: { emailData } });
+        const { data } = await emailGroup({ variables: { emailData } });
         // trigger toast if successful
-        setSent(true);
+        if (data?.emailGroup) {
+          setSent(true);
+        } else {
+          setMessage(
+            "Something went wrong sending the email. Please try again later."
+          );
+        }
       } catch (error) {
         console.log(error);
+        setMessage(
+          "Something went wrong sending the email. Please try again later."
+        );
       }
     }
   };

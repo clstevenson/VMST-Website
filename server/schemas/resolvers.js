@@ -199,7 +199,9 @@ contact the webmaster immediately by replying to this message.`,
         await Mail(mailArgs);
       } catch (err) {
         console.error(err);
-        return false;
+        // resetPassword returns User (not Boolean) -- null is the
+        // schema-valid way to signal failure here
+        return null;
       }
 
       return updatedUser;

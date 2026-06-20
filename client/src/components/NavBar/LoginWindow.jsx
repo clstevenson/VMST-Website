@@ -66,9 +66,13 @@ const LoginContent = ({ setIsLogin, setOpen, message, setMessage }) => {
 
     try {
       const { data } = await resetPassword({ variables: { email } });
-      if (data) {
+      if (data?.resetPassword) {
         setMessage(
           "Your new password has been sent to your email; use it to log in."
+        );
+      } else {
+        setMessage(
+          "Error: something went wrong sending the reset email. Please try again later."
         );
       }
     } catch (err) {

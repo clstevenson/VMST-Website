@@ -73,16 +73,30 @@ export default function EmailPage2() {
 
     try {
       // send data to server
+      let result;
       if (leaders && webmaster) {
-        await emailLeadersWebmaster({ variables: { emailData } });
+        result = await emailLeadersWebmaster({ variables: { emailData } });
       } else if (leaders) {
-        await emailLeaders({ variables: { emailData } });
+        result = await emailLeaders({ variables: { emailData } });
       } else if (webmaster) {
-        await emailWebmaster({ variables: { emailData } });
+        result = await emailWebmaster({ variables: { emailData } });
       }
 
-      setEmailSent(true);
-      reset(); // form back to default values
+      // each mutation only returns its own field; pick whichever ran
+      const succeeded =
+        result?.data?.emailLeadersWebmaster ??
+        result?.data?.emailLeaders ??
+        result?.data?.emailWebmaster;
+
+      if (succeeded) {
+        setEmailSent(true);
+        reset(); // form back to default values
+      } else {
+        // TODO: need to change this to output to form
+        alert(
+          "Error: something went wrong sending your message. Please try again later."
+        );
+      }
     } catch (err) {
       console.log({ err });
       // TODO: need to change this to output to form
