@@ -23,6 +23,7 @@ let server;
 let User;
 let Member;
 let Meet;
+let Post;
 
 const users = {}; // role -> { _id, role }
 
@@ -54,6 +55,7 @@ test.before(async () => {
   User = require("../models/Users");
   Member = require("../models/Members");
   Meet = require("../models/Meets");
+  Post = require("../models/Posts");
 
   await mongoose.connection.asPromise();
 
@@ -99,6 +101,20 @@ async function run(query, variables, contextUser) {
   const response = await server.executeOperation(
     { query, variables },
     { contextValue: { user: contextUser } },
+  );
+  return response.body.singleResult;
+}
+
+// login/addUser call setRefreshCookie(res, ...), which does res.cookie(...) --
+// a real Express response isn't available here, so this stub stands in for it
+function stubRes() {
+  return { cookie: () => {} };
+}
+
+async function runWithRes(query, variables, contextUser) {
+  const response = await server.executeOperation(
+    { query, variables },
+    { contextValue: { user: contextUser, res: stubRes() } },
   );
   return response.body.singleResult;
 }
@@ -392,6 +408,119 @@ test("password is not a queryable field on User, regardless of role", async () =
   assert.match(errors[0].message, /Cannot query field "password"/);
 });
 
+test("login: succeeds with correct credentials, rejects wrong password and unknown email", async () => {
+  const password = "Correct-Password-123!";
+  await User.create({
+    firstName: "Login",
+    lastName: "Test",
+    email: "login-test@example.com",
+    password,
+    role: "user",
+  });
+  const query = `mutation($email: String!, $password: String!) {
+    login(email: $email, password: $password) { token user { email } }
+  }`;
+
+  const good = await runWithRes(
+    query,
+    { email: "login-test@example.com", password },
+    null,
+  );
+  assert.equal(good.errors, undefined);
+  assert.ok(good.data.login.token);
+  assert.equal(good.data.login.user.email, "login-test@example.com");
+
+  const wrongPassword = await runWithRes(
+    query,
+    { email: "login-test@example.com", password: "not-the-password" },
+    null,
+  );
+  assert.ok(wrongPassword.errors?.length, "wrong password should be rejected");
+
+  const unknownEmail = await runWithRes(
+    query,
+    { email: "nobody@example.com", password },
+    null,
+  );
+  assert.ok(unknownEmail.errors?.length, "unknown email should be rejected");
+});
+
+test("addUser: creates an account (default role) and returns a token", async () => {
+  const query = `mutation($firstName: String!, $lastName: String!, $email: String!, $password: String!) {
+    addUser(firstName: $firstName, lastName: $lastName, email: $email, password: $password) {
+      token
+      user { email role }
+    }
+  }`;
+  const { data, errors } = await runWithRes(
+    query,
+    {
+      firstName: "New",
+      lastName: "Signup",
+      email: "new-signup@example.com",
+      password: "Whatever-123!",
+    },
+    null,
+  );
+  assert.equal(errors, undefined);
+  assert.ok(data.addUser.token);
+  assert.equal(data.addUser.user.email, "new-signup@example.com");
+  assert.equal(data.addUser.user.role, "user");
+});
+
+test("changePassword: rejects an unauthenticated caller, succeeds for a logged-in user", async () => {
+  const target = await User.create({
+    firstName: "Change",
+    lastName: "Pw",
+    email: "change-pw@example.com",
+    password: "Old-Password-123!",
+    role: "user",
+  });
+  const ctx = { _id: target._id.toString(), role: "user" };
+  const query = `mutation($password: String!) {
+    changePassword(password: $password) { _id }
+  }`;
+
+  const unauth = await run(query, { password: "New-Password-456!" }, null);
+  assert.ok(unauth.errors?.length);
+
+  const { data, errors } = await run(
+    query,
+    { password: "New-Password-456!" },
+    ctx,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.changePassword._id, target._id.toString());
+
+  const updated = await User.findById(target._id);
+  assert.ok(await updated.isCorrectPassword("New-Password-456!"));
+});
+
+test("resetPassword: emails a new password to an existing account, errors for an unknown email", async () => {
+  const target = await User.create({
+    firstName: "Reset",
+    lastName: "Pw",
+    email: "reset-pw@example.com",
+    password: "Original-Password-1!",
+    role: "user",
+  });
+  const query = `mutation($email: String!) { resetPassword(email: $email) { _id } }`;
+
+  const before = sentMail.length;
+  const { data, errors } = await run(
+    query,
+    { email: "reset-pw@example.com" },
+    null,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.resetPassword._id, target._id.toString());
+  assert.equal(sentMail.length, before + 1, "resetPassword should send one email");
+  assert.equal(sentMail[sentMail.length - 1].emails, "reset-pw@example.com");
+
+  const unknown = await run(query, { email: "nobody-resets@example.com" }, null);
+  assert.ok(unknown.errors?.length, "unknown email should error");
+});
+
 test("uploadMembers: rejects a non-membership role", async () => {
   const { errors } = await run(
     `mutation($memberData: [MemberData]) {
@@ -422,6 +551,117 @@ test("uploadMembers: membership role can upload the real USMS member report", as
   // sanity floor that the VMST roster came through intact
   const vmstCount = data.uploadMembers.filter((m) => m.club === "VMST").length;
   assert.ok(vmstCount > 100, `expected a substantial VMST roster, got ${vmstCount}`);
+});
+
+test("addPost: rejects a non-leader, succeeds for a leader", async () => {
+  const query = `mutation($title: String!, $summary: String, $content: String!) {
+    addPost(title: $title, summary: $summary, content: $content) { _id title }
+  }`;
+  const variables = {
+    title: "Test post",
+    summary: "A test post",
+    content: "<p>Hello, VMST!</p>",
+  };
+
+  const { errors: rejected } = await run(query, variables, users.coach);
+  assert.ok(rejected?.length, "only leaders should be able to add posts");
+
+  const { data, errors } = await run(query, variables, users.leader);
+  assert.equal(errors, undefined);
+  assert.equal(data.addPost.title, "Test post");
+
+  const stored = await Post.findById(data.addPost._id);
+  assert.equal(stored.title, "Test post");
+
+  await Post.findByIdAndDelete(data.addPost._id);
+});
+
+// KNOWN BUG: editPost (server/schemas/resolvers.js) never returns the
+// updated post on its success path -- there's no `return` statement after
+// the Post.findOneAndUpdate call, so this resolves to null even though the
+// update itself succeeds in the database. This test is written to assert
+// the *correct* behavior, so it fails until that's fixed.
+test("editPost: leader can edit a post (currently fails -- missing return in resolver)", async () => {
+  const post = await Post.create({
+    title: "Original title",
+    summary: "Original summary",
+    content: "<p>Original content</p>",
+  });
+
+  try {
+    const { data, errors } = await run(
+      `mutation($id: ID!, $title: String!, $summary: String, $content: String!, $photo: PhotoData) {
+        editPost(_id: $id, title: $title, summary: $summary, content: $content, photo: $photo) {
+          title
+        }
+      }`,
+      {
+        id: post._id.toString(),
+        title: "Updated title",
+        summary: "Updated summary",
+        content: "<p>Updated content</p>",
+        photo: { id: "photo-1", url: "https://example.com/photo.jpg" },
+      },
+      users.leader,
+    );
+    assert.equal(errors, undefined);
+
+    // the update itself does succeed in the database -- it's specifically
+    // the resolver's return value that's wrong, not the underlying write
+    const stored = await Post.findById(post._id);
+    assert.equal(stored.title, "Updated title");
+
+    assert.equal(data.editPost?.title, "Updated title");
+  } finally {
+    await Post.findByIdAndDelete(post._id);
+  }
+});
+
+test("deletePost: rejects a non-leader, succeeds for a leader", async () => {
+  const post = await Post.create({
+    title: "To be deleted",
+    summary: "",
+    content: "<p>Bye</p>",
+  });
+  const query = `mutation($id: ID!) { deletePost(_id: $id) { _id } }`;
+
+  const { errors: rejected } = await run(
+    query,
+    { id: post._id.toString() },
+    users.coach,
+  );
+  assert.ok(rejected?.length, "only leaders should be able to delete posts");
+
+  const { data, errors } = await run(
+    query,
+    { id: post._id.toString() },
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.deletePost._id, post._id.toString());
+
+  const stillThere = await Post.findById(post._id);
+  assert.equal(stillThere, null);
+});
+
+test("addMeet and deleteMeet: reject a coach (leader-only, unlike meets/vmstMembers)", async () => {
+  const { errors: addRejected } = await run(
+    `mutation($meet: MeetData) { addMeet(meet: $meet) { _id } }`,
+    { meet: { meetName: "Coach Test Meet", course: "SCY", startDate: "2026-01-01" } },
+    users.coach,
+  );
+  assert.ok(addRejected?.length, "a coach should not be able to add a meet");
+
+  const existingMeet = await Meet.findOne({ meetName: "Test Meet" });
+  const { errors: deleteRejected } = await run(
+    `mutation($id: ID!) { deleteMeet(_id: $id) { _id } }`,
+    { id: existingMeet._id.toString() },
+    users.coach,
+  );
+  assert.ok(deleteRejected?.length, "a coach should not be able to delete a meet");
+
+  // confirm the rejected delete didn't actually go through
+  assert.ok(await Meet.findById(existingMeet._id));
 });
 
 test("addMeet, emailGroup, deleteMeet: real Nationals roster matched against the just-uploaded members", async () => {
@@ -491,6 +731,7 @@ test("addMeet, emailGroup, deleteMeet: real Nationals roster matched against the
     .filter(Boolean)
     .map(String);
 
+  const sentBefore = sentMail.length;
   const { data: emailData, errors: emailErrors } = await run(
     `mutation($emailData: emailData) {
       emailGroup(emailData: $emailData)
@@ -506,8 +747,8 @@ test("addMeet, emailGroup, deleteMeet: real Nationals roster matched against the
   );
   assert.equal(emailErrors, undefined);
   assert.equal(emailData.emailGroup, true);
-  assert.equal(sentMail.length, 1);
-  assert.ok(sentMail[0].emails.length > 0);
+  assert.equal(sentMail.length, sentBefore + 1);
+  assert.ok(sentMail[sentMail.length - 1].emails.length > 0);
 
   const { data: deleteData, errors: deleteErrors } = await run(
     "mutation($id: ID!) { deleteMeet(_id: $id) { _id } }",
@@ -519,4 +760,94 @@ test("addMeet, emailGroup, deleteMeet: real Nationals roster matched against the
 
   const stillThere = await Meet.findById(meetId);
   assert.equal(stillThere, null);
+});
+
+test("emailGroup: rejects an unauthenticated caller and a non-leader/coach role", async () => {
+  const query = `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`;
+  const variables = {
+    emailData: { id: [], subject: "Hi", plainText: "test" },
+  };
+
+  const unauth = await run(query, variables, null);
+  assert.ok(unauth.errors?.length);
+
+  const { errors } = await run(query, variables, users.membership);
+  assert.ok(errors?.length, "membership role should not be allowed");
+});
+
+test("emailGroup: a coach can email members (success path, not just leader)", async () => {
+  const member = await Member.create({
+    usmsRegNo: "555501",
+    usmsId: "55501",
+    firstName: "Coach",
+    lastName: "Recipient",
+    gender: "M",
+    club: "VMST",
+    regYear: 2026,
+    emails: ["coach-recipient@example.com"],
+  });
+
+  const before = sentMail.length;
+  const { data, errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    {
+      emailData: {
+        id: [member._id.toString()],
+        subject: "Workout group update",
+        plainText: "practice moved to 6am",
+      },
+    },
+    users.coach,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.emailGroup, true);
+  assert.equal(sentMail.length, before + 1);
+  assert.deepEqual(sentMail[sentMail.length - 1].emails, [
+    "coach-recipient@example.com",
+  ]);
+
+  await Member.findByIdAndDelete(member._id);
+});
+
+test("emailLeaders: succeeds for an anonymous visitor (no email address exposed)", async () => {
+  const before = sentMail.length;
+  const { data, errors } = await run(
+    `mutation($emailData: emailData) { emailLeaders(emailData: $emailData) }`,
+    { emailData: { id: [], subject: "Hello leaders", plainText: "hi" } },
+    null,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.emailLeaders, true);
+  assert.equal(sentMail.length, before + 1);
+  assert.deepEqual(sentMail[sentMail.length - 1].emails, ["leader@example.com"]);
+});
+
+test("emailWebmaster: succeeds for an anonymous visitor", async () => {
+  const before = sentMail.length;
+  const { data, errors } = await run(
+    `mutation($emailData: emailData) { emailWebmaster(emailData: $emailData) }`,
+    { emailData: { id: [], subject: "Hello webmaster", plainText: "hi" } },
+    null,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.emailWebmaster, true);
+  assert.equal(sentMail.length, before + 1);
+  assert.deepEqual(sentMail[sentMail.length - 1].emails, [
+    "webmaster@example.com",
+  ]);
+});
+
+test("emailLeadersWebmaster: succeeds for an anonymous visitor, reaches both", async () => {
+  const before = sentMail.length;
+  const { data, errors } = await run(
+    `mutation($emailData: emailData) { emailLeadersWebmaster(emailData: $emailData) }`,
+    { emailData: { id: [], subject: "Hello both", plainText: "hi" } },
+    null,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.emailLeadersWebmaster, true);
+  assert.equal(sentMail.length, before + 1);
+  const emails = sentMail[sentMail.length - 1].emails;
+  assert.ok(emails.includes("leader@example.com"));
+  assert.ok(emails.includes("webmaster@example.com"));
 });
