@@ -25,6 +25,32 @@ export default function GroupSelection({
   meetMembers,
   setAnySelected,
 }) {
+  // Meet participants matched (includeEmail: true) at meet-creation time, but
+  // whose USMS ID no longer resolves to a current Member -- almost always
+  // because they've since left the LMSC and were hard-deleted on a later
+  // membership upload. Without this, they'd be silently dropped from any
+  // meet-based recipient selection with no indication to the sender.
+  const unreachable = [];
+  const seenUsmsIds = new Set();
+  meets.forEach((meet) => {
+    meet.meetSwimmers
+      .filter(({ includeEmail }) => includeEmail)
+      .forEach((swimmer) => {
+        const stillAMember = meetMembers.some(
+          (member) => member.usmsId === swimmer.usmsId,
+        );
+        if (stillAMember) return;
+        if (seenUsmsIds.has(swimmer.usmsId)) {
+          unreachable
+            .find((entry) => entry.usmsId === swimmer.usmsId)
+            .meetNames.push(meet.meetName);
+        } else {
+          seenUsmsIds.add(swimmer.usmsId);
+          unreachable.push({ ...swimmer, meetNames: [meet.meetName] });
+        }
+      });
+  });
+
   return (
     <Accordian.Root type="multiple">
       {/* Select entire workout groups */}
@@ -215,6 +241,24 @@ export default function GroupSelection({
             </p>
           );
         })}
+      </AccordianItem>
+      {/* List meet participants who were matched at meet-creation time but
+          can no longer be reached -- see the unreachable comment above */}
+      <AccordianItem title="Swimmers No Longer Reachable" titlePadding="24px">
+        <Description style={{ marginBottom: "6px" }}>
+          The following meet participants could not be matched to a current
+          VMST member and will NOT receive messages sent from here, most
+          likely because they have left the LMSC:
+        </Description>
+        {unreachable.map((swimmer) => (
+          <p
+            key={swimmer.usmsId}
+            style={{ fontSize: "0.8rem", fontStyle: "italic" }}
+          >
+            {swimmer.firstName} {swimmer.lastName} (
+            {swimmer.meetNames.join(", ")})
+          </p>
+        ))}
       </AccordianItem>
     </Accordian.Root>
   );

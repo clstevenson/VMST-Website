@@ -9,28 +9,34 @@
 
 const { Schema, model } = require("mongoose");
 
-// TODO: use bcrypt to hash email addresses in the DB (not sure if this is needed)
-// See module 21 activity 26 and documentation for mongoose and bcrypt
+// formatValid is recomputed fresh on every upload (a pure function of the address
+// string). deliverable is sticky -- it's preserved across uploads for an address
+// whose string is unchanged, and only ever set to false by the membership
+// coordinator (via a tool that doesn't exist yet) after a real bounce. It
+// defaults to true: an address nobody has flagged is assumed reachable.
+const emailSchema = new Schema(
+  {
+    address: { type: String, required: true },
+    formatValid: { type: Boolean, required: true },
+    deliverable: { type: Boolean, required: true, default: true },
+  },
+  { _id: false },
+);
 
 const memberSchema = new Schema({
   // this is the number that changes every year and is unique (even if member listed twice)
   usmsRegNo: { type: String, required: true, unique: true, index: true },
-  // the USMS ID is the last 5 characters of the registration number
-  usmsId: String,
+  // the USMS ID is the last 5 characters of the registration number -- unlike
+  // usmsRegNo, this is stable across registration years and is the key used to
+  // merge/dedupe members on upload (see uploadMembers resolver)
+  usmsId: { type: String, required: true, unique: true, index: true },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   gender: { type: String, required: true },
   club: { type: String, required: true },
   workoutGroup: String,
   regYear: { type: Number, required: true },
-  emails: {
-    type: [String],
-    // set up email regex validator
-    match: [
-      /^([a-zA-Z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/,
-      "Must match an email address!",
-    ],
-  },
+  emails: { type: [emailSchema], default: [] },
   // did member opt out of receiving LMSC emails?
   emailExclude: { type: Boolean, default: false },
 });

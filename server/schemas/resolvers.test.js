@@ -81,7 +81,7 @@ test.before(async () => {
     gender: "F",
     club: "VMST",
     regYear: 2026,
-    emails: ["swimmer@example.com"],
+    emails: [makeEmail("swimmer@example.com")],
   });
 
   await Meet.create({
@@ -174,6 +174,13 @@ function parseMeetRosterCSV(filePath) {
   return { swimmers, relayEvents };
 }
 
+// Member.emails is [{ address, formatValid, deliverable }] -- this builds one
+// entry for direct Member.create() calls in tests (the uploadMembers mutation
+// itself still takes plain address strings; the resolver computes this shape)
+function makeEmail(address, { formatValid = true, deliverable = true } = {}) {
+  return { address, formatValid, deliverable };
+}
+
 test("members: rejects an unauthenticated caller", async () => {
   const { errors } = await run("{ members { firstName } }", {}, null);
   assert.ok(errors?.length, "expected an authorization error");
@@ -233,7 +240,7 @@ test("membersByUsmsId: leader can find a member regardless of their current club
     club: "OtherClub",
     workoutGroup: "Distance",
     regYear: 2026,
-    emails: ["switched@example.com"],
+    emails: [makeEmail("switched@example.com")],
   });
 
   const { data, errors } = await run(
@@ -260,7 +267,7 @@ test("membersByUsmsId: a coach only gets back members in their own workout group
     club: "VMST",
     workoutGroup: "Distance",
     regYear: 2026,
-    emails: ["ingroup@example.com"],
+    emails: [makeEmail("ingroup@example.com")],
   });
   const outOfGroup = await Member.create({
     usmsRegNo: "888802",
@@ -271,7 +278,7 @@ test("membersByUsmsId: a coach only gets back members in their own workout group
     club: "VMST",
     workoutGroup: "Sprint",
     regYear: 2026,
-    emails: ["outofgroup@example.com"],
+    emails: [makeEmail("outofgroup@example.com")],
   });
   const coachInDistance = { _id: users.coach._id, role: "coach", group: "Distance" };
 
@@ -779,7 +786,7 @@ test("emailGroup: a coach can email members (success path, not just leader)", as
     gender: "M",
     club: "VMST",
     regYear: 2026,
-    emails: ["coach-recipient@example.com"],
+    emails: [makeEmail("coach-recipient@example.com")],
   });
 
   const before = sentMail.length;
@@ -845,4 +852,187 @@ test("emailLeadersWebmaster: succeeds for an anonymous visitor, reaches both", a
   const emails = sentMail[sentMail.length - 1].emails;
   assert.ok(emails.includes("leader@example.com"));
   assert.ok(emails.includes("webmaster@example.com"));
+});
+
+// uploadMembers wholesale-replaces "the truth" on every call (anyone missing
+// from memberData is hard-deleted), so these tests must run after every other
+// test that depends on a particular Member collection state -- in particular,
+// after the real-CSV upload test and the Nationals roster test that consumes
+// it. Hence they're appended at the very end of the file.
+test("uploadMembers: dedupes by usmsId keeping the higher regYear, preserves deliverable for an unchanged address, resets it for a changed one, and hard-deletes anyone missing from the new upload", async () => {
+  const firstUpload = [
+    {
+      usmsRegNo: "TEST-2026-A",
+      usmsId: "TESTA",
+      firstName: "Old",
+      lastName: "Data",
+      gender: "F",
+      club: "VMST",
+      regYear: 2026,
+      emails: ["a@example.com"],
+      emailExclude: false,
+    },
+    {
+      // same person as above (registered early for next year), should win
+      // the dedupe by having the higher regYear
+      usmsRegNo: "TEST-2027-A",
+      usmsId: "TESTA",
+      firstName: "New",
+      lastName: "Data",
+      gender: "F",
+      club: "VMST",
+      regYear: 2027,
+      emails: ["a@example.com", "second@example.com"],
+      emailExclude: false,
+    },
+    {
+      usmsRegNo: "TEST-2026-B",
+      usmsId: "TESTB",
+      firstName: "WillLeave",
+      lastName: "Person",
+      gender: "M",
+      club: "VMST",
+      regYear: 2026,
+      emails: ["b@example.com"],
+      emailExclude: false,
+    },
+  ];
+
+  const mutation = `mutation($memberData: [MemberData]) {
+    uploadMembers(memberData: $memberData) {
+      usmsId
+      firstName
+      regYear
+      emails { address formatValid deliverable }
+    }
+  }`;
+
+  const { data: firstResult, errors: firstErrors } = await run(
+    mutation,
+    { memberData: firstUpload },
+    users.membership,
+  );
+  assert.equal(firstErrors, undefined);
+  assert.equal(firstResult.uploadMembers.length, 2);
+
+  const testAFirst = firstResult.uploadMembers.find((m) => m.usmsId === "TESTA");
+  assert.equal(testAFirst.firstName, "New");
+  assert.equal(testAFirst.regYear, 2027);
+
+  // simulate the (not yet built) membership-coordinator tool flagging a real
+  // bounce on one address
+  await Member.updateOne(
+    { usmsId: "TESTA", "emails.address": "a@example.com" },
+    { $set: { "emails.$.deliverable": false } },
+  );
+
+  // second upload: TESTB has left the LMSC (absent here); TESTA keeps
+  // "a@example.com" unchanged (deliverable:false should survive) and drops
+  // "second@example.com" in favor of a brand new "third@example.com"
+  const secondUpload = [
+    {
+      usmsRegNo: "TEST-2027-A",
+      usmsId: "TESTA",
+      firstName: "New",
+      lastName: "Data",
+      gender: "F",
+      club: "VMST",
+      regYear: 2027,
+      emails: ["a@example.com", "third@example.com"],
+      emailExclude: false,
+    },
+  ];
+
+  const { data: secondResult, errors: secondErrors } = await run(
+    mutation,
+    { memberData: secondUpload },
+    users.membership,
+  );
+  assert.equal(secondErrors, undefined);
+  assert.equal(secondResult.uploadMembers.length, 1);
+
+  const byAddress = Object.fromEntries(
+    secondResult.uploadMembers[0].emails.map((e) => [e.address, e]),
+  );
+  assert.equal(byAddress["a@example.com"].deliverable, false);
+  assert.equal(byAddress["a@example.com"].formatValid, true);
+  assert.equal(byAddress["third@example.com"].deliverable, true);
+  assert.equal(byAddress["second@example.com"], undefined);
+
+  assert.equal(await Member.findOne({ usmsId: "TESTB" }), null);
+
+  await Member.deleteOne({ usmsId: "TESTA" });
+});
+
+test("uploadMembers: a malformed email gets formatValid:false without failing the rest of the upload", async () => {
+  const memberData = [
+    {
+      usmsRegNo: "TEST-BADEMAIL",
+      usmsId: "BADEM",
+      firstName: "Bad",
+      lastName: "Email",
+      gender: "M",
+      club: "VMST",
+      regYear: 2026,
+      emails: ["not-an-email", "good@example.com"],
+      emailExclude: false,
+    },
+  ];
+
+  const { data, errors } = await run(
+    `mutation($memberData: [MemberData]) {
+      uploadMembers(memberData: $memberData) {
+        usmsId
+        emails { address formatValid deliverable }
+      }
+    }`,
+    { memberData },
+    users.membership,
+  );
+  assert.equal(errors, undefined);
+
+  const member = data.uploadMembers.find((m) => m.usmsId === "BADEM");
+  const byAddress = Object.fromEntries(
+    member.emails.map((e) => [e.address, e]),
+  );
+  assert.equal(byAddress["not-an-email"].formatValid, false);
+  assert.equal(byAddress["good@example.com"].formatValid, true);
+
+  await Member.deleteOne({ usmsId: "BADEM" });
+});
+
+test("emailGroup: skips addresses that are not formatValid or not deliverable", async () => {
+  const member = await Member.create({
+    usmsRegNo: "555502",
+    usmsId: "55502",
+    firstName: "Mixed",
+    lastName: "Addresses",
+    gender: "F",
+    club: "VMST",
+    regYear: 2026,
+    emails: [
+      makeEmail("good@example.com"),
+      makeEmail("bad-format", { formatValid: false }),
+      makeEmail("bounced@example.com", { deliverable: false }),
+    ],
+  });
+
+  const before = sentMail.length;
+  const { data, errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    {
+      emailData: {
+        id: [member._id.toString()],
+        subject: "Test",
+        plainText: "test",
+      },
+    },
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.emailGroup, true);
+  assert.equal(sentMail.length, before + 1);
+  assert.deepEqual(sentMail[sentMail.length - 1].emails, ["good@example.com"]);
+
+  await Member.findByIdAndDelete(member._id);
 });

@@ -90,7 +90,6 @@ export const QUERY_MEMBERS = gql`
       club
       workoutGroup
       regYear
-      emails
       emailExclude
     }
   }

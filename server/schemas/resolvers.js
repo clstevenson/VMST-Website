@@ -7,7 +7,13 @@ const {
   requireRole,
 } = require("../utils/auth");
 
-const connection = require("../config/connection");
+// no longer used directly in this file (uploadMembers no longer drops the
+// collection), but required here for its side effect: it's what opens
+// mongoose's default connection. schemas/index.js doesn't require it
+// independently, and resolvers.test.js relies on requiring this file (via
+// ./index) to be what triggers that connection, after pointing MONGODB_URI
+// at the in-memory test DB.
+require("../config/connection");
 const Mail = require("../utils/emailHandler");
 const generatePassword = require("../utils/password-generator");
 const bcrypt = require("bcrypt");
@@ -343,15 +349,88 @@ contact the webmaster immediately by replying to this message.`,
       // only the Membership Coordinator is allowed to update the Member collection
       requireRole(user, "membership");
 
-      // update the Members collection in the DB
-      // first delete the members collection if it exists
-      let membersCheck = await connection.db
-        .listCollections({ name: "members" })
-        .toArray();
-      if (membersCheck.length) {
-        await connection.dropCollection("members");
+      const emailRegex =
+        /^([a-zA-Z0-9_.-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/;
+
+      // usmsId (not usmsRegNo) is the stable per-person key: someone who
+      // registers for next year early appears twice with the same usmsId but
+      // different regYear/usmsRegNo. Dedupe to one row per person, keeping
+      // whichever entry has the higher regYear.
+      const latestByUsmsId = new Map();
+      for (const incoming of memberData) {
+        const current = latestByUsmsId.get(incoming.usmsId);
+        if (!current || incoming.regYear > current.regYear) {
+          latestByUsmsId.set(incoming.usmsId, incoming);
+        }
       }
-      return await Member.insertMany(memberData);
+
+      const newUsmsIds = [...latestByUsmsId.keys()];
+      const existingMembers = await Member.find({
+        usmsId: { $in: newUsmsIds },
+      });
+      const existingByUsmsId = new Map(
+        existingMembers.map((member) => [member.usmsId, member]),
+      );
+
+      const finalMembers = newUsmsIds.map((usmsId) => {
+        const incoming = latestByUsmsId.get(usmsId);
+        const previous = existingByUsmsId.get(usmsId);
+        // deliverable is sticky per-address: carry it forward only when the
+        // exact address string is unchanged from the prior upload, otherwise
+        // assume reachable (true) -- a new/changed address has no history yet
+        const previousDeliverable = new Map(
+          (previous?.emails ?? []).map((email) => [
+            email.address,
+            email.deliverable,
+          ]),
+        );
+        const emails = (incoming.emails ?? []).map((address) => ({
+          address,
+          formatValid: emailRegex.test(address),
+          deliverable: previousDeliverable.has(address)
+            ? previousDeliverable.get(address)
+            : true,
+        }));
+
+        return {
+          usmsRegNo: incoming.usmsRegNo,
+          usmsId,
+          firstName: incoming.firstName,
+          lastName: incoming.lastName,
+          gender: incoming.gender,
+          club: incoming.club,
+          workoutGroup: incoming.workoutGroup,
+          regYear: incoming.regYear,
+          emails,
+          emailExclude: incoming.emailExclude,
+        };
+      });
+
+      // upsert everyone in the new upload -- never drop the collection, so a
+      // bad record (or a partial failure) can't take the whole roster with it
+      if (finalMembers.length > 0) {
+        try {
+          await Member.bulkWrite(
+            finalMembers.map((member) => ({
+              updateOne: {
+                filter: { usmsId: member.usmsId },
+                update: { $set: member },
+                upsert: true,
+              },
+            })),
+            { ordered: false },
+          );
+        } catch (err) {
+          // ordered:false means whatever succeeded is already persisted;
+          // log and continue rather than losing that progress
+          console.error(err);
+        }
+      }
+
+      // anyone in the DB but not in this upload has left the LMSC
+      await Member.deleteMany({ usmsId: { $nin: newUsmsIds } });
+
+      return await Member.find({ usmsId: { $in: newUsmsIds } });
     },
     emailLeaders: async (_, { emailData }) => {
       // retrieve the emails of the leaders from the DB
@@ -441,7 +520,10 @@ contact the webmaster immediately by replying to this message.`,
       delete mailArgs.id;
       let emailArray = [];
       group.forEach((member) => {
-        emailArray = [...emailArray, ...member.emails];
+        const usableEmails = member.emails
+          .filter((email) => email.formatValid && email.deliverable)
+          .map((email) => email.address);
+        emailArray = [...emailArray, ...usableEmails];
       });
       mailArgs.emails = emailArray;
 

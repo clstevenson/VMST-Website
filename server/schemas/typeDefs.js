@@ -1,4 +1,13 @@
 const typeDefs = `
+# formatValid: pure function of the address string, recomputed on every upload.
+# deliverable: sticky -- true until the (not yet built) membership-coordinator
+# tool marks a specific address as bouncing/dead.
+type EmailEntry {
+  address: String!
+  formatValid: Boolean!
+  deliverable: Boolean!
+}
+
 type Member {
   _id: ID!
   usmsRegNo: String!
@@ -9,7 +18,7 @@ type Member {
   club: String!
   workoutGroup: String
   regYear: Int!
-  emails: [String]
+  emails: [EmailEntry]
   emailExclude: Boolean
 }
 

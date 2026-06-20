@@ -27,15 +27,22 @@ const seedMembers = async () => {
     await connection.dropCollection("members");
   }
 
+  // same format check the uploadMembers resolver uses
+  const emailRegex = /^([a-zA-Z0-9_.-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/;
+
   const lmscMembers = memberData.map((member) => {
-    if (member.emails) {
-      // member may have two emails in one string
-      member.emails = member.emails.split(", ");
-    } else {
-      // member may not have an email address, catch the error
-      member.emails = [];
-    }
+    // member may have two emails in one string, or none at all
+    const addresses = member.emails ? member.emails.split(", ") : [];
+    member.emails = addresses.map((address) => ({
+      address,
+      formatValid: emailRegex.test(address),
+      // fresh seed, no upload history to carry a bounce forward from
+      deliverable: true,
+    }));
     member.regYear = 2024;
+    // members.json predates usmsId; derive it the same way a real CSV
+    // upload does, as the last 5 characters of usmsRegNo
+    member.usmsId = member.usmsRegNo.slice(-5);
     return member;
   });
 
