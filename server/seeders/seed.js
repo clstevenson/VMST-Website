@@ -122,7 +122,7 @@ const seedUsers = async (members) => {
     firstName: "Chris",
     lastName: "Stevenson",
     password: webmasterPassword,
-    email: "chrislstevenson@gmail.com",
+    email: "vmst.swimming@gmail.com",
     notifications: true,
     role: "webmaster",
   });
