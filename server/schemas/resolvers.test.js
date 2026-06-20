@@ -34,6 +34,9 @@ const users = {}; // role -> { _id, role }
 // exports *before* resolvers.js is first required below. sentMail collects
 // whatever a test sends so it can assert on it without a real network call.
 const sentMail = [];
+// toggled by individual tests (then reset to false) to exercise a failed
+// send without a real network call -- see resetPassword's atomicity test
+let mailShouldFail = false;
 
 test.before(async () => {
   mongod = await MongoMemoryServer.create();
@@ -45,6 +48,7 @@ test.before(async () => {
     filename: emailHandlerPath,
     loaded: true,
     exports: async (mailArgs) => {
+      if (mailShouldFail) throw new Error("Simulated mail delivery failure");
       sentMail.push(mailArgs);
     },
   };
@@ -405,6 +409,24 @@ test("editUser: webmaster can edit another user's record", async () => {
   assert.equal(data.editUser.firstName, "UpdatedByWebmaster");
 });
 
+test("editUser: a malformed email is rejected by the schema validator (restored via query-then-save) instead of being silently saved", async () => {
+  const { data, errors } = await run(
+    `mutation($id: ID!, $user: UserData) {
+      editUser(_id: $id, user: $user) { email }
+    }`,
+    { id: users.user._id, user: { email: "not-an-email" } },
+    users.user,
+  );
+  // editUser's catch block logs and swallows errors rather than
+  // rethrowing (pre-existing style, not changed here) -- so the
+  // regression to guard against is the DB write, not a GraphQL error
+  assert.equal(errors, undefined);
+  assert.equal(data.editUser, null);
+
+  const stillOriginal = await User.findById(users.user._id);
+  assert.equal(stillOriginal.email, "user@example.com");
+});
+
 test("password is not a queryable field on User, regardless of role", async () => {
   const { errors } = await run(
     "{ getLeaders { firstName password } }",
@@ -503,6 +525,31 @@ test("changePassword: rejects an unauthenticated caller, succeeds for a logged-i
   assert.ok(await updated.isCorrectPassword("New-Password-456!"));
 });
 
+test("changePassword: rejects a too-short password without touching the stored hash", async () => {
+  const target = await User.create({
+    firstName: "Short",
+    lastName: "Pw",
+    email: "short-pw@example.com",
+    password: "Original-Password-1!",
+    role: "user",
+  });
+  const ctx = { _id: target._id.toString(), role: "user" };
+
+  // changePassword's catch block logs and swallows errors rather than
+  // rethrowing (pre-existing style, not changed here) -- so the
+  // regression to guard against is the DB write, not a GraphQL error
+  const { data, errors } = await run(
+    `mutation($password: String!) { changePassword(password: $password) { _id } }`,
+    { password: "abc" },
+    ctx,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.changePassword, null);
+
+  const stillOriginal = await User.findById(target._id);
+  assert.ok(await stillOriginal.isCorrectPassword("Original-Password-1!"));
+});
+
 test("resetPassword: emails a new password to an existing account, errors for an unknown email", async () => {
   const target = await User.create({
     firstName: "Reset",
@@ -526,6 +573,34 @@ test("resetPassword: emails a new password to an existing account, errors for an
 
   const unknown = await run(query, { email: "nobody-resets@example.com" }, null);
   assert.ok(unknown.errors?.length, "unknown email should error");
+});
+
+test("resetPassword: a failed send leaves the old password intact instead of locking the user out", async () => {
+  const target = await User.create({
+    firstName: "AtomicReset",
+    lastName: "Pw",
+    email: "atomic-reset@example.com",
+    password: "Original-Password-1!",
+    role: "user",
+  });
+  const query = `mutation($email: String!) { resetPassword(email: $email) { _id } }`;
+
+  mailShouldFail = true;
+  try {
+    const { data, errors } = await run(
+      query,
+      { email: "atomic-reset@example.com" },
+      null,
+    );
+    assert.equal(errors, undefined);
+    assert.equal(data.resetPassword, null);
+  } finally {
+    mailShouldFail = false;
+  }
+
+  // the whole point of the fix: a failed send must not have touched the DB
+  const stillOriginal = await User.findById(target._id);
+  assert.ok(await stillOriginal.isCorrectPassword("Original-Password-1!"));
 });
 
 test("uploadMembers: rejects a non-membership role", async () => {
@@ -602,7 +677,11 @@ test("editPost: leader can edit a post", async () => {
         title: "Updated title",
         summary: "Updated summary",
         content: "<p>Updated content</p>",
-        photo: { id: "photo-1", url: "https://example.com/photo.jpg" },
+        photo: {
+          id: "photo-1",
+          url: "https://example.com/photo.jpg",
+          flickrURL: "https://flickr.com/photo-1",
+        },
       },
       users.leader,
     );
@@ -614,6 +693,69 @@ test("editPost: leader can edit a post", async () => {
     assert.equal(stored.title, "Updated title");
 
     assert.equal(data.editPost?.title, "Updated title");
+  } finally {
+    await Post.findByIdAndDelete(post._id);
+  }
+});
+
+test("editPost: a photo missing its required flickrURL is rejected by the schema validator (restored via query-then-save), and omitting photo entirely unsets it", async () => {
+  const post = await Post.create({
+    title: "Has a photo",
+    content: "<p>Content</p>",
+    photo: {
+      id: "photo-1",
+      url: "https://example.com/photo.jpg",
+      flickrURL: "https://flickr.com/photo-1",
+    },
+  });
+
+  const mutation = `mutation($id: ID!, $title: String!, $summary: String, $content: String!, $photo: PhotoData) {
+    editPost(_id: $id, title: $title, summary: $summary, content: $content, photo: $photo) {
+      title
+      photo { id }
+    }
+  }`;
+
+  try {
+    // editPost's catch block logs and swallows errors rather than
+    // rethrowing (pre-existing style, not changed here) -- so the
+    // regression to guard against is the DB write, not a GraphQL error
+    const { data: badData, errors: badErrors } = await run(
+      mutation,
+      {
+        id: post._id.toString(),
+        title: "Updated title",
+        content: "<p>Updated content</p>",
+        // missing flickrURL -- PhotoData allows it (nullable at the
+        // GraphQL layer) but the Post schema requires it
+        photo: { id: "photo-2", url: "https://example.com/photo2.jpg" },
+      },
+      users.leader,
+    );
+    assert.equal(badErrors, undefined);
+    assert.equal(badData.editPost, null);
+
+    const stillOriginal = await Post.findById(post._id);
+    assert.equal(stillOriginal.title, "Has a photo");
+    assert.equal(stillOriginal.photo.id, "photo-1");
+
+    // omitting photo (id: "") removes it entirely, equivalent to the
+    // previous $unset: { photo: 1 }
+    const { data, errors } = await run(
+      mutation,
+      {
+        id: post._id.toString(),
+        title: "Updated title",
+        content: "<p>Updated content</p>",
+        photo: { id: "", url: "" },
+      },
+      users.leader,
+    );
+    assert.equal(errors, undefined);
+    assert.equal(data.editPost.photo, null);
+
+    const stored = await Post.findById(post._id);
+    assert.equal(stored.photo, undefined);
   } finally {
     await Post.findByIdAndDelete(post._id);
   }
@@ -664,6 +806,59 @@ test("addMeet and deleteMeet: reject a coach (leader-only, unlike meets/vmstMemb
 
   // confirm the rejected delete didn't actually go through
   assert.ok(await Meet.findById(existingMeet._id));
+});
+
+test("editMeet: a leader can edit a meet; an invalid course is rejected by the schema validator (restored via query-then-save) without touching unrelated fields", async () => {
+  const meet = await Meet.create({
+    meetName: "Editable Meet",
+    course: "SCY",
+    startDate: "2026-02-01",
+  });
+
+  try {
+    // MeetData's fields (meetName/course/startDate) are all String! at the
+    // GraphQL layer, so a `meet` object must supply all three whenever it's
+    // provided at all -- there's no partial-update shape for it
+    const { data, errors } = await run(
+      `mutation($id: ID!, $meet: MeetData) {
+        editMeet(_id: $id, meet: $meet) { meetName course startDate }
+      }`,
+      {
+        id: meet._id.toString(),
+        meet: { meetName: "Renamed Meet", course: "SCY", startDate: "2026-02-01" },
+      },
+      users.leader,
+    );
+    assert.equal(errors, undefined);
+    assert.equal(data.editMeet.meetName, "Renamed Meet");
+    assert.equal(data.editMeet.course, "SCY");
+
+    // editMeet's catch block logs and swallows errors rather than
+    // rethrowing (pre-existing style, not changed here) -- so the
+    // regression to guard against is the DB write, not a GraphQL error
+    const { data: badData, errors: badErrors } = await run(
+      `mutation($id: ID!, $meet: MeetData) {
+        editMeet(_id: $id, meet: $meet) { meetName course startDate }
+      }`,
+      {
+        id: meet._id.toString(),
+        meet: {
+          meetName: "Renamed Meet",
+          course: "not-a-real-course",
+          startDate: "2026-02-01",
+        },
+      },
+      users.leader,
+    );
+    assert.equal(badErrors, undefined);
+    assert.equal(badData.editMeet, null);
+
+    const stillThere = await Meet.findById(meet._id);
+    assert.equal(stillThere.course, "SCY");
+    assert.equal(stillThere.meetName, "Renamed Meet");
+  } finally {
+    await Meet.findByIdAndDelete(meet._id);
+  }
 });
 
 test("addMeet, emailGroup, deleteMeet: real Nationals roster matched against the just-uploaded members", async () => {

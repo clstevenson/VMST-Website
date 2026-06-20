@@ -163,11 +163,11 @@ const resolvers = {
         delete args.user.password;
         // only admins can update roles
         if (user.role !== "webmaster") delete args.user.role;
-        // ID must be part of the args (not obtained from token)
-        const updatedUser = await User.findByIdAndUpdate(args._id, args.user, {
-          new: true,
-        });
+        // query-then-save so schema validators actually run
+        const updatedUser = await User.findById(args._id);
         if (!updatedUser) throw AuthenticationError;
+        Object.assign(updatedUser, args.user);
+        await updatedUser.save();
         return updatedUser;
       } catch (err) {
         console.log(err);
@@ -176,22 +176,19 @@ const resolvers = {
     // anyone can request a password reset, which is mailed to them
     // input has to have the email address
     resetPassword: async (_, { email }) => {
+      // look up first; the DB isn't touched until the email send below
+      // is confirmed, so a failed send can never leave the account in a
+      // worse state than before the request
+      const targetUser = await User.findOne({ email: email });
+      if (!targetUser) {
+        throw new Error("No account with that email exists.");
+      }
+
       // generate a new password
       const newPassword = generatePassword(3);
       // hash it before saving to arguments
       const hashedPassword = await bcrypt.hash(newPassword, 10);
-      const user = {
-        password: hashedPassword,
-      };
-      // update the user profile with this password and return the updated value
-      const updatedUser = await User.findOneAndUpdate({ email: email }, user, {
-        new: true,
-      });
 
-      if (!updatedUser) {
-        throw new Error("No account with that email exists.");
-      }
-      // email the user the new password
       // first get the email address(es) of the webmaster(s) for user email replying
       const webmasterEmail = await User.findOne({ role: "webmaster" }).select(
         "email",
@@ -216,6 +213,8 @@ If you feel you have received this message in error, please
 contact the webmaster immediately by replying to this message.`,
       };
 
+      // send before persisting -- if this throws, return without ever
+      // writing the new password, so the old one keeps working
       try {
         await Mail(mailArgs);
       } catch (err) {
@@ -225,24 +224,35 @@ contact the webmaster immediately by replying to this message.`,
         return null;
       }
 
-      return updatedUser;
+      // query-then-save (not findOneAndUpdate) so schema validators
+      // actually run; findOneAndUpdate skips them
+      targetUser.password = hashedPassword;
+      await targetUser.save();
+      return targetUser;
     },
     // logged-in users can change their password
     changePassword: async (_, { password }, { user }) => {
       requireRole(user);
       try {
-        // need to has the new password then save it to the args
+        // the schema's minlength validator runs against the already-hashed
+        // value at save time (the hash is always ~60 chars), so it can
+        // never actually enforce a minimum on the real password -- check
+        // explicitly before hashing
+        if (password.length < 6) {
+          throw new Error("Password must be at least 6 characters.");
+        }
+        // need to hash the new password then save it to the args
         const hashedPassword = await bcrypt.hash(password, 10);
-        let updatedUser = {
-          password: hashedPassword,
-        };
-        // update user by ID
-        updatedUser = await User.findByIdAndUpdate(user._id, updatedUser, {
-          new: true,
-        });
+        // query-then-save (not findByIdAndUpdate) -- the pre('save') hook
+        // only hashes on document creation (`if (this.isNew)`), so hashing
+        // stays manual regardless; .save() still restores any other
+        // validators that findByIdAndUpdate would otherwise skip
+        const updatedUser = await User.findById(user._id);
         if (!updatedUser) {
           throw new Error("Something went wrong, password was not updated.");
         }
+        updatedUser.password = hashedPassword;
+        await updatedUser.save();
         return updatedUser;
       } catch (err) {
         console.log(err);
@@ -267,15 +277,15 @@ contact the webmaster immediately by replying to this message.`,
     editMeet: async (_, { _id, meet, meetSwimmers, relays }, { user }) => {
       // only leaders can edit meets
       requireRole(user, "leader");
-      const changedMeet = {
-        ...meet,
-        meetSwimmers,
-        relays,
-      };
       try {
-        const updatedMeet = await Meet.findByIdAndUpdate({ _id }, changedMeet, {
-          new: true,
-        });
+        // query-then-save so schema validators actually run
+        // each field is only assigned if actually provided
+        const updatedMeet = await Meet.findById(_id);
+        if (!updatedMeet) throw new Error("Meet not found");
+        if (meet) Object.assign(updatedMeet, meet);
+        if (meetSwimmers !== undefined) updatedMeet.meetSwimmers = meetSwimmers;
+        if (relays !== undefined) updatedMeet.relays = relays;
+        await updatedMeet.save();
         return updatedMeet;
       } catch (error) {
         console.log(error);
@@ -307,28 +317,21 @@ contact the webmaster immediately by replying to this message.`,
     editPost: async (_, { _id, title, summary, content, photo }, { user }) => {
       // only leaders can delete posts
       requireRole(user, "leader");
-      const post = {
-        title,
-        summary,
-        content,
-        photo,
-      };
       try {
-        let updatedPost;
-        if (photo.id) {
-          updatedPost = await Post.findOneAndUpdate({ _id }, post, {
-            new: true,
-          });
-        } else {
-          updatedPost = await Post.findOneAndUpdate(
-            { _id },
-            { title, summary, content, $unset: { photo: 1 } },
-            { new: true },
-          );
-        }
+        // query-then-save (not findOneAndUpdate) so schema validators --
+        // required fields on the post and on the embedded photo subdoc --
+        // actually run
+        const updatedPost = await Post.findById(_id);
         if (!updatedPost) {
           throw new Error("Something went wrong, post was not updated");
         }
+        updatedPost.title = title;
+        updatedPost.summary = summary;
+        updatedPost.content = content;
+        // assigning undefined and saving unsets the subdocument entirely,
+        // equivalent to the previous $unset: { photo: 1 }
+        updatedPost.photo = photo.id ? photo : undefined;
+        await updatedPost.save();
         return updatedPost;
       } catch (error) {
         console.log(error);
