@@ -3,16 +3,25 @@
  Accordian items allowing user to select entire groups, such as workout groups, competitors, and (eventually) saved groups. Also displays the names of the swimmers who have opted out of receiving team emails (so users know who will not receive the message).
  */
 
+import { useRef } from "react";
 import styled from "styled-components";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import * as Accordian from "@radix-ui/react-accordion";
+import { useLazyQuery } from "@apollo/client";
 import { Check } from "react-feather";
 import dayjs from "dayjs";
 
-import AccordianItem from "../AccordianItem";
+import AccordianItem, { accordianItemValue } from "../AccordianItem";
 import { Description } from "../Styled/Description";
 import { CheckboxRoot, CheckboxIndicator } from "../Styled/Checkbox";
 import { COLORS } from "../../utils/constants";
+import { QUERY_VMST_EMAIL_STATUS } from "../../utils/queries";
+
+// single source of truth for this accordion's title -- used both as the
+// AccordianItem's title prop and (via accordianItemValue) to recognize its
+// open/close state, so the two can never drift out of sync
+const NO_VALID_EMAIL_TITLE = "Swimmers Not Reachable";
+const NO_VALID_EMAIL_ITEM = accordianItemValue(NO_VALID_EMAIL_TITLE);
 
 export default function GroupSelection({
   recipients,
@@ -25,34 +34,50 @@ export default function GroupSelection({
   meetMembers,
   setAnySelected,
 }) {
-  // Meet participants matched (includeEmail: true) at meet-creation time, but
-  // whose USMS ID no longer resolves to a current Member -- almost always
-  // because they've since left the LMSC and were hard-deleted on a later
-  // membership upload. Without this, they'd be silently dropped from any
-  // meet-based recipient selection with no indication to the sender.
-  const unreachable = [];
-  const seenUsmsIds = new Set();
-  meets.forEach((meet) => {
-    meet.meetSwimmers
-      .filter(({ includeEmail }) => includeEmail)
-      .forEach((swimmer) => {
-        const stillAMember = meetMembers.some(
-          (member) => member.usmsId === swimmer.usmsId,
-        );
-        if (stillAMember) return;
-        if (seenUsmsIds.has(swimmer.usmsId)) {
-          unreachable
-            .find((entry) => entry.usmsId === swimmer.usmsId)
-            .meetNames.push(meet.meetName);
-        } else {
-          seenUsmsIds.add(swimmer.usmsId);
-          unreachable.push({ ...swimmer, meetNames: [meet.meetName] });
-        }
-      });
-  });
+  // fetched fresh (network-only) every time the "Swimmers Who Cannot Be
+  // Emailed" accordion is opened, rather than once on page load, so it
+  // reflects the current member list
+  const [fetchEmailStatus, { data: emailStatusData }] = useLazyQuery(
+    QUERY_VMST_EMAIL_STATUS,
+    { fetchPolicy: "network-only" },
+  );
+  // Radix fires onValueChange with the whole open-item set on every
+  // accordion change, not just for the item that changed -- track the
+  // previous set so we only fetch on the closed-to-open transition, not
+  // every time some other section is toggled while this one stays open
+  const previousOpenRef = useRef([]);
+
+  // members with no usable email address at all -- every address is either
+  // malformed or marked undeliverable, or they have none on file. Scoped to
+  // vmstMembers (current VMST roster), so anyone who's left the LMSC or
+  // switched to another club is already excluded by that query, not by this
+  // check -- deliberately not trying to catch that separate case here.
+  let noValidEmail = [];
+  if (emailStatusData) {
+    noValidEmail = emailStatusData.vmstMembers.filter(
+      (member) =>
+        member.emails.length === 0 ||
+        member.emails.every(
+          (email) => !email.formatValid || !email.deliverable,
+        ),
+    );
+    if (userProfile.role === "coach") {
+      noValidEmail = noValidEmail.filter(
+        (member) => member.workoutGroup === userProfile.group,
+      );
+    }
+  }
 
   return (
-    <Accordian.Root type="multiple">
+    <Accordian.Root
+      type="multiple"
+      onValueChange={(openValues) => {
+        const wasOpen = previousOpenRef.current.includes(NO_VALID_EMAIL_ITEM);
+        const isOpen = openValues.includes(NO_VALID_EMAIL_ITEM);
+        if (isOpen && !wasOpen) fetchEmailStatus();
+        previousOpenRef.current = openValues;
+      }}
+    >
       {/* Select entire workout groups */}
       <AccordianItem title="Email Workout Groups" titlePadding="24px">
         <GroupWrapper>
@@ -242,21 +267,20 @@ export default function GroupSelection({
           );
         })}
       </AccordianItem>
-      {/* List meet participants who were matched at meet-creation time but
-          can no longer be reached -- see the unreachable comment above */}
-      <AccordianItem title="Swimmers No Longer Reachable" titlePadding="24px">
+      {/* List members with no usable email address on file */}
+      <AccordianItem title={NO_VALID_EMAIL_TITLE} titlePadding="24px">
         <Description style={{ marginBottom: "6px" }}>
-          The following meet participants could not be matched to a current
-          VMST member and will NOT receive messages sent from here, most
-          likely because they have left the LMSC:
+          The following swimmers cannot receive messages because they have no
+          usable email address, either because of an invalid format or because
+          it has been marked undeliverable:
         </Description>
-        {unreachable.map((swimmer) => (
+        {noValidEmail.map((member) => (
           <p
-            key={swimmer.usmsId}
+            key={member.usmsId}
             style={{ fontSize: "0.8rem", fontStyle: "italic" }}
           >
-            {swimmer.firstName} {swimmer.lastName} (
-            {swimmer.meetNames.join(", ")})
+            {member.firstName} {member.lastName}{" "}
+            {member.workoutGroup && `(${member.workoutGroup})`}
           </p>
         ))}
       </AccordianItem>

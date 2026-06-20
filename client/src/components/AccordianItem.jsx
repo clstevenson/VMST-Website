@@ -14,12 +14,16 @@ import * as Accordian from "@radix-ui/react-accordion";
 import { ChevronRight } from "react-feather";
 import { COLORS, WEIGHTS } from "../utils/constants";
 
+// derives the Accordian.Item value from a title -- exported so code outside
+// this component (e.g. an onValueChange handler watching for a specific
+// item) can compute the same value instead of hardcoding a slug that can
+// silently drift out of sync if the title text changes
+export function accordianItemValue(title) {
+  return title.toLowerCase().replaceAll(" ", "-").replaceAll("?", "");
+}
+
 export default function AccordianItem({ title, titlePadding = 0, children }) {
-  // get a unique "value" string from the title prop
-  const itemValue = title
-    .toLowerCase()
-    .replaceAll(" ", "-")
-    .replaceAll("?", "");
+  const itemValue = accordianItemValue(title);
 
   return (
     <Accordian.Item value={itemValue}>

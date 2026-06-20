@@ -111,6 +111,25 @@ export const QUERY_VMST = gql`
   }
 `;
 
+// fetched on demand (not on page load) when the "Swimmers Who Cannot Be
+// Emailed" accordion is opened, so it reflects the current member list
+// rather than whatever was loaded when the Communication tab first rendered
+export const QUERY_VMST_EMAIL_STATUS = gql`
+  query GetVMSTEmailStatus {
+    vmstMembers {
+      usmsId
+      firstName
+      lastName
+      workoutGroup
+      emails {
+        address
+        formatValid
+        deliverable
+      }
+    }
+  }
+`;
+
 // looks up current members by USMS ID regardless of their current club
 export const QUERY_MEMBERS_BY_USMS_ID = gql`
   query GetMembersByUsmsId($usmsIds: [String]!) {
