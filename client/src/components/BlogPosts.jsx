@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import parse from "html-react-parser";
 import { useQuery } from "@apollo/client";
 import { QUERY_POSTS } from "../utils/queries";
+import sanitizeHtml from "../utils/sanitizeHtml";
 
 import Spinner from "./Spinner";
 import { COLORS, QUERIES } from "../utils/constants";
@@ -49,7 +50,7 @@ export default function BlogPosts() {
             {post.summary ? (
               <Content>{post.summary}</Content>
             ) : (
-              <Content>{parse(post.content)}</Content>
+              <Content>{parse(sanitizeHtml(post.content))}</Content>
             )}
             <Date>Posted {post.createdAt}</Date>
           </Post>
