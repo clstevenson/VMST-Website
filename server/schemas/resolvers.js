@@ -349,8 +349,12 @@ contact the webmaster immediately by replying to this message.`,
       // only the Membership Coordinator is allowed to update the Member collection
       requireRole(user, "membership");
 
+      // WHATWG HTML living-standard input[type=email] pattern -- the same
+      // one browsers use for native email validation. Deliberately
+      // permissive (case-insensitive, allows +, no TLD length cap) because
+      // we want to avoid false positives
       const emailRegex =
-        /^([a-zA-Z0-9_.-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/;
+        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
       // usmsId (not usmsRegNo) is the stable per-person key: someone who
       // registers for next year early appears twice with the same usmsId but

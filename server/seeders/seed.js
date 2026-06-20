@@ -28,7 +28,8 @@ const seedMembers = async () => {
   }
 
   // same format check the uploadMembers resolver uses
-  const emailRegex = /^([a-zA-Z0-9_.-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/;
+  const emailRegex =
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
   const lmscMembers = memberData.map((member) => {
     // member may have two emails in one string, or none at all

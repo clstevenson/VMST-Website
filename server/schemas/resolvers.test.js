@@ -964,7 +964,7 @@ test("uploadMembers: dedupes by usmsId keeping the higher regYear, preserves del
   await Member.deleteOne({ usmsId: "TESTA" });
 });
 
-test("uploadMembers: a malformed email gets formatValid:false without failing the rest of the upload", async () => {
+test("uploadMembers: a malformed email gets formatValid:false without failing the rest of the upload, while case, plus-addressing, and long TLDs are accepted", async () => {
   const memberData = [
     {
       usmsRegNo: "TEST-BADEMAIL",
@@ -974,7 +974,15 @@ test("uploadMembers: a malformed email gets formatValid:false without failing th
       gender: "M",
       club: "VMST",
       regYear: 2026,
-      emails: ["not-an-email", "good@example.com"],
+      emails: [
+        "not-an-email",
+        "good@example.com",
+        // previously false-flagged by the old lowercase-only,
+        // 6-char-TLD-capped regex -- real addresses we shouldn't give up on
+        "User.Name@EXAMPLE.COM",
+        "user+tag@gmail.com",
+        "user@example.technology",
+      ],
       emailExclude: false,
     },
   ];
@@ -997,6 +1005,9 @@ test("uploadMembers: a malformed email gets formatValid:false without failing th
   );
   assert.equal(byAddress["not-an-email"].formatValid, false);
   assert.equal(byAddress["good@example.com"].formatValid, true);
+  assert.equal(byAddress["User.Name@EXAMPLE.COM"].formatValid, true);
+  assert.equal(byAddress["user+tag@gmail.com"].formatValid, true);
+  assert.equal(byAddress["user@example.technology"].formatValid, true);
 
   await Member.deleteOne({ usmsId: "BADEM" });
 });
