@@ -32,6 +32,7 @@ import Editor from "../Editor";
 import RecipientsDisplay from "./RecipientsDisplay";
 import RecipientsCombobox from "./RecipientsCombobox";
 import GroupSelection from "./GroupSelection";
+import { selectOptedOut } from "./memberFilters";
 
 // from the list of (VMST) members return the list of distinct WO groups
 // (using this utility means avoiding a DB query)
@@ -96,8 +97,7 @@ export default function Communication({ setTab, userProfile }) {
       const woGroups = getGroups(data.vmstMembers);
       setGroups([...woGroups]);
       // determine which members have opted out of emails
-      const excluded = members.filter((member) => member.emailExclude);
-      setOptOut([...excluded]);
+      setOptOut(selectOptedOut(members));
     },
   });
 

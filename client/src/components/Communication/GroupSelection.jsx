@@ -16,6 +16,7 @@ import { Description } from "../Styled/Description";
 import { CheckboxRoot, CheckboxIndicator } from "../Styled/Checkbox";
 import { COLORS } from "../../utils/constants";
 import { QUERY_VMST_EMAIL_STATUS } from "../../utils/queries";
+import { selectUnreachable } from "./memberFilters";
 
 // single source of truth for this accordion's title -- used both as the
 // AccordianItem's title prop and (via accordianItemValue) to recognize its
@@ -47,28 +48,14 @@ export default function GroupSelection({
   // every time some other section is toggled while this one stays open
   const previousOpenRef = useRef([]);
 
-  // members with no usable email address at all -- every address is either
-  // malformed or marked undeliverable, or they have none on file. Scoped to
-  // vmstMembers (current VMST roster), so anyone who's left the LMSC or
-  // switched to another club is already excluded by that query, not by this
-  // check -- deliberately not trying to catch that separate case here.
-  let noValidEmail = [];
-  if (emailStatusData) {
-    noValidEmail = emailStatusData.vmstMembers
-      .filter((member) => !member.emailExclude)
-      .filter(
-        (member) =>
-          member.emails.length === 0 ||
-          member.emails.every(
-            (email) => !email.formatValid || !email.deliverable,
-          ),
-      );
-    if (userProfile.role === "coach") {
-      noValidEmail = noValidEmail.filter(
-        (member) => member.workoutGroup === userProfile.group,
-      );
-    }
-  }
+  // members with no usable email address at all, excluding anyone who's
+  // already opted out (see memberFilters.js). Scoped to vmstMembers
+  // (current VMST roster), so anyone who's left the LMSC or switched to
+  // another club is already excluded by that query, not by this check --
+  // deliberately not trying to catch that separate case here.
+  const noValidEmail = emailStatusData
+    ? selectUnreachable(emailStatusData.vmstMembers, userProfile)
+    : [];
 
   return (
     <Accordian.Root
