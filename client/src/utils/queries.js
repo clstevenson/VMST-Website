@@ -112,6 +112,22 @@ export const QUERY_VMST = gql`
   }
 `;
 
+// looks up current members by USMS ID regardless of their current club
+export const QUERY_MEMBERS_BY_USMS_ID = gql`
+  query GetMembersByUsmsId($usmsIds: [String]!) {
+    membersByUsmsId(usmsIds: $usmsIds) {
+      _id
+      usmsId
+      firstName
+      lastName
+      gender
+      workoutGroup
+      regYear
+      emailExclude
+    }
+  }
+`;
+
 // get a list of meets that have been saved into memory
 export const QUERY_MEETS = gql`
   query getMeets {

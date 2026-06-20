@@ -18,7 +18,11 @@ import { useRef, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { useForm } from "react-hook-form";
 
-import { QUERY_VMST, QUERY_MEETS } from "../../utils/queries";
+import {
+  QUERY_VMST,
+  QUERY_MEETS,
+  QUERY_MEMBERS_BY_USMS_ID,
+} from "../../utils/queries";
 import { EMAIL_GROUP } from "../../utils/mutations";
 import { COLORS, QUERIES } from "../../utils/constants";
 import ToastMessage from "../ToastMessage";
@@ -54,6 +58,11 @@ export default function Communication({ setTab, userProfile }) {
   const [sent, setSent] = useState(false);
   // list of meets from database
   const [meets, setMeets] = useState([]);
+  // USMS IDs of matched meet participants, used to look up their current
+  // member record regardless of which club they're presently with
+  const [usmsIds, setUsmsIds] = useState([]);
+  // current member records for the above, keyed for use in GroupSelection
+  const [meetMembers, setMeetMembers] = useState([]);
   // boolean for (de)select all button toggle
   const [anySelected, setAnySelected] = useState(false);
 
@@ -106,6 +115,26 @@ export default function Communication({ setTab, userProfile }) {
         },
       );
       setMeets([...allMeets]);
+
+      // gather the USMS IDs of matched participants across all meets
+      const matchedIds = allMeets.flatMap((meet) =>
+        meet.meetSwimmers
+          .filter(({ includeEmail }) => includeEmail)
+          .map(({ usmsId }) => usmsId),
+      );
+      setUsmsIds([...new Set(matchedIds)]);
+    },
+  });
+
+  useQuery(QUERY_MEMBERS_BY_USMS_ID, {
+    variables: { usmsIds },
+    skip: usmsIds.length === 0,
+    onCompleted: (data) => {
+      const members = data.membersByUsmsId.map((member) => ({
+        name: `${member.firstName} ${member.lastName}`,
+        ...member,
+      }));
+      setMeetMembers([...members]);
     },
   });
 
@@ -161,13 +190,13 @@ export default function Communication({ setTab, userProfile }) {
           setSent(true);
         } else {
           setMessage(
-            "Something went wrong sending the email. Please try again later."
+            "Something went wrong sending the email. Please try again later.",
           );
         }
       } catch (error) {
         console.log(error);
         setMessage(
-          "Something went wrong sending the email. Please try again later."
+          "Something went wrong sending the email. Please try again later.",
         );
       }
     }
@@ -293,6 +322,7 @@ export default function Communication({ setTab, userProfile }) {
             groups={groups}
             swimmers={swimmers}
             meets={meets}
+            meetMembers={meetMembers}
             optOut={optOut}
             setAnySelected={setAnySelected}
           />

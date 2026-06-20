@@ -200,6 +200,7 @@ type Query {
   onePost(id: String!): Post
   groups: [String]
   vmstMembers(workoutGroup: String): [Member]
+  membersByUsmsId(usmsIds: [String]!): [Member]
   meets: [Meet]
   getLeaders: [User]
   getAlbums(page: Int!, perPage: Int!): AlbumCollection

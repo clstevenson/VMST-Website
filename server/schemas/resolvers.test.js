@@ -195,6 +195,84 @@ test("vmstMembers: allows leader and coach, rejects others", async () => {
   assert.ok(errors?.length, "membership role should not be allowed");
 });
 
+test("membersByUsmsId: rejects an unauthenticated caller and a non-leader/coach role", async () => {
+  const query = `query($usmsIds: [String]!) {
+    membersByUsmsId(usmsIds: $usmsIds) { firstName }
+  }`;
+
+  const unauth = await run(query, { usmsIds: ["12345"] }, null);
+  assert.ok(unauth.errors?.length);
+
+  const { errors } = await run(query, { usmsIds: ["12345"] }, users.membership);
+  assert.ok(errors?.length, "membership role should not be allowed");
+});
+
+test("membersByUsmsId: leader can find a member regardless of their current club", async () => {
+  const switched = await Member.create({
+    usmsRegNo: "999999",
+    usmsId: "99999",
+    firstName: "Switched",
+    lastName: "Teams",
+    gender: "M",
+    club: "OtherClub",
+    workoutGroup: "Distance",
+    regYear: 2026,
+    emails: ["switched@example.com"],
+  });
+
+  const { data, errors } = await run(
+    `query($usmsIds: [String]!) {
+      membersByUsmsId(usmsIds: $usmsIds) { firstName lastName club }
+    }`,
+    { usmsIds: ["99999"] },
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.membersByUsmsId.length, 1);
+  assert.equal(data.membersByUsmsId[0].club, "OtherClub");
+
+  await Member.findByIdAndDelete(switched._id);
+});
+
+test("membersByUsmsId: a coach only gets back members in their own workout group", async () => {
+  const inGroup = await Member.create({
+    usmsRegNo: "888801",
+    usmsId: "88801",
+    firstName: "InGroup",
+    lastName: "Swimmer",
+    gender: "F",
+    club: "VMST",
+    workoutGroup: "Distance",
+    regYear: 2026,
+    emails: ["ingroup@example.com"],
+  });
+  const outOfGroup = await Member.create({
+    usmsRegNo: "888802",
+    usmsId: "88802",
+    firstName: "OutOfGroup",
+    lastName: "Swimmer",
+    gender: "F",
+    club: "VMST",
+    workoutGroup: "Sprint",
+    regYear: 2026,
+    emails: ["outofgroup@example.com"],
+  });
+  const coachInDistance = { _id: users.coach._id, role: "coach", group: "Distance" };
+
+  const { data, errors } = await run(
+    `query($usmsIds: [String]!) {
+      membersByUsmsId(usmsIds: $usmsIds) { firstName workoutGroup }
+    }`,
+    { usmsIds: ["88801", "88802"] },
+    coachInDistance,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.membersByUsmsId.length, 1);
+  assert.equal(data.membersByUsmsId[0].firstName, "InGroup");
+
+  await Member.deleteMany({ _id: { $in: [inGroup._id, outOfGroup._id] } });
+});
+
 test("meets: rejects an unauthenticated caller, allows leader", async () => {
   const unauth = await run("{ meets { meetName } }", {}, null);
   assert.ok(unauth.errors?.length);

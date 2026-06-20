@@ -22,6 +22,7 @@ export default function GroupSelection({
   swimmers,
   optOut,
   meets,
+  meetMembers,
   setAnySelected,
 }) {
   return (
@@ -112,16 +113,18 @@ export default function GroupSelection({
         <MeetWrapper>
           {meets.map((meet) => {
             // meet is "checked" only if all of its (email-eligible) matched
-            // competitors are currently in the recipients list
-            const meetMembers = meet.meetSwimmers
+            // competitors are currently in the recipients list. Matched
+            // against meetMembers (looked up by USMS ID, any club)
+            // someone who has since switched clubs is still found.
+            const eligibleCompetitors = meet.meetSwimmers
               .filter(({ includeEmail }) => includeEmail)
               .map(({ usmsId }) =>
-                swimmers.find((member) => member.usmsId === usmsId),
+                meetMembers.find((member) => member.usmsId === usmsId),
               )
               .filter((member) => member && !member.emailExclude);
             const checked =
-              meetMembers.length > 0 &&
-              meetMembers.every((member) =>
+              eligibleCompetitors.length > 0 &&
+              eligibleCompetitors.every((member) =>
                 recipients.some((recipient) => recipient._id === member._id),
               );
             return (
@@ -139,7 +142,8 @@ export default function GroupSelection({
                         .filter(({ includeEmail }) => includeEmail)
                         .map(({ usmsId }) => {
                           // return membership object matched on USMS ID
-                          const member = swimmers.filter(
+                          // (any club -- see meetMembers comment above)
+                          const member = meetMembers.filter(
                             (member) => member.usmsId === usmsId,
                           );
                           if (member) return member[0];

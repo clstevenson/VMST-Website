@@ -68,6 +68,17 @@ const resolvers = {
         console.log(err);
       }
     },
+    // look up current members by USMS ID regardless of their current club
+    // used to email meet participants who may have since switched clubs
+    membersByUsmsId: async (_, { usmsIds }, { user }) => {
+      requireRole(user, "leader", "coach");
+      const members = await Member.find({ usmsId: { $in: usmsIds } });
+      // a coach may only email members of their own workout group
+      if (user.role === "coach") {
+        return members.filter((member) => member.workoutGroup === user.group);
+      }
+      return members;
+    },
     meets: async (_, __, { user }) => {
       requireRole(user, "leader", "coach");
       return await Meet.find();
