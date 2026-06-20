@@ -137,6 +137,10 @@ const resolvers = {
     // but a token is needed in order to edit a user
     editUser: async (_, args, { user }) => {
       requireRole(user);
+      // only the user themselves or the webmaster can edit a given account
+      if (args._id !== user._id && user.role !== "webmaster") {
+        throw AuthenticationError;
+      }
       try {
         // don't attempt to update password here
         delete args.user.password;

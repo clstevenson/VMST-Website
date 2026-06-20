@@ -190,6 +190,44 @@ test("user: rejects an unauthenticated caller", async () => {
   assert.ok(errors?.length);
 });
 
+test("editUser: a logged-in user can edit their own record", async () => {
+  const { data, errors } = await run(
+    `mutation($id: ID!, $user: UserData) {
+      editUser(_id: $id, user: $user) { firstName }
+    }`,
+    { id: users.user._id, user: { firstName: "Updated" } },
+    users.user,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.editUser.firstName, "Updated");
+});
+
+test("editUser: rejects a user editing someone else's record", async () => {
+  const { errors } = await run(
+    `mutation($id: ID!, $user: UserData) {
+      editUser(_id: $id, user: $user) { firstName }
+    }`,
+    { id: users.leader._id, user: { firstName: "Hacked" } },
+    users.user,
+  );
+  assert.ok(errors?.length, "expected an authorization error");
+
+  const stillOriginal = await User.findById(users.leader._id);
+  assert.equal(stillOriginal.firstName, "Test");
+});
+
+test("editUser: webmaster can edit another user's record", async () => {
+  const { data, errors } = await run(
+    `mutation($id: ID!, $user: UserData) {
+      editUser(_id: $id, user: $user) { firstName }
+    }`,
+    { id: users.coach._id, user: { firstName: "UpdatedByWebmaster" } },
+    users.webmaster,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.editUser.firstName, "UpdatedByWebmaster");
+});
+
 test("password is not a queryable field on User, regardless of role", async () => {
   const { errors } = await run(
     "{ getLeaders { firstName password } }",
