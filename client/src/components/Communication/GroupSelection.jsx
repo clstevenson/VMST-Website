@@ -3,16 +3,26 @@
  Accordian items allowing user to select entire groups, such as workout groups, competitors, and (eventually) saved groups. Also displays the names of the swimmers who have opted out of receiving team emails (so users know who will not receive the message).
  */
 
+import { useRef } from "react";
 import styled from "styled-components";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import * as Accordian from "@radix-ui/react-accordion";
+import { useLazyQuery } from "@apollo/client";
 import { Check } from "react-feather";
 import dayjs from "dayjs";
 
-import AccordianItem from "../AccordianItem";
+import AccordianItem, { accordianItemValue } from "../AccordianItem";
 import { Description } from "../Styled/Description";
 import { CheckboxRoot, CheckboxIndicator } from "../Styled/Checkbox";
 import { COLORS } from "../../utils/constants";
+import { QUERY_VMST_EMAIL_STATUS } from "../../utils/queries";
+import { selectUnreachable } from "./memberFilters";
+
+// single source of truth for this accordion's title -- used both as the
+// AccordianItem's title prop and (via accordianItemValue) to recognize its
+// open/close state, so the two can never drift out of sync
+const NO_VALID_EMAIL_TITLE = "Swimmers Not Reachable";
+const NO_VALID_EMAIL_ITEM = accordianItemValue(NO_VALID_EMAIL_TITLE);
 
 export default function GroupSelection({
   recipients,
@@ -22,10 +32,41 @@ export default function GroupSelection({
   swimmers,
   optOut,
   meets,
+  meetMembers,
   setAnySelected,
 }) {
+  // fetched fresh (network-only) every time the "Swimmers Who Cannot Be
+  // Emailed" accordion is opened, rather than once on page load, so it
+  // reflects the current member list
+  const [fetchEmailStatus, { data: emailStatusData }] = useLazyQuery(
+    QUERY_VMST_EMAIL_STATUS,
+    { fetchPolicy: "network-only" },
+  );
+  // Radix fires onValueChange with the whole open-item set on every
+  // accordion change, not just for the item that changed -- track the
+  // previous set so we only fetch on the closed-to-open transition, not
+  // every time some other section is toggled while this one stays open
+  const previousOpenRef = useRef([]);
+
+  // members with no usable email address at all, excluding anyone who's
+  // already opted out (see memberFilters.js). Scoped to vmstMembers
+  // (current VMST roster), so anyone who's left the LMSC or switched to
+  // another club is already excluded by that query, not by this check --
+  // deliberately not trying to catch that separate case here.
+  const noValidEmail = emailStatusData
+    ? selectUnreachable(emailStatusData.vmstMembers, userProfile)
+    : [];
+
   return (
-    <Accordian.Root type="multiple">
+    <Accordian.Root
+      type="multiple"
+      onValueChange={(openValues) => {
+        const wasOpen = previousOpenRef.current.includes(NO_VALID_EMAIL_ITEM);
+        const isOpen = openValues.includes(NO_VALID_EMAIL_ITEM);
+        if (isOpen && !wasOpen) fetchEmailStatus();
+        previousOpenRef.current = openValues;
+      }}
+    >
       {/* Select entire workout groups */}
       <AccordianItem title="Email Workout Groups" titlePadding="24px">
         <GroupWrapper>
@@ -112,16 +153,18 @@ export default function GroupSelection({
         <MeetWrapper>
           {meets.map((meet) => {
             // meet is "checked" only if all of its (email-eligible) matched
-            // competitors are currently in the recipients list
-            const meetMembers = meet.meetSwimmers
+            // competitors are currently in the recipients list. Matched
+            // against meetMembers (looked up by USMS ID, any club)
+            // someone who has since switched clubs is still found.
+            const eligibleCompetitors = meet.meetSwimmers
               .filter(({ includeEmail }) => includeEmail)
               .map(({ usmsId }) =>
-                swimmers.find((member) => member.usmsId === usmsId),
+                meetMembers.find((member) => member.usmsId === usmsId),
               )
               .filter((member) => member && !member.emailExclude);
             const checked =
-              meetMembers.length > 0 &&
-              meetMembers.every((member) =>
+              eligibleCompetitors.length > 0 &&
+              eligibleCompetitors.every((member) =>
                 recipients.some((recipient) => recipient._id === member._id),
               );
             return (
@@ -139,7 +182,8 @@ export default function GroupSelection({
                         .filter(({ includeEmail }) => includeEmail)
                         .map(({ usmsId }) => {
                           // return membership object matched on USMS ID
-                          const member = swimmers.filter(
+                          // (any club -- see meetMembers comment above)
+                          const member = meetMembers.filter(
                             (member) => member.usmsId === usmsId,
                           );
                           if (member) return member[0];
@@ -211,6 +255,23 @@ export default function GroupSelection({
             </p>
           );
         })}
+      </AccordianItem>
+      {/* List members with no usable email address on file */}
+      <AccordianItem title={NO_VALID_EMAIL_TITLE} titlePadding="24px">
+        <Description style={{ marginBottom: "6px" }}>
+          The following swimmers cannot receive messages because they have no
+          usable email address, either because of an invalid format or because
+          it has been marked undeliverable:
+        </Description>
+        {noValidEmail.map((member) => (
+          <p
+            key={member.usmsId}
+            style={{ fontSize: "0.8rem", fontStyle: "italic" }}
+          >
+            {member.firstName} {member.lastName}{" "}
+            {member.workoutGroup && `(${member.workoutGroup})`}
+          </p>
+        ))}
       </AccordianItem>
     </Accordian.Root>
   );

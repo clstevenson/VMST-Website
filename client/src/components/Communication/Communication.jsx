@@ -18,7 +18,11 @@ import { useRef, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { useForm } from "react-hook-form";
 
-import { QUERY_VMST, QUERY_MEETS } from "../../utils/queries";
+import {
+  QUERY_VMST,
+  QUERY_MEETS,
+  QUERY_MEMBERS_BY_USMS_ID,
+} from "../../utils/queries";
 import { EMAIL_GROUP } from "../../utils/mutations";
 import { COLORS, QUERIES } from "../../utils/constants";
 import ToastMessage from "../ToastMessage";
@@ -28,6 +32,7 @@ import Editor from "../Editor";
 import RecipientsDisplay from "./RecipientsDisplay";
 import RecipientsCombobox from "./RecipientsCombobox";
 import GroupSelection from "./GroupSelection";
+import { selectOptedOut } from "./memberFilters";
 
 // from the list of (VMST) members return the list of distinct WO groups
 // (using this utility means avoiding a DB query)
@@ -54,6 +59,11 @@ export default function Communication({ setTab, userProfile }) {
   const [sent, setSent] = useState(false);
   // list of meets from database
   const [meets, setMeets] = useState([]);
+  // USMS IDs of matched meet participants, used to look up their current
+  // member record regardless of which club they're presently with
+  const [usmsIds, setUsmsIds] = useState([]);
+  // current member records for the above, keyed for use in GroupSelection
+  const [meetMembers, setMeetMembers] = useState([]);
   // boolean for (de)select all button toggle
   const [anySelected, setAnySelected] = useState(false);
 
@@ -87,8 +97,7 @@ export default function Communication({ setTab, userProfile }) {
       const woGroups = getGroups(data.vmstMembers);
       setGroups([...woGroups]);
       // determine which members have opted out of emails
-      const excluded = members.filter((member) => member.emailExclude);
-      setOptOut([...excluded]);
+      setOptOut(selectOptedOut(members));
     },
   });
 
@@ -106,6 +115,26 @@ export default function Communication({ setTab, userProfile }) {
         },
       );
       setMeets([...allMeets]);
+
+      // gather the USMS IDs of matched participants across all meets
+      const matchedIds = allMeets.flatMap((meet) =>
+        meet.meetSwimmers
+          .filter(({ includeEmail }) => includeEmail)
+          .map(({ usmsId }) => usmsId),
+      );
+      setUsmsIds([...new Set(matchedIds)]);
+    },
+  });
+
+  useQuery(QUERY_MEMBERS_BY_USMS_ID, {
+    variables: { usmsIds },
+    skip: usmsIds.length === 0,
+    onCompleted: (data) => {
+      const members = data.membersByUsmsId.map((member) => ({
+        name: `${member.firstName} ${member.lastName}`,
+        ...member,
+      }));
+      setMeetMembers([...members]);
     },
   });
 
@@ -155,11 +184,20 @@ export default function Communication({ setTab, userProfile }) {
           plainText,
         };
         // send email to recipients
-        await emailGroup({ variables: { emailData } });
+        const { data } = await emailGroup({ variables: { emailData } });
         // trigger toast if successful
-        setSent(true);
+        if (data?.emailGroup) {
+          setSent(true);
+        } else {
+          setMessage(
+            "Something went wrong sending the email. Please try again later.",
+          );
+        }
       } catch (error) {
         console.log(error);
+        setMessage(
+          "Something went wrong sending the email. Please try again later.",
+        );
       }
     }
   };
@@ -284,6 +322,7 @@ export default function Communication({ setTab, userProfile }) {
             groups={groups}
             swimmers={swimmers}
             meets={meets}
+            meetMembers={meetMembers}
             optOut={optOut}
             setAnySelected={setAnySelected}
           />

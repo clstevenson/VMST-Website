@@ -39,7 +39,9 @@ const userSchema = new Schema({
     type: String,
     required: true,
     unique: true,
-    match: [/^([a-zA-Z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/, 'Must match an email address!'],
+    // WHATWG HTML living-standard input[type=email] pattern -- same one
+    // browsers use natively, case-insensitive, allows +, no TLD length cap
+    match: [/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/, 'Must match an email address!'],
     minLength: 1, // I read that empty strings pass the match validator
   },
   password: {type: String, required: true, minlength: 6,},

@@ -1,4 +1,13 @@
 const typeDefs = `
+# formatValid: pure function of the address string, recomputed on every upload.
+# deliverable: sticky -- true until the (not yet built) membership-coordinator
+# tool marks a specific address as bouncing/dead.
+type EmailEntry {
+  address: String!
+  formatValid: Boolean!
+  deliverable: Boolean!
+}
+
 type Member {
   _id: ID!
   usmsRegNo: String!
@@ -9,7 +18,7 @@ type Member {
   club: String!
   workoutGroup: String
   regYear: Int!
-  emails: [String]
+  emails: [EmailEntry]
   emailExclude: Boolean
 }
 
@@ -18,15 +27,14 @@ type User {
   firstName: String!
   lastName: String!
   email: String!
-  password: String!
   role: String!
   group: String
   notifications: Boolean
   emailPermission: Boolean
 }
 
-# Competitor is embedded in Meet
-type Competitor {
+# MeetSwimmer is embedded in Meet
+type MeetSwimmer {
   _id: ID!
   firstName: String!
   lastName: String!
@@ -52,7 +60,7 @@ type Meet {
   course: String!
   startDate: String!
   endDate: String
-  meetSwimmers: [Competitor]
+  meetSwimmers: [MeetSwimmer]
   relays: [Relay]
 }
 
@@ -85,7 +93,6 @@ input UserData {
   firstName: String
   lastName: String
   email: String
-  password: String
   role: String
   group: String
   notifications: Boolean
@@ -138,7 +145,7 @@ input MeetData {
   endDate: String
 }
 
-input CompetitorData {
+input MeetSwimmerData {
   firstName: String!
   lastName: String!
   gender: String!
@@ -196,12 +203,13 @@ type PhotoCollection {
 
 type Query {
   members: [Member]
-  users(id: ID): [User]
+  user(id: ID!): User
   emailExists(email: String!): User
   posts: [Post]
   onePost(id: String!): Post
   groups: [String]
   vmstMembers(workoutGroup: String): [Member]
+  membersByUsmsId(usmsIds: [String]!): [Member]
   meets: [Meet]
   getLeaders: [User]
   getAlbums(page: Int!, perPage: Int!): AlbumCollection
@@ -221,9 +229,9 @@ type Mutation {
   addPost(title: String!, summary: String, content: String!, photo: PhotoData): Post
   editPost(_id: ID!, title: String!, summary: String, content: String!, photo: PhotoData): Post
   deletePost(_id: ID!): Post
-  addMeet(meet: MeetData, meetSwimmers: [CompetitorData], relays: [RelayData]): Meet
+  addMeet(meet: MeetData, meetSwimmers: [MeetSwimmerData], relays: [RelayData]): Meet
   deleteMeet(_id: ID!): Meet
-  editMeet(_id: ID!, meet: MeetData, meetSwimmers: [CompetitorData], relays: [RelayData]): Meet
+  editMeet(_id: ID!, meet: MeetData, meetSwimmers: [MeetSwimmerData], relays: [RelayData]): Meet
   uploadMembers(memberData: [MemberData]): [Member]
   emailLeaders(emailData: emailData): Boolean
   emailWebmaster(emailData: emailData): Boolean

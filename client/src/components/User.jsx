@@ -64,7 +64,7 @@ export default function User({ userProfile }) {
   const { loading } = useQuery(QUERY_USER, {
     variables: { id: userProfile._id },
     onCompleted: (data) => {
-      const user = data.users[0];
+      const user = data.user;
       setUser({ ...user });
       setRole(user.role);
       setOriginalProfile({ ...user });

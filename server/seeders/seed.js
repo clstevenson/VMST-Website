@@ -2,7 +2,7 @@ const connection = require("../config/connection");
 require("dotenv").config();
 
 // Membership Data as of 04/28/24 (with emails replaced)
-const { Member, User, Competitor, Post } = require("../models");
+const { Member, User, Post } = require("../models");
 
 connection.on("error", (err) => err);
 
@@ -27,15 +27,23 @@ const seedMembers = async () => {
     await connection.dropCollection("members");
   }
 
+  // same format check the uploadMembers resolver uses
+  const emailRegex =
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
   const lmscMembers = memberData.map((member) => {
-    if (member.emails) {
-      // member may have two emails in one string
-      member.emails = member.emails.split(", ");
-    } else {
-      // member may not have an email address, catch the error
-      member.emails = [];
-    }
+    // member may have two emails in one string, or none at all
+    const addresses = member.emails ? member.emails.split(", ") : [];
+    member.emails = addresses.map((address) => ({
+      address,
+      formatValid: emailRegex.test(address),
+      // fresh seed, no upload history to carry a bounce forward from
+      deliverable: true,
+    }));
     member.regYear = 2024;
+    // members.json predates usmsId; derive it the same way a real CSV
+    // upload does, as the last 5 characters of usmsRegNo
+    member.usmsId = member.usmsRegNo.slice(-5);
     return member;
   });
 

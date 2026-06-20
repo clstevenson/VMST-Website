@@ -12,6 +12,7 @@ import parse from "html-react-parser";
 
 import { QUERY_SINGLEPOST } from "../utils/queries";
 import { DELETE_POST } from "../utils/mutations";
+import sanitizeHtml from "../utils/sanitizeHtml";
 import Spinner from "../components/Spinner";
 import { COLORS, QUERIES } from "../utils/constants";
 import { useAuth } from "../context/AuthContext";
@@ -65,7 +66,7 @@ export default function SinglePost() {
         <Article>
           <Title>{post.title}</Title>
 
-          <ContentWrapper>{parse(post.content)}</ContentWrapper>
+          <ContentWrapper>{parse(sanitizeHtml(post.content))}</ContentWrapper>
           <Attribution>-- posted on {post.createdAt}</Attribution>
 
           {/*

@@ -7,7 +7,13 @@ const {
   requireRole,
 } = require("../utils/auth");
 
-const connection = require("../config/connection");
+// no longer used directly in this file (uploadMembers no longer drops the
+// collection), but required here for its side effect: it's what opens
+// mongoose's default connection. schemas/index.js doesn't require it
+// independently, and resolvers.test.js relies on requiring this file (via
+// ./index) to be what triggers that connection, after pointing MONGODB_URI
+// at the in-memory test DB.
+require("../config/connection");
 const Mail = require("../utils/emailHandler");
 const generatePassword = require("../utils/password-generator");
 const bcrypt = require("bcrypt");
@@ -25,22 +31,21 @@ const Meet = require("../models/Meets");
 const resolvers = {
   Query: {
     // get all USMS members of the VA LMSC
-    members: async () => await Member.find().sort({ lastName: 1 }),
-    // get website users (or maybe a single user)
-    users: async (_, { id }) => {
-      if (id) {
-        // return a single user (as an array to match typedef)
-        const user = await User.findById(id);
-        return [user];
-      } else {
-        const users = await User.find();
-        return users;
-      }
+    members: async (_, __, { user }) => {
+      requireRole(user, "membership");
+      return await Member.find().sort({ lastName: 1 });
     },
-    // test if a given email address already exists (since it must be unique)
-    emailExists: async (_, { email }) => {
-      const user = await User.findOne({ email: email });
-      return user;
+    // get a user's own profile (no one can look up anyone else's, including webmaster)
+    user: async (_, { id }, { user }) => {
+      requireRole(user);
+      if (id !== user._id) throw AuthenticationError;
+      return await User.findById(id);
+    },
+    // test if a given email address already exists (since it must be unique);
+    // only used by an already-logged-in user changing their email
+    emailExists: async (_, { email }, { user }) => {
+      requireRole(user);
+      return await User.findOne({ email: email });
     },
     // get all posts, sorted most recent first
     posts: async () => await Post.find().sort({ createdAt: -1 }),
@@ -55,7 +60,8 @@ const resolvers = {
     groups: async () =>
       await Member.find({ club: "VMST" }).distinct("workoutGroup"),
     // get all members of VMST
-    vmstMembers: async () => {
+    vmstMembers: async (_, __, { user }) => {
+      requireRole(user, "leader", "coach");
       try {
         const swimmers = await Member.find({
           club: "VMST",
@@ -68,8 +74,25 @@ const resolvers = {
         console.log(err);
       }
     },
-    meets: async () => await Meet.find(),
-    getLeaders: async () => await User.find({ role: "leader" }),
+    // look up current members by USMS ID regardless of their current club
+    // used to email meet participants who may have since switched clubs
+    membersByUsmsId: async (_, { usmsIds }, { user }) => {
+      requireRole(user, "leader", "coach");
+      const members = await Member.find({ usmsId: { $in: usmsIds } });
+      // a coach may only email members of their own workout group
+      if (user.role === "coach") {
+        return members.filter((member) => member.workoutGroup === user.group);
+      }
+      return members;
+    },
+    meets: async (_, __, { user }) => {
+      requireRole(user, "leader", "coach");
+      return await Meet.find();
+    },
+    getLeaders: async (_, __, { user }) => {
+      requireRole(user, "webmaster");
+      return await User.find({ role: "leader" });
+    },
     getAlbums: async (_, { perPage, page }) => {
       const response = await getAlbums(page, perPage);
       if (!response) throw new Error("Something went wrong");
@@ -131,6 +154,10 @@ const resolvers = {
     // but a token is needed in order to edit a user
     editUser: async (_, args, { user }) => {
       requireRole(user);
+      // only the user themselves or the webmaster can edit a given account
+      if (args._id !== user._id && user.role !== "webmaster") {
+        throw AuthenticationError;
+      }
       try {
         // don't attempt to update password here
         delete args.user.password;
@@ -193,7 +220,9 @@ contact the webmaster immediately by replying to this message.`,
         await Mail(mailArgs);
       } catch (err) {
         console.error(err);
-        return false;
+        // resetPassword returns User (not Boolean) -- null is the
+        // schema-valid way to signal failure here
+        return null;
       }
 
       return updatedUser;
@@ -300,6 +329,7 @@ contact the webmaster immediately by replying to this message.`,
         if (!updatedPost) {
           throw new Error("Something went wrong, post was not updated");
         }
+        return updatedPost;
       } catch (error) {
         console.log(error);
       }
@@ -319,15 +349,92 @@ contact the webmaster immediately by replying to this message.`,
       // only the Membership Coordinator is allowed to update the Member collection
       requireRole(user, "membership");
 
-      // update the Members collection in the DB
-      // first delete the members collection if it exists
-      let membersCheck = await connection.db
-        .listCollections({ name: "members" })
-        .toArray();
-      if (membersCheck.length) {
-        await connection.dropCollection("members");
+      // WHATWG HTML living-standard input[type=email] pattern -- the same
+      // one browsers use for native email validation. Deliberately
+      // permissive (case-insensitive, allows +, no TLD length cap) because
+      // we want to avoid false positives
+      const emailRegex =
+        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
+      // usmsId (not usmsRegNo) is the stable per-person key: someone who
+      // registers for next year early appears twice with the same usmsId but
+      // different regYear/usmsRegNo. Dedupe to one row per person, keeping
+      // whichever entry has the higher regYear.
+      const latestByUsmsId = new Map();
+      for (const incoming of memberData) {
+        const current = latestByUsmsId.get(incoming.usmsId);
+        if (!current || incoming.regYear > current.regYear) {
+          latestByUsmsId.set(incoming.usmsId, incoming);
+        }
       }
-      return await Member.insertMany(memberData);
+
+      const newUsmsIds = [...latestByUsmsId.keys()];
+      const existingMembers = await Member.find({
+        usmsId: { $in: newUsmsIds },
+      });
+      const existingByUsmsId = new Map(
+        existingMembers.map((member) => [member.usmsId, member]),
+      );
+
+      const finalMembers = newUsmsIds.map((usmsId) => {
+        const incoming = latestByUsmsId.get(usmsId);
+        const previous = existingByUsmsId.get(usmsId);
+        // deliverable is sticky per-address: carry it forward only when the
+        // exact address string is unchanged from the prior upload, otherwise
+        // assume reachable (true) -- a new/changed address has no history yet
+        const previousDeliverable = new Map(
+          (previous?.emails ?? []).map((email) => [
+            email.address,
+            email.deliverable,
+          ]),
+        );
+        const emails = (incoming.emails ?? []).map((address) => ({
+          address,
+          formatValid: emailRegex.test(address),
+          deliverable: previousDeliverable.has(address)
+            ? previousDeliverable.get(address)
+            : true,
+        }));
+
+        return {
+          usmsRegNo: incoming.usmsRegNo,
+          usmsId,
+          firstName: incoming.firstName,
+          lastName: incoming.lastName,
+          gender: incoming.gender,
+          club: incoming.club,
+          workoutGroup: incoming.workoutGroup,
+          regYear: incoming.regYear,
+          emails,
+          emailExclude: incoming.emailExclude,
+        };
+      });
+
+      // upsert everyone in the new upload -- never drop the collection, so a
+      // bad record (or a partial failure) can't take the whole roster with it
+      if (finalMembers.length > 0) {
+        try {
+          await Member.bulkWrite(
+            finalMembers.map((member) => ({
+              updateOne: {
+                filter: { usmsId: member.usmsId },
+                update: { $set: member },
+                upsert: true,
+              },
+            })),
+            { ordered: false },
+          );
+        } catch (err) {
+          // ordered:false means whatever succeeded is already persisted;
+          // log and continue rather than losing that progress
+          console.error(err);
+        }
+      }
+
+      // anyone in the DB but not in this upload has left the LMSC
+      await Member.deleteMany({ usmsId: { $nin: newUsmsIds } });
+
+      return await Member.find({ usmsId: { $in: newUsmsIds } });
     },
     emailLeaders: async (_, { emailData }) => {
       // retrieve the emails of the leaders from the DB
@@ -417,7 +524,10 @@ contact the webmaster immediately by replying to this message.`,
       delete mailArgs.id;
       let emailArray = [];
       group.forEach((member) => {
-        emailArray = [...emailArray, ...member.emails];
+        const usableEmails = member.emails
+          .filter((email) => email.formatValid && email.deliverable)
+          .map((email) => email.address);
+        emailArray = [...emailArray, ...usableEmails];
       });
       mailArgs.emails = emailArray;
 

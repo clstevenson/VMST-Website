@@ -66,9 +66,13 @@ const LoginContent = ({ setIsLogin, setOpen, message, setMessage }) => {
 
     try {
       const { data } = await resetPassword({ variables: { email } });
-      if (data) {
+      if (data?.resetPassword) {
         setMessage(
           "Your new password has been sent to your email; use it to log in."
+        );
+      } else {
+        setMessage(
+          "Error: something went wrong sending the reset email. Please try again later."
         );
       }
     } catch (err) {
@@ -103,7 +107,8 @@ const LoginContent = ({ setIsLogin, setOpen, message, setMessage }) => {
             {...register("email", {
               required: "Email is required",
               pattern: {
-                value: /^([a-zA-Z0-9_.-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/,
+                value:
+                  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
                 message: "Not a valid email address",
               },
             })}

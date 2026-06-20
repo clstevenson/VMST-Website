@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const QUERY_USER = gql`
-  query getUser($id: ID) {
-    users(id: $id) {
+  query getUser($id: ID!) {
+    user(id: $id) {
       firstName
       lastName
       email
@@ -90,7 +90,6 @@ export const QUERY_MEMBERS = gql`
       club
       workoutGroup
       regYear
-      emails
       emailExclude
     }
   }
@@ -100,6 +99,42 @@ export const QUERY_MEMBERS = gql`
 export const QUERY_VMST = gql`
   query GetVMST {
     vmstMembers {
+      _id
+      usmsId
+      firstName
+      lastName
+      gender
+      workoutGroup
+      regYear
+      emailExclude
+    }
+  }
+`;
+
+// fetched on demand (not on page load) when the "Swimmers Who Cannot Be
+// Emailed" accordion is opened, so it reflects the current member list
+// rather than whatever was loaded when the Communication tab first rendered
+export const QUERY_VMST_EMAIL_STATUS = gql`
+  query GetVMSTEmailStatus {
+    vmstMembers {
+      usmsId
+      firstName
+      lastName
+      workoutGroup
+      emailExclude
+      emails {
+        address
+        formatValid
+        deliverable
+      }
+    }
+  }
+`;
+
+// looks up current members by USMS ID regardless of their current club
+export const QUERY_MEMBERS_BY_USMS_ID = gql`
+  query GetMembersByUsmsId($usmsIds: [String]!) {
+    membersByUsmsId(usmsIds: $usmsIds) {
       _id
       usmsId
       firstName
