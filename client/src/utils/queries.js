@@ -121,6 +121,7 @@ export const QUERY_VMST_EMAIL_STATUS = gql`
       firstName
       lastName
       workoutGroup
+      emailExclude
       emails {
         address
         formatValid

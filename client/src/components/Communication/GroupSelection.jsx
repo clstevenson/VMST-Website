@@ -54,13 +54,15 @@ export default function GroupSelection({
   // check -- deliberately not trying to catch that separate case here.
   let noValidEmail = [];
   if (emailStatusData) {
-    noValidEmail = emailStatusData.vmstMembers.filter(
-      (member) =>
-        member.emails.length === 0 ||
-        member.emails.every(
-          (email) => !email.formatValid || !email.deliverable,
-        ),
-    );
+    noValidEmail = emailStatusData.vmstMembers
+      .filter((member) => !member.emailExclude)
+      .filter(
+        (member) =>
+          member.emails.length === 0 ||
+          member.emails.every(
+            (email) => !email.formatValid || !email.deliverable,
+          ),
+      );
     if (userProfile.role === "coach") {
       noValidEmail = noValidEmail.filter(
         (member) => member.workoutGroup === userProfile.group,
