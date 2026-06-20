@@ -47,8 +47,10 @@ export default function EmailPage2() {
     setFocus("name");
   }, [setFocus]);
 
-  // for email address validation
-  const emailRegex = /^([a-zA-Z0-9_.-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/;
+  // for email address validation (WHATWG HTML living-standard
+  // input[type=email] pattern -- case-insensitive, allows +, no TLD cap)
+  const emailRegex =
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
   const onSubmit = async ({ name, email, message, leaders, webmaster }) => {
     // convert plain text message to simple HTML
