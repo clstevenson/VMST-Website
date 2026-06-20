@@ -576,12 +576,7 @@ test("addPost: rejects a non-leader, succeeds for a leader", async () => {
   await Post.findByIdAndDelete(data.addPost._id);
 });
 
-// KNOWN BUG: editPost (server/schemas/resolvers.js) never returns the
-// updated post on its success path -- there's no `return` statement after
-// the Post.findOneAndUpdate call, so this resolves to null even though the
-// update itself succeeds in the database. This test is written to assert
-// the *correct* behavior, so it fails until that's fixed.
-test("editPost: leader can edit a post (currently fails -- missing return in resolver)", async () => {
+test("editPost: leader can edit a post", async () => {
   const post = await Post.create({
     title: "Original title",
     summary: "Original summary",

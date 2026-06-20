@@ -323,6 +323,7 @@ contact the webmaster immediately by replying to this message.`,
         if (!updatedPost) {
           throw new Error("Something went wrong, post was not updated");
         }
+        return updatedPost;
       } catch (error) {
         console.log(error);
       }
