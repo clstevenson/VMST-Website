@@ -2,7 +2,7 @@ const connection = require("../config/connection");
 require("dotenv").config();
 
 // Membership Data as of 04/28/24 (with emails replaced)
-const { Member, User, Competitor, Post } = require("../models");
+const { Member, User, Post } = require("../models");
 
 connection.on("error", (err) => err);
 

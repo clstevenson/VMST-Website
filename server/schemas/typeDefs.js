@@ -24,8 +24,8 @@ type User {
   emailPermission: Boolean
 }
 
-# Competitor is embedded in Meet
-type Competitor {
+# MeetSwimmer is embedded in Meet
+type MeetSwimmer {
   _id: ID!
   firstName: String!
   lastName: String!
@@ -51,7 +51,7 @@ type Meet {
   course: String!
   startDate: String!
   endDate: String
-  meetSwimmers: [Competitor]
+  meetSwimmers: [MeetSwimmer]
   relays: [Relay]
 }
 
@@ -136,7 +136,7 @@ input MeetData {
   endDate: String
 }
 
-input CompetitorData {
+input MeetSwimmerData {
   firstName: String!
   lastName: String!
   gender: String!
@@ -219,9 +219,9 @@ type Mutation {
   addPost(title: String!, summary: String, content: String!, photo: PhotoData): Post
   editPost(_id: ID!, title: String!, summary: String, content: String!, photo: PhotoData): Post
   deletePost(_id: ID!): Post
-  addMeet(meet: MeetData, meetSwimmers: [CompetitorData], relays: [RelayData]): Meet
+  addMeet(meet: MeetData, meetSwimmers: [MeetSwimmerData], relays: [RelayData]): Meet
   deleteMeet(_id: ID!): Meet
-  editMeet(_id: ID!, meet: MeetData, meetSwimmers: [CompetitorData], relays: [RelayData]): Meet
+  editMeet(_id: ID!, meet: MeetData, meetSwimmers: [MeetSwimmerData], relays: [RelayData]): Meet
   uploadMembers(memberData: [MemberData]): [Member]
   emailLeaders(emailData: emailData): Boolean
   emailWebmaster(emailData: emailData): Boolean
