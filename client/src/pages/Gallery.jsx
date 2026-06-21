@@ -11,7 +11,7 @@ import {
 } from "../utils/queries";
 import Spinner from "../components/Spinner";
 import SelectPhotos from "../components/PhotoGallery/SelectPhotos";
-import NavPhotos from "../components/PhotoGallery/NavPhotos";
+import PaginationNav from "../components/PaginationNav";
 import PhotosPerPage from "../components/PhotoGallery/PerPageInput";
 
 export default function Gallery() {
@@ -92,7 +92,7 @@ export default function Gallery() {
 
         {/* click to increment/decrement page */}
         <NavWrapper>
-          <NavPhotos page={page} setPage={setPage} maxPages={maxPages} />
+          <PaginationNav page={page} setPage={setPage} maxPages={maxPages} />
         </NavWrapper>
 
         {/* control how many photos per page, resetting to page 1 on change */}
@@ -125,7 +125,7 @@ export default function Gallery() {
       {/* click to increment/decrement page */}
       {photos && (
         <NavWrapper>
-          <NavPhotos
+          <PaginationNav
             page={page}
             setPage={setPage}
             maxPages={maxPages}

@@ -16,7 +16,7 @@ import SubmitButton from "../Styled/SubmiButton";
 import Table from "../Styled/Table";
 import ToastMessage from "../ToastMessage";
 import Instructions from "./Instructions";
-import NavPhotos from "../PhotoGallery/NavPhotos";
+import PaginationNav from "../PaginationNav";
 import MembersPerPage from "./MembersPerPage";
 import { CheckboxRoot, CheckboxIndicator } from "../Styled/Checkbox";
 
@@ -510,7 +510,7 @@ export default function UploadMembers() {
       </SaveChangesRow>
 
       <PaginationRow>
-        <NavPhotos
+        <PaginationNav
           page={page}
           setPage={setPage}
           maxPages={maxPages}
@@ -570,7 +570,7 @@ export default function UploadMembers() {
       </TableScroll>
 
       <PaginationRow>
-        <NavPhotos
+        <PaginationNav
           page={page}
           setPage={setPage}
           maxPages={maxPages}

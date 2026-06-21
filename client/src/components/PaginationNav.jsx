@@ -7,10 +7,10 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "react-feather";
-import { COLORS, QUERIES } from "../../utils/constants";
-import range from "../../utils/range";
+import { COLORS, QUERIES } from "../utils/constants";
+import range from "../utils/range";
 
-export default function NavPhotos({
+export default function PaginationNav({
   page,
   setPage,
   maxPages,
