@@ -93,6 +93,11 @@ const resolvers = {
       requireRole(user, "webmaster");
       return await User.find({ role: "leader" });
     },
+    // full list of site accounts, for the webmaster's user-management page
+    users: async (_, __, { user }) => {
+      requireRole(user, "webmaster");
+      return await User.find().sort({ lastName: 1 });
+    },
     getAlbums: async (_, { perPage, page }) => {
       const response = await getAlbums(page, perPage);
       if (!response) throw new Error("Something went wrong");

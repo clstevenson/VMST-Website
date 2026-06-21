@@ -220,6 +220,7 @@ type Query {
   membersByUsmsId(usmsIds: [String]!): [Member]
   meets: [Meet]
   getLeaders: [User]
+  users: [User]
   getAlbums(page: Int!, perPage: Int!): AlbumCollection
   getAlbumPhotos(id: String!, page: Int!, perPage: Int!): PhotoCollection
   getFeaturedPhotos(page: Int!, perPage: Int!): PhotoCollection

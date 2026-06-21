@@ -326,6 +326,22 @@ test("getLeaders: only allows webmaster", async () => {
   assert.equal(data.getLeaders[0].firstName, "Test");
 });
 
+test("users: only allows webmaster", async () => {
+  const asLeader = await run("{ users { firstName } }", {}, users.leader);
+  assert.ok(asLeader.errors?.length, "leader should not be allowed");
+
+  const { data, errors } = await run(
+    "{ users { firstName role } }",
+    {},
+    users.webmaster,
+  );
+  assert.equal(errors, undefined);
+  const roles = data.users.map((u) => u.role);
+  for (const role of ["user", "leader", "coach", "membership", "webmaster"]) {
+    assert.ok(roles.includes(role), `expected a ${role} user in the results`);
+  }
+});
+
 test("emailExists: rejects unauthenticated, allows any logged-in user", async () => {
   const unauth = await run(
     '{ emailExists(email: "user@example.com") { _id } }',
