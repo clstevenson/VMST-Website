@@ -34,14 +34,23 @@ function App() {
 
 // Wrapper is for all website content
 const Wrapper = styled.div`
-  min-height: 100%;
+  /* min-height: 100vh (not 100%) so this doesn't depend on html/body/#root's
+     own height resolving correctly -- it's a known source of reflow-timing
+     glitches across nested percentage heights + grid/flex, e.g. the footer
+     not snapping back up after closing an Accordion. */
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: ${COLORS.white};
   padding: 16px;
 `;
 
-const Main = styled.main``;
+// grows to fill any leftover space in Wrapper, pushing Footer to the
+// bottom of the viewport on short pages, without shrinking below its own
+// content on tall pages (which would clip content)
+const Main = styled.main`
+  flex: 1 0 auto;
+`;
 
 // container below is meant to be empty, centers the content on wide screens
 const Sidebar = styled.div``;

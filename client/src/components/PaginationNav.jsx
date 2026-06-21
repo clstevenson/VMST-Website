@@ -7,10 +7,10 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "react-feather";
-import { COLORS, QUERIES } from "../../utils/constants";
-import range from "../../utils/range";
+import { COLORS, QUERIES } from "../utils/constants";
+import range from "../utils/range";
 
-export default function NavPhotos({
+export default function PaginationNav({
   page,
   setPage,
   maxPages,
@@ -67,7 +67,7 @@ export default function NavPhotos({
             <SelectTrigger>
               Page {page} of {maxPages}
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent position="popper" align="center">
               <Select.ScrollUpButton />
               <SelectViewport>
                 {range(maxPages).map((page) => {
@@ -167,7 +167,6 @@ const StyledItem = styled(Select.Item)`
 `;
 
 const SelectViewport = styled(Select.Viewport)`
-  --radix-select-content-available-height: 25pc;
   max-height: var(--radix-select-content-available-height);
 `;
 
