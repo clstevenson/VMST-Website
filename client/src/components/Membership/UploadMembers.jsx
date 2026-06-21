@@ -14,6 +14,8 @@ import SubmitButton from "../Styled/SubmiButton";
 import Table from "../Styled/Table";
 import ToastMessage from "../ToastMessage";
 import Instructions from "./Instructions";
+import NavPhotos from "../PhotoGallery/NavPhotos";
+import MembersPerPage from "./MembersPerPage";
 
 export default function UploadMembers() {
   const { user } = useAuth();
@@ -37,6 +39,9 @@ export default function UploadMembers() {
   // states for filtering the members table
   const [name, setName] = useState("");
   const [clubGroup, setClubGroup] = useState("");
+  // states for paginating the members table
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(100);
   // mutation to update the Members collection in the CB
   // (used in form onSubmit event handler)
   const [upload, { error }] = useMutation(UPLOAD_MEMBERS);
@@ -81,7 +86,13 @@ export default function UploadMembers() {
       };
     });
     setDisplay(displayData);
+    // any time the displayed set changes (filtering, upload, clear) start
+    // back on page 1, since the old page number may no longer be valid
+    setPage(1);
   };
+
+  const maxPages = Math.max(1, Math.ceil(display.length / perPage));
+  const pagedMembers = display.slice((page - 1) * perPage, page * perPage);
 
   // file input onchange event handler, which parses the CSV file
   const handleFile = async (e) => {
@@ -346,6 +357,20 @@ export default function UploadMembers() {
         {/* </Col> */}
       </form>
 
+      <PaginationRow>
+        <NavPhotos
+          page={page}
+          setPage={setPage}
+          maxPages={maxPages}
+          displayJump={false}
+        />
+        <MembersPerPage
+          perPage={perPage}
+          setPerPage={setPerPage}
+          setPage={setPage}
+        />
+      </PaginationRow>
+
       <TableScroll>
         <Table>
           <thead>
@@ -358,7 +383,7 @@ export default function UploadMembers() {
             </tr>
           </thead>
           <tbody>
-            {display?.map((member) => (
+            {pagedMembers?.map((member) => (
               <tr key={member.usmsRegNo}>
                 <th scope="row">{member.fullName}</th>
                 <td>
@@ -377,6 +402,16 @@ export default function UploadMembers() {
           </tbody>
         </Table>
       </TableScroll>
+
+      <PaginationRow>
+        <NavPhotos
+          page={page}
+          setPage={setPage}
+          maxPages={maxPages}
+          displaySelect={false}
+          displayJump={false}
+        />
+      </PaginationRow>
       {updated && (
         <ToastMessage toastCloseEffect={() => setUpdated(false)}>
           The membership database has been updated!
@@ -457,6 +492,14 @@ const ClearSearchButton = styled.button`
     min-height: 44px;
     margin-left: 0;
   }
+`;
+
+const PaginationRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: 4px 0;
 `;
 
 const TableScroll = styled.div`
