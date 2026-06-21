@@ -96,6 +96,16 @@ export const EDIT_USER = gql`
       group
       notifications
       emailPermission
+      accountStatus
+    }
+  }
+`;
+
+// webmaster only
+export const DELETE_USER = gql`
+  mutation DeleteUser($id: ID!) {
+    deleteUser(_id: $id) {
+      _id
     }
   }
 `;

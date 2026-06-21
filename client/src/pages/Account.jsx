@@ -9,6 +9,7 @@ import User from "../components/User";
 import UploadMembers from "../components/Membership/";
 import Communication from "../components/Communication/";
 import Meets from "../components/Meets/";
+import ManageUsers from "../components/Webmaster/";
 import useMediaQuery from "../utils/useMediaQuery.js";
 
 export default function Account() {
@@ -70,7 +71,9 @@ export default function Account() {
       <TabsContent value="meets">
         <Meets setTab={setTab} />
       </TabsContent>
-      <TabsContent value="webmaster"></TabsContent>
+      <TabsContent value="webmaster">
+        <ManageUsers />
+      </TabsContent>
     </TabsRoot>
   );
 }

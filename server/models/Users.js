@@ -52,7 +52,13 @@ const userSchema = new Schema({
   // workout group is needed for "coach" role
   group: {type: String, default: ""},
   notifications: {type: Boolean, default: false,},
-  emailPermission: {type: Boolean, default: true,}
+  emailPermission: {type: Boolean, default: true,},
+  // active: normal. silent: can't post comments (not wired up yet, since
+  // comments aren't either). banned: can't log in, and their email can't
+  // be reused by a new account (see the unique index above).
+  accountStatus: {type: String, default: 'active',
+    enum: ['active', 'silent', 'banned'],
+  },
 });
 
 userSchema.pre('save', async function (next) {

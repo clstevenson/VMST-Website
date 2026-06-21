@@ -78,6 +78,31 @@ export const QUERY_LEADERS = gql`
   }
 `;
 
+// list of distinct VMST workout group names -- used by the webmaster's
+// user-management page to populate the coach group picker
+export const QUERY_GROUPS = gql`
+  query GetGroups {
+    groups
+  }
+`;
+
+// query called by the webmaster's user-management page
+export const QUERY_USERS = gql`
+  query GetUsers {
+    users {
+      _id
+      firstName
+      lastName
+      email
+      role
+      group
+      notifications
+      emailPermission
+      accountStatus
+    }
+  }
+`;
+
 // query called by membership coordinator
 export const QUERY_MEMBERS = gql`
   query Members {

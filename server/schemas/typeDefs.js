@@ -31,6 +31,7 @@ type User {
   group: String
   notifications: Boolean
   emailPermission: Boolean
+  accountStatus: String
 }
 
 # MeetSwimmer is embedded in Meet
@@ -97,6 +98,7 @@ input UserData {
   group: String
   notifications: Boolean
   emailPermission: Boolean
+  accountStatus: String
 }
 
 input MemberData {
@@ -218,6 +220,7 @@ type Query {
   membersByUsmsId(usmsIds: [String]!): [Member]
   meets: [Meet]
   getLeaders: [User]
+  users: [User]
   getAlbums(page: Int!, perPage: Int!): AlbumCollection
   getAlbumPhotos(id: String!, page: Int!, perPage: Int!): PhotoCollection
   getFeaturedPhotos(page: Int!, perPage: Int!): PhotoCollection
@@ -230,6 +233,7 @@ type Mutation {
   login(email: String!, password: String!): Auth
   addUser(firstName: String!, lastName: String!, email: String!, password: String!): Auth
   editUser(_id: ID!, user: UserData): User
+  deleteUser(_id: ID!): User
   resetPassword(email: String!): User
   changePassword(password: String!): User
   addPost(title: String!, summary: String, content: String!, photo: PhotoData): Post

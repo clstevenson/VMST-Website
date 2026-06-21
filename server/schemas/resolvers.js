@@ -93,6 +93,11 @@ const resolvers = {
       requireRole(user, "webmaster");
       return await User.find({ role: "leader" });
     },
+    // full list of site accounts, for the webmaster's user-management page
+    users: async (_, __, { user }) => {
+      requireRole(user, "webmaster");
+      return await User.find().sort({ lastName: 1 });
+    },
     getAlbums: async (_, { perPage, page }) => {
       const response = await getAlbums(page, perPage);
       if (!response) throw new Error("Something went wrong");
@@ -133,6 +138,8 @@ const resolvers = {
       // check password
       const correctPW = await user.isCorrectPassword(password);
       if (!correctPW) throw AuthenticationError;
+      // a banned user cannot log back in
+      if (user.accountStatus === "banned") throw AuthenticationError;
       // sign the token and return it with the user
       const accessToken = signToken(user);
       const refreshToken = signRefreshToken(user);
@@ -161,8 +168,12 @@ const resolvers = {
       try {
         // don't attempt to update password here
         delete args.user.password;
-        // only admins can update roles
-        if (user.role !== "webmaster") delete args.user.role;
+        // only the webmaster can change roles or account status (eg a
+        // banned user could otherwise just un-ban themselves)
+        if (user.role !== "webmaster") {
+          delete args.user.role;
+          delete args.user.accountStatus;
+        }
         // query-then-save so schema validators actually run
         const updatedUser = await User.findById(args._id);
         if (!updatedUser) throw AuthenticationError;
@@ -171,6 +182,16 @@ const resolvers = {
         return updatedUser;
       } catch (err) {
         console.log(err);
+      }
+    },
+    // permanently removes a user's account; webmaster only
+    deleteUser: async (_, { _id }, { user }) => {
+      requireRole(user, "webmaster");
+      try {
+        const deletedUser = await User.findByIdAndDelete(_id);
+        return deletedUser;
+      } catch (error) {
+        console.log(error);
       }
     },
     // anyone can request a password reset, which is mailed to them

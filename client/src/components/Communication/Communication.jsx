@@ -78,8 +78,9 @@ export default function Communication({ setTab, userProfile }) {
   const { loading } = useQuery(QUERY_VMST, {
     onCompleted: (data) => {
       let members = data.vmstMembers;
-      // if a coach, limit to members of their WO group
-      if (userProfile.role === "coach") {
+      // if a WO-group coach (not a VMST-wide coach), limit to members of
+      // their group
+      if (userProfile.role === "coach" && userProfile.group !== "VMST") {
         members = members.filter(
           ({ workoutGroup }) => workoutGroup === userProfile.group,
         );
@@ -246,7 +247,7 @@ export default function Communication({ setTab, userProfile }) {
     <Form aria-label="send email" onSubmit={handleSubmit(onSubmit)}>
       <Wrapper>
         <MessageWrapper>
-          {userProfile.role === "coach" ? (
+          {userProfile.role === "coach" && userProfile.group !== "VMST" ? (
             <Title>Email {userProfile.group} Members</Title>
           ) : (
             <Title>Email VMST Members</Title>
