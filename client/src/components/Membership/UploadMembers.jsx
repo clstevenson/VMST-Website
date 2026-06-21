@@ -7,6 +7,7 @@ import { UPLOAD_MEMBERS, UPDATE_EMAIL_DELIVERABILITY } from "../../utils/mutatio
 import { QUERY_MEMBERS } from "../../utils/queries";
 import papa from "papaparse";
 import { Check } from "react-feather";
+import * as ToggleGroup from "@radix-ui/react-toggle-group";
 
 import FileUploader from "../FileUploader";
 import getGroups from "../../utils/getGroups";
@@ -41,6 +42,10 @@ export default function UploadMembers() {
   // states for filtering the members table
   const [name, setName] = useState("");
   const [clubGroup, setClubGroup] = useState("");
+  const [emailFilter, setEmailFilter] = useState("");
+  // "noEmail" | "optedOut" | "nonDeliverable", OR'd together, then AND'd
+  // with the name/club/email text filters
+  const [quickFilters, setQuickFilters] = useState([]);
   // states for paginating the members table
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(100);
@@ -293,82 +298,72 @@ export default function UploadMembers() {
     setPendingChanges({});
   };
 
-  // case-insensitive search/filter for name (first or last), respecting
-  // any term in the club/group search field
-  // maybe eventually make the search smarter (eg space separated terms or regex)
-  const handleNameChange = async (e) => {
-    let filteredMembers;
-    if (e.target.value.length > 0) {
-      // update displayed value
-      setName(e.target.value);
-      const filterTerm = e.target.value.toLowerCase();
-      filteredMembers = currentMembers.filter((member) => {
-        const fullName = [member.firstName, member.lastName]
-          .join("")
-          .toLowerCase();
-        const clubAndGroup = [member.club, member.workoutGroup]
-          .join("")
-          .toLowerCase();
-        return (
-          fullName.includes(filterTerm) &&
-          clubAndGroup.includes(clubGroup.toLowerCase())
-        );
-      });
-      displayMembers(filteredMembers);
-    } else if (clubGroup) {
-      setName("");
-      // need to filter based on club/group search term, which is not empty
-      filteredMembers = currentMembers.filter((member) => {
-        const clubAndGroup = [member.club, member.workoutGroup]
-          .join("")
-          .toLowerCase();
-        return clubAndGroup.includes(clubGroup.toLowerCase());
-      });
-      displayMembers(filteredMembers);
-    } else {
-      // both search terms empty, reset display
-      setName("");
-      displayMembers(currentMembers);
-    }
+  // case-insensitive recompute of display from every current filter
+  // criterion (name, club/group, email substring, quick filters). Accepts
+  // overrides for whichever field just changed, since the corresponding
+  // setState call hasn't landed yet when this runs in the same handler.
+  // maybe eventually make the name/club search smarter (eg regex)
+  const applyFilters = (overrides = {}) => {
+    const nameTerm = (overrides.name ?? name).toLowerCase();
+    const clubTerm = (overrides.clubGroup ?? clubGroup).toLowerCase();
+    const emailTerm = (overrides.emailFilter ?? emailFilter).toLowerCase();
+    const activeQuickFilters = overrides.quickFilters ?? quickFilters;
+
+    const filteredMembers = currentMembers.filter((member) => {
+      const fullName = [member.firstName, member.lastName]
+        .join("")
+        .toLowerCase();
+      const clubAndGroup = [member.club, member.workoutGroup]
+        .join("")
+        .toLowerCase();
+      const emails = member.emails ?? [];
+
+      if (!fullName.includes(nameTerm)) return false;
+      if (!clubAndGroup.includes(clubTerm)) return false;
+      if (
+        emailTerm &&
+        !emails.some((email) => email.address.toLowerCase().includes(emailTerm))
+      )
+        return false;
+
+      if (activeQuickFilters.length > 0) {
+        const matchesAny = activeQuickFilters.some((filterName) => {
+          if (filterName === "noEmail") return emails.length === 0;
+          if (filterName === "optedOut") return member.emailExclude;
+          if (filterName === "nonDeliverable")
+            return emails.some((email) => !email.deliverable);
+          return false;
+        });
+        if (!matchesAny) return false;
+      }
+
+      return true;
+    });
+
+    displayMembers(filteredMembers);
   };
 
-  // case-insensitive search/filter for club or group, respecting
-  // any term in the name search field
-  // maybe eventually make the search smarter (eg space separated terms or regex)
-  const handleGroupChange = async (e) => {
-    let filteredMembers;
-    if (e.target.value.length > 0) {
-      // update displayed value
-      setClubGroup(e.target.value);
-      const filterTerm = e.target.value.toLowerCase();
-      filteredMembers = currentMembers.filter((member) => {
-        const fullName = [member.firstName, member.lastName]
-          .join("")
-          .toLowerCase();
-        const clubAndGroup = [member.club, member.workoutGroup]
-          .join("")
-          .toLowerCase();
-        return (
-          clubAndGroup.includes(filterTerm) &&
-          fullName.includes(name.toLowerCase())
-        );
-      });
-      displayMembers(filteredMembers);
-    } else if (name) {
-      setClubGroup("");
-      // need to filter based on name search term, which is not empty
-      filteredMembers = currentMembers.filter((member) => {
-        const fullName = [member.firstName, member.lastName]
-          .join("")
-          .toLowerCase();
-        return fullName.includes(name.toLowerCase());
-      });
-      displayMembers(filteredMembers);
-    } else {
-      // reset display and name state variable
-      setClubGroup("");
-      displayMembers(currentMembers);
-    }
+  const handleNameChange = (e) => {
+    const value = e.target.value;
+    setName(value);
+    applyFilters({ name: value });
+  };
+
+  const handleGroupChange = (e) => {
+    const value = e.target.value;
+    setClubGroup(value);
+    applyFilters({ clubGroup: value });
+  };
+
+  const handleEmailFilterChange = (e) => {
+    const value = e.target.value;
+    setEmailFilter(value);
+    applyFilters({ emailFilter: value });
+  };
+
+  const handleQuickFiltersChange = (value) => {
+    setQuickFilters(value);
+    applyFilters({ quickFilters: value });
   };
 
   // only the membership coordinator has access to this page
@@ -431,7 +426,7 @@ export default function UploadMembers() {
         VMST workout groups: {groups.map(({ name }) => name).join(", ")}.
       </p>
 
-      {/* filter the table by name or club/group */}
+      {/* filter the table by name, club/group, or email */}
       <form>
         <SearchWrapper>
           <InputWrapper>
@@ -456,11 +451,24 @@ export default function UploadMembers() {
             ></input>
           </InputWrapper>
 
+          <InputWrapper>
+            <label htmlFor="email-filter">Search by email: </label>
+            <input
+              id="email-filter"
+              type="text"
+              placeholder="Email address"
+              value={emailFilter}
+              onChange={handleEmailFilterChange}
+            ></input>
+          </InputWrapper>
+
           <ClearSearchButton
             onClick={(evt) => {
               evt.preventDefault();
               setClubGroup("");
               setName("");
+              setEmailFilter("");
+              setQuickFilters([]);
               displayMembers(currentMembers);
             }}
           >
@@ -468,10 +476,18 @@ export default function UploadMembers() {
           </ClearSearchButton>
         </SearchWrapper>
 
-        {/* Would be nice to have a small "clear all" button but styling... */}
-        {/* <Col> */}
-        {/*   <Button variant="warning">Clear All</Button> */}
-        {/* </Col> */}
+        <QuickFilterGroup
+          type="multiple"
+          value={quickFilters}
+          onValueChange={handleQuickFiltersChange}
+          aria-label="quick filters"
+        >
+          <QuickFilterItem value="noEmail">No email</QuickFilterItem>
+          <QuickFilterItem value="optedOut">Opted out</QuickFilterItem>
+          <QuickFilterItem value="nonDeliverable">
+            Non-deliverable
+          </QuickFilterItem>
+        </QuickFilterGroup>
       </form>
 
       <SaveChangesRow>
@@ -655,6 +671,36 @@ const SearchWrapper = styled.div`
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+  }
+`;
+
+const QuickFilterGroup = styled(ToggleGroup.Root)`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px;
+`;
+
+const QuickFilterItem = styled(ToggleGroup.Item)`
+  border: 1px solid ${COLORS.accent[12]};
+  border-radius: 999px;
+  min-height: 36px;
+  padding: 4px 14px;
+  background-color: ${COLORS.accent[2]};
+  font-weight: ${WEIGHTS.medium};
+
+  &[data-state="on"] {
+    background-color: ${COLORS.accent[9]};
+    color: white;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background-color: ${COLORS.accent[5]};
+  }
+
+  &[data-state="on"]:hover {
+    background-color: ${COLORS.accent[10]};
   }
 `;
 
