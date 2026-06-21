@@ -31,6 +31,7 @@ type User {
   group: String
   notifications: Boolean
   emailPermission: Boolean
+  accountStatus: String
 }
 
 # MeetSwimmer is embedded in Meet
@@ -97,6 +98,7 @@ input UserData {
   group: String
   notifications: Boolean
   emailPermission: Boolean
+  accountStatus: String
 }
 
 input MemberData {
