@@ -49,6 +49,7 @@ const StyledItem = styled(Select.Item)`
 
 const SelectTrigger = styled(Select.Trigger)`
   width: fit-content;
+  padding: 1px 8px;
 
   &:hover {
     cursor: pointer;
