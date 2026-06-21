@@ -12,7 +12,11 @@ const GlobalStyles = createGlobalStyle`
 }
 
 html, body, #root {
-  height: 100%;
+  /* min-height, not height: a hard height clips body to exactly the
+     viewport the moment anything sets it to overflow:hidden (e.g. Radix's
+     scroll-lock when a Select/Dialog opens), which collapses html's
+     scrollable area and snaps the whole page back to the top */
+  min-height: 100%;
 }
 
 body {
