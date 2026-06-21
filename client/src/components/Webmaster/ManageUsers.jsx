@@ -5,11 +5,16 @@ import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { Check, Trash2 } from "react-feather";
 
 import { useAuth } from "../../context/AuthContext";
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import { QUERY_USERS } from "../../utils/queries";
+import { EDIT_USER, DELETE_USER } from "../../utils/mutations";
 import { COLORS, QUERIES, WEIGHTS } from "../../utils/constants";
+import usePendingChanges from "../../utils/usePendingChanges";
 import Table from "../Styled/Table";
+import SubmitButton from "../Styled/SubmiButton";
 import { CheckboxRoot, CheckboxIndicator } from "../Styled/Checkbox";
+import Alert from "../Alert";
+import ToastMessage from "../ToastMessage";
 
 const ROLES = ["user", "leader", "coach", "membership", "webmaster"];
 const STATUSES = ["active", "silent", "banned"];
@@ -29,6 +34,16 @@ export default function ManageUsers() {
   const [role, setRole] = useState("");
   // accountStatus values, OR'd together, then AND'd with the text filters
   const [quickFilters, setQuickFilters] = useState([]);
+
+  // unsaved edits, keyed by "userId:field", flushed together by the Save
+  // Changes button rather than writing the DB on every click
+  const { pendingChanges, setChange, discard, clearChanges, isChanged } =
+    usePendingChanges();
+  const [editUser] = useMutation(EDIT_USER);
+  const [deleteUserMutation] = useMutation(DELETE_USER);
+  const [savedChanges, setSavedChanges] = useState(false);
+  // which row (if any) currently has its delete confirmation open
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useQuery(QUERY_USERS, {
     onCompleted: (data) => {
@@ -85,6 +100,63 @@ export default function ManageUsers() {
   const handleQuickFiltersChange = (value) => {
     setQuickFilters(value);
     applyFilters({ quickFilters: value });
+  };
+
+  // update a single field locally (queued for the Save Changes button);
+  // updates currentUsers and display in parallel so a later filter change
+  // doesn't re-derive display from a stale currentUsers and silently drop
+  // the unsaved edit
+  const updateField = (userId, field, value) => {
+    const applyUpdate = (list) =>
+      list.map((u) => (u._id === userId ? { ...u, [field]: value } : u));
+    setCurrentUsers(applyUpdate);
+    setDisplay(applyUpdate);
+
+    const current = currentUsers.find((u) => u._id === userId)?.[field];
+    setChange(`${userId}:${field}`, current, value, { userId, field });
+  };
+
+  const handleSaveChanges = async () => {
+    // group pending field-level changes back into one UserData object per
+    // user, since editUser updates a whole document at a time
+    const byUser = {};
+    for (const { userId, field, value } of Object.values(pendingChanges)) {
+      byUser[userId] = { ...byUser[userId], [field]: value };
+    }
+    const ids = Object.keys(byUser);
+    if (ids.length === 0) return;
+    await Promise.all(
+      ids.map((id) => editUser({ variables: { id, user: byUser[id] } })),
+    );
+    clearChanges();
+    setSavedChanges(true);
+  };
+
+  // discard unsaved edits, reverting currentUsers/display to the
+  // DB-persisted values recorded when each pending edit started
+  const handleClearChanges = () => {
+    const revert = (list) =>
+      list.map((u) => {
+        const userPending = Object.values(pendingChanges).filter(
+          (change) => change.userId === u._id,
+        );
+        if (userPending.length === 0) return u;
+        const reverted = { ...u };
+        userPending.forEach((change) => {
+          reverted[change.field] = change.original;
+        });
+        return reverted;
+      });
+    setCurrentUsers(revert);
+    setDisplay(revert);
+    clearChanges();
+  };
+
+  const handleDeleteUser = async (userId) => {
+    await deleteUserMutation({ variables: { id: userId } });
+    setCurrentUsers((prev) => prev.filter((u) => u._id !== userId));
+    setDisplay((prev) => prev.filter((u) => u._id !== userId));
+    discard((change) => change.userId === userId);
   };
 
   // only the webmaster has access to this page
@@ -183,6 +255,19 @@ export default function ManageUsers() {
         </QuickFilterRow>
       </form>
 
+      <SaveChangesRow>
+        {Object.keys(pendingChanges).length > 0 && (
+          <>
+            <SaveChangesButton onClick={handleSaveChanges}>
+              Save Changes ({Object.keys(pendingChanges).length})
+            </SaveChangesButton>
+            <ClearSearchButton onClick={handleClearChanges}>
+              Clear Changes
+            </ClearSearchButton>
+          </>
+        )}
+      </SaveChangesRow>
+
       <TableScroll>
         <Table>
           <thead>
@@ -204,12 +289,20 @@ export default function ManageUsers() {
                 </th>
                 <td>{u.email}</td>
                 <td>
-                  <DropdownDisplay value={u.role} options={ROLES} />
+                  <EditableSelect
+                    value={u.role}
+                    options={ROLES}
+                    onValueChange={(val) => updateField(u._id, "role", val)}
+                    $changed={isChanged(`${u._id}:role`)}
+                  />
                 </td>
                 <td style={{ textAlign: "center" }}>
                   <UserCheckbox
                     checked={u.emailPermission}
-                    disabled
+                    onCheckedChange={(checked) =>
+                      updateField(u._id, "emailPermission", checked)
+                    }
+                    $changed={isChanged(`${u._id}:emailPermission`)}
                     aria-label="receives VMST emails"
                   >
                     <CheckboxIndicator>
@@ -220,7 +313,10 @@ export default function ManageUsers() {
                 <td style={{ textAlign: "center" }}>
                   <UserCheckbox
                     checked={u.notifications}
-                    disabled
+                    onCheckedChange={(checked) =>
+                      updateField(u._id, "notifications", checked)
+                    }
+                    $changed={isChanged(`${u._id}:notifications`)}
                     aria-label="receives post notifications"
                   >
                     <CheckboxIndicator>
@@ -229,28 +325,56 @@ export default function ManageUsers() {
                   </UserCheckbox>
                 </td>
                 <td>
-                  <DropdownDisplay value={u.accountStatus} options={STATUSES} />
+                  <EditableSelect
+                    value={u.accountStatus}
+                    options={STATUSES}
+                    onValueChange={(val) =>
+                      updateField(u._id, "accountStatus", val)
+                    }
+                    $changed={isChanged(`${u._id}:accountStatus`)}
+                  />
                 </td>
                 <td style={{ textAlign: "center" }}>
-                  <DeleteButton type="button" aria-label="delete user">
-                    <Trash2 size={18} />
-                  </DeleteButton>
+                  <Alert
+                    title="Delete User"
+                    description={`Are you sure you want to permanently delete the account for ${u.firstName} ${u.lastName} (${u.email})? This cannot be undone.`}
+                    actionText="Delete"
+                    open={confirmDeleteId === u._id}
+                    onOpenChange={(open) =>
+                      setConfirmDeleteId(open ? u._id : null)
+                    }
+                    cancelAction={() => setConfirmDeleteId(null)}
+                    confirmAction={() => {
+                      setConfirmDeleteId(null);
+                      handleDeleteUser(u._id);
+                    }}
+                  >
+                    <DeleteButton type="button" aria-label="delete user">
+                      <Trash2 size={18} />
+                    </DeleteButton>
+                  </Alert>
                 </td>
               </tr>
             ))}
           </tbody>
         </Table>
       </TableScroll>
+
+      {savedChanges && (
+        <ToastMessage toastCloseEffect={() => setSavedChanges(false)}>
+          User account changes saved!
+        </ToastMessage>
+      )}
     </Wrapper>
   );
 }
 
-// a disabled Select showing the current value -- chrome only for now, ready
-// to be wired up (onValueChange, disabled removed) in a later task
-function DropdownDisplay({ value, options }) {
+// editable Select showing the current value, with an onValueChange handler
+// and an optional $changed flag (red border) for an unsaved local edit
+function EditableSelect({ value, options, onValueChange, $changed }) {
   return (
-    <Select.Root value={value} disabled>
-      <SelectTrigger aria-label="current value" asChild>
+    <Select.Root value={value} onValueChange={onValueChange}>
+      <SelectTrigger aria-label="current value" $changed={$changed} asChild>
         <button>{capitalize(value)}</button>
       </SelectTrigger>
       <SelectContent position="popper" align="start">
@@ -287,11 +411,15 @@ const StyledItem = styled(Select.Item)`
 const SelectTrigger = styled(Select.Trigger)`
   width: fit-content;
   padding: 1px 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
 
-  &[data-disabled] {
-    cursor: not-allowed;
-    color: ${COLORS.gray[9]};
+  &:hover {
+    cursor: pointer;
+    background-color: ${COLORS.accent[5]};
   }
+
+  ${({ $changed }) => $changed && `border-color: ${COLORS.urgent};`}
 `;
 
 const SelectContent = styled(Select.Content)`
@@ -395,6 +523,23 @@ const QuickFilterItem = styled(ToggleGroup.Item)`
   }
 `;
 
+const SaveChangesRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  /* reserve the buttons' height even when empty, so the table below doesn't
+     jump when they appear */
+  min-height: 44px;
+`;
+
+const SaveChangesButton = styled(SubmitButton)`
+  display: inline-block;
+  padding: 4px 16px;
+  box-shadow: 1px 2px 4px ${COLORS.gray[10]};
+`;
+
 const TableScroll = styled.div`
   width: 100%;
   min-width: 0;
@@ -406,6 +551,13 @@ const UserCheckbox = styled(CheckboxRoot)`
   width: 22px;
   height: 22px;
   flex: 0 0 auto;
+
+  ${({ $changed }) =>
+    $changed &&
+    `
+    border-color: ${COLORS.urgent};
+    border-width: 2px;
+  `}
 `;
 
 const DeleteButton = styled.button`

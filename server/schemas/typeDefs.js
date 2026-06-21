@@ -233,6 +233,7 @@ type Mutation {
   login(email: String!, password: String!): Auth
   addUser(firstName: String!, lastName: String!, email: String!, password: String!): Auth
   editUser(_id: ID!, user: UserData): User
+  deleteUser(_id: ID!): User
   resetPassword(email: String!): User
   changePassword(password: String!): User
   addPost(title: String!, summary: String, content: String!, photo: PhotoData): Post

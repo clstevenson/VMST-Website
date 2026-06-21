@@ -443,6 +443,65 @@ test("editUser: a malformed email is rejected by the schema validator (restored 
   assert.equal(stillOriginal.email, "user@example.com");
 });
 
+test("editUser: a non-webmaster cannot change their own role or accountStatus", async () => {
+  const { data, errors } = await run(
+    `mutation($id: ID!, $user: UserData) {
+      editUser(_id: $id, user: $user) { role accountStatus }
+    }`,
+    { id: users.user._id, user: { role: "webmaster", accountStatus: "banned" } },
+    users.user,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.editUser.role, "user");
+  assert.equal(data.editUser.accountStatus, "active");
+});
+
+test("editUser: webmaster can change another user's role and accountStatus", async () => {
+  const { data, errors } = await run(
+    `mutation($id: ID!, $user: UserData) {
+      editUser(_id: $id, user: $user) { role accountStatus }
+    }`,
+    { id: users.user._id, user: { role: "coach", accountStatus: "silent" } },
+    users.webmaster,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.editUser.role, "coach");
+  assert.equal(data.editUser.accountStatus, "silent");
+
+  // restore so later tests relying on users.user's role aren't affected
+  await User.findByIdAndUpdate(users.user._id, {
+    role: "user",
+    accountStatus: "active",
+  });
+});
+
+test("deleteUser: only allows webmaster, removes the document", async () => {
+  const target = await User.create({
+    firstName: "ToDelete",
+    lastName: "User",
+    email: "to-delete@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+  });
+
+  const asLeader = await run(
+    `mutation($id: ID!) { deleteUser(_id: $id) { _id } }`,
+    { id: target._id.toString() },
+    users.leader,
+  );
+  assert.ok(asLeader.errors?.length, "leader should not be allowed");
+
+  const { data, errors } = await run(
+    `mutation($id: ID!) { deleteUser(_id: $id) { _id } }`,
+    { id: target._id.toString() },
+    users.webmaster,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.deleteUser._id, target._id.toString());
+
+  const stillThere = await User.findById(target._id);
+  assert.equal(stillThere, null);
+});
+
 test("password is not a queryable field on User, regardless of role", async () => {
   const { errors } = await run(
     "{ getLeaders { firstName password } }",

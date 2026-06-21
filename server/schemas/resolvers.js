@@ -166,8 +166,12 @@ const resolvers = {
       try {
         // don't attempt to update password here
         delete args.user.password;
-        // only admins can update roles
-        if (user.role !== "webmaster") delete args.user.role;
+        // only the webmaster can change roles or account status (eg a
+        // banned user could otherwise just un-ban themselves)
+        if (user.role !== "webmaster") {
+          delete args.user.role;
+          delete args.user.accountStatus;
+        }
         // query-then-save so schema validators actually run
         const updatedUser = await User.findById(args._id);
         if (!updatedUser) throw AuthenticationError;
@@ -176,6 +180,16 @@ const resolvers = {
         return updatedUser;
       } catch (err) {
         console.log(err);
+      }
+    },
+    // permanently removes a user's account; webmaster only
+    deleteUser: async (_, { _id }, { user }) => {
+      requireRole(user, "webmaster");
+      try {
+        const deletedUser = await User.findByIdAndDelete(_id);
+        return deletedUser;
+      } catch (error) {
+        console.log(error);
       }
     },
     // anyone can request a password reset, which is mailed to them

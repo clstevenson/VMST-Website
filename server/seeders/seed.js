@@ -84,45 +84,38 @@ const seedUsers = async (members) => {
     firstName: "Ian",
     lastName: "Stevenson",
     password: "password",
-    email: "ianmstevenson1@gmail.com",
+    email: "cstevens@richmond.edu",
     role: "leader",
   });
   userData.push({
     firstName: "Leonidas",
     lastName: "Stevenson",
     password: "password",
-    email: "cstevens@richmond.edu",
+    email: "leader@gmail.com",
     role: "leader",
   });
   userData.push({
     firstName: "Chris",
     lastName: "Stevenson",
     password: "password",
-    email: "chrislstevenson@yahoo.com",
+    email: "coach@gmail.com",
     role: "coach",
     group: "RVCM",
-  });
-  userData.push({
-    firstName: "Michael",
-    lastName: "Stevenson",
-    password: "password",
-    email: "junodog2@gmail.com",
-    role: "leader",
   });
   // add membership coordinator for membership CSV upload
   userData.push({
     firstName: "Christopher",
     lastName: "Stevenson",
-    password: membershipPassword,
-    email: "clearscreen100@gmail.com",
+    password: "password",
+    email: "membership@gmail.com",
     role: "membership",
   });
   // add webmaster
   userData.push({
     firstName: "Chris",
     lastName: "Stevenson",
-    password: webmasterPassword,
-    email: "vmst.swimming@gmail.com",
+    password: "password",
+    email: "webmaster@gmail.com",
     notifications: true,
     role: "webmaster",
   });
