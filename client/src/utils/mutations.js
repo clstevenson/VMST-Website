@@ -112,6 +112,11 @@ export const UPLOAD_MEMBERS = gql`
       club
       workoutGroup
       regYear
+      emailExclude
+      emails {
+        formatValid
+        deliverable
+      }
     }
   }
 `;

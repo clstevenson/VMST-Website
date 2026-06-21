@@ -31,6 +31,8 @@ export default function UploadMembers() {
   // summary stats of memberhip currently in DB
   const [numMembers, setNumMembers] = useState(0);
   const [numVMST, setNumVMST] = useState(0);
+  const [numReachable, setNumReachable] = useState(0);
+  const [numReachableVMST, setNumReachableVMST] = useState(0);
   const [groups, setGroups] = useState([]);
   // states for filtering the members table
   const [name, setName] = useState("");
@@ -49,10 +51,22 @@ export default function UploadMembers() {
       setNumVMST(
         data.members.filter((member) => member.club === "VMST").length
       );
+      setNumReachable(data.members.filter(isReachable).length);
+      setNumReachableVMST(
+        data.members.filter(
+          (member) => member.club === "VMST" && isReachable(member)
+        ).length
+      );
       setGroups(getGroups(data.members));
       displayMembers(data.members);
     },
   });
+
+  // a member is reachable by email if they haven't opted out and have at
+  // least one well-formed, deliverable email address
+  const isReachable = (member) =>
+    !member.emailExclude &&
+    member.emails.some((email) => email.formatValid && email.deliverable);
 
   // function to extract data to display in members table
   const displayMembers = (members) => {
@@ -128,6 +142,12 @@ export default function UploadMembers() {
       setNumMembers(data.uploadMembers.length);
       setNumVMST(
         data.uploadMembers.filter((member) => member.club === "VMST").length
+      );
+      setNumReachable(data.uploadMembers.filter(isReachable).length);
+      setNumReachableVMST(
+        data.uploadMembers.filter(
+          (member) => member.club === "VMST" && isReachable(member)
+        ).length
       );
       setGroups(getGroups(data.uploadMembers));
 
@@ -276,6 +296,9 @@ export default function UploadMembers() {
       <p>
         There are currently {numMembers} members in the LMSC, {numVMST} of whom
         are in VMST.
+        <br />
+        {numReachable} members are reachable by email, {numReachableVMST} of
+        whom are in VMST.
         <br />
         VMST workout groups: {groups.map(({ name }) => name).join(", ")}.
       </p>

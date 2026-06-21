@@ -91,6 +91,10 @@ export const QUERY_MEMBERS = gql`
       workoutGroup
       regYear
       emailExclude
+      emails {
+        formatValid
+        deliverable
+      }
     }
   }
 `;
