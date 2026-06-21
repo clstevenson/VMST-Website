@@ -15,6 +15,7 @@ export default function NavPhotos({
   setPage,
   maxPages,
   displaySelect = true,
+  displayJump = true,
 }) {
   const nextPage = () => {
     if (page === maxPages) setPage(maxPages);
@@ -38,10 +39,20 @@ export default function NavPhotos({
 
   return (
     <Wrapper>
-      <NavArrow onClick={jumpBack} disabled={page === 1}>
-        <ChevronsLeft style={{ display: "block" }} />
-      </NavArrow>
-      <NavArrow onClick={previousPage} disabled={page === 1}>
+      {displayJump && (
+        <NavArrow
+          onClick={jumpBack}
+          disabled={page === 1}
+          aria-label="Jump back 5 pages"
+        >
+          <ChevronsLeft style={{ display: "block" }} />
+        </NavArrow>
+      )}
+      <NavArrow
+        onClick={previousPage}
+        disabled={page === 1}
+        aria-label="Previous page"
+      >
         <ChevronLeft style={{ display: "block" }} />
       </NavArrow>
       {displaySelect ? (
@@ -74,12 +85,22 @@ export default function NavPhotos({
       ) : (
         <span style={{ fontStyle: "italic" }}>page {page}</span>
       )}
-      <NavArrow onClick={nextPage} disabled={page === maxPages}>
+      <NavArrow
+        onClick={nextPage}
+        disabled={page === maxPages}
+        aria-label="Next page"
+      >
         <ChevronRight style={{ display: "block" }} />
       </NavArrow>
-      <NavArrow onClick={jumpForward} disabled={page === maxPages}>
-        <ChevronsRight style={{ display: "block" }} />
-      </NavArrow>
+      {displayJump && (
+        <NavArrow
+          onClick={jumpForward}
+          disabled={page === maxPages}
+          aria-label="Jump forward 5 pages"
+        >
+          <ChevronsRight style={{ display: "block" }} />
+        </NavArrow>
+      )}
     </Wrapper>
   );
 }

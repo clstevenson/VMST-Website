@@ -439,6 +439,31 @@ contact the webmaster immediately by replying to this message.`,
 
       return await Member.find({ usmsId: { $in: newUsmsIds } });
     },
+    // membership coordinator marks specific addresses as bouncing/dead (or
+    // restores them) after reviewing the upload page; never touches formatValid
+    updateEmailDeliverability: async (_, { updates }, { user }) => {
+      requireRole(user, "membership");
+      if (!updates || updates.length === 0) return [];
+
+      try {
+        await Member.bulkWrite(
+          updates.map(({ usmsId, address, deliverable }) => ({
+            updateOne: {
+              filter: { usmsId, "emails.address": address },
+              update: { $set: { "emails.$.deliverable": deliverable } },
+            },
+          })),
+          { ordered: false },
+        );
+      } catch (err) {
+        // ordered:false means whatever succeeded is already persisted;
+        // log and continue rather than losing that progress
+        console.error(err);
+      }
+
+      const usmsIds = [...new Set(updates.map((update) => update.usmsId))];
+      return await Member.find({ usmsId: { $in: usmsIds } });
+    },
     emailLeaders: async (_, { emailData }) => {
       // retrieve the emails of the leaders from the DB
       const emails = await User.find({ role: "leader" }).select("email");

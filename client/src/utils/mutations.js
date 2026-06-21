@@ -112,6 +112,24 @@ export const UPLOAD_MEMBERS = gql`
       club
       workoutGroup
       regYear
+      emailExclude
+      emails {
+        address
+        formatValid
+        deliverable
+      }
+    }
+  }
+`;
+
+export const UPDATE_EMAIL_DELIVERABILITY = gql`
+  mutation UpdateEmailDeliverability($updates: [EmailDeliverabilityInput]) {
+    updateEmailDeliverability(updates: $updates) {
+      usmsId
+      emails {
+        address
+        deliverable
+      }
     }
   }
 `;

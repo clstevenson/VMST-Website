@@ -3,9 +3,11 @@ import styled from "styled-components";
 
 import { useAuth } from "../../context/AuthContext";
 import { useQuery, useMutation } from "@apollo/client";
-import { UPLOAD_MEMBERS } from "../../utils/mutations";
+import { UPLOAD_MEMBERS, UPDATE_EMAIL_DELIVERABILITY } from "../../utils/mutations";
 import { QUERY_MEMBERS } from "../../utils/queries";
 import papa from "papaparse";
+import { Check } from "react-feather";
+import * as ToggleGroup from "@radix-ui/react-toggle-group";
 
 import FileUploader from "../FileUploader";
 import getGroups from "../../utils/getGroups";
@@ -14,6 +16,9 @@ import SubmitButton from "../Styled/SubmiButton";
 import Table from "../Styled/Table";
 import ToastMessage from "../ToastMessage";
 import Instructions from "./Instructions";
+import NavPhotos from "../PhotoGallery/NavPhotos";
+import MembersPerPage from "./MembersPerPage";
+import { CheckboxRoot, CheckboxIndicator } from "../Styled/Checkbox";
 
 export default function UploadMembers() {
   const { user } = useAuth();
@@ -31,15 +36,30 @@ export default function UploadMembers() {
   // summary stats of memberhip currently in DB
   const [numMembers, setNumMembers] = useState(0);
   const [numVMST, setNumVMST] = useState(0);
+  const [numReachable, setNumReachable] = useState(0);
+  const [numReachableVMST, setNumReachableVMST] = useState(0);
   const [groups, setGroups] = useState([]);
   // states for filtering the members table
   const [name, setName] = useState("");
   const [clubGroup, setClubGroup] = useState("");
+  const [emailFilter, setEmailFilter] = useState("");
+  // "noEmail" | "optedOut" | "nonDeliverable", OR'd together, then AND'd
+  // with the name/club/email text filters
+  const [quickFilters, setQuickFilters] = useState([]);
+  // states for paginating the members table
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(100);
   // mutation to update the Members collection in the CB
   // (used in form onSubmit event handler)
   const [upload, { error }] = useMutation(UPLOAD_MEMBERS);
   // state representing success of DB update
   const [updated, setUpdated] = useState(false);
+
+  // unsaved deliverable toggles, keyed by "usmsId|address", flushed together
+  // by the Save Changes button rather than writing the DB on every click
+  const [pendingChanges, setPendingChanges] = useState({});
+  const [saveDeliverability] = useMutation(UPDATE_EMAIL_DELIVERABILITY);
+  const [savedChanges, setSavedChanges] = useState(false);
 
   // retrieve DB membership info
   useQuery(QUERY_MEMBERS, {
@@ -49,10 +69,22 @@ export default function UploadMembers() {
       setNumVMST(
         data.members.filter((member) => member.club === "VMST").length
       );
+      setNumReachable(data.members.filter(isReachable).length);
+      setNumReachableVMST(
+        data.members.filter(
+          (member) => member.club === "VMST" && isReachable(member)
+        ).length
+      );
       setGroups(getGroups(data.members));
       displayMembers(data.members);
     },
   });
+
+  // a member is reachable by email if they haven't opted out and have at
+  // least one well-formed, deliverable email address
+  const isReachable = (member) =>
+    !member.emailExclude &&
+    member.emails.some((email) => email.formatValid && email.deliverable);
 
   // function to extract data to display in members table
   const displayMembers = (members) => {
@@ -63,10 +95,122 @@ export default function UploadMembers() {
         club: member.club,
         usmsId: member.usmsId,
         workoutGroup: member.workoutGroup,
-        regYear: member.regYear,
+        emails: member.emails,
+        emailExclude: member.emailExclude,
       };
     });
     setDisplay(displayData);
+    // any time the displayed set changes (filtering, upload, clear) start
+    // back on page 1, since the old page number may no longer be valid
+    setPage(1);
+  };
+
+  const maxPages = Math.max(1, Math.ceil(display.length / perPage));
+  const pagedMembers = display.slice((page - 1) * perPage, page * perPage);
+
+  // toggle a single email's deliverable status locally (queued for the Save
+  // Changes button); updates currentMembers and display in parallel so a
+  // later filter change doesn't re-derive display from a stale currentMembers
+  // and silently drop the unsaved edit. Doesn't touch pagination/page.
+  const toggleDeliverable = (usmsId, address, checked) => {
+    const applyToggle = (members) =>
+      members.map((member) =>
+        member.usmsId === usmsId
+          ? {
+              ...member,
+              emails: member.emails.map((email) =>
+                email.address === address
+                  ? { ...email, deliverable: checked }
+                  : email
+              ),
+            }
+          : member
+      );
+    setCurrentMembers(applyToggle);
+    setDisplay(applyToggle);
+
+    const key = `${usmsId}|${address}`;
+    setPendingChanges((prev) => {
+      // the DB-persisted value, untouched by any pending edit: captured the
+      // first time this address is toggled, then carried forward unchanged
+      // across further toggles of the same address
+      const original =
+        prev[key]?.original ??
+        currentMembers
+          .find((member) => member.usmsId === usmsId)
+          ?.emails.find((email) => email.address === address)?.deliverable;
+
+      if (checked === original) {
+        // back to the original value -- no longer a pending change
+        const rest = { ...prev };
+        delete rest[key];
+        return rest;
+      }
+      return {
+        ...prev,
+        [key]: { usmsId, address, deliverable: checked, original },
+      };
+    });
+  };
+
+  const handleSaveChanges = async () => {
+    const updates = Object.values(pendingChanges).map(
+      ({ usmsId, address, deliverable }) => ({ usmsId, address, deliverable })
+    );
+    if (updates.length === 0) return;
+    await saveDeliverability({ variables: { updates } });
+    setPendingChanges({});
+    setSavedChanges(true);
+  };
+
+  // discard unsaved toggles, reverting currentMembers/display to the
+  // DB-persisted values recorded when each pending edit started
+  const handleClearChanges = () => {
+    const revert = (members) =>
+      members.map((member) => {
+        const memberPending = Object.values(pendingChanges).filter(
+          (change) => change.usmsId === member.usmsId
+        );
+        if (memberPending.length === 0) return member;
+        return {
+          ...member,
+          emails: member.emails.map((email) => {
+            const pending = memberPending.find(
+              (change) => change.address === email.address
+            );
+            return pending
+              ? { ...email, deliverable: pending.original }
+              : email;
+          }),
+        };
+      });
+    setCurrentMembers(revert);
+    setDisplay(revert);
+    setPendingChanges({});
+  };
+
+  // render the address + deliverable checkbox for one of a member's emails,
+  // or nothing if that email slot is blank
+  const renderEmailCell = (member, index) => {
+    const email = member.emails?.[index];
+    if (!email || !email.address) return null;
+    const inactive = !email.formatValid || member.emailExclude;
+    return (
+      <EmailCell>
+        <EmailCheckbox
+          checked={email.deliverable}
+          disabled={inactive}
+          onCheckedChange={(checked) =>
+            toggleDeliverable(member.usmsId, email.address, checked)
+          }
+        >
+          <CheckboxIndicator>
+            <Check strokeWidth={3} />
+          </CheckboxIndicator>
+        </EmailCheckbox>
+        <EmailAddress $inactive={inactive}>{email.address}</EmailAddress>
+      </EmailCell>
+    );
   };
 
   // file input onchange event handler, which parses the CSV file
@@ -129,6 +273,12 @@ export default function UploadMembers() {
       setNumVMST(
         data.uploadMembers.filter((member) => member.club === "VMST").length
       );
+      setNumReachable(data.uploadMembers.filter(isReachable).length);
+      setNumReachableVMST(
+        data.uploadMembers.filter(
+          (member) => member.club === "VMST" && isReachable(member)
+        ).length
+      );
       setGroups(getGroups(data.uploadMembers));
 
       // display the new data
@@ -143,84 +293,77 @@ export default function UploadMembers() {
     setFile("");
     setName("");
     setClubGroup("");
+    // a fresh upload replaces the roster, so any unsaved deliverable
+    // toggles from before it no longer refer to current data
+    setPendingChanges({});
   };
 
-  // case-insensitive search/filter for name (first or last), respecting
-  // any term in the club/group search field
-  // maybe eventually make the search smarter (eg space separated terms or regex)
-  const handleNameChange = async (e) => {
-    let filteredMembers;
-    if (e.target.value.length > 0) {
-      // update displayed value
-      setName(e.target.value);
-      const filterTerm = e.target.value.toLowerCase();
-      filteredMembers = currentMembers.filter((member) => {
-        const fullName = [member.firstName, member.lastName]
-          .join("")
-          .toLowerCase();
-        const clubAndGroup = [member.club, member.workoutGroup]
-          .join("")
-          .toLowerCase();
-        return (
-          fullName.includes(filterTerm) &&
-          clubAndGroup.includes(clubGroup.toLowerCase())
-        );
-      });
-      displayMembers(filteredMembers);
-    } else if (clubGroup) {
-      setName("");
-      // need to filter based on club/group search term, which is not empty
-      filteredMembers = currentMembers.filter((member) => {
-        const clubAndGroup = [member.club, member.workoutGroup]
-          .join("")
-          .toLowerCase();
-        return clubAndGroup.includes(clubGroup.toLowerCase());
-      });
-      displayMembers(filteredMembers);
-    } else {
-      // both search terms empty, reset display
-      setName("");
-      displayMembers(currentMembers);
-    }
+  // case-insensitive recompute of display from every current filter
+  // criterion (name, club/group, email substring, quick filters). Accepts
+  // overrides for whichever field just changed, since the corresponding
+  // setState call hasn't landed yet when this runs in the same handler.
+  // maybe eventually make the name/club search smarter (eg regex)
+  const applyFilters = (overrides = {}) => {
+    const nameTerm = (overrides.name ?? name).toLowerCase();
+    const clubTerm = (overrides.clubGroup ?? clubGroup).toLowerCase();
+    const emailTerm = (overrides.emailFilter ?? emailFilter).toLowerCase();
+    const activeQuickFilters = overrides.quickFilters ?? quickFilters;
+
+    const filteredMembers = currentMembers.filter((member) => {
+      const fullName = [member.firstName, member.lastName]
+        .join("")
+        .toLowerCase();
+      const clubAndGroup = [member.club, member.workoutGroup]
+        .join("")
+        .toLowerCase();
+      const emails = member.emails ?? [];
+
+      if (!fullName.includes(nameTerm)) return false;
+      if (!clubAndGroup.includes(clubTerm)) return false;
+      if (
+        emailTerm &&
+        !emails.some((email) => email.address.toLowerCase().includes(emailTerm))
+      )
+        return false;
+
+      if (activeQuickFilters.length > 0) {
+        const matchesAny = activeQuickFilters.some((filterName) => {
+          if (filterName === "noEmail") return emails.length === 0;
+          if (filterName === "optedOut") return member.emailExclude;
+          if (filterName === "nonDeliverable")
+            return emails.some((email) => !email.deliverable);
+          return false;
+        });
+        if (!matchesAny) return false;
+      }
+
+      return true;
+    });
+
+    displayMembers(filteredMembers);
   };
 
-  // case-insensitive search/filter for club or group, respecting
-  // any term in the name search field
-  // maybe eventually make the search smarter (eg space separated terms or regex)
-  const handleGroupChange = async (e) => {
-    let filteredMembers;
-    if (e.target.value.length > 0) {
-      // update displayed value
-      setClubGroup(e.target.value);
-      const filterTerm = e.target.value.toLowerCase();
-      filteredMembers = currentMembers.filter((member) => {
-        const fullName = [member.firstName, member.lastName]
-          .join("")
-          .toLowerCase();
-        const clubAndGroup = [member.club, member.workoutGroup]
-          .join("")
-          .toLowerCase();
-        return (
-          clubAndGroup.includes(filterTerm) &&
-          fullName.includes(name.toLowerCase())
-        );
-      });
-      displayMembers(filteredMembers);
-    } else if (name) {
-      setClubGroup("");
-      // need to filter based on name search term, which is not empty
-      filteredMembers = currentMembers.filter((member) => {
-        const fullName = [member.firstName, member.lastName]
-          .join("")
-          .toLowerCase();
-        return fullName.includes(name.toLowerCase());
-      });
-      displayMembers(filteredMembers);
-    } else {
-      // reset display and name state variable
-      setClubGroup("");
-      displayMembers(currentMembers);
-    }
+  const handleNameChange = (e) => {
+    const value = e.target.value;
+    setName(value);
+    applyFilters({ name: value });
+  };
+
+  const handleGroupChange = (e) => {
+    const value = e.target.value;
+    setClubGroup(value);
+    applyFilters({ clubGroup: value });
+  };
+
+  const handleEmailFilterChange = (e) => {
+    const value = e.target.value;
+    setEmailFilter(value);
+    applyFilters({ emailFilter: value });
+  };
+
+  const handleQuickFiltersChange = (value) => {
+    setQuickFilters(value);
+    applyFilters({ quickFilters: value });
   };
 
   // only the membership coordinator has access to this page
@@ -277,10 +420,13 @@ export default function UploadMembers() {
         There are currently {numMembers} members in the LMSC, {numVMST} of whom
         are in VMST.
         <br />
+        {numReachable} members are reachable by email, {numReachableVMST} of
+        whom are in VMST.
+        <br />
         VMST workout groups: {groups.map(({ name }) => name).join(", ")}.
       </p>
 
-      {/* filter the table by name or club/group */}
+      {/* filter the table by name, club/group, or email */}
       <form>
         <SearchWrapper>
           <InputWrapper>
@@ -305,11 +451,24 @@ export default function UploadMembers() {
             ></input>
           </InputWrapper>
 
+          <InputWrapper>
+            <label htmlFor="email-filter">Search by email: </label>
+            <input
+              id="email-filter"
+              type="text"
+              placeholder="Email address"
+              value={emailFilter}
+              onChange={handleEmailFilterChange}
+            ></input>
+          </InputWrapper>
+
           <ClearSearchButton
             onClick={(evt) => {
               evt.preventDefault();
               setClubGroup("");
               setName("");
+              setEmailFilter("");
+              setQuickFilters([]);
               displayMembers(currentMembers);
             }}
           >
@@ -317,11 +476,52 @@ export default function UploadMembers() {
           </ClearSearchButton>
         </SearchWrapper>
 
-        {/* Would be nice to have a small "clear all" button but styling... */}
-        {/* <Col> */}
-        {/*   <Button variant="warning">Clear All</Button> */}
-        {/* </Col> */}
+        <QuickFilterRow>
+          <QuickFilterGroup
+            type="multiple"
+            value={quickFilters}
+            onValueChange={handleQuickFiltersChange}
+            aria-label="quick filters"
+          >
+            <QuickFilterItem value="noEmail">No email</QuickFilterItem>
+            <QuickFilterItem value="optedOut">Opted out</QuickFilterItem>
+            <QuickFilterItem value="nonDeliverable">
+              Non-deliverable
+            </QuickFilterItem>
+          </QuickFilterGroup>
+          <FileUploadInstructions>
+            Uncheck the box next to an email address to mark it
+            non-deliverable.
+          </FileUploadInstructions>
+        </QuickFilterRow>
       </form>
+
+      <SaveChangesRow>
+        {Object.keys(pendingChanges).length > 0 && (
+          <>
+            <SaveChangesButton onClick={handleSaveChanges}>
+              Save Changes ({Object.keys(pendingChanges).length})
+            </SaveChangesButton>
+            <ClearSearchButton onClick={handleClearChanges}>
+              Clear Changes
+            </ClearSearchButton>
+          </>
+        )}
+      </SaveChangesRow>
+
+      <PaginationRow>
+        <NavPhotos
+          page={page}
+          setPage={setPage}
+          maxPages={maxPages}
+          displayJump={false}
+        />
+        <MembersPerPage
+          perPage={perPage}
+          setPerPage={setPerPage}
+          setPage={setPage}
+        />
+      </PaginationRow>
 
       <TableScroll>
         <Table>
@@ -331,11 +531,13 @@ export default function UploadMembers() {
               <th scope="col">Reg num</th>
               <th scope="col">Club</th>
               <th scope="col">WO grp</th>
-              <th scope="col">Reg yr</th>
+              <th scope="col">Primary email</th>
+              <th scope="col">Secondary email</th>
+              <th scope="col">Opt out</th>
             </tr>
           </thead>
           <tbody>
-            {display?.map((member) => (
+            {pagedMembers?.map((member) => (
               <tr key={member.usmsRegNo}>
                 <th scope="row">{member.fullName}</th>
                 <td>
@@ -348,15 +550,42 @@ export default function UploadMembers() {
                 </td>
                 <td>{member.club}</td>
                 <td>{member.workoutGroup}</td>
-                <td>{member.regYear}</td>
+                <td>{renderEmailCell(member, 0)}</td>
+                <td>{renderEmailCell(member, 1)}</td>
+                <td style={{ textAlign: "center" }}>
+                  <EmailCheckbox
+                    checked={member.emailExclude}
+                    disabled
+                    aria-label="opted out of emails"
+                  >
+                    <CheckboxIndicator>
+                      <Check strokeWidth={3} />
+                    </CheckboxIndicator>
+                  </EmailCheckbox>
+                </td>
               </tr>
             ))}
           </tbody>
         </Table>
       </TableScroll>
+
+      <PaginationRow>
+        <NavPhotos
+          page={page}
+          setPage={setPage}
+          maxPages={maxPages}
+          displaySelect={false}
+          displayJump={false}
+        />
+      </PaginationRow>
       {updated && (
         <ToastMessage toastCloseEffect={() => setUpdated(false)}>
           The membership database has been updated!
+        </ToastMessage>
+      )}
+      {savedChanges && (
+        <ToastMessage toastCloseEffect={() => setSavedChanges(false)}>
+          Email deliverability changes saved!
         </ToastMessage>
       )}
     </Wrapper>
@@ -404,6 +633,39 @@ const FileWrapper = styled.div`
   align-items: center;
 `;
 
+const SaveChangesRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  /* reserve the buttons' height even when empty, so the table below doesn't
+     jump when they appear */
+  min-height: 44px;
+`;
+
+const SaveChangesButton = styled(SubmitButton)`
+  display: inline-block;
+  padding: 4px 16px;
+  box-shadow: 1px 2px 4px ${COLORS.gray[10]};
+`;
+
+const EmailCell = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const EmailAddress = styled.span`
+  ${({ $inactive }) => $inactive && `color: ${COLORS.gray[9]};`}
+`;
+
+const EmailCheckbox = styled(CheckboxRoot)`
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+`;
+
 const SearchWrapper = styled.div`
   padding: 12px 4px;
   display: flex;
@@ -415,6 +677,44 @@ const SearchWrapper = styled.div`
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+  }
+`;
+
+const QuickFilterRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+`;
+
+const QuickFilterGroup = styled(ToggleGroup.Root)`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px;
+`;
+
+const QuickFilterItem = styled(ToggleGroup.Item)`
+  border: 1px solid ${COLORS.accent[12]};
+  border-radius: 999px;
+  min-height: 36px;
+  padding: 4px 14px;
+  background-color: ${COLORS.accent[2]};
+  font-weight: ${WEIGHTS.medium};
+
+  &[data-state="on"] {
+    background-color: ${COLORS.accent[9]};
+    color: white;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background-color: ${COLORS.accent[5]};
+  }
+
+  &[data-state="on"]:hover {
+    background-color: ${COLORS.accent[10]};
   }
 `;
 
@@ -434,6 +734,14 @@ const ClearSearchButton = styled.button`
     min-height: 44px;
     margin-left: 0;
   }
+`;
+
+const PaginationRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: 4px 0;
 `;
 
 const TableScroll = styled.div`

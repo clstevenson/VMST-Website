@@ -1,7 +1,7 @@
 const typeDefs = `
 # formatValid: pure function of the address string, recomputed on every upload.
-# deliverable: sticky -- true until the (not yet built) membership-coordinator
-# tool marks a specific address as bouncing/dead.
+# deliverable: sticky -- true until the membership coordinator marks a
+# specific address as bouncing/dead (see updateEmailDeliverability).
 type EmailEntry {
   address: String!
   formatValid: Boolean!
@@ -110,6 +110,12 @@ input MemberData {
   regYear: Int!
   emails: [String]
   emailExclude: Boolean
+}
+
+input EmailDeliverabilityInput {
+  usmsId: String!
+  address: String!
+  deliverable: Boolean!
 }
 
 input emailData {
@@ -233,6 +239,7 @@ type Mutation {
   deleteMeet(_id: ID!): Meet
   editMeet(_id: ID!, meet: MeetData, meetSwimmers: [MeetSwimmerData], relays: [RelayData]): Meet
   uploadMembers(memberData: [MemberData]): [Member]
+  updateEmailDeliverability(updates: [EmailDeliverabilityInput]): [Member]
   emailLeaders(emailData: emailData): Boolean
   emailWebmaster(emailData: emailData): Boolean
   emailLeadersWebmaster(emailData: emailData): Boolean
