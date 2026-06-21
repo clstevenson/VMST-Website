@@ -82,10 +82,21 @@ module.exports = {
     try {
       const { _id } = jwt.verify(token, refreshSecret);
       // look up current role/group so a refreshed access token carries the
-      // same authorization data as a fresh login, not just the user id
+      // same authorization data as a fresh login, not just the user id --
+      // also the only place a stateless-JWT setup can cheaply re-check
+      // current DB state, eg a ban applied after the token was issued
       const user = await User.findById(_id);
       if (!user) {
         return res.status(403).json({ message: "User no longer exists" });
+      }
+      if (user.accountStatus === "banned") {
+        // clear the cookie so the client can't just keep retrying
+        res.clearCookie("refresh_token", {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+        });
+        return res.status(403).json({ message: "Account suspended" });
       }
       const newAccessToken = jwt.sign(
         { data: { role: user.role, _id: user._id, group: user.group } },

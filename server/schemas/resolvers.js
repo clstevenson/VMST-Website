@@ -138,6 +138,8 @@ const resolvers = {
       // check password
       const correctPW = await user.isCorrectPassword(password);
       if (!correctPW) throw AuthenticationError;
+      // a banned user cannot log back in
+      if (user.accountStatus === "banned") throw AuthenticationError;
       // sign the token and return it with the user
       const accessToken = signToken(user);
       const refreshToken = signRefreshToken(user);

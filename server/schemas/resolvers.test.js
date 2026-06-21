@@ -549,6 +549,28 @@ test("login: succeeds with correct credentials, rejects wrong password and unkno
   assert.ok(unknownEmail.errors?.length, "unknown email should be rejected");
 });
 
+test("login: rejects a banned user even with the correct password", async () => {
+  const password = "Correct-Password-123!";
+  await User.create({
+    firstName: "Banned",
+    lastName: "Test",
+    email: "banned-login-test@example.com",
+    password,
+    role: "user",
+    accountStatus: "banned",
+  });
+  const query = `mutation($email: String!, $password: String!) {
+    login(email: $email, password: $password) { token }
+  }`;
+
+  const { errors } = await runWithRes(
+    query,
+    { email: "banned-login-test@example.com", password },
+    null,
+  );
+  assert.ok(errors?.length, "banned user should be rejected");
+});
+
 test("addUser: creates an account (default role) and returns a token", async () => {
   const query = `mutation($firstName: String!, $lastName: String!, $email: String!, $password: String!) {
     addUser(firstName: $firstName, lastName: $lastName, email: $email, password: $password) {
