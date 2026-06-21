@@ -6,7 +6,7 @@ import { Check, Trash2 } from "react-feather";
 
 import { useAuth } from "../../context/AuthContext";
 import { useQuery, useMutation } from "@apollo/client";
-import { QUERY_USERS } from "../../utils/queries";
+import { QUERY_USERS, QUERY_GROUPS } from "../../utils/queries";
 import { EDIT_USER, DELETE_USER } from "../../utils/mutations";
 import { COLORS, QUERIES, WEIGHTS } from "../../utils/constants";
 import usePendingChanges from "../../utils/usePendingChanges";
@@ -15,6 +15,7 @@ import SubmitButton from "../Styled/SubmiButton";
 import { CheckboxRoot, CheckboxIndicator } from "../Styled/Checkbox";
 import Alert from "../Alert";
 import ToastMessage from "../ToastMessage";
+import GroupPicker from "./GroupPicker";
 
 const ROLES = ["user", "leader", "coach", "membership", "webmaster"];
 const STATUSES = ["active", "silent", "banned"];
@@ -44,12 +45,24 @@ export default function ManageUsers() {
   const [savedChanges, setSavedChanges] = useState(false);
   // which row (if any) currently has its delete confirmation open
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  // which row (if any) currently has the coach-group picker open, and
+  // whether confirming it should also apply role: "coach" (true when
+  // opened by switching the Role dropdown to Coach; false when opened by
+  // clicking an existing coach's Group cell to reassign it)
+  const [groupPickerFor, setGroupPickerFor] = useState(null);
+  const [groups, setGroups] = useState([]);
 
   useQuery(QUERY_USERS, {
     onCompleted: (data) => {
       setCurrentUsers(data.users);
       setDisplay(data.users);
     },
+  });
+
+  useQuery(QUERY_GROUPS, {
+    // some VMST members aren't assigned to a WO group; filter that blank
+    // entry out so it can't be mistaken for a real, selectable group
+    onCompleted: (data) => setGroups(data.groups.filter(Boolean)),
   });
 
   // case-insensitive recompute of display from every current filter
@@ -116,6 +129,29 @@ export default function ManageUsers() {
     setChange(`${userId}:${field}`, current, value, { userId, field });
   };
 
+  // a coach must always have a non-blank group (a specific WO group, or
+  // "VMST" for a coach with full access like a leader) -- so switching the
+  // Role dropdown to Coach opens a forced picker instead of applying the
+  // role change immediately. Leaving Coach for any other role clears group
+  // back to "" right away, no picker needed.
+  const handleRoleSelectChange = (targetUser, newRole) => {
+    if (newRole === "coach" && targetUser.role !== "coach") {
+      setGroupPickerFor({ userId: targetUser._id, alsoSetRole: true });
+      return;
+    }
+    if (targetUser.role === "coach" && newRole !== "coach") {
+      updateField(targetUser._id, "group", "");
+    }
+    updateField(targetUser._id, "role", newRole);
+  };
+
+  const handleGroupPickConfirm = (selectedGroup) => {
+    const { userId, alsoSetRole } = groupPickerFor;
+    if (alsoSetRole) updateField(userId, "role", "coach");
+    updateField(userId, "group", selectedGroup);
+    setGroupPickerFor(null);
+  };
+
   const handleSaveChanges = async () => {
     // group pending field-level changes back into one UserData object per
     // user, since editUser updates a whole document at a time
@@ -158,6 +194,15 @@ export default function ManageUsers() {
     setDisplay((prev) => prev.filter((u) => u._id !== userId));
     discard((change) => change.userId === userId);
   };
+
+  // a group edit paired with a role edit for the same user (eg switching to
+  // or from coach) is one logical change, not two -- don't double-count it
+  // in the Save Changes button. A group edit with no paired role change
+  // (reassigning an existing coach's group on its own) still counts.
+  const pendingCount = Object.values(pendingChanges).filter((change) => {
+    if (change.field !== "group") return true;
+    return !(`${change.userId}:role` in pendingChanges);
+  }).length;
 
   // only the webmaster has access to this page
   if (user?.role !== "webmaster") {
@@ -256,10 +301,10 @@ export default function ManageUsers() {
       </form>
 
       <SaveChangesRow>
-        {Object.keys(pendingChanges).length > 0 && (
+        {pendingCount > 0 && (
           <>
             <SaveChangesButton onClick={handleSaveChanges}>
-              Save Changes ({Object.keys(pendingChanges).length})
+              Save Changes ({pendingCount})
             </SaveChangesButton>
             <ClearSearchButton onClick={handleClearChanges}>
               Clear Changes
@@ -275,6 +320,7 @@ export default function ManageUsers() {
               <th scope="col">Name</th>
               <th scope="col">Email</th>
               <th scope="col">Role</th>
+              <th scope="col">Group</th>
               <th scope="col">Receive emails?</th>
               <th scope="col">Post notification</th>
               <th scope="col">Status</th>
@@ -292,9 +338,27 @@ export default function ManageUsers() {
                   <EditableSelect
                     value={u.role}
                     options={ROLES}
-                    onValueChange={(val) => updateField(u._id, "role", val)}
+                    onValueChange={(val) => handleRoleSelectChange(u, val)}
                     $changed={isChanged(`${u._id}:role`)}
                   />
+                </td>
+                <td>
+                  {u.role === "coach" ? (
+                    <GroupButton
+                      type="button"
+                      $changed={isChanged(`${u._id}:group`)}
+                      onClick={() =>
+                        setGroupPickerFor({
+                          userId: u._id,
+                          alsoSetRole: false,
+                        })
+                      }
+                    >
+                      {u.group || "(choose group)"}
+                    </GroupButton>
+                  ) : (
+                    <NoGroup>&mdash;</NoGroup>
+                  )}
                 </td>
                 <td style={{ textAlign: "center" }}>
                   <UserCheckbox
@@ -360,6 +424,16 @@ export default function ManageUsers() {
         </Table>
       </TableScroll>
 
+      <GroupPicker
+        open={groupPickerFor !== null}
+        groups={groups}
+        initialValue={
+          display.find((u) => u._id === groupPickerFor?.userId)?.group ?? ""
+        }
+        onConfirm={handleGroupPickConfirm}
+        onCancel={() => setGroupPickerFor(null)}
+      />
+
       {savedChanges && (
         <ToastMessage toastCloseEffect={() => setSavedChanges(false)}>
           User account changes saved!
@@ -410,8 +484,10 @@ const StyledItem = styled(Select.Item)`
 
 const SelectTrigger = styled(Select.Trigger)`
   width: fit-content;
+  /* border is always 2px (transparent unless changed) so the trigger
+     doesn't resize when the "changed" indicator appears */
   padding: 1px 8px;
-  border: 1px solid transparent;
+  border: 2px solid transparent;
   border-radius: 4px;
 
   &:hover {
@@ -556,8 +632,29 @@ const UserCheckbox = styled(CheckboxRoot)`
     $changed &&
     `
     border-color: ${COLORS.urgent};
-    border-width: 2px;
+    border-width: 4px;
   `}
+`;
+
+const GroupButton = styled.button`
+  /* border is always 2px (transparent unless changed) so the button
+     doesn't resize when the "changed" indicator appears */
+  border: 2px solid transparent;
+  border-radius: 4px;
+  padding: 1px 8px;
+  background-color: transparent;
+
+  &:hover {
+    cursor: pointer;
+    background-color: ${COLORS.accent[5]};
+  }
+
+  ${({ $changed }) => $changed && `border-color: ${COLORS.urgent};`}
+`;
+
+const NoGroup = styled.span`
+  color: ${COLORS.gray[8]};
+  padding: 1px 8px;
 `;
 
 const DeleteButton = styled.button`

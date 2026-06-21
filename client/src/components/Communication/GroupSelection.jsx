@@ -90,6 +90,7 @@ export default function GroupSelection({
                   checked={checked}
                   disabled={
                     userProfile.role !== "leader" &&
+                    userProfile.group !== "VMST" &&
                     userProfile.group !== group.name
                   }
                   onCheckedChange={(checked) => {
@@ -134,6 +135,7 @@ export default function GroupSelection({
                   style={{
                     "--groupColor":
                       userProfile.role === "leader" ||
+                      userProfile.group === "VMST" ||
                       userProfile.group === group.name
                         ? "black"
                         : `${COLORS.gray[8]}`,
@@ -231,7 +233,7 @@ export default function GroupSelection({
               </CheckboxWrapper>
             );
           })}
-          {userProfile.role === "coach" && (
+          {userProfile.role === "coach" && userProfile.group !== "VMST" && (
             <Description>
               Note: only competitors from {userProfile.group} are added when a
               meet is selected.
