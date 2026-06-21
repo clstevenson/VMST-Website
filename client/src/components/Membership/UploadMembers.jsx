@@ -3,9 +3,10 @@ import styled from "styled-components";
 
 import { useAuth } from "../../context/AuthContext";
 import { useQuery, useMutation } from "@apollo/client";
-import { UPLOAD_MEMBERS } from "../../utils/mutations";
+import { UPLOAD_MEMBERS, UPDATE_EMAIL_DELIVERABILITY } from "../../utils/mutations";
 import { QUERY_MEMBERS } from "../../utils/queries";
 import papa from "papaparse";
+import { Check } from "react-feather";
 
 import FileUploader from "../FileUploader";
 import getGroups from "../../utils/getGroups";
@@ -16,6 +17,7 @@ import ToastMessage from "../ToastMessage";
 import Instructions from "./Instructions";
 import NavPhotos from "../PhotoGallery/NavPhotos";
 import MembersPerPage from "./MembersPerPage";
+import { CheckboxRoot, CheckboxIndicator } from "../Styled/Checkbox";
 
 export default function UploadMembers() {
   const { user } = useAuth();
@@ -47,6 +49,12 @@ export default function UploadMembers() {
   const [upload, { error }] = useMutation(UPLOAD_MEMBERS);
   // state representing success of DB update
   const [updated, setUpdated] = useState(false);
+
+  // unsaved deliverable toggles, keyed by "usmsId|address", flushed together
+  // by the Save Changes button rather than writing the DB on every click
+  const [pendingChanges, setPendingChanges] = useState({});
+  const [saveDeliverability] = useMutation(UPDATE_EMAIL_DELIVERABILITY);
+  const [savedChanges, setSavedChanges] = useState(false);
 
   // retrieve DB membership info
   useQuery(QUERY_MEMBERS, {
@@ -82,7 +90,8 @@ export default function UploadMembers() {
         club: member.club,
         usmsId: member.usmsId,
         workoutGroup: member.workoutGroup,
-        regYear: member.regYear,
+        emails: member.emails,
+        emailExclude: member.emailExclude,
       };
     });
     setDisplay(displayData);
@@ -93,6 +102,111 @@ export default function UploadMembers() {
 
   const maxPages = Math.max(1, Math.ceil(display.length / perPage));
   const pagedMembers = display.slice((page - 1) * perPage, page * perPage);
+
+  // toggle a single email's deliverable status locally (queued for the Save
+  // Changes button); updates currentMembers and display in parallel so a
+  // later filter change doesn't re-derive display from a stale currentMembers
+  // and silently drop the unsaved edit. Doesn't touch pagination/page.
+  const toggleDeliverable = (usmsId, address, checked) => {
+    const applyToggle = (members) =>
+      members.map((member) =>
+        member.usmsId === usmsId
+          ? {
+              ...member,
+              emails: member.emails.map((email) =>
+                email.address === address
+                  ? { ...email, deliverable: checked }
+                  : email
+              ),
+            }
+          : member
+      );
+    setCurrentMembers(applyToggle);
+    setDisplay(applyToggle);
+
+    const key = `${usmsId}|${address}`;
+    setPendingChanges((prev) => {
+      // the DB-persisted value, untouched by any pending edit: captured the
+      // first time this address is toggled, then carried forward unchanged
+      // across further toggles of the same address
+      const original =
+        prev[key]?.original ??
+        currentMembers
+          .find((member) => member.usmsId === usmsId)
+          ?.emails.find((email) => email.address === address)?.deliverable;
+
+      if (checked === original) {
+        // back to the original value -- no longer a pending change
+        const rest = { ...prev };
+        delete rest[key];
+        return rest;
+      }
+      return {
+        ...prev,
+        [key]: { usmsId, address, deliverable: checked, original },
+      };
+    });
+  };
+
+  const handleSaveChanges = async () => {
+    const updates = Object.values(pendingChanges).map(
+      ({ usmsId, address, deliverable }) => ({ usmsId, address, deliverable })
+    );
+    if (updates.length === 0) return;
+    await saveDeliverability({ variables: { updates } });
+    setPendingChanges({});
+    setSavedChanges(true);
+  };
+
+  // discard unsaved toggles, reverting currentMembers/display to the
+  // DB-persisted values recorded when each pending edit started
+  const handleClearChanges = () => {
+    const revert = (members) =>
+      members.map((member) => {
+        const memberPending = Object.values(pendingChanges).filter(
+          (change) => change.usmsId === member.usmsId
+        );
+        if (memberPending.length === 0) return member;
+        return {
+          ...member,
+          emails: member.emails.map((email) => {
+            const pending = memberPending.find(
+              (change) => change.address === email.address
+            );
+            return pending
+              ? { ...email, deliverable: pending.original }
+              : email;
+          }),
+        };
+      });
+    setCurrentMembers(revert);
+    setDisplay(revert);
+    setPendingChanges({});
+  };
+
+  // render the address + deliverable checkbox for one of a member's emails,
+  // or nothing if that email slot is blank
+  const renderEmailCell = (member, index) => {
+    const email = member.emails?.[index];
+    if (!email || !email.address) return null;
+    const inactive = !email.formatValid || member.emailExclude;
+    return (
+      <EmailCell>
+        <EmailCheckbox
+          checked={email.deliverable}
+          disabled={inactive}
+          onCheckedChange={(checked) =>
+            toggleDeliverable(member.usmsId, email.address, checked)
+          }
+        >
+          <CheckboxIndicator>
+            <Check strokeWidth={3} />
+          </CheckboxIndicator>
+        </EmailCheckbox>
+        <EmailAddress $inactive={inactive}>{email.address}</EmailAddress>
+      </EmailCell>
+    );
+  };
 
   // file input onchange event handler, which parses the CSV file
   const handleFile = async (e) => {
@@ -174,6 +288,9 @@ export default function UploadMembers() {
     setFile("");
     setName("");
     setClubGroup("");
+    // a fresh upload replaces the roster, so any unsaved deliverable
+    // toggles from before it no longer refer to current data
+    setPendingChanges({});
   };
 
   // case-insensitive search/filter for name (first or last), respecting
@@ -357,6 +474,19 @@ export default function UploadMembers() {
         {/* </Col> */}
       </form>
 
+      <SaveChangesRow>
+        {Object.keys(pendingChanges).length > 0 && (
+          <>
+            <SaveChangesButton onClick={handleSaveChanges}>
+              Save Changes ({Object.keys(pendingChanges).length})
+            </SaveChangesButton>
+            <ClearSearchButton onClick={handleClearChanges}>
+              Clear Changes
+            </ClearSearchButton>
+          </>
+        )}
+      </SaveChangesRow>
+
       <PaginationRow>
         <NavPhotos
           page={page}
@@ -379,7 +509,9 @@ export default function UploadMembers() {
               <th scope="col">Reg num</th>
               <th scope="col">Club</th>
               <th scope="col">WO grp</th>
-              <th scope="col">Reg yr</th>
+              <th scope="col">Primary email</th>
+              <th scope="col">Secondary email</th>
+              <th scope="col">Opt out</th>
             </tr>
           </thead>
           <tbody>
@@ -396,7 +528,19 @@ export default function UploadMembers() {
                 </td>
                 <td>{member.club}</td>
                 <td>{member.workoutGroup}</td>
-                <td>{member.regYear}</td>
+                <td>{renderEmailCell(member, 0)}</td>
+                <td>{renderEmailCell(member, 1)}</td>
+                <td style={{ textAlign: "center" }}>
+                  <EmailCheckbox
+                    checked={member.emailExclude}
+                    disabled
+                    aria-label="opted out of emails"
+                  >
+                    <CheckboxIndicator>
+                      <Check strokeWidth={3} />
+                    </CheckboxIndicator>
+                  </EmailCheckbox>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -415,6 +559,11 @@ export default function UploadMembers() {
       {updated && (
         <ToastMessage toastCloseEffect={() => setUpdated(false)}>
           The membership database has been updated!
+        </ToastMessage>
+      )}
+      {savedChanges && (
+        <ToastMessage toastCloseEffect={() => setSavedChanges(false)}>
+          Email deliverability changes saved!
         </ToastMessage>
       )}
     </Wrapper>
@@ -460,6 +609,39 @@ const UpdateButton = styled(SubmitButton)`
 const FileWrapper = styled.div`
   display: flex;
   align-items: center;
+`;
+
+const SaveChangesRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  /* reserve the buttons' height even when empty, so the table below doesn't
+     jump when they appear */
+  min-height: 44px;
+`;
+
+const SaveChangesButton = styled(SubmitButton)`
+  display: inline-block;
+  padding: 4px 16px;
+  box-shadow: 1px 2px 4px ${COLORS.gray[10]};
+`;
+
+const EmailCell = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const EmailAddress = styled.span`
+  ${({ $inactive }) => $inactive && `color: ${COLORS.gray[9]};`}
+`;
+
+const EmailCheckbox = styled(CheckboxRoot)`
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
 `;
 
 const SearchWrapper = styled.div`

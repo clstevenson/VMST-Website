@@ -92,6 +92,7 @@ export const QUERY_MEMBERS = gql`
       regYear
       emailExclude
       emails {
+        address
         formatValid
         deliverable
       }

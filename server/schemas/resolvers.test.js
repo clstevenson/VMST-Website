@@ -1114,8 +1114,8 @@ test("uploadMembers: dedupes by usmsId keeping the higher regYear, preserves del
   assert.equal(testAFirst.firstName, "New");
   assert.equal(testAFirst.regYear, 2027);
 
-  // simulate the (not yet built) membership-coordinator tool flagging a real
-  // bounce on one address
+  // simulate the membership-coordinator tool (updateEmailDeliverability,
+  // tested separately below) flagging a real bounce on one address
   await Member.updateOne(
     { usmsId: "TESTA", "emails.address": "a@example.com" },
     { $set: { "emails.$.deliverable": false } },
@@ -1205,6 +1205,65 @@ test("uploadMembers: a malformed email gets formatValid:false without failing th
   assert.equal(byAddress["user@example.technology"].formatValid, true);
 
   await Member.deleteOne({ usmsId: "BADEM" });
+});
+
+test("updateEmailDeliverability: rejects a non-membership role", async () => {
+  const { errors } = await run(
+    `mutation($updates: [EmailDeliverabilityInput]) {
+      updateEmailDeliverability(updates: $updates) { usmsId }
+    }`,
+    { updates: [] },
+    users.leader,
+  );
+  assert.ok(errors?.length, "expected an authorization error");
+});
+
+test("updateEmailDeliverability: flips deliverable for the matching address only, leaving formatValid and other addresses untouched", async () => {
+  const member = await Member.create({
+    usmsRegNo: "TEST-DELIVER",
+    usmsId: "DELIV1",
+    firstName: "Deliver",
+    lastName: "Ability",
+    gender: "F",
+    club: "VMST",
+    regYear: 2026,
+    emails: [
+      makeEmail("primary@example.com"),
+      makeEmail("secondary@example.com"),
+    ],
+  });
+
+  const { data, errors } = await run(
+    `mutation($updates: [EmailDeliverabilityInput]) {
+      updateEmailDeliverability(updates: $updates) {
+        usmsId
+        emails { address formatValid deliverable }
+      }
+    }`,
+    {
+      updates: [
+        {
+          usmsId: "DELIV1",
+          address: "primary@example.com",
+          deliverable: false,
+        },
+      ],
+    },
+    users.membership,
+  );
+  assert.equal(errors, undefined);
+
+  const updated = data.updateEmailDeliverability.find(
+    (m) => m.usmsId === "DELIV1",
+  );
+  const byAddress = Object.fromEntries(
+    updated.emails.map((e) => [e.address, e]),
+  );
+  assert.equal(byAddress["primary@example.com"].deliverable, false);
+  assert.equal(byAddress["primary@example.com"].formatValid, true);
+  assert.equal(byAddress["secondary@example.com"].deliverable, true);
+
+  await Member.findByIdAndDelete(member._id);
 });
 
 test("emailGroup: skips addresses that are not formatValid or not deliverable", async () => {

@@ -12,8 +12,8 @@ const { Schema, model } = require("mongoose");
 // formatValid is recomputed fresh on every upload (a pure function of the address
 // string). deliverable is sticky -- it's preserved across uploads for an address
 // whose string is unchanged, and only ever set to false by the membership
-// coordinator (via a tool that doesn't exist yet) after a real bounce. It
-// defaults to true: an address nobody has flagged is assumed reachable.
+// coordinator (via the email columns on the upload page, after a real bounce).
+// It defaults to true: an address nobody has flagged is assumed reachable.
 const emailSchema = new Schema(
   {
     address: { type: String, required: true },
