@@ -476,18 +476,24 @@ export default function UploadMembers() {
           </ClearSearchButton>
         </SearchWrapper>
 
-        <QuickFilterGroup
-          type="multiple"
-          value={quickFilters}
-          onValueChange={handleQuickFiltersChange}
-          aria-label="quick filters"
-        >
-          <QuickFilterItem value="noEmail">No email</QuickFilterItem>
-          <QuickFilterItem value="optedOut">Opted out</QuickFilterItem>
-          <QuickFilterItem value="nonDeliverable">
-            Non-deliverable
-          </QuickFilterItem>
-        </QuickFilterGroup>
+        <QuickFilterRow>
+          <QuickFilterGroup
+            type="multiple"
+            value={quickFilters}
+            onValueChange={handleQuickFiltersChange}
+            aria-label="quick filters"
+          >
+            <QuickFilterItem value="noEmail">No email</QuickFilterItem>
+            <QuickFilterItem value="optedOut">Opted out</QuickFilterItem>
+            <QuickFilterItem value="nonDeliverable">
+              Non-deliverable
+            </QuickFilterItem>
+          </QuickFilterGroup>
+          <FileUploadInstructions>
+            Uncheck the box next to an email address to mark it
+            non-deliverable.
+          </FileUploadInstructions>
+        </QuickFilterRow>
       </form>
 
       <SaveChangesRow>
@@ -672,6 +678,14 @@ const SearchWrapper = styled.div`
     align-items: flex-start;
     gap: 8px;
   }
+`;
+
+const QuickFilterRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 `;
 
 const QuickFilterGroup = styled(ToggleGroup.Root)`
