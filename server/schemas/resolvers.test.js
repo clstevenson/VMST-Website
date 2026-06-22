@@ -24,6 +24,7 @@ let User;
 let Member;
 let Meet;
 let Post;
+let auth;
 
 const users = {}; // role -> { _id, role }
 
@@ -60,6 +61,7 @@ test.before(async () => {
   Member = require("../models/Members");
   Meet = require("../models/Meets");
   Post = require("../models/Posts");
+  auth = require("../utils/auth");
 
   await mongoose.connection.asPromise();
 
@@ -121,6 +123,14 @@ async function runWithRes(query, variables, contextUser) {
     { contextValue: { user: contextUser, res: stubRes() } },
   );
   return response.body.singleResult;
+}
+
+// addPost/editPost fire post-notification emails without awaiting them (so
+// the mutation response doesn't wait on every subscriber's SMTP round-trip)
+// -- tests that assert on `sentMail` need to give that background work a
+// turn to finish first
+function flush() {
+  return new Promise((resolve) => setTimeout(resolve, 50));
 }
 
 // a second leader, created/cleaned up per-test rather than added to the
@@ -1068,6 +1078,141 @@ test("deletePost: a draft is only deletable by its author", async () => {
   } finally {
     await Post.findByIdAndDelete(id);
     await User.findByIdAndDelete(leader2._id);
+  }
+});
+
+test("addPost: notifies subscribers when posted, not when saved as a draft", async () => {
+  const subscriber = await User.create({
+    firstName: "Sub",
+    lastName: "Scriber",
+    email: "subscriber@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+    notifications: true,
+  });
+
+  const query = `mutation($title: String!, $content: String!, $posted: Boolean) {
+    addPost(title: $title, content: $content, posted: $posted) { _id }
+  }`;
+
+  try {
+    const before = sentMail.length;
+    const { data: draft } = await run(
+      query,
+      { title: "Draft, no notification", content: "<p>...</p>", posted: false },
+      users.leader,
+    );
+    await flush();
+    assert.equal(sentMail.length, before, "no notification for a draft");
+    await Post.findByIdAndDelete(draft.addPost._id);
+
+    const { data: published } = await run(
+      query,
+      { title: "Published, notify", content: "<p>...</p>", posted: true },
+      users.leader,
+    );
+    await flush();
+    assert.equal(
+      sentMail.length,
+      before + 1,
+      "one notification for a published post",
+    );
+    const sent = sentMail[sentMail.length - 1];
+    assert.equal(sent.emails, "subscriber@example.com");
+    assert.match(sent.plainText, /Published, notify/);
+    assert.match(sent.plainText, /unsubscribe\?token=/);
+    await Post.findByIdAndDelete(published.addPost._id);
+  } finally {
+    await User.findByIdAndDelete(subscriber._id);
+  }
+});
+
+test("editPost: notifies subscribers only on the draft-to-published transition, not on a routine re-save", async () => {
+  const subscriber = await User.create({
+    firstName: "Sub",
+    lastName: "Scriber2",
+    email: "subscriber2@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+    notifications: true,
+  });
+
+  const { data: created } = await run(
+    `mutation($title: String!, $content: String!, $posted: Boolean) {
+      addPost(title: $title, content: $content, posted: $posted) { _id }
+    }`,
+    { title: "Draft to publish", content: "<p>v1</p>", posted: false },
+    users.leader,
+  );
+  const id = created.addPost._id;
+
+  const editMutation = `mutation($id: ID!, $title: String!, $content: String!, $photo: PhotoData, $posted: Boolean) {
+    editPost(_id: $id, title: $title, content: $content, photo: $photo, posted: $posted) { _id }
+  }`;
+  const noPhoto = { id: "", url: "" };
+
+  try {
+    const before = sentMail.length;
+    await run(
+      editMutation,
+      { id, title: "Now published", content: "<p>v2</p>", photo: noPhoto, posted: true },
+      users.leader,
+    );
+    await flush();
+    assert.equal(sentMail.length, before + 1, "publishing should notify once");
+    assert.equal(sentMail[sentMail.length - 1].emails, "subscriber2@example.com");
+
+    await run(
+      editMutation,
+      { id, title: "Edited again", content: "<p>v3</p>", photo: noPhoto, posted: true },
+      users.leader,
+    );
+    await flush();
+    assert.equal(
+      sentMail.length,
+      before + 1,
+      "re-saving an already-published post should not notify again",
+    );
+  } finally {
+    await Post.findByIdAndDelete(id);
+    await User.findByIdAndDelete(subscriber._id);
+  }
+});
+
+test("unsubscribe: a valid token turns off notifications; an invalid or wrongly-scoped token is rejected", async () => {
+  const subscriber = await User.create({
+    firstName: "Sub",
+    lastName: "Scriber3",
+    email: "subscriber3@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+    notifications: true,
+  });
+
+  const mutation = `mutation($token: String!) { unsubscribe(token: $token) }`;
+
+  try {
+    const { data: garbage } = await run(mutation, { token: "not-a-real-token" });
+    assert.equal(garbage.unsubscribe, false);
+
+    // a real access token has a different shape ({ data: {...} }, no
+    // top-level _id/purpose) -- confirms cross-token-type replay is rejected
+    const accessToken = auth.signToken({
+      role: "user",
+      _id: subscriber._id.toString(),
+      group: undefined,
+    });
+    const { data: wrongType } = await run(mutation, { token: accessToken });
+    assert.equal(wrongType.unsubscribe, false);
+
+    const stillOn = await User.findById(subscriber._id);
+    assert.equal(stillOn.notifications, true, "neither bad token should have changed anything");
+
+    const realToken = auth.signUnsubscribeToken({ _id: subscriber._id.toString() });
+    const { data: real } = await run(mutation, { token: realToken });
+    assert.equal(real.unsubscribe, true);
+
+    const updated = await User.findById(subscriber._id);
+    assert.equal(updated.notifications, false);
+  } finally {
+    await User.findByIdAndDelete(subscriber._id);
   }
 });
 

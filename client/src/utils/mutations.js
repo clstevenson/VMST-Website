@@ -71,6 +71,12 @@ export const DELETE_POST = gql`
   }
 `;
 
+export const UNSUBSCRIBE = gql`
+  mutation Unsubscribe($token: String!) {
+    unsubscribe(token: $token)
+  }
+`;
+
 export const ADD_USER = gql`
   mutation addUser(
     $firstName: String!

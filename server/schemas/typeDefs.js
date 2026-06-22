@@ -255,6 +255,7 @@ type Mutation {
   emailWebmaster(emailData: emailData): Boolean
   emailLeadersWebmaster(emailData: emailData): Boolean
   emailGroup(emailData: emailData): Boolean
+  unsubscribe(token: String!): Boolean
 }
 `;
 

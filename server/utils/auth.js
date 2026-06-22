@@ -53,6 +53,24 @@ module.exports = {
     return jwt.sign({ _id }, refreshSecret, { expiresIn: refreshExpiration });
   },
 
+  // non-expiring by design -- an unsubscribe link should keep working
+  // indefinitely. Scoped via `purpose` so it can't be replayed as (or
+  // confused with) a normal access token, even though it reuses `secret`
+  signUnsubscribeToken: function ({ _id }) {
+    return jwt.sign({ _id, purpose: "unsubscribe" }, secret);
+  },
+
+  // returns the target user's _id if `token` is a validly-signed,
+  // correctly-scoped unsubscribe token, otherwise null
+  verifyUnsubscribeToken: function (token) {
+    try {
+      const { _id, purpose } = jwt.verify(token, secret);
+      return purpose === "unsubscribe" ? _id : null;
+    } catch {
+      return null;
+    }
+  },
+
   // Call this in login resolver after signing both tokens
   setRefreshCookie: function (res, refreshToken) {
     res.cookie("refresh_token", refreshToken, {

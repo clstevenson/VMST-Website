@@ -5,6 +5,8 @@ const {
   signRefreshToken,
   setRefreshCookie,
   requireRole,
+  signUnsubscribeToken,
+  verifyUnsubscribeToken,
 } = require("../utils/auth");
 
 // no longer used directly in this file (uploadMembers no longer drops the
@@ -27,6 +29,67 @@ const {
 } = require("../utils/get-flickr-photos");
 const { findByIdAndDelete } = require("../models/Posts");
 const Meet = require("../models/Meets");
+
+// fires once, the moment a post transitions to published (never on a
+// routine re-save of an already-published post). Sent as individual
+// emails rather than one bulk send, since each one needs its own
+// personalized one-click unsubscribe link -- a shared bulk body can't
+// embed a different link per recipient. One recipient's failed send
+// doesn't block the others.
+async function notifySubscribers(post) {
+  const subscribers = await User.find({ notifications: true }).select(
+    "_id email",
+  );
+  if (subscribers.length === 0) return;
+
+  const baseUrl = process.env.CLIENT_URL || "http://localhost:3000";
+  const postUrl = `${baseUrl}/post/${post._id}`;
+  // mirrors the home page's summary-or-content fallback (see BlogPosts.jsx),
+  // simplified for an email body: strip tags and truncate rather than
+  // trying to carry Quill's HTML formatting into the message
+  const teaser =
+    post.summary || post.content.replace(/<[^>]+>/g, "").slice(0, 200);
+
+  for (const subscriber of subscribers) {
+    const unsubscribeUrl = `${baseUrl}/unsubscribe?token=${signUnsubscribeToken(
+      { _id: subscriber._id },
+    )}`;
+    try {
+      await Mail({
+        from: "VMST",
+        replyTo: process.env.EMAIL,
+        emails: subscriber.email,
+        subject: `New VMST post: ${post.title}`,
+        plainText: `Hello, a new article has been posted on the VMST website: ${post.title}
+
+        Summary: ${teaser}
+
+Read the full post: ${postUrl}
+
+---
+You're receiving this because you opted in to post notifications.
+Unsubscribe with one click: ${unsubscribeUrl}
+Or log in and update your preferences from your account page.`,
+        html: `
+        <p>Hello, a new article has been posted on the VMST website: <strong>${post.title}</strong></p>
+        <p>Summary: ${teaser}</p>
+          <p><a href="${postUrl}">Read the full post</a></p>
+          <hr />
+          <p style="font-size: 0.85em; color: #666;">
+            You're receiving this because you opted in to post notifications.
+            <a href="${unsubscribeUrl}">Unsubscribe</a> with one click, or log
+            in and update your preferences from your account page.
+          </p>
+        `,
+      });
+    } catch (err) {
+      console.error(
+        `Failed to send post notification to ${subscriber.email}:`,
+        err,
+      );
+    }
+  }
+}
 
 const resolvers = {
   Query: {
@@ -51,7 +114,12 @@ const resolvers = {
     // only included for the logged-in user who authored it
     posts: async (_, __, { user }) => {
       const filter = user
-        ? { $or: [{ posted: true }, { posted: false, "author.userId": user._id }] }
+        ? {
+            $or: [
+              { posted: true },
+              { posted: false, "author.userId": user._id },
+            ],
+          }
         : { posted: true };
       return await Post.find(filter).sort({ createdAt: -1 });
     },
@@ -337,7 +405,11 @@ contact the webmaster immediately by replying to this message.`,
       }
     },
     // add a new post
-    addPost: async (_, { title, summary, content, photo, posted }, { user }) => {
+    addPost: async (
+      _,
+      { title, summary, content, photo, posted },
+      { user },
+    ) => {
       // only team leaders can create posts
       requireRole(user, "leader");
       const isPosted = posted ?? true;
@@ -350,7 +422,16 @@ contact the webmaster immediately by replying to this message.`,
         postedAt: isPosted ? new Date() : undefined,
         author: { userId: user._id },
       };
-      return await Post.create(post);
+      const created = await Post.create(post);
+      // fire-and-forget: the post is already safely saved, so the response
+      // (and the client's success toast) shouldn't wait on every individual
+      // subscriber email finishing its own SMTP round-trip
+      if (isPosted) {
+        notifySubscribers(created).catch((err) =>
+          console.error("notifySubscribers failed:", err),
+        );
+      }
+      return created;
     },
     editPost: async (
       _,
@@ -383,11 +464,18 @@ contact the webmaster immediately by replying to this message.`,
         // only stamp postedAt the moment a draft actually goes live;
         // re-saving an already-published post must not change it
         const isPosted = posted ?? updatedPost.posted;
-        if (isPosted && !updatedPost.posted) {
+        const isPublishing = isPosted && !updatedPost.posted;
+        if (isPublishing) {
           updatedPost.postedAt = new Date();
         }
         updatedPost.posted = isPosted;
         await updatedPost.save();
+        // fire-and-forget -- see addPost for why this isn't awaited
+        if (isPublishing) {
+          notifySubscribers(updatedPost).catch((err) =>
+            console.error("notifySubscribers failed:", err),
+          );
+        }
         return updatedPost;
       } catch (error) {
         console.log(error);
@@ -641,6 +729,16 @@ contact the webmaster immediately by replying to this message.`,
 
       // returning "true" to client means emails successfully sent
       return true;
+    },
+    // no login required -- the signed token in the link is the only
+    // credential, scoped to exactly this one action
+    unsubscribe: async (_, { token }) => {
+      const userId = verifyUnsubscribeToken(token);
+      if (!userId) return false;
+      const result = await User.findByIdAndUpdate(userId, {
+        notifications: false,
+      });
+      return !!result;
     },
   },
 };
