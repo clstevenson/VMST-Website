@@ -79,19 +79,27 @@ const seedUsers = async (members) => {
     };
     userData.push(obj);
   }
-  // add four leaders for email testing
+  // need some admins for testing
+  // need several leaders for email testing
   userData.push({
-    firstName: "Ian",
-    lastName: "Stevenson",
-    password: "password",
-    email: "cstevens@richmond.edu",
-    role: "leader",
-  });
-  userData.push({
-    firstName: "Leonidas",
+    firstName: "Chris",
     lastName: "Stevenson",
     password: "password",
     email: "leader@gmail.com",
+    role: "leader",
+  });
+  userData.push({
+    firstName: "Chris",
+    lastName: "Stevenson",
+    password: "password",
+    email: "leader1@gmail.com",
+    role: "leader",
+  });
+  userData.push({
+    firstName: "Chris",
+    lastName: "Stevenson",
+    password: "password",
+    email: "leader2@gmail.com",
     role: "leader",
   });
   userData.push({
@@ -104,7 +112,7 @@ const seedUsers = async (members) => {
   });
   // add membership coordinator for membership CSV upload
   userData.push({
-    firstName: "Christopher",
+    firstName: "Chris",
     lastName: "Stevenson",
     password: "password",
     email: "membership@gmail.com",
