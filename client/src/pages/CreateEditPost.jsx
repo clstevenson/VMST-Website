@@ -120,9 +120,9 @@ export default function CreateEditPost({ isEditing = false }) {
     },
   });
 
+  // only logged-in leaders can view the page; wait for the auth check
+  // (including a possible silent token refresh) to settle first
   useEffect(() => {
-    // only logged-in leaders can view the page; wait for the auth check
-    // (including a possible silent token refresh) to settle first
     if (!isLoading && !isLeader) navigate("/");
   }, [isLoading, isLeader, navigate]);
 
@@ -136,7 +136,16 @@ export default function CreateEditPost({ isEditing = false }) {
     if (isEditing) {
       getPost({ variables: { postId } });
     }
-  }, [isLoading, isLeader, albumId, page, getPhotos, getPost, postId, isEditing]);
+  }, [
+    isLoading,
+    isLeader,
+    albumId,
+    page,
+    getPhotos,
+    getPost,
+    postId,
+    isEditing,
+  ]);
 
   const onSubmit = async ({ title, summary }) => {
     // make sure there is content
@@ -460,7 +469,7 @@ const FormWrapper = styled.form`
   }
 
   @media (max-width: 1200px) {
-    grid-template-columns: minmax(350px, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "content"
       "photo"
@@ -486,8 +495,8 @@ const TogglePhotoGrid = styled(ToggleGroup.Root)`
   }
 
   @media (max-width: 550px) {
-    grid-template-columns: repeat(4, minmax(100px, 1fr));
-    grid-template-rows: repeat(4, minmax(100px, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
     height: 450px;
   }
 `;
@@ -528,6 +537,10 @@ const TextWrapper = styled.div`
   flex-direction: column;
   gap: 24px;
   border: none;
+
+  @media ${QUERIES.mobile} {
+    min-width: 300px;
+  }
 `;
 
 const PhotoWrapper = styled.div`
@@ -600,14 +613,28 @@ const PhotoNav = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
+
+  @media ${QUERIES.mobile} {
+    flex-direction: column;
+    align-items: stretch;
+  }
 `;
 
-const SelectWrapper = styled.div``;
+const SelectWrapper = styled.div`
+  min-width: 0;
+  flex: 1;
+`;
 
 const ChevronWrapper = styled.div`
   display: flex;
   align-items: center;
   margin-left: auto;
+
+  @media ${QUERIES.mobile} {
+    margin-left: 0;
+    justify-content: center;
+  }
 `;
 
 const PhotoNavButton = styled.button`
@@ -635,6 +662,7 @@ const PhotoNavButton = styled.button`
 
 const SelectTrigger = styled(Select.Trigger)`
   width: 35ch;
+  max-width: 100%;
   display: inline-flex;
   justify-content: space-between;
   margin-right: 6px;

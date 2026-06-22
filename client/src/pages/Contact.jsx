@@ -21,7 +21,7 @@ export default function EmailPage2() {
   const [emailWebmaster, { error: webmasterError }] =
     useMutation(EMAIL_WEBMASTER);
   const [emailLeadersWebmaster, { error: leaderWebmasterError }] = useMutation(
-    EMAIL_LEADERSWEBMASTER
+    EMAIL_LEADERSWEBMASTER,
   );
 
   const {
@@ -96,7 +96,7 @@ export default function EmailPage2() {
       } else {
         // TODO: need to change this to output to form
         alert(
-          "Error: something went wrong sending your message. Please try again later."
+          "Error: something went wrong sending your message. Please try again later.",
         );
       }
     } catch (err) {
@@ -111,8 +111,7 @@ export default function EmailPage2() {
       <Title>Contact Us</Title>
       <p>
         We would love to hear from you! Use this form to send a message to VMST
-        leaders (President, Vice President, Secretary) and/or the webmaster of
-        this site.
+        leaders and/or the webmaster of this site.
       </p>
       <form onSubmit={handleSubmit(onSubmit)} aria-labelledby="contact">
         <InputWrapper>
