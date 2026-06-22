@@ -47,6 +47,18 @@ const photoSchema = new Schema(
   }
 );
 
+// embedded (not a ref) so a draft's authorship survives the author's
+// account being deleted -- a future webmaster post-management tab can
+// treat "no matching user" as a signal that a stale draft is safe to delete
+const authorSchema = new Schema(
+  {
+    userId: { type: String, required: true },
+  },
+  {
+    _id: false,
+  }
+);
+
 const postSchema = new Schema(
   {
     title: { type: String, required: true },
@@ -59,6 +71,21 @@ const postSchema = new Schema(
       default: () => new Date(),
       get: (d) => d.toLocaleDateString(),
     },
+    // drafts (posted: false) are only visible/editable by their author;
+    // default true so existing code that creates posts without specifying
+    // this still behaves as "published" -- note this default is only
+    // applied when Mongoose hydrates a document, not at the MongoDB query
+    // level, so posts already in the DB before this field existed need a
+    // one-time backfill (see server/scripts/backfill-post-fields.js)
+    posted: { type: Boolean, default: true },
+    // when the post actually went live; left unset for drafts and for
+    // legacy posts predating this field (sort-order handling for that is a
+    // separate, later task)
+    postedAt: {
+      type: Date,
+      get: (d) => d?.toLocaleDateString(),
+    },
+    author: authorSchema,
     // below are for the posts photos, eventually replaced by sub-population document
     // comments on the post (by any user)
     photo: photoSchema,

@@ -42,11 +42,11 @@ export default function BlogPosts() {
     <>
       {posts.map((post) => {
         return (
-          <Post key={post._id} to={`/post/${post._id}`}>
+          <Post key={post._id} to={`/post/${post._id}`} $draft={!post.posted}>
             {post.photo && (
               <Image src={post.photo.url} alt={post.photo.caption} />
             )}
-            <Title>{post.title}</Title>
+            <Title>{!post.posted && "DRAFT: "}{post.title}</Title>
             {post.summary ? (
               <Content>{post.summary}</Content>
             ) : (
@@ -73,7 +73,8 @@ const Post = styled(Link)`
   flex-direction: column;
   gap: 16px;
   padding: 24px;
-  background-color: ${COLORS.accent[1]};
+  background-color: ${(props) =>
+    props.$draft ? COLORS.urgent_light : COLORS.accent[1]};
   position: relative;
   border: 1px solid ${COLORS.gray[8]};
   border-radius: 4px;

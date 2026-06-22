@@ -4,7 +4,7 @@
 
 import styled from "styled-components";
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation } from "@apollo/client";
 import * as Separator from "@radix-ui/react-separator";
 import { Home, Trash2, Edit } from "react-feather";
@@ -59,6 +59,19 @@ export default function SinglePost() {
         <Spinner />
       </SpinnerWrapper>
     );
+
+  // null here means either a bad/stale ID, or (deliberately) a draft this
+  // visitor isn't the author of -- same message either way, so a draft's
+  // existence isn't leaked to non-authors
+  if (!post) {
+    return (
+      <Wrapper>
+        <NotFound>
+          Sorry, this post could not be found. <Link to="/">Return home</Link>
+        </NotFound>
+      </Wrapper>
+    );
+  }
 
   return (
     <Wrapper>
@@ -275,6 +288,11 @@ const Attribution = styled.p`
   font-style: italic;
   text-align: right;
   padding-right: 32px;
+`;
+
+const NotFound = styled.p`
+  text-align: center;
+  padding: 16px 0;
 `;
 
 const FooterWrapper = styled.div`

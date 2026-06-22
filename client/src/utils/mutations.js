@@ -14,17 +14,20 @@ export const ADD_POST = gql`
     $summary: String
     $content: String!
     $photo: PhotoData
+    $posted: Boolean
   ) {
     addPost(
       title: $title
       summary: $summary
       content: $content
       photo: $photo
+      posted: $posted
     ) {
       _id
       title
       summary
       content
+      posted
       photo {
         url
         caption
@@ -41,6 +44,7 @@ export const EDIT_POST = gql`
     $content: String!
     $summary: String
     $photo: PhotoData
+    $posted: Boolean
   ) {
     editPost(
       _id: $id
@@ -48,8 +52,10 @@ export const EDIT_POST = gql`
       content: $content
       summary: $summary
       photo: $photo
+      posted: $posted
     ) {
       _id
+      posted
       photo {
         id
       }

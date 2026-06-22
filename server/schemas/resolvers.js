@@ -47,12 +47,25 @@ const resolvers = {
       requireRole(user);
       return await User.findOne({ email: email });
     },
-    // get all posts, sorted most recent first
-    posts: async () => await Post.find().sort({ createdAt: -1 }),
+    // get all posts, sorted most recent first; a draft (posted: false) is
+    // only included for the logged-in user who authored it
+    posts: async (_, __, { user }) => {
+      const filter = user
+        ? { $or: [{ posted: true }, { posted: false, "author.userId": user._id }] }
+        : { posted: true };
+      return await Post.find(filter).sort({ createdAt: -1 });
+    },
     // get a single post with all comments
     // can't populate users directly, need to populate comments that are nested
-    onePost: async (_, { id }) =>
-      await Post.findById(id).populate("comments.user"),
+    // a draft is only returned to its own author -- everyone else gets null,
+    // same as a nonexistent post
+    onePost: async (_, { id }, { user }) => {
+      const post = await Post.findById(id).populate("comments.user");
+      if (post && !post.posted && post.author?.userId !== user?._id) {
+        return null;
+      }
+      return post;
+    },
     // get list of unique workout groups
     // GraphQL returns an object of the form { groups: [...list of unique groups ...] }
     // Note that there is a client-side JS utility that does the same thing, given
@@ -324,34 +337,56 @@ contact the webmaster immediately by replying to this message.`,
       }
     },
     // add a new post
-    addPost: async (_, { title, summary, content, photo }, { user }) => {
+    addPost: async (_, { title, summary, content, photo, posted }, { user }) => {
       // only team leaders can create posts
       requireRole(user, "leader");
+      const isPosted = posted ?? true;
       const post = {
         title,
         summary,
         content,
         photo,
+        posted: isPosted,
+        postedAt: isPosted ? new Date() : undefined,
+        author: { userId: user._id },
       };
       return await Post.create(post);
     },
-    editPost: async (_, { _id, title, summary, content, photo }, { user }) => {
-      // only leaders can delete posts
+    editPost: async (
+      _,
+      { _id, title, summary, content, photo, posted },
+      { user },
+    ) => {
+      // only leaders can edit posts
       requireRole(user, "leader");
+      // query-then-save (not findOneAndUpdate) so schema validators --
+      // required fields on the post and on the embedded photo subdoc --
+      // actually run
+      const updatedPost = await Post.findById(_id);
+      if (!updatedPost) {
+        throw new Error("Something went wrong, post was not updated");
+      }
+      // a draft is only editable by the leader who created it, so other
+      // leaders don't unknowingly alter or delete someone's in-progress
+      // post; once published, any leader can edit as before. Thrown outside
+      // the try/catch below so it isn't swallowed by the generic catch.
+      if (!updatedPost.posted && updatedPost.author?.userId !== user._id) {
+        throw AuthenticationError;
+      }
       try {
-        // query-then-save (not findOneAndUpdate) so schema validators --
-        // required fields on the post and on the embedded photo subdoc --
-        // actually run
-        const updatedPost = await Post.findById(_id);
-        if (!updatedPost) {
-          throw new Error("Something went wrong, post was not updated");
-        }
         updatedPost.title = title;
         updatedPost.summary = summary;
         updatedPost.content = content;
         // assigning undefined and saving unsets the subdocument entirely,
         // equivalent to the previous $unset: { photo: 1 }
         updatedPost.photo = photo.id ? photo : undefined;
+        // only stamp postedAt the moment a draft actually goes live;
+        // re-saving an already-published post must not change it
+        const isPosted = posted ?? updatedPost.posted;
+        if (isPosted && !updatedPost.posted) {
+          updatedPost.postedAt = new Date();
+        }
+        updatedPost.posted = isPosted;
         await updatedPost.save();
         return updatedPost;
       } catch (error) {
@@ -361,6 +396,13 @@ contact the webmaster immediately by replying to this message.`,
     deletePost: async (_, { _id }, { user }) => {
       // only leaders can delete posts
       requireRole(user, "leader");
+      const post = await Post.findById(_id);
+      if (!post) return null;
+      // same author-only restriction on drafts as editPost, thrown outside
+      // the try/catch below so it isn't swallowed by the generic catch
+      if (!post.posted && post.author?.userId !== user._id) {
+        throw AuthenticationError;
+      }
       try {
         const deletedPost = await Post.findByIdAndDelete(_id);
         // return is null if the post is not deleted (ie, ID not found)

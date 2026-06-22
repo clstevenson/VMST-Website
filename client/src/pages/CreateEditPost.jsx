@@ -73,6 +73,13 @@ export default function CreateEditPost({ isEditing = false }) {
   // button can stay disabled until something actually changes
   const originalContentRef = useRef("");
   const originalPhotoIdRef = useRef("");
+  // whether the post being edited is currently a draft (only relevant
+  // when isEditing; unused -- and irrelevant -- when creating)
+  const [postIsDraft, setPostIsDraft] = useState(false);
+  // which action (Save vs Post) the user clicked, read by onSubmit; both
+  // buttons are type="submit" on the same form, so this is set just before
+  // the submit fires rather than tracked via two separate handlers
+  const publishOnSubmitRef = useRef(true);
 
   const { postId } = useParams();
 
@@ -128,6 +135,7 @@ export default function CreateEditPost({ isEditing = false }) {
       setContentReady(true);
       setPostPhoto(data.onePost.photo ?? {});
       originalPhotoIdRef.current = data.onePost.photo?.id ?? "";
+      setPostIsDraft(!data.onePost.posted);
     },
   });
 
@@ -164,9 +172,20 @@ export default function CreateEditPost({ isEditing = false }) {
   const photoChanged = (postPhoto.id ?? "") !== originalPhotoIdRef.current;
   const hasUnsavedChanges = isDirty || contentChanged || photoChanged;
   const saveDisabled = isEditing && !hasUnsavedChanges;
+  // true whenever there's a separate "Post" action available (creating a
+  // new post, or editing one that's still a draft) -- in that case "Save"
+  // means "stay a draft," otherwise "Save" means "save the published post"
+  const canPublish = !isEditing || postIsDraft;
 
   const onSubmit = async ({ title, summary }) => {
-    if (saveDisabled) return;
+    // renamed from "posted" locally to avoid colliding with the
+    // posted/setPosted state below, which means something unrelated
+    // (whether the just-submitted save succeeded, for the toast)
+    const shouldPost = publishOnSubmitRef.current;
+    // publishing a draft is always meaningful, even with no other edits;
+    // otherwise respect the no-unsaved-changes guard as before
+    const isPublishingDraft = isEditing && postIsDraft && shouldPost;
+    if (saveDisabled && !isPublishingDraft) return;
     // make sure there is content
     if (!postContent) {
       setMessage("Content cannot be empty.");
@@ -186,6 +205,7 @@ export default function CreateEditPost({ isEditing = false }) {
               summary,
               content: postContent,
               photo: { id, url, caption, flickrURL },
+              posted: shouldPost,
             },
           });
         } else {
@@ -195,6 +215,7 @@ export default function CreateEditPost({ isEditing = false }) {
               summary,
               content: postContent,
               photo: { id, url, caption, flickrURL },
+              posted: shouldPost,
             },
           });
         }
@@ -214,11 +235,12 @@ export default function CreateEditPost({ isEditing = false }) {
               summary,
               content: postContent,
               photo,
+              posted: shouldPost,
             },
           });
         } else {
           await addPost({
-            variables: { title, summary, content: postContent },
+            variables: { title, summary, content: postContent, posted: shouldPost },
           });
         }
       }
@@ -462,24 +484,6 @@ export default function CreateEditPost({ isEditing = false }) {
           >
             <SquareX /> Cancel
           </IconButton>
-          {!isEditing && (
-            <IconButton
-              type="button"
-              $disabled
-              aria-disabled="true"
-              onMouseEnter={() =>
-                setActionStatus("Save as draft post — coming soon")
-              }
-              onFocus={() =>
-                setActionStatus("Save as draft post — coming soon")
-              }
-              onMouseLeave={() => setActionStatus("")}
-              onBlur={() => setActionStatus("")}
-              onClick={(event) => event.preventDefault()}
-            >
-              <Archive /> Save
-            </IconButton>
-          )}
           <IconButton
             type="submit"
             $disabled={saveDisabled}
@@ -488,29 +492,55 @@ export default function CreateEditPost({ isEditing = false }) {
               setActionStatus(
                 saveDisabled
                   ? "No changes to save"
-                  : isEditing
-                    ? "Save changes to post"
-                    : "Create blog post",
+                  : canPublish
+                    ? "Save as draft post"
+                    : "Save changes to post",
               )
             }
             onFocus={() =>
               setActionStatus(
                 saveDisabled
                   ? "No changes to save"
-                  : isEditing
-                    ? "Save changes to post"
-                    : "Create blog post",
+                  : canPublish
+                    ? "Save as draft post"
+                    : "Save changes to post",
               )
             }
             onMouseLeave={() => setActionStatus("")}
             onBlur={() => setActionStatus("")}
             onClick={(event) => {
+              publishOnSubmitRef.current = !canPublish;
               if (saveDisabled) event.preventDefault();
             }}
           >
-            {isEditing ? <SaveCheck /> : <BookPlus />}
-            {isSubmitting ? "working..." : isEditing ? "Save" : "Post"}
+            {canPublish ? <Archive /> : <SaveCheck />}
+            {isSubmitting && !publishOnSubmitRef.current ? "working..." : "Save"}
           </IconButton>
+          {canPublish && (
+            <IconButton
+              type="submit"
+              onMouseEnter={() =>
+                setActionStatus(
+                  isEditing ? "Publish this draft" : "Create blog post",
+                )
+              }
+              onFocus={() =>
+                setActionStatus(
+                  isEditing ? "Publish this draft" : "Create blog post",
+                )
+              }
+              onMouseLeave={() => setActionStatus("")}
+              onBlur={() => setActionStatus("")}
+              onClick={() => {
+                publishOnSubmitRef.current = true;
+              }}
+            >
+              <BookPlus />
+              {isSubmitting && publishOnSubmitRef.current
+                ? "working..."
+                : "Post"}
+            </IconButton>
+          )}
         </ActionRow>
         <StatusLine>{actionStatus}</StatusLine>
       </SubmitWrapper>

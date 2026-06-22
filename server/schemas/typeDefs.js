@@ -73,12 +73,19 @@ type Comment {
   createdAt: String
 }
 
+type Author {
+  userId: ID!
+}
+
 type Post {
   _id: ID!
   title: String!
   summary: String
   content: String!
   createdAt: String
+  posted: Boolean!
+  postedAt: String
+  author: Author
   photo: Photo
   comments: [Comment]
 }
@@ -236,8 +243,8 @@ type Mutation {
   deleteUser(_id: ID!): User
   resetPassword(email: String!): User
   changePassword(password: String!): User
-  addPost(title: String!, summary: String, content: String!, photo: PhotoData): Post
-  editPost(_id: ID!, title: String!, summary: String, content: String!, photo: PhotoData): Post
+  addPost(title: String!, summary: String, content: String!, photo: PhotoData, posted: Boolean): Post
+  editPost(_id: ID!, title: String!, summary: String, content: String!, photo: PhotoData, posted: Boolean): Post
   deletePost(_id: ID!): Post
   addMeet(meet: MeetData, meetSwimmers: [MeetSwimmerData], relays: [RelayData]): Meet
   deleteMeet(_id: ID!): Meet

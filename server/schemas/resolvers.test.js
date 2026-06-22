@@ -123,6 +123,21 @@ async function runWithRes(query, variables, contextUser) {
   return response.body.singleResult;
 }
 
+// a second leader, created/cleaned up per-test rather than added to the
+// shared fixture set in test.before -- emailLeaders's "anonymous visitor"
+// test asserts on the exact set of leaders that exist, so adding one
+// globally would break it
+async function createSecondLeader() {
+  const doc = await User.create({
+    firstName: "Test",
+    lastName: "leader2",
+    email: "leader2@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+    role: "leader",
+  });
+  return { _id: doc._id.toString(), role: "leader" };
+}
+
 // mirrors the field mapping in client/src/components/Membership/UploadMembers.jsx,
 // so the test exercises uploadMembers with the same shape the real upload sends
 function parseMemberReportCSV(filePath) {
@@ -883,6 +898,177 @@ test("deletePost: rejects a non-leader, succeeds for a leader", async () => {
 
   const stillThere = await Post.findById(post._id);
   assert.equal(stillThere, null);
+});
+
+test("addPost: defaults to posted with author/postedAt set; posted:false creates an unpublished draft", async () => {
+  const query = `mutation($title: String!, $content: String!, $posted: Boolean) {
+    addPost(title: $title, content: $content, posted: $posted) {
+      _id
+      posted
+      postedAt
+      author { userId }
+    }
+  }`;
+
+  const { data: published, errors: publishedErrors } = await run(
+    query,
+    { title: "Published by default", content: "<p>...</p>" },
+    users.leader,
+  );
+  assert.equal(publishedErrors, undefined);
+  assert.equal(published.addPost.posted, true);
+  assert.ok(published.addPost.postedAt);
+  assert.equal(published.addPost.author.userId, users.leader._id);
+  await Post.findByIdAndDelete(published.addPost._id);
+
+  const { data: draft, errors: draftErrors } = await run(
+    query,
+    { title: "A draft", content: "<p>...</p>", posted: false },
+    users.leader,
+  );
+  assert.equal(draftErrors, undefined);
+  assert.equal(draft.addPost.posted, false);
+  assert.equal(draft.addPost.postedAt, null);
+  assert.equal(draft.addPost.author.userId, users.leader._id);
+  await Post.findByIdAndDelete(draft.addPost._id);
+});
+
+test("posts/onePost: a draft is only visible to its own author, not other leaders or anonymous visitors", async () => {
+  const { data: created } = await run(
+    `mutation($title: String!, $content: String!, $posted: Boolean) {
+      addPost(title: $title, content: $content, posted: $posted) { _id }
+    }`,
+    { title: "Leader's draft", content: "<p>secret</p>", posted: false },
+    users.leader,
+  );
+  const draftId = created.addPost._id;
+  const leader2 = await createSecondLeader();
+
+  try {
+    const listQuery = `{ posts { _id } }`;
+    const { data: asAuthor } = await run(listQuery, {}, users.leader);
+    assert.ok(asAuthor.posts.some((p) => p._id === draftId));
+
+    const { data: asOtherLeader } = await run(listQuery, {}, leader2);
+    assert.ok(!asOtherLeader.posts.some((p) => p._id === draftId));
+
+    const { data: anon } = await run(listQuery, {}, undefined);
+    assert.ok(!anon.posts.some((p) => p._id === draftId));
+
+    const oneQuery = `query($id: String!) { onePost(id: $id) { _id } }`;
+    const { data: oneAsAuthor } = await run(
+      oneQuery,
+      { id: draftId },
+      users.leader,
+    );
+    assert.equal(oneAsAuthor.onePost._id, draftId);
+
+    const { data: oneAsOther } = await run(
+      oneQuery,
+      { id: draftId },
+      leader2,
+    );
+    assert.equal(oneAsOther.onePost, null);
+
+    const { data: oneAnon } = await run(oneQuery, { id: draftId }, undefined);
+    assert.equal(oneAnon.onePost, null);
+  } finally {
+    await Post.findByIdAndDelete(draftId);
+    await User.findByIdAndDelete(leader2._id);
+  }
+});
+
+test("editPost: a draft is only editable by its author; publishing it sets postedAt, which then stays fixed", async () => {
+  const { data: created } = await run(
+    `mutation($title: String!, $content: String!, $posted: Boolean) {
+      addPost(title: $title, content: $content, posted: $posted) { _id }
+    }`,
+    { title: "Draft to edit", content: "<p>v1</p>", posted: false },
+    users.leader,
+  );
+  const id = created.addPost._id;
+  const leader2 = await createSecondLeader();
+
+  const editMutation = `mutation($id: ID!, $title: String!, $content: String!, $photo: PhotoData, $posted: Boolean) {
+    editPost(_id: $id, title: $title, content: $content, photo: $photo, posted: $posted) {
+      title
+      posted
+      postedAt
+    }
+  }`;
+  const noPhoto = { id: "", url: "" };
+
+  try {
+    // another leader can't touch it while it's a draft
+    const { errors: rejected } = await run(
+      editMutation,
+      { id, title: "Hijacked", content: "<p>v2</p>", photo: noPhoto, posted: false },
+      leader2,
+    );
+    assert.ok(rejected?.length, "non-author leader should be rejected on a draft");
+    const stillOriginal = await Post.findById(id);
+    assert.equal(stillOriginal.title, "Draft to edit");
+
+    // the author can edit it, keeping it a draft
+    const { data: stillDraft, errors: draftErrors } = await run(
+      editMutation,
+      { id, title: "Draft v2", content: "<p>v2</p>", photo: noPhoto, posted: false },
+      users.leader,
+    );
+    assert.equal(draftErrors, undefined);
+    assert.equal(stillDraft.editPost.posted, false);
+    assert.equal(stillDraft.editPost.postedAt, null);
+
+    // the author publishes it -- postedAt gets set
+    const { data: published } = await run(
+      editMutation,
+      { id, title: "Now published", content: "<p>v3</p>", photo: noPhoto, posted: true },
+      users.leader,
+    );
+    assert.equal(published.editPost.posted, true);
+    assert.ok(published.editPost.postedAt);
+
+    // now that it's published, any leader can edit it, and postedAt is unchanged
+    const firstPostedAt = published.editPost.postedAt;
+    const { data: editedByOther, errors: otherErrors } = await run(
+      editMutation,
+      { id, title: "Edited by leader2", content: "<p>v4</p>", photo: noPhoto, posted: true },
+      leader2,
+    );
+    assert.equal(otherErrors, undefined);
+    assert.equal(editedByOther.editPost.title, "Edited by leader2");
+    assert.equal(editedByOther.editPost.postedAt, firstPostedAt);
+  } finally {
+    await Post.findByIdAndDelete(id);
+    await User.findByIdAndDelete(leader2._id);
+  }
+});
+
+test("deletePost: a draft is only deletable by its author", async () => {
+  const { data: created } = await run(
+    `mutation($title: String!, $content: String!, $posted: Boolean) {
+      addPost(title: $title, content: $content, posted: $posted) { _id }
+    }`,
+    { title: "Draft to delete", content: "<p>...</p>", posted: false },
+    users.leader,
+  );
+  const id = created.addPost._id;
+  const leader2 = await createSecondLeader();
+  const query = `mutation($id: ID!) { deletePost(_id: $id) { _id } }`;
+
+  try {
+    const { errors: rejected } = await run(query, { id }, leader2);
+    assert.ok(rejected?.length, "non-author leader should be rejected on a draft");
+    assert.ok(await Post.findById(id), "draft should still exist");
+
+    const { data, errors } = await run(query, { id }, users.leader);
+    assert.equal(errors, undefined);
+    assert.equal(data.deletePost._id, id);
+    assert.equal(await Post.findById(id), null);
+  } finally {
+    await Post.findByIdAndDelete(id);
+    await User.findByIdAndDelete(leader2._id);
+  }
 });
 
 test("addMeet and deleteMeet: reject a coach (leader-only, unlike meets/vmstMembers)", async () => {
