@@ -7,13 +7,14 @@
  */
 
 import styled from "styled-components";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { useForm } from "react-hook-form";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import * as Select from "@radix-ui/react-select";
 import { ChevronLeft, ChevronRight, Check } from "react-feather";
+import { SquareX, Archive, SaveCheck, BookPlus } from "lucide-react";
 
 import { useAuth } from "../context/AuthContext";
 import {
@@ -22,8 +23,7 @@ import {
   QUERY_SINGLEPOST,
 } from "../utils/queries";
 import { ADD_POST, EDIT_POST } from "../utils/mutations";
-import { COLORS, QUERIES, WEIGHTS } from "../utils/constants";
-import SubmitButton from "../components/Styled/SubmiButton";
+import { COLORS, QUERIES } from "../utils/constants";
 import ErrorMessage from "../components/Styled/ErrorMessage";
 import ToastMessage from "../components/ToastMessage";
 import Spinner from "../components/Spinner";
@@ -41,7 +41,7 @@ export default function CreateEditPost({ isEditing = false }) {
     getValues,
     setValue,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm();
 
   // controls album (photoset) being displayed
@@ -67,6 +67,12 @@ export default function CreateEditPost({ isEditing = false }) {
   // when editing, postContent loads asynchronously, so the editor must not
   // mount until that initial content has arrived
   const [contentReady, setContentReady] = useState(!isEditing);
+  // description shown under the Cancel/Save/Post icon row on hover/focus
+  const [actionStatus, setActionStatus] = useState("");
+  // baseline values captured when editing an existing post, so the Save
+  // button can stay disabled until something actually changes
+  const originalContentRef = useRef("");
+  const originalPhotoIdRef = useRef("");
 
   const { postId } = useParams();
 
@@ -109,14 +115,19 @@ export default function CreateEditPost({ isEditing = false }) {
 
   const [getPost] = useLazyQuery(QUERY_SINGLEPOST, {
     onCompleted: (data) => {
-      setValue("title", data.onePost.title);
-      setValue("summary", data.onePost.summary);
+      // reset (rather than setValue) establishes these as the form's
+      // baseline, so formState.isDirty only flips once the user actually
+      // changes something instead of as soon as the async load lands
+      reset({
+        title: data.onePost.title,
+        summary: data.onePost.summary,
+        caption: data.onePost.photo?.caption ?? "",
+      });
       setPostContent(data.onePost.content);
+      originalContentRef.current = data.onePost.content;
       setContentReady(true);
-      if (data.onePost.photo) {
-        setPostPhoto(data.onePost.photo);
-        setValue("caption", data.onePost.photo.caption);
-      }
+      setPostPhoto(data.onePost.photo ?? {});
+      originalPhotoIdRef.current = data.onePost.photo?.id ?? "";
     },
   });
 
@@ -147,7 +158,15 @@ export default function CreateEditPost({ isEditing = false }) {
     isEditing,
   ]);
 
+  // when editing, there's no need to save (or run a mutation) until
+  // something has actually changed from what was loaded
+  const contentChanged = postContent !== originalContentRef.current;
+  const photoChanged = (postPhoto.id ?? "") !== originalPhotoIdRef.current;
+  const hasUnsavedChanges = isDirty || contentChanged || photoChanged;
+  const saveDisabled = isEditing && !hasUnsavedChanges;
+
   const onSubmit = async ({ title, summary }) => {
+    if (saveDisabled) return;
     // make sure there is content
     if (!postContent) {
       setMessage("Content cannot be empty.");
@@ -376,10 +395,10 @@ export default function CreateEditPost({ isEditing = false }) {
             if (value) {
               const photo = photos.filter((photo) => photo.id === value)[0];
               setPostPhoto(photo);
-              setValue("caption", photo.caption);
+              setValue("caption", photo.caption, { shouldDirty: true });
             } else {
               setPostPhoto({});
-              setValue("caption", "");
+              setValue("caption", "", { shouldDirty: true });
             }
           }}
         >
@@ -421,18 +440,79 @@ export default function CreateEditPost({ isEditing = false }) {
         </InputWrapper>
       </PhotoWrapper>
       <SubmitWrapper>
-        <Button
-          type="button"
-          onClick={() => {
-            reset();
-            navigate(-1);
-          }}
-        >
-          Close
-        </Button>
-        <SubmitButton style={{ minWidth: "var(--btn-width)" }} type="submit">
-          {isSubmitting ? "working..." : isEditing ? "Save" : "Post"}
-        </SubmitButton>
+        <ActionRow>
+          <IconButton
+            type="button"
+            onMouseEnter={() =>
+              setActionStatus(
+                isEditing ? "Do not save changes" : "Do not post",
+              )
+            }
+            onFocus={() =>
+              setActionStatus(
+                isEditing ? "Do not save changes" : "Do not post",
+              )
+            }
+            onMouseLeave={() => setActionStatus("")}
+            onBlur={() => setActionStatus("")}
+            onClick={() => {
+              reset();
+              navigate(-1);
+            }}
+          >
+            <SquareX /> Cancel
+          </IconButton>
+          {!isEditing && (
+            <IconButton
+              type="button"
+              $disabled
+              aria-disabled="true"
+              onMouseEnter={() =>
+                setActionStatus("Save as draft post — coming soon")
+              }
+              onFocus={() =>
+                setActionStatus("Save as draft post — coming soon")
+              }
+              onMouseLeave={() => setActionStatus("")}
+              onBlur={() => setActionStatus("")}
+              onClick={(event) => event.preventDefault()}
+            >
+              <Archive /> Save
+            </IconButton>
+          )}
+          <IconButton
+            type="submit"
+            $disabled={saveDisabled}
+            aria-disabled={saveDisabled ? "true" : undefined}
+            onMouseEnter={() =>
+              setActionStatus(
+                saveDisabled
+                  ? "No changes to save"
+                  : isEditing
+                    ? "Save changes to post"
+                    : "Create blog post",
+              )
+            }
+            onFocus={() =>
+              setActionStatus(
+                saveDisabled
+                  ? "No changes to save"
+                  : isEditing
+                    ? "Save changes to post"
+                    : "Create blog post",
+              )
+            }
+            onMouseLeave={() => setActionStatus("")}
+            onBlur={() => setActionStatus("")}
+            onClick={(event) => {
+              if (saveDisabled) event.preventDefault();
+            }}
+          >
+            {isEditing ? <SaveCheck /> : <BookPlus />}
+            {isSubmitting ? "working..." : isEditing ? "Save" : "Post"}
+          </IconButton>
+        </ActionRow>
+        <StatusLine>{actionStatus}</StatusLine>
       </SubmitWrapper>
       {posted && (
         <ToastMessage toastCloseEffect={cleanup} duration={1500}>
@@ -444,8 +524,6 @@ export default function CreateEditPost({ isEditing = false }) {
 }
 
 const FormWrapper = styled.form`
-  /* common min width of all buttons */
-  --btn-width: 12ch;
   --label-size: 1.1rem;
   display: grid;
   grid-template-columns:
@@ -557,28 +635,55 @@ const PhotoWrapper = styled.div`
   }
 `;
 
-const Button = styled.button`
-  display: inline-block;
-  text-align: center;
-  min-width: var(--btn-width);
-  padding: 4px 8px;
-  background-color: ${COLORS.accent[12]};
-  color: white;
-  border-radius: 4px;
-  font-weight: ${WEIGHTS.medium};
-  cursor: pointer;
-
-  &:hover {
-    background-color: ${COLORS.accent[10]};
-  }
-`;
-
 const SubmitWrapper = styled.div`
   grid-area: button;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
+`;
+
+const ActionRow = styled.div`
+  display: flex;
+  justify-content: center;
   gap: 48px;
+`;
+
+const IconButton = styled.button`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  padding: 4px 8px;
+  line-height: 1;
+  color: ${COLORS.accent[12]};
+  opacity: ${(props) => (props.$disabled ? 0.5 : 1)};
+
+  & svg {
+    width: 48px;
+    height: 48px;
+    stroke-width: 1.5;
+    padding: 8px;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+    color: ${COLORS.accent[9]};
+    cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
+  }
+  &:hover svg {
+    stroke-width: 2;
+  }
+`;
+
+// reserves a line of height so hover/focus descriptions don't shift layout
+const StatusLine = styled.p`
+  height: 1.2em;
+  margin-top: 4px;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: ${COLORS.accent[11]};
 `;
 
 const Description = styled.p`
