@@ -56,6 +56,13 @@ const userSchema = new Schema({
   // set true once the user clicks the link in their verification email
   // (sent on signup, and again whenever they change their email address)
   emailVerified: {type: Boolean, default: false,},
+  // optional link to this person's USMS membership record, set once they
+  // confirm their USMS ID via the "Link account to USMS membership" flow.
+  // A given Member can be linked from at most one User account (enforced in
+  // the linkMember resolver, not here, since a unique index would also have
+  // to allow many `null`s -- Mongoose handles that fine but it's one extra
+  // moving part for a single write path with full control already)
+  linkedMember: {type: Schema.Types.ObjectId, ref: 'member', default: null,},
   // active: normal. silent: can't post comments (not wired up yet, since
   // comments aren't either). banned: can't log in, and their email can't
   // be reused by a new account (see the unique index above).

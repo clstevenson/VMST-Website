@@ -829,6 +829,36 @@ contact the webmaster immediately by replying to this message.`,
         return false;
       }
     },
+    // links the caller's account to their USMS membership record by USMS ID.
+    // One Member can be linked from at most one User account -- enforced
+    // here, not via a unique index, since `null` is the common case and
+    // this is the only write path anyway
+    linkMember: async (_, { usmsId }, { user }) => {
+      requireRole(user);
+      const member = await Member.findOne({ usmsId });
+      if (!member) {
+        const coordinator = await User.findOne({
+          role: "membership",
+        }).select("email");
+        throw new Error(
+          "That USMS ID wasn't found. Please check it and try again." +
+            (coordinator
+              ? ` If you believe this is an error, contact the membership coordinator at ${coordinator.email}.`
+              : ""),
+        );
+      }
+      const alreadyLinked = await User.findOne({
+        linkedMember: member._id,
+        _id: { $ne: user._id },
+      });
+      if (alreadyLinked) {
+        throw new Error(
+          "That USMS ID is already linked to a different account.",
+        );
+      }
+      await User.findByIdAndUpdate(user._id, { linkedMember: member._id });
+      return member;
+    },
     // pin/unpin a post to the front of the home page; at most 2 can be
     // pinned at once (rejected, not auto-evicted, per the user's call), and
     // pinning a draft is refused since it would have no visible effect

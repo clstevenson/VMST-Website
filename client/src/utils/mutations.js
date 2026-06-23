@@ -98,6 +98,16 @@ export const RESEND_VERIFICATION_EMAIL = gql`
   }
 `;
 
+export const LINK_MEMBER = gql`
+  mutation LinkMember($usmsId: String!) {
+    linkMember(usmsId: $usmsId) {
+      _id
+      firstName
+      lastName
+    }
+  }
+`;
+
 export const ADD_USER = gql`
   mutation addUser(
     $firstName: String!

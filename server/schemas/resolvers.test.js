@@ -744,6 +744,89 @@ test("editUser: changing email resets emailVerified to false and sends a fresh v
   await User.findByIdAndDelete(target._id);
 });
 
+test("linkMember: rejects an unauthenticated caller", async () => {
+  const { errors } = await run(
+    `mutation($usmsId: String!) { linkMember(usmsId: $usmsId) { _id } }`,
+    { usmsId: "12345" },
+    null,
+  );
+  assert.equal(errors[0].extensions.code, "UNAUTHENTICATED");
+});
+
+test("linkMember: a valid USMS ID links the account and returns the member", async () => {
+  const target = await User.create({
+    firstName: "Link",
+    lastName: "Me",
+    email: "link-me@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+  });
+  const contextUser = { _id: target._id.toString(), role: "user" };
+
+  const { data, errors } = await run(
+    `mutation($usmsId: String!) { linkMember(usmsId: $usmsId) { _id firstName lastName } }`,
+    { usmsId: "12345" },
+    contextUser,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.linkMember.firstName, "Swimmer");
+
+  const updated = await User.findById(target._id);
+  assert.equal(updated.linkedMember.toString(), data.linkMember._id);
+
+  await User.findByIdAndDelete(target._id);
+});
+
+test("linkMember: an unknown USMS ID errors with the membership coordinator's email", async () => {
+  const target = await User.create({
+    firstName: "No",
+    lastName: "Match",
+    email: "no-match@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+  });
+  const contextUser = { _id: target._id.toString(), role: "user" };
+
+  const { errors } = await run(
+    `mutation($usmsId: String!) { linkMember(usmsId: $usmsId) { _id } }`,
+    { usmsId: "00000" },
+    contextUser,
+  );
+  assert.match(errors[0].message, /membership@example\.com/);
+
+  await User.findByIdAndDelete(target._id);
+});
+
+test("linkMember: rejects a USMS ID already linked to a different account", async () => {
+  const first = await User.create({
+    firstName: "First",
+    lastName: "Linker",
+    email: "first-linker@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+  });
+  const second = await User.create({
+    firstName: "Second",
+    lastName: "Linker",
+    email: "second-linker@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+  });
+
+  const firstResult = await run(
+    `mutation($usmsId: String!) { linkMember(usmsId: $usmsId) { _id } }`,
+    { usmsId: "12345" },
+    { _id: first._id.toString(), role: "user" },
+  );
+  assert.equal(firstResult.errors, undefined);
+
+  const secondResult = await run(
+    `mutation($usmsId: String!) { linkMember(usmsId: $usmsId) { _id } }`,
+    { usmsId: "12345" },
+    { _id: second._id.toString(), role: "user" },
+  );
+  assert.match(secondResult.errors[0].message, /already linked/);
+
+  await User.findByIdAndDelete(first._id);
+  await User.findByIdAndDelete(second._id);
+});
+
 test("changePassword: rejects an unauthenticated caller, succeeds for a logged-in user", async () => {
   const target = await User.create({
     firstName: "Change",
