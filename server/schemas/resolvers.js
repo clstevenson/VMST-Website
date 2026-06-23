@@ -135,6 +135,38 @@ function bulkRecipientFields(recipients) {
   return { emails: recipients };
 }
 
+// For any Member linked to a User account, that account's emailPermission
+// is the sole source of truth for whether they receive coach/leader email --
+// it overrides Member.emailExclude in both directions (a member who opted
+// out via the USMS CSV but grants permission via their account still gets
+// emailed; one who didn't opt out but revokes permission doesn't). Returns a
+// Map keyed by member _id (string) -> { emailPermission, email }, built with
+// a single batched query so checking N members costs one round-trip, not N.
+async function getLinkedUserOverrides(memberIds) {
+  const linkedUsers = await User.find({
+    linkedMember: { $in: memberIds },
+  }).select("linkedMember emailPermission email");
+  return new Map(
+    linkedUsers.map((u) => [
+      u.linkedMember.toString(),
+      { emailPermission: u.emailPermission, email: u.email },
+    ]),
+  );
+}
+
+// Overrides each member's in-memory emailExclude (not persisted) to reflect
+// a linked account's emailPermission, so every recipient-selection list
+// downstream (all client-side filtering keys off this one field) reflects
+// the override without needing its own awareness of linking at all.
+async function applyMemberOverrides(members) {
+  const overrides = await getLinkedUserOverrides(members.map((m) => m._id));
+  members.forEach((member) => {
+    const override = overrides.get(member._id.toString());
+    if (override) member.emailExclude = !override.emailPermission;
+  });
+  return members;
+}
+
 const resolvers = {
   Query: {
     // get all USMS members of the VA LMSC
@@ -196,7 +228,7 @@ const resolvers = {
         if (swimmers.length === 0) {
           throw new Error("Didn't find any VMST swimmers");
         }
-        return swimmers;
+        return await applyMemberOverrides(swimmers);
       } catch (err) {
         console.log(err);
       }
@@ -207,10 +239,11 @@ const resolvers = {
       requireRole(user, "leader", "coach");
       const members = await Member.find({ usmsId: { $in: usmsIds } });
       // a coach may only email members of their own workout group
-      if (user.role === "coach") {
-        return members.filter((member) => member.workoutGroup === user.group);
-      }
-      return members;
+      const scoped =
+        user.role === "coach"
+          ? members.filter((member) => member.workoutGroup === user.group)
+          : members;
+      return await applyMemberOverrides(scoped);
     },
     meets: async (_, __, { user }) => {
       requireRole(user, "leader", "coach");
@@ -757,17 +790,32 @@ contact the webmaster immediately by replying to this message.`,
       requireRole(user, "leader", "coach");
       // retrieve the emails of the recipients (from their id's)
       const group = await Member.find({ _id: { $in: emailData.id } }).select(
-        "emails",
+        "emails emailExclude",
       );
 
       const mailArgs = { ...emailData };
       delete mailArgs.id;
+      const overrides = await getLinkedUserOverrides(
+        group.map((member) => member._id),
+      );
       // use only one address per recipient: the lowest-index address that
       // is both formatValid and deliverable. Emails are pushed primary-
       // first/secondary-second at upload time, so this naturally means
-      // "use primary unless it's bad, then fall back to secondary"
+      // "use primary unless it's bad, then fall back to secondary".
+      // A linked account's emailPermission is the sole source of truth for
+      // that member (overriding emailExclude either way) and, when linked,
+      // the verified login email is used instead of the USMS-uploaded one.
+      // This is also the one server-side enforcement of either flag --
+      // recipient-selection UI already excludes these members, but this is
+      // what makes that exclusion binding rather than a UI-only courtesy.
       let emailArray = [];
       group.forEach((member) => {
+        const override = overrides.get(member._id.toString());
+        if (override) {
+          if (override.emailPermission) emailArray.push(override.email);
+          return;
+        }
+        if (member.emailExclude) return;
         const usableEmail = member.emails.find(
           (email) => email.formatValid && email.deliverable,
         );

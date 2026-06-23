@@ -2197,3 +2197,144 @@ test("emailGroup: a member with two usable addresses only gets emailed at the pr
 
   await Member.deleteMany({ _id: { $in: [primaryGood._id, primaryBad._id] } });
 });
+
+test("emailGroup: a non-linked member's emailExclude is enforced server-side, not just by the client", async () => {
+  const optedOut = await Member.create({
+    usmsRegNo: "555520",
+    usmsId: "55520",
+    firstName: "Opted",
+    lastName: "Out",
+    gender: "F",
+    club: "VMST",
+    regYear: 2026,
+    emailExclude: true,
+    emails: [makeEmail("opted-out@example.com")],
+  });
+
+  const before = sentMail.length;
+  const { errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    {
+      emailData: { id: [optedOut._id.toString()], subject: "Test", plainText: "test" },
+    },
+    users.leader,
+  );
+  // no usable recipients at all -- same "no recipients" error as any other
+  // empty group, confirming the member was actually skipped, not just deprioritized
+  assert.match(errors[0].message, /No Recipients/);
+  assert.equal(sentMail.length, before);
+
+  await Member.findByIdAndDelete(optedOut._id);
+});
+
+test("emailGroup: a linked account's emailPermission overrides Member.emailExclude in both directions, and uses the account's own email", async () => {
+  // opted out via the USMS CSV, but their linked account grants permission --
+  // should still be emailed, at their *account* email, not the Member one
+  const optedOutButLinked = await Member.create({
+    usmsRegNo: "555521",
+    usmsId: "55521",
+    firstName: "Opted",
+    lastName: "ButLinked",
+    gender: "F",
+    club: "VMST",
+    regYear: 2026,
+    emailExclude: true,
+    emails: [makeEmail("member-address@example.com")],
+  });
+  const grantingUser = await User.create({
+    firstName: "Granting",
+    lastName: "User",
+    email: "granting-user@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+    linkedMember: optedOutButLinked._id,
+    emailPermission: true,
+  });
+
+  // did NOT opt out, but their linked account revokes permission -- should
+  // NOT be emailed despite Member.emailExclude being false
+  const notOptedOutButRevoked = await Member.create({
+    usmsRegNo: "555522",
+    usmsId: "55522",
+    firstName: "NotOptedOut",
+    lastName: "ButRevoked",
+    gender: "M",
+    club: "VMST",
+    regYear: 2026,
+    emailExclude: false,
+    emails: [makeEmail("revoked-member-address@example.com")],
+  });
+  const revokingUser = await User.create({
+    firstName: "Revoking",
+    lastName: "User",
+    email: "revoking-user@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+    linkedMember: notOptedOutButRevoked._id,
+    emailPermission: false,
+  });
+
+  const before = sentMail.length;
+  const { data, errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    {
+      emailData: {
+        id: [optedOutButLinked._id.toString(), notOptedOutButRevoked._id.toString()],
+        subject: "Test",
+        plainText: "test",
+      },
+    },
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.emailGroup, true);
+  assert.equal(sentMail.length, before + 1);
+  assert.deepEqual(sentMail[sentMail.length - 1].emails, [
+    "granting-user@example.com",
+  ]);
+
+  await Member.deleteMany({
+    _id: { $in: [optedOutButLinked._id, notOptedOutButRevoked._id] },
+  });
+  await User.deleteMany({ _id: { $in: [grantingUser._id, revokingUser._id] } });
+});
+
+test("vmstMembers/membersByUsmsId: a linked account's emailPermission overrides the returned emailExclude value", async () => {
+  const member = await Member.create({
+    usmsRegNo: "555523",
+    usmsId: "55523",
+    firstName: "Override",
+    lastName: "Query",
+    gender: "F",
+    club: "VMST",
+    regYear: 2026,
+    emailExclude: true,
+    emails: [makeEmail("override-query@example.com")],
+  });
+  const linkedUser = await User.create({
+    firstName: "Override",
+    lastName: "LinkedUser",
+    email: "override-linked-user@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+    linkedMember: member._id,
+    emailPermission: true,
+  });
+
+  const { data, errors } = await run(
+    `{ vmstMembers { usmsId emailExclude } }`,
+    {},
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+  const found = data.vmstMembers.find((m) => m.usmsId === "55523");
+  assert.equal(found.emailExclude, false);
+
+  const byUsmsId = await run(
+    `query($usmsIds: [String]!) { membersByUsmsId(usmsIds: $usmsIds) { usmsId emailExclude } }`,
+    { usmsIds: ["55523"] },
+    users.leader,
+  );
+  assert.equal(byUsmsId.errors, undefined);
+  assert.equal(byUsmsId.data.membersByUsmsId[0].emailExclude, false);
+
+  await Member.findByIdAndDelete(member._id);
+  await User.findByIdAndDelete(linkedUser._id);
+});
