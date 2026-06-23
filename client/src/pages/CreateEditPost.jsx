@@ -7,13 +7,14 @@
  */
 
 import styled from "styled-components";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { useForm } from "react-hook-form";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import * as Select from "@radix-ui/react-select";
 import { ChevronLeft, ChevronRight, Check } from "react-feather";
+import { SquareX, Archive, SaveCheck, BookPlus } from "lucide-react";
 
 import { useAuth } from "../context/AuthContext";
 import {
@@ -22,8 +23,7 @@ import {
   QUERY_SINGLEPOST,
 } from "../utils/queries";
 import { ADD_POST, EDIT_POST } from "../utils/mutations";
-import { COLORS, QUERIES, WEIGHTS } from "../utils/constants";
-import SubmitButton from "../components/Styled/SubmiButton";
+import { COLORS, QUERIES } from "../utils/constants";
 import ErrorMessage from "../components/Styled/ErrorMessage";
 import ToastMessage from "../components/ToastMessage";
 import Spinner from "../components/Spinner";
@@ -41,7 +41,7 @@ export default function CreateEditPost({ isEditing = false }) {
     getValues,
     setValue,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm();
 
   // controls album (photoset) being displayed
@@ -67,6 +67,19 @@ export default function CreateEditPost({ isEditing = false }) {
   // when editing, postContent loads asynchronously, so the editor must not
   // mount until that initial content has arrived
   const [contentReady, setContentReady] = useState(!isEditing);
+  // description shown under the Cancel/Save/Post icon row on hover/focus
+  const [actionStatus, setActionStatus] = useState("");
+  // baseline values captured when editing an existing post, so the Save
+  // button can stay disabled until something actually changes
+  const originalContentRef = useRef("");
+  const originalPhotoIdRef = useRef("");
+  // whether the post being edited is currently a draft (only relevant
+  // when isEditing; unused -- and irrelevant -- when creating)
+  const [postIsDraft, setPostIsDraft] = useState(false);
+  // which action (Save vs Post) the user clicked, read by onSubmit; both
+  // buttons are type="submit" on the same form, so this is set just before
+  // the submit fires rather than tracked via two separate handlers
+  const publishOnSubmitRef = useRef(true);
 
   const { postId } = useParams();
 
@@ -109,20 +122,26 @@ export default function CreateEditPost({ isEditing = false }) {
 
   const [getPost] = useLazyQuery(QUERY_SINGLEPOST, {
     onCompleted: (data) => {
-      setValue("title", data.onePost.title);
-      setValue("summary", data.onePost.summary);
+      // reset (rather than setValue) establishes these as the form's
+      // baseline, so formState.isDirty only flips once the user actually
+      // changes something instead of as soon as the async load lands
+      reset({
+        title: data.onePost.title,
+        summary: data.onePost.summary,
+        caption: data.onePost.photo?.caption ?? "",
+      });
       setPostContent(data.onePost.content);
+      originalContentRef.current = data.onePost.content;
       setContentReady(true);
-      if (data.onePost.photo) {
-        setPostPhoto(data.onePost.photo);
-        setValue("caption", data.onePost.photo.caption);
-      }
+      setPostPhoto(data.onePost.photo ?? {});
+      originalPhotoIdRef.current = data.onePost.photo?.id ?? "";
+      setPostIsDraft(!data.onePost.posted);
     },
   });
 
+  // only logged-in leaders can view the page; wait for the auth check
+  // (including a possible silent token refresh) to settle first
   useEffect(() => {
-    // only logged-in leaders can view the page; wait for the auth check
-    // (including a possible silent token refresh) to settle first
     if (!isLoading && !isLeader) navigate("/");
   }, [isLoading, isLeader, navigate]);
 
@@ -136,9 +155,37 @@ export default function CreateEditPost({ isEditing = false }) {
     if (isEditing) {
       getPost({ variables: { postId } });
     }
-  }, [isLoading, isLeader, albumId, page, getPhotos, getPost, postId, isEditing]);
+  }, [
+    isLoading,
+    isLeader,
+    albumId,
+    page,
+    getPhotos,
+    getPost,
+    postId,
+    isEditing,
+  ]);
+
+  // when editing, there's no need to save (or run a mutation) until
+  // something has actually changed from what was loaded
+  const contentChanged = postContent !== originalContentRef.current;
+  const photoChanged = (postPhoto.id ?? "") !== originalPhotoIdRef.current;
+  const hasUnsavedChanges = isDirty || contentChanged || photoChanged;
+  const saveDisabled = isEditing && !hasUnsavedChanges;
+  // true whenever there's a separate "Post" action available (creating a
+  // new post, or editing one that's still a draft) -- in that case "Save"
+  // means "stay a draft," otherwise "Save" means "save the published post"
+  const canPublish = !isEditing || postIsDraft;
 
   const onSubmit = async ({ title, summary }) => {
+    // renamed from "posted" locally to avoid colliding with the
+    // posted/setPosted state below, which means something unrelated
+    // (whether the just-submitted save succeeded, for the toast)
+    const shouldPost = publishOnSubmitRef.current;
+    // publishing a draft is always meaningful, even with no other edits;
+    // otherwise respect the no-unsaved-changes guard as before
+    const isPublishingDraft = isEditing && postIsDraft && shouldPost;
+    if (saveDisabled && !isPublishingDraft) return;
     // make sure there is content
     if (!postContent) {
       setMessage("Content cannot be empty.");
@@ -158,6 +205,7 @@ export default function CreateEditPost({ isEditing = false }) {
               summary,
               content: postContent,
               photo: { id, url, caption, flickrURL },
+              posted: shouldPost,
             },
           });
         } else {
@@ -167,6 +215,7 @@ export default function CreateEditPost({ isEditing = false }) {
               summary,
               content: postContent,
               photo: { id, url, caption, flickrURL },
+              posted: shouldPost,
             },
           });
         }
@@ -186,11 +235,12 @@ export default function CreateEditPost({ isEditing = false }) {
               summary,
               content: postContent,
               photo,
+              posted: shouldPost,
             },
           });
         } else {
           await addPost({
-            variables: { title, summary, content: postContent },
+            variables: { title, summary, content: postContent, posted: shouldPost },
           });
         }
       }
@@ -287,8 +337,8 @@ export default function CreateEditPost({ isEditing = false }) {
           </a>{" "}
           for images to use. If you use images, please choose small sizes (eg{" "}
           <span>Small240</span> or <span>Small320</span>) to reduce database
-          bloat. The image will float left (text flowing to the right of the
-          image) in the final post.
+          bloat. The image will display centered, on its own line, in the
+          final post.
         </QuillDescription>
         {/* error message to display */}
         {message && <ErrorMessage>{message}</ErrorMessage>}
@@ -367,10 +417,10 @@ export default function CreateEditPost({ isEditing = false }) {
             if (value) {
               const photo = photos.filter((photo) => photo.id === value)[0];
               setPostPhoto(photo);
-              setValue("caption", photo.caption);
+              setValue("caption", photo.caption, { shouldDirty: true });
             } else {
               setPostPhoto({});
-              setValue("caption", "");
+              setValue("caption", "", { shouldDirty: true });
             }
           }}
         >
@@ -412,18 +462,87 @@ export default function CreateEditPost({ isEditing = false }) {
         </InputWrapper>
       </PhotoWrapper>
       <SubmitWrapper>
-        <Button
-          type="button"
-          onClick={() => {
-            reset();
-            navigate(-1);
-          }}
-        >
-          Close
-        </Button>
-        <SubmitButton style={{ minWidth: "var(--btn-width)" }} type="submit">
-          {isSubmitting ? "working..." : isEditing ? "Save" : "Post"}
-        </SubmitButton>
+        <ActionRow>
+          <IconButton
+            type="button"
+            onMouseEnter={() =>
+              setActionStatus(
+                isEditing ? "Do not save changes" : "Do not post",
+              )
+            }
+            onFocus={() =>
+              setActionStatus(
+                isEditing ? "Do not save changes" : "Do not post",
+              )
+            }
+            onMouseLeave={() => setActionStatus("")}
+            onBlur={() => setActionStatus("")}
+            onClick={() => {
+              reset();
+              navigate(-1);
+            }}
+          >
+            <SquareX /> Cancel
+          </IconButton>
+          <IconButton
+            type="submit"
+            $disabled={saveDisabled}
+            aria-disabled={saveDisabled ? "true" : undefined}
+            onMouseEnter={() =>
+              setActionStatus(
+                saveDisabled
+                  ? "No changes to save"
+                  : canPublish
+                    ? "Save as draft post"
+                    : "Save changes to post",
+              )
+            }
+            onFocus={() =>
+              setActionStatus(
+                saveDisabled
+                  ? "No changes to save"
+                  : canPublish
+                    ? "Save as draft post"
+                    : "Save changes to post",
+              )
+            }
+            onMouseLeave={() => setActionStatus("")}
+            onBlur={() => setActionStatus("")}
+            onClick={(event) => {
+              publishOnSubmitRef.current = !canPublish;
+              if (saveDisabled) event.preventDefault();
+            }}
+          >
+            {canPublish ? <Archive /> : <SaveCheck />}
+            {isSubmitting && !publishOnSubmitRef.current ? "working..." : "Save"}
+          </IconButton>
+          {canPublish && (
+            <IconButton
+              type="submit"
+              onMouseEnter={() =>
+                setActionStatus(
+                  isEditing ? "Publish this draft" : "Create blog post",
+                )
+              }
+              onFocus={() =>
+                setActionStatus(
+                  isEditing ? "Publish this draft" : "Create blog post",
+                )
+              }
+              onMouseLeave={() => setActionStatus("")}
+              onBlur={() => setActionStatus("")}
+              onClick={() => {
+                publishOnSubmitRef.current = true;
+              }}
+            >
+              <BookPlus />
+              {isSubmitting && publishOnSubmitRef.current
+                ? "working..."
+                : "Post"}
+            </IconButton>
+          )}
+        </ActionRow>
+        <StatusLine>{actionStatus}</StatusLine>
       </SubmitWrapper>
       {posted && (
         <ToastMessage toastCloseEffect={cleanup} duration={1500}>
@@ -435,8 +554,6 @@ export default function CreateEditPost({ isEditing = false }) {
 }
 
 const FormWrapper = styled.form`
-  /* common min width of all buttons */
-  --btn-width: 12ch;
   --label-size: 1.1rem;
   display: grid;
   grid-template-columns:
@@ -460,7 +577,7 @@ const FormWrapper = styled.form`
   }
 
   @media (max-width: 1200px) {
-    grid-template-columns: minmax(350px, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "content"
       "photo"
@@ -486,8 +603,8 @@ const TogglePhotoGrid = styled(ToggleGroup.Root)`
   }
 
   @media (max-width: 550px) {
-    grid-template-columns: repeat(4, minmax(100px, 1fr));
-    grid-template-rows: repeat(4, minmax(100px, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
     height: 450px;
   }
 `;
@@ -528,6 +645,10 @@ const TextWrapper = styled.div`
   flex-direction: column;
   gap: 24px;
   border: none;
+
+  @media ${QUERIES.mobile} {
+    min-width: 300px;
+  }
 `;
 
 const PhotoWrapper = styled.div`
@@ -544,28 +665,55 @@ const PhotoWrapper = styled.div`
   }
 `;
 
-const Button = styled.button`
-  display: inline-block;
-  text-align: center;
-  min-width: var(--btn-width);
-  padding: 4px 8px;
-  background-color: ${COLORS.accent[12]};
-  color: white;
-  border-radius: 4px;
-  font-weight: ${WEIGHTS.medium};
-  cursor: pointer;
-
-  &:hover {
-    background-color: ${COLORS.accent[10]};
-  }
-`;
-
 const SubmitWrapper = styled.div`
   grid-area: button;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
+`;
+
+const ActionRow = styled.div`
+  display: flex;
+  justify-content: center;
   gap: 48px;
+`;
+
+const IconButton = styled.button`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  padding: 4px 8px;
+  line-height: 1;
+  color: ${COLORS.accent[12]};
+  opacity: ${(props) => (props.$disabled ? 0.5 : 1)};
+
+  & svg {
+    width: 48px;
+    height: 48px;
+    stroke-width: 1.5;
+    padding: 8px;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+    color: ${COLORS.accent[9]};
+    cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
+  }
+  &:hover svg {
+    stroke-width: 2;
+  }
+`;
+
+// reserves a line of height so hover/focus descriptions don't shift layout
+const StatusLine = styled.p`
+  height: 1.2em;
+  margin-top: 4px;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: ${COLORS.accent[11]};
 `;
 
 const Description = styled.p`
@@ -600,14 +748,28 @@ const PhotoNav = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
+
+  @media ${QUERIES.mobile} {
+    flex-direction: column;
+    align-items: stretch;
+  }
 `;
 
-const SelectWrapper = styled.div``;
+const SelectWrapper = styled.div`
+  min-width: 0;
+  flex: 1;
+`;
 
 const ChevronWrapper = styled.div`
   display: flex;
   align-items: center;
   margin-left: auto;
+
+  @media ${QUERIES.mobile} {
+    margin-left: 0;
+    justify-content: center;
+  }
 `;
 
 const PhotoNavButton = styled.button`
@@ -635,6 +797,7 @@ const PhotoNavButton = styled.button`
 
 const SelectTrigger = styled(Select.Trigger)`
   width: 35ch;
+  max-width: 100%;
   display: inline-flex;
   justify-content: space-between;
   margin-right: 6px;

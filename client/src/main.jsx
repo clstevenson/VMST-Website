@@ -10,6 +10,7 @@ import Contact from "./pages/Contact";
 import AboutUs from "./pages/AboutUs";
 import SinglePost from "./pages/SinglePost.jsx";
 import CreateEditPost from "./pages/CreateEditPost.jsx";
+import Unsubscribe from "./pages/Unsubscribe.jsx";
 
 const router = createBrowserRouter([
   {
@@ -48,6 +49,10 @@ const router = createBrowserRouter([
       {
         path: "/gallery",
         element: <Gallery />,
+      },
+      {
+        path: "/unsubscribe",
+        element: <Unsubscribe />,
       },
     ],
   },

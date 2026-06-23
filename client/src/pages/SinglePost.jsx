@@ -4,20 +4,22 @@
 
 import styled from "styled-components";
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation } from "@apollo/client";
 import * as Separator from "@radix-ui/react-separator";
 import { Home, Trash2, Edit } from "react-feather";
+import { Pin, PinOff } from "lucide-react";
 import parse from "html-react-parser";
 
 import { QUERY_SINGLEPOST } from "../utils/queries";
-import { DELETE_POST } from "../utils/mutations";
+import { DELETE_POST, TOGGLE_PIN } from "../utils/mutations";
 import sanitizeHtml from "../utils/sanitizeHtml";
 import Spinner from "../components/Spinner";
 import { COLORS, QUERIES } from "../utils/constants";
 import { useAuth } from "../context/AuthContext";
 import ToastMessage from "../components/ToastMessage";
 import Alert from "../components/Alert";
+import ErrorMessage from "../components/Styled/ErrorMessage";
 
 export default function SinglePost() {
   // user's can add, edit, or delete posts
@@ -27,6 +29,8 @@ export default function SinglePost() {
   const [deleted, setDeleted] = useState(false);
   // toggle to display alert to confirm post deletion
   const [alertOpen, setAlertOpen] = useState(false);
+  // error message from a failed pin/unpin attempt (e.g. 2-pin cap)
+  const [pinError, setPinError] = useState("");
 
   // retrieve post ID from the route param
   const { id } = useParams();
@@ -37,7 +41,17 @@ export default function SinglePost() {
   const post = data?.onePost;
 
   const [deletePost] = useMutation(DELETE_POST);
+  const [togglePin] = useMutation(TOGGLE_PIN);
   const navigate = useNavigate();
+
+  const handleTogglePin = async () => {
+    setPinError("");
+    try {
+      await togglePin({ variables: { id } });
+    } catch (error) {
+      setPinError(error.message);
+    }
+  };
 
   const handleDeletePost = () => {
     try {
@@ -59,6 +73,19 @@ export default function SinglePost() {
         <Spinner />
       </SpinnerWrapper>
     );
+
+  // null here means either a bad/stale ID, or (deliberately) a draft this
+  // visitor isn't the author of -- same message either way, so a draft's
+  // existence isn't leaked to non-authors
+  if (!post) {
+    return (
+      <Wrapper>
+        <NotFound>
+          Sorry, this post could not be found. <Link to="/">Return home</Link>
+        </NotFound>
+      </Wrapper>
+    );
+  }
 
   return (
     <Wrapper>
@@ -130,12 +157,19 @@ export default function SinglePost() {
                 <Trash2 /> Delete
               </IconButton>
             </Alert>
+            {post.posted && (
+              <IconButton onClick={handleTogglePin}>
+                {post.pinned ? <PinOff /> : <Pin />}
+                {post.pinned ? "Unpin" : "Pin"}
+              </IconButton>
+            )}
           </>
         )}
         <IconButton onClick={() => navigate("/")}>
           <Home /> Home
         </IconButton>
       </FooterWrapper>
+      {pinError && <PinError>{pinError}</PinError>}
       {deleted && (
         <ToastMessage
           duration={1000}
@@ -214,14 +248,15 @@ const ContentWrapper = styled.div`
   width: 100%;
 
   /*
-   For now all (smaller) images will float right. Eventually let the user decide (for the entire post)
-   whether to float left or right, or whether images are blocks spanning the entire width
+   embedded images display as centered blocks rather than floating with
+   text wrapped around them -- looked bad across too many image/viewport
+   size combinations; per-image author control (float vs. block) would
+   need a Quill alignment module, not just CSS, so isn't done here
    */
   & img {
     max-width: 100%;
-    float: left;
-    margin: 4px 8px;
-    margin-left: 0;
+    display: block;
+    margin: 16px auto;
   }
   & h1 {
     font-size: 1.2rem;
@@ -275,6 +310,15 @@ const Attribution = styled.p`
   font-style: italic;
   text-align: right;
   padding-right: 32px;
+`;
+
+const NotFound = styled.p`
+  text-align: center;
+  padding: 16px 0;
+`;
+
+const PinError = styled(ErrorMessage)`
+  text-align: center;
 `;
 
 const FooterWrapper = styled.div`

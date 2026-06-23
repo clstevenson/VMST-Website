@@ -16,11 +16,9 @@ The primary purpose of this website is to facilitate communication between VMST 
 - [License](#license)
 
 ## Deployment
-The demo website is [deployed on Render](https://vmst-website.onrender.com):
+The website is [deployed on Render](https://vmstswim.org):
 
-<https://vmst-website.onrender.com>
-
-If VMST team leadership adopts this website we will eventually procure a domain name, which will be published here.
+<https://vmstswim.org>
 
 ## Use
 

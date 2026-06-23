@@ -39,6 +39,9 @@ const Mail = async (mailData) => {
 
   const info = await transporter.sendMail({
     to: mailData.emails,
+    // optional: real recipients for a bulk send go here (not `to`) so they
+    // can't see each other's addresses -- see callers for to-self/bcc-rest
+    bcc: mailData.bcc,
     from: {
       name: mailData.from,
       address: mailData.replyTo,

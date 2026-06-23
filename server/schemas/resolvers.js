@@ -5,6 +5,8 @@ const {
   signRefreshToken,
   setRefreshCookie,
   requireRole,
+  signUnsubscribeToken,
+  verifyUnsubscribeToken,
 } = require("../utils/auth");
 
 // no longer used directly in this file (uploadMembers no longer drops the
@@ -28,6 +30,67 @@ const {
 const { findByIdAndDelete } = require("../models/Posts");
 const Meet = require("../models/Meets");
 
+// fires once, the moment a post transitions to published (never on a
+// routine re-save of an already-published post). Sent as individual
+// emails rather than one bulk send, since each one needs its own
+// personalized one-click unsubscribe link -- a shared bulk body can't
+// embed a different link per recipient. One recipient's failed send
+// doesn't block the others.
+async function notifySubscribers(post) {
+  const subscribers = await User.find({ notifications: true }).select(
+    "_id email",
+  );
+  if (subscribers.length === 0) return;
+
+  const baseUrl = process.env.CLIENT_URL || "http://localhost:3000";
+  const postUrl = `${baseUrl}/post/${post._id}`;
+  // mirrors the home page's summary-or-content fallback (see BlogPosts.jsx),
+  // simplified for an email body: strip tags and truncate rather than
+  // trying to carry Quill's HTML formatting into the message
+  const teaser =
+    post.summary || post.content.replace(/<[^>]+>/g, "").slice(0, 200);
+
+  for (const subscriber of subscribers) {
+    const unsubscribeUrl = `${baseUrl}/unsubscribe?token=${signUnsubscribeToken(
+      { _id: subscriber._id },
+    )}`;
+    try {
+      await Mail({
+        from: "VMST",
+        replyTo: process.env.EMAIL,
+        emails: subscriber.email,
+        subject: `New VMST post: ${post.title}`,
+        plainText: `Hello, a new article has been posted on the VMST website: ${post.title}
+
+        Summary: ${teaser}
+
+Read the full post: ${postUrl}
+
+---
+You're receiving this because you opted in to post notifications.
+Unsubscribe with one click: ${unsubscribeUrl}
+Or log in and update your preferences from your account page.`,
+        html: `
+        <p>Hello, a new article has been posted on the VMST website: <strong>${post.title}</strong></p>
+        <p>Summary: ${teaser}</p>
+          <p><a href="${postUrl}">Read the full post</a></p>
+          <hr />
+          <p style="font-size: 0.85em; color: #666;">
+            You're receiving this because you opted in to post notifications.
+            <a href="${unsubscribeUrl}">Unsubscribe</a> with one click, or log
+            in and update your preferences from your account page.
+          </p>
+        `,
+      });
+    } catch (err) {
+      console.error(
+        `Failed to send post notification to ${subscriber.email}:`,
+        err,
+      );
+    }
+  }
+}
+
 const resolvers = {
   Query: {
     // get all USMS members of the VA LMSC
@@ -47,12 +110,32 @@ const resolvers = {
       requireRole(user);
       return await User.findOne({ email: email });
     },
-    // get all posts, sorted most recent first
-    posts: async () => await Post.find().sort({ createdAt: -1 }),
+    // pinned posts first, then most recently posted first (not created --
+    // a post drafted long ago but published today should show as recent).
+    // drafts have no postedAt and are never pinned, so they naturally sort
+    // last; a draft (posted: false) is only included for its own author
+    posts: async (_, __, { user }) => {
+      const filter = user
+        ? {
+            $or: [
+              { posted: true },
+              { posted: false, "author.userId": user._id },
+            ],
+          }
+        : { posted: true };
+      return await Post.find(filter).sort({ pinned: -1, postedAt: -1 });
+    },
     // get a single post with all comments
     // can't populate users directly, need to populate comments that are nested
-    onePost: async (_, { id }) =>
-      await Post.findById(id).populate("comments.user"),
+    // a draft is only returned to its own author -- everyone else gets null,
+    // same as a nonexistent post
+    onePost: async (_, { id }, { user }) => {
+      const post = await Post.findById(id).populate("comments.user");
+      if (post && !post.posted && post.author?.userId !== user?._id) {
+        return null;
+      }
+      return post;
+    },
     // get list of unique workout groups
     // GraphQL returns an object of the form { groups: [...list of unique groups ...] }
     // Note that there is a client-side JS utility that does the same thing, given
@@ -324,35 +407,77 @@ contact the webmaster immediately by replying to this message.`,
       }
     },
     // add a new post
-    addPost: async (_, { title, summary, content, photo }, { user }) => {
+    addPost: async (
+      _,
+      { title, summary, content, photo, posted },
+      { user },
+    ) => {
       // only team leaders can create posts
       requireRole(user, "leader");
+      const isPosted = posted ?? true;
       const post = {
         title,
         summary,
         content,
         photo,
+        posted: isPosted,
+        postedAt: isPosted ? new Date() : undefined,
+        author: { userId: user._id },
       };
-      return await Post.create(post);
+      const created = await Post.create(post);
+      // fire-and-forget: the post is already safely saved, so the response
+      // (and the client's success toast) shouldn't wait on every individual
+      // subscriber email finishing its own SMTP round-trip
+      if (isPosted) {
+        notifySubscribers(created).catch((err) =>
+          console.error("notifySubscribers failed:", err),
+        );
+      }
+      return created;
     },
-    editPost: async (_, { _id, title, summary, content, photo }, { user }) => {
-      // only leaders can delete posts
+    editPost: async (
+      _,
+      { _id, title, summary, content, photo, posted },
+      { user },
+    ) => {
+      // only leaders can edit posts
       requireRole(user, "leader");
+      // query-then-save (not findOneAndUpdate) so schema validators --
+      // required fields on the post and on the embedded photo subdoc --
+      // actually run
+      const updatedPost = await Post.findById(_id);
+      if (!updatedPost) {
+        throw new Error("Something went wrong, post was not updated");
+      }
+      // a draft is only editable by the leader who created it, so other
+      // leaders don't unknowingly alter or delete someone's in-progress
+      // post; once published, any leader can edit as before. Thrown outside
+      // the try/catch below so it isn't swallowed by the generic catch.
+      if (!updatedPost.posted && updatedPost.author?.userId !== user._id) {
+        throw AuthenticationError;
+      }
       try {
-        // query-then-save (not findOneAndUpdate) so schema validators --
-        // required fields on the post and on the embedded photo subdoc --
-        // actually run
-        const updatedPost = await Post.findById(_id);
-        if (!updatedPost) {
-          throw new Error("Something went wrong, post was not updated");
-        }
         updatedPost.title = title;
         updatedPost.summary = summary;
         updatedPost.content = content;
         // assigning undefined and saving unsets the subdocument entirely,
         // equivalent to the previous $unset: { photo: 1 }
         updatedPost.photo = photo.id ? photo : undefined;
+        // only stamp postedAt the moment a draft actually goes live;
+        // re-saving an already-published post must not change it
+        const isPosted = posted ?? updatedPost.posted;
+        const isPublishing = isPosted && !updatedPost.posted;
+        if (isPublishing) {
+          updatedPost.postedAt = new Date();
+        }
+        updatedPost.posted = isPosted;
         await updatedPost.save();
+        // fire-and-forget -- see addPost for why this isn't awaited
+        if (isPublishing) {
+          notifySubscribers(updatedPost).catch((err) =>
+            console.error("notifySubscribers failed:", err),
+          );
+        }
         return updatedPost;
       } catch (error) {
         console.log(error);
@@ -361,6 +486,13 @@ contact the webmaster immediately by replying to this message.`,
     deletePost: async (_, { _id }, { user }) => {
       // only leaders can delete posts
       requireRole(user, "leader");
+      const post = await Post.findById(_id);
+      if (!post) return null;
+      // same author-only restriction on drafts as editPost, thrown outside
+      // the try/catch below so it isn't swallowed by the generic catch
+      if (!post.posted && post.author?.userId !== user._id) {
+        throw AuthenticationError;
+      }
       try {
         const deletedPost = await Post.findByIdAndDelete(_id);
         // return is null if the post is not deleted (ie, ID not found)
@@ -599,6 +731,38 @@ contact the webmaster immediately by replying to this message.`,
 
       // returning "true" to client means emails successfully sent
       return true;
+    },
+    // no login required -- the signed token in the link is the only
+    // credential, scoped to exactly this one action
+    unsubscribe: async (_, { token }) => {
+      const userId = verifyUnsubscribeToken(token);
+      if (!userId) return false;
+      const result = await User.findByIdAndUpdate(userId, {
+        notifications: false,
+      });
+      return !!result;
+    },
+    // pin/unpin a post to the front of the home page; at most 2 can be
+    // pinned at once (rejected, not auto-evicted, per the user's call), and
+    // pinning a draft is refused since it would have no visible effect
+    togglePin: async (_, { _id }, { user }) => {
+      requireRole(user, "leader");
+      const post = await Post.findById(_id);
+      if (!post) {
+        throw new Error("Post not found");
+      }
+      if (!post.pinned) {
+        if (!post.posted) {
+          throw new Error("A draft can't be pinned until it's published.");
+        }
+        const pinnedCount = await Post.countDocuments({ pinned: true });
+        if (pinnedCount >= 2) {
+          throw new Error("Only two posts can be pinned, unpin one first.");
+        }
+      }
+      post.pinned = !post.pinned;
+      await post.save();
+      return post;
     },
   },
 };
