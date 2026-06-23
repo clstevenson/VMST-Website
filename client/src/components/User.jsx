@@ -84,6 +84,14 @@ export default function User({ userProfile }) {
 
   const { loading } = useQuery(QUERY_USER, {
     variables: { id: userProfile._id },
+    // neither editUser nor linkMember's mutation responses update the
+    // normalized cache entry for this User (editUser's selection omits _id;
+    // linkMember returns a Member, not a User), so cache-first would keep
+    // serving stale data on every remount (eg navigating away and back)
+    // until a full page reload. Always re-checking with the network avoids
+    // that without needing to fix up every mutation's cache behavior --
+    // same fix as BlogPosts.jsx's identical staleness bug.
+    fetchPolicy: "cache-and-network",
     onCompleted: (data) => {
       const user = data.user;
       setUser({ ...user });
