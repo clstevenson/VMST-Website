@@ -1668,6 +1668,67 @@ test("uploadMembers: dedupes by usmsId keeping the higher regYear, preserves del
   await Member.deleteOne({ usmsId: "TESTA" });
 });
 
+test("uploadMembers: deliverable carries forward when only the address's casing changes", async () => {
+  const mutation = `mutation($memberData: [MemberData]) {
+    uploadMembers(memberData: $memberData) {
+      usmsId
+      emails { address formatValid deliverable }
+    }
+  }`;
+
+  await run(
+    mutation,
+    {
+      memberData: [
+        {
+          usmsRegNo: "TEST-CASE-A",
+          usmsId: "TESTCASE",
+          firstName: "Case",
+          lastName: "Test",
+          gender: "F",
+          club: "VMST",
+          regYear: 2026,
+          emails: ["mixed.Case@Example.com"],
+          emailExclude: false,
+        },
+      ],
+    },
+    users.membership,
+  );
+
+  await Member.updateOne(
+    { usmsId: "TESTCASE", "emails.address": "mixed.Case@Example.com" },
+    { $set: { "emails.$.deliverable": false } },
+  );
+
+  // re-upload with the same address but different casing -- should still
+  // count as the "same" address for carrying the bounce flag forward
+  const { data, errors } = await run(
+    mutation,
+    {
+      memberData: [
+        {
+          usmsRegNo: "TEST-CASE-A",
+          usmsId: "TESTCASE",
+          firstName: "Case",
+          lastName: "Test",
+          gender: "F",
+          club: "VMST",
+          regYear: 2026,
+          emails: ["MIXED.case@example.COM"],
+          emailExclude: false,
+        },
+      ],
+    },
+    users.membership,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.uploadMembers[0].emails[0].address, "MIXED.case@example.COM");
+  assert.equal(data.uploadMembers[0].emails[0].deliverable, false);
+
+  await Member.deleteOne({ usmsId: "TESTCASE" });
+});
+
 test("uploadMembers: a malformed email gets formatValid:false without failing the rest of the upload, while case, plus-addressing, and long TLDs are accepted", async () => {
   const memberData = [
     {

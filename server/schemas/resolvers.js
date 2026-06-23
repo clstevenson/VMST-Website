@@ -536,19 +536,24 @@ contact the webmaster immediately by replying to this message.`,
         const incoming = latestByUsmsId.get(usmsId);
         const previous = existingByUsmsId.get(usmsId);
         // deliverable is sticky per-address: carry it forward only when the
-        // exact address string is unchanged from the prior upload, otherwise
-        // assume reachable (true) -- a new/changed address has no history yet
+        // address is unchanged from the prior upload, otherwise assume
+        // reachable (true) -- a new/changed address has no history yet.
+        // Matched case-insensitively: the domain is always case-insensitive
+        // (DNS), and every major provider treats the local part the same
+        // way in practice, even though the SMTP spec technically allows a
+        // case-sensitive local part. Stored address keeps its original
+        // casing -- only the comparison is normalized.
         const previousDeliverable = new Map(
           (previous?.emails ?? []).map((email) => [
-            email.address,
+            email.address.toLowerCase(),
             email.deliverable,
           ]),
         );
         const emails = (incoming.emails ?? []).map((address) => ({
           address,
           formatValid: emailRegex.test(address),
-          deliverable: previousDeliverable.has(address)
-            ? previousDeliverable.get(address)
+          deliverable: previousDeliverable.has(address.toLowerCase())
+            ? previousDeliverable.get(address.toLowerCase())
             : true,
         }));
 
