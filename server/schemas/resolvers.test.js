@@ -2338,3 +2338,39 @@ test("vmstMembers/membersByUsmsId: a linked account's emailPermission overrides 
   await Member.findByIdAndDelete(member._id);
   await User.findByIdAndDelete(linkedUser._id);
 });
+
+test("emailGroup: appends unsubscribe instructions with the membership coordinator's email", async () => {
+  const recipient = await Member.create({
+    usmsRegNo: "555524",
+    usmsId: "55524",
+    firstName: "Footer",
+    lastName: "Test",
+    gender: "F",
+    club: "VMST",
+    regYear: 2026,
+    emails: [makeEmail("footer-test@example.com")],
+  });
+
+  const { errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    {
+      emailData: {
+        id: [recipient._id.toString()],
+        subject: "Test",
+        plainText: "Original message body",
+        html: "<p>Original message body</p>",
+      },
+    },
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+
+  const sent = sentMail[sentMail.length - 1];
+  assert.match(sent.plainText, /Original message body/);
+  assert.match(sent.plainText, /membership@example\.com/);
+  assert.match(sent.plainText, /myusmslogin/);
+  assert.match(sent.html, /Original message body/);
+  assert.match(sent.html, /membership@example\.com/);
+
+  await Member.findByIdAndDelete(recipient._id);
+});

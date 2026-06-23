@@ -135,6 +135,33 @@ function bulkRecipientFields(recipients) {
   return { emails: recipients };
 }
 
+// Appended to emailGroup sends only -- the one bulk-email path with no
+// existing unsubscribe mechanism of its own (unlike notifySubscribers, which
+// already carries a one-click unsubscribe link, and unlike
+// emailLeaders/emailWebmaster/emailLeadersWebmaster, whose recipients are
+// the leaders/webmaster themselves, not members opting out of anything).
+async function unsubscribeFooter() {
+  const coordinator = await User.findOne({ role: "membership" }).select(
+    "email",
+  );
+  const coordinatorEmail = coordinator?.email || process.env.EMAIL;
+  const text =
+    "You are receiving this email because you are a member of VMST. " +
+    "Messages such as this are how VMST leaders and coaches communicate " +
+    "club business. If you wish to stop receiving such emails you will " +
+    "need to login to your MyUSMS account at " +
+    "https://www.usms.org/myusmslogin and change your Email Preferences. " +
+    "Uncheck the box to receive Local USMS Communications. If you have " +
+    `any questions, please email ${coordinatorEmail}.`;
+  return {
+    plainText: `\n\n---\n${text}`,
+    html: `<hr /><p style="font-size: 0.85em; color: #666;">${text.replace(
+      "https://www.usms.org/myusmslogin",
+      '<a href="https://www.usms.org/myusmslogin">https://www.usms.org/myusmslogin</a>',
+    )}</p>`,
+  };
+}
+
 // For any Member linked to a User account, that account's emailPermission
 // is the sole source of truth for whether they receive coach/leader email --
 // it overrides Member.emailExclude in both directions (a member who opted
@@ -830,6 +857,9 @@ contact the webmaster immediately by replying to this message.`,
       // call mail() with mailArgs
       if (emailArray.length > 0) {
         Object.assign(mailArgs, bulkRecipientFields(emailArray));
+        const footer = await unsubscribeFooter();
+        mailArgs.plainText = (mailArgs.plainText || "") + footer.plainText;
+        mailArgs.html = (mailArgs.html || "") + footer.html;
         try {
           await Mail(mailArgs);
         } catch (err) {
