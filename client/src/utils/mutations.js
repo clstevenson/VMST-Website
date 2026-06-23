@@ -71,6 +71,15 @@ export const DELETE_POST = gql`
   }
 `;
 
+export const TOGGLE_PIN = gql`
+  mutation TogglePin($id: ID!) {
+    togglePin(_id: $id) {
+      _id
+      pinned
+    }
+  }
+`;
+
 export const UNSUBSCRIBE = gql`
   mutation Unsubscribe($token: String!) {
     unsubscribe(token: $token)

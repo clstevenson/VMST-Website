@@ -86,6 +86,10 @@ const postSchema = new Schema(
       get: (d) => d?.toLocaleDateString(),
     },
     author: authorSchema,
+    // a leader can temporarily pin up to 2 posts to the front of the list
+    // (enforced in the togglePin resolver, not here); only meaningful for
+    // published posts -- togglePin refuses to pin a draft
+    pinned: { type: Boolean, default: false },
     // below are for the posts photos, eventually replaced by sub-population document
     // comments on the post (by any user)
     photo: photoSchema,

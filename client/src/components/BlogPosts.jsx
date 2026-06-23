@@ -10,31 +10,32 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import parse from "html-react-parser";
 import { useQuery } from "@apollo/client";
+import { Pin } from "lucide-react";
 import { QUERY_POSTS } from "../utils/queries";
 import sanitizeHtml from "../utils/sanitizeHtml";
 
 import Spinner from "./Spinner";
 import { COLORS, QUERIES } from "../utils/constants";
-import { useState } from "react";
 
 // at some point will accept props capable of limiting
 // the posts to a subset of all possible posts
 export default function BlogPosts() {
-  const [posts, setPosts] = useState([]);
-
-  const { loading } = useQuery(QUERY_POSTS, {
-    onCompleted: (data) => {
-      setPosts(data.posts);
-    },
+  // cache-and-network so a pin/unpin elsewhere is reflected in sort order
+  // (not just the pinned badge) the next time this page is visited, rather
+  // than serving the previously-fetched, now-stale-ordered list from cache
+  const { loading, data } = useQuery(QUERY_POSTS, {
+    fetchPolicy: "cache-and-network",
   });
 
-  if (loading) {
+  if (loading && !data) {
     return (
       <SpinnerWrapper>
         <Spinner />
       </SpinnerWrapper>
     );
   }
+
+  const posts = data?.posts ?? [];
 
   return (
     // do not change to a wrapper HTML element unless you are willing
@@ -43,6 +44,11 @@ export default function BlogPosts() {
       {posts.map((post) => {
         return (
           <Post key={post._id} to={`/post/${post._id}`} $draft={!post.posted}>
+            {post.pinned && (
+              <PinBadge title="Pinned post">
+                <Pin size={16} />
+              </PinBadge>
+            )}
             {post.photo && (
               <Image src={post.photo.url} alt={post.photo.caption} />
             )}
@@ -90,6 +96,18 @@ const Post = styled(Link)`
   @media ${QUERIES.mobile} {
     padding: 8px;
   }
+`;
+
+const PinBadge = styled.div`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  padding: 4px;
+  background-color: white;
+  color: ${COLORS.accent[9]};
+  border-radius: 50%;
+  box-shadow: 1px 1px 3px ${COLORS.gray[8]};
 `;
 
 const Image = styled.img`

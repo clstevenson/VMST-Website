@@ -1216,6 +1216,87 @@ test("unsubscribe: a valid token turns off notifications; an invalid or wrongly-
   }
 });
 
+test("togglePin: rejects non-leaders, refuses to pin a draft, caps at 2 pinned, and toggles back off", async () => {
+  const [postA, postB, postC, draft] = await Promise.all([
+    Post.create({ title: "Pin A", content: "<p>a</p>" }),
+    Post.create({ title: "Pin B", content: "<p>b</p>" }),
+    Post.create({ title: "Pin C", content: "<p>c</p>" }),
+    Post.create({ title: "Pin draft", content: "<p>d</p>", posted: false }),
+  ]);
+
+  const mutation = `mutation($id: ID!) { togglePin(_id: $id) { _id pinned } }`;
+
+  try {
+    const { errors: nonLeader } = await run(mutation, { id: postA._id.toString() }, users.coach);
+    assert.ok(nonLeader?.length, "only leaders can toggle pin");
+
+    const { data: draftAttempt, errors: draftErrors } = await run(
+      mutation,
+      { id: draft._id.toString() },
+      users.leader,
+    );
+    assert.equal(draftAttempt.togglePin, null);
+    assert.match(draftErrors[0].message, /draft can't be pinned/);
+
+    const { data: pinA, errors: errA } = await run(mutation, { id: postA._id.toString() }, users.leader);
+    assert.equal(errA, undefined);
+    assert.equal(pinA.togglePin.pinned, true);
+
+    const { data: pinB, errors: errB } = await run(mutation, { id: postB._id.toString() }, users.leader);
+    assert.equal(errB, undefined);
+    assert.equal(pinB.togglePin.pinned, true);
+
+    // a third pin attempt should be rejected, not auto-evict
+    const { data: pinC, errors: errC } = await run(mutation, { id: postC._id.toString() }, users.leader);
+    assert.equal(pinC.togglePin, null);
+    assert.match(errC[0].message, /Only two posts can be pinned/);
+    assert.equal((await Post.findById(postC._id)).pinned, false);
+
+    // unpinning A frees up a slot
+    const { data: unpinA } = await run(mutation, { id: postA._id.toString() }, users.leader);
+    assert.equal(unpinA.togglePin.pinned, false);
+
+    const { data: pinCRetry, errors: errCRetry } = await run(
+      mutation,
+      { id: postC._id.toString() },
+      users.leader,
+    );
+    assert.equal(errCRetry, undefined);
+    assert.equal(pinCRetry.togglePin.pinned, true);
+  } finally {
+    await Post.deleteMany({ _id: { $in: [postA._id, postB._id, postC._id, draft._id] } });
+  }
+});
+
+test("posts: pinned posts sort first, then by postedAt (not createdAt)", async () => {
+  const old = await Post.create({
+    title: "Old but pinned",
+    content: "<p>...</p>",
+    postedAt: new Date("2020-01-01"),
+  });
+  const recent = await Post.create({
+    title: "Recent, unpinned",
+    content: "<p>...</p>",
+    postedAt: new Date("2030-01-01"),
+  });
+
+  try {
+    old.pinned = true;
+    await old.save();
+
+    const { data } = await run(`{ posts { _id title } }`, {}, undefined);
+    const titles = data.posts.map((p) => p.title);
+    const oldIndex = titles.indexOf("Old but pinned");
+    const recentIndex = titles.indexOf("Recent, unpinned");
+    assert.ok(
+      oldIndex < recentIndex,
+      "the pinned-but-older post should sort before the unpinned, more recent one",
+    );
+  } finally {
+    await Post.deleteMany({ _id: { $in: [old._id, recent._id] } });
+  }
+});
+
 test("addMeet and deleteMeet: reject a coach (leader-only, unlike meets/vmstMembers)", async () => {
   const { errors: addRejected } = await run(
     `mutation($meet: MeetData) { addMeet(meet: $meet) { _id } }`,

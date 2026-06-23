@@ -31,6 +31,7 @@ export const QUERY_POSTS = gql`
       content
       createdAt
       posted
+      pinned
       photo {
         id
         caption
@@ -50,6 +51,7 @@ export const QUERY_SINGLEPOST = gql`
       content
       createdAt
       posted
+      pinned
       photo {
         id
         caption

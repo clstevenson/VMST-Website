@@ -8,16 +8,18 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation } from "@apollo/client";
 import * as Separator from "@radix-ui/react-separator";
 import { Home, Trash2, Edit } from "react-feather";
+import { Pin, PinOff } from "lucide-react";
 import parse from "html-react-parser";
 
 import { QUERY_SINGLEPOST } from "../utils/queries";
-import { DELETE_POST } from "../utils/mutations";
+import { DELETE_POST, TOGGLE_PIN } from "../utils/mutations";
 import sanitizeHtml from "../utils/sanitizeHtml";
 import Spinner from "../components/Spinner";
 import { COLORS, QUERIES } from "../utils/constants";
 import { useAuth } from "../context/AuthContext";
 import ToastMessage from "../components/ToastMessage";
 import Alert from "../components/Alert";
+import ErrorMessage from "../components/Styled/ErrorMessage";
 
 export default function SinglePost() {
   // user's can add, edit, or delete posts
@@ -27,6 +29,8 @@ export default function SinglePost() {
   const [deleted, setDeleted] = useState(false);
   // toggle to display alert to confirm post deletion
   const [alertOpen, setAlertOpen] = useState(false);
+  // error message from a failed pin/unpin attempt (e.g. 2-pin cap)
+  const [pinError, setPinError] = useState("");
 
   // retrieve post ID from the route param
   const { id } = useParams();
@@ -37,7 +41,17 @@ export default function SinglePost() {
   const post = data?.onePost;
 
   const [deletePost] = useMutation(DELETE_POST);
+  const [togglePin] = useMutation(TOGGLE_PIN);
   const navigate = useNavigate();
+
+  const handleTogglePin = async () => {
+    setPinError("");
+    try {
+      await togglePin({ variables: { id } });
+    } catch (error) {
+      setPinError(error.message);
+    }
+  };
 
   const handleDeletePost = () => {
     try {
@@ -143,12 +157,19 @@ export default function SinglePost() {
                 <Trash2 /> Delete
               </IconButton>
             </Alert>
+            {post.posted && (
+              <IconButton onClick={handleTogglePin}>
+                {post.pinned ? <PinOff /> : <Pin />}
+                {post.pinned ? "Unpin" : "Pin"}
+              </IconButton>
+            )}
           </>
         )}
         <IconButton onClick={() => navigate("/")}>
           <Home /> Home
         </IconButton>
       </FooterWrapper>
+      {pinError && <PinError>{pinError}</PinError>}
       {deleted && (
         <ToastMessage
           duration={1000}
@@ -293,6 +314,10 @@ const Attribution = styled.p`
 const NotFound = styled.p`
   text-align: center;
   padding: 16px 0;
+`;
+
+const PinError = styled(ErrorMessage)`
+  text-align: center;
 `;
 
 const FooterWrapper = styled.div`

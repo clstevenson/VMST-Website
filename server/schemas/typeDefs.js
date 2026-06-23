@@ -85,6 +85,7 @@ type Post {
   createdAt: String
   posted: Boolean!
   postedAt: String
+  pinned: Boolean!
   author: Author
   photo: Photo
   comments: [Comment]
@@ -256,6 +257,7 @@ type Mutation {
   emailLeadersWebmaster(emailData: emailData): Boolean
   emailGroup(emailData: emailData): Boolean
   unsubscribe(token: String!): Boolean
+  togglePin(_id: ID!): Post
 }
 `;
 

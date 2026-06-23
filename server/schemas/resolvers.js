@@ -110,8 +110,10 @@ const resolvers = {
       requireRole(user);
       return await User.findOne({ email: email });
     },
-    // get all posts, sorted most recent first; a draft (posted: false) is
-    // only included for the logged-in user who authored it
+    // pinned posts first, then most recently posted first (not created --
+    // a post drafted long ago but published today should show as recent).
+    // drafts have no postedAt and are never pinned, so they naturally sort
+    // last; a draft (posted: false) is only included for its own author
     posts: async (_, __, { user }) => {
       const filter = user
         ? {
@@ -121,7 +123,7 @@ const resolvers = {
             ],
           }
         : { posted: true };
-      return await Post.find(filter).sort({ createdAt: -1 });
+      return await Post.find(filter).sort({ pinned: -1, postedAt: -1 });
     },
     // get a single post with all comments
     // can't populate users directly, need to populate comments that are nested
@@ -739,6 +741,28 @@ contact the webmaster immediately by replying to this message.`,
         notifications: false,
       });
       return !!result;
+    },
+    // pin/unpin a post to the front of the home page; at most 2 can be
+    // pinned at once (rejected, not auto-evicted, per the user's call), and
+    // pinning a draft is refused since it would have no visible effect
+    togglePin: async (_, { _id }, { user }) => {
+      requireRole(user, "leader");
+      const post = await Post.findById(_id);
+      if (!post) {
+        throw new Error("Post not found");
+      }
+      if (!post.pinned) {
+        if (!post.posted) {
+          throw new Error("A draft can't be pinned until it's published.");
+        }
+        const pinnedCount = await Post.countDocuments({ pinned: true });
+        if (pinnedCount >= 2) {
+          throw new Error("Only two posts can be pinned, unpin one first.");
+        }
+      }
+      post.pinned = !post.pinned;
+      await post.save();
+      return post;
     },
   },
 };
