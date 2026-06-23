@@ -337,8 +337,8 @@ export default function CreateEditPost({ isEditing = false }) {
           </a>{" "}
           for images to use. If you use images, please choose small sizes (eg{" "}
           <span>Small240</span> or <span>Small320</span>) to reduce database
-          bloat. The image will float left (text flowing to the right of the
-          image) in the final post.
+          bloat. The image will display centered, on its own line, in the
+          final post.
         </QuillDescription>
         {/* error message to display */}
         {message && <ErrorMessage>{message}</ErrorMessage>}

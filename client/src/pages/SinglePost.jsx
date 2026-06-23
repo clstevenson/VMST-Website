@@ -248,14 +248,15 @@ const ContentWrapper = styled.div`
   width: 100%;
 
   /*
-   For now all (smaller) images will float right. Eventually let the user decide (for the entire post)
-   whether to float left or right, or whether images are blocks spanning the entire width
+   embedded images display as centered blocks rather than floating with
+   text wrapped around them -- looked bad across too many image/viewport
+   size combinations; per-image author control (float vs. block) would
+   need a Quill alignment module, not just CSS, so isn't done here
    */
   & img {
     max-width: 100%;
-    float: left;
-    margin: 4px 8px;
-    margin-left: 0;
+    display: block;
+    margin: 16px auto;
   }
   & h1 {
     font-size: 1.2rem;
