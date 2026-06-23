@@ -1558,6 +1558,74 @@ test("emailLeadersWebmaster: succeeds for an anonymous visitor, reaches both", a
   assert.ok(emails.includes("webmaster@example.com"));
 });
 
+test("emailGroup: in production, real recipients go in bcc with `to` set to the sending account", async () => {
+  const member = await Member.create({
+    usmsRegNo: "555502",
+    usmsId: "55502",
+    firstName: "Bcc",
+    lastName: "Check",
+    gender: "F",
+    club: "VMST",
+    regYear: 2026,
+    emails: [makeEmail("bcc-recipient@example.com")],
+  });
+
+  const originalNodeEnv = process.env.NODE_ENV;
+  const originalEmail = process.env.EMAIL;
+  process.env.NODE_ENV = "production";
+  process.env.EMAIL = "vmst.sending@example.com";
+
+  try {
+    const before = sentMail.length;
+    const { data, errors } = await run(
+      `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+      {
+        emailData: {
+          id: [member._id.toString()],
+          subject: "Workout group update",
+          plainText: "practice moved to 6am",
+        },
+      },
+      users.coach,
+    );
+    assert.equal(errors, undefined);
+    assert.equal(data.emailGroup, true);
+    assert.equal(sentMail.length, before + 1);
+    const sent = sentMail[sentMail.length - 1];
+    assert.equal(sent.emails, "vmst.sending@example.com");
+    assert.deepEqual(sent.bcc, ["bcc-recipient@example.com"]);
+  } finally {
+    process.env.NODE_ENV = originalNodeEnv;
+    process.env.EMAIL = originalEmail;
+    await Member.findByIdAndDelete(member._id);
+  }
+});
+
+test("emailLeaders: in production, real recipients go in bcc with `to` set to the sending account", async () => {
+  const originalNodeEnv = process.env.NODE_ENV;
+  const originalEmail = process.env.EMAIL;
+  process.env.NODE_ENV = "production";
+  process.env.EMAIL = "vmst.sending@example.com";
+
+  try {
+    const before = sentMail.length;
+    const { data, errors } = await run(
+      `mutation($emailData: emailData) { emailLeaders(emailData: $emailData) }`,
+      { emailData: { id: [], subject: "Hello leaders", plainText: "hi" } },
+      null,
+    );
+    assert.equal(errors, undefined);
+    assert.equal(data.emailLeaders, true);
+    assert.equal(sentMail.length, before + 1);
+    const sent = sentMail[sentMail.length - 1];
+    assert.equal(sent.emails, "vmst.sending@example.com");
+    assert.deepEqual(sent.bcc, ["leader@example.com"]);
+  } finally {
+    process.env.NODE_ENV = originalNodeEnv;
+    process.env.EMAIL = originalEmail;
+  }
+});
+
 // uploadMembers wholesale-replaces "the truth" on every call (anyone missing
 // from memberData is hard-deleted), so these tests must run after every other
 // test that depends on a particular Member collection state -- in particular,

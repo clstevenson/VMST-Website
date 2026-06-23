@@ -91,6 +91,18 @@ Or log in and update your preferences from your account page.`,
   }
 }
 
+// In production, a bulk send's real recipients go in bcc (so they can't
+// see each other's addresses), with `emails` (-> Mail()'s `to` field) left
+// as the sending account's own address. In dev, recipients stay in
+// `emails` for easy visibility on Ethereal, which never delivers anywhere
+// real anyway.
+function bulkRecipientFields(recipients) {
+  if (process.env.NODE_ENV === "production") {
+    return { emails: process.env.EMAIL, bcc: recipients };
+  }
+  return { emails: recipients };
+}
+
 const resolvers = {
   Query: {
     // get all USMS members of the VA LMSC
@@ -625,14 +637,13 @@ contact the webmaster immediately by replying to this message.`,
     emailLeaders: async (_, { emailData }) => {
       // retrieve the emails of the leaders from the DB
       const emails = await User.find({ role: "leader" }).select("email");
-      // returned an array of objects with property "email" (one array item per leader)
+      const recipients = emails.map((leader) => leader.email);
       const mailArgs = { ...emailData };
       delete mailArgs.id;
-      // add the leader's emails (as an array) to the argument object
-      mailArgs.emails = emails.map((leader) => leader.email);
 
       // call mail() with mailArgs
-      if (mailArgs.emails.length > 0) {
+      if (recipients.length > 0) {
+        Object.assign(mailArgs, bulkRecipientFields(recipients));
         try {
           await Mail(mailArgs);
         } catch (err) {
@@ -651,14 +662,13 @@ contact the webmaster immediately by replying to this message.`,
       const emails = await User.find({
         $or: [{ role: "leader" }, { role: "webmaster" }],
       }).select("email");
-      // returned an array of objects with property "email" (one array item per email address)
+      const recipients = emails.map((user) => user.email);
       const mailArgs = { ...emailData };
       delete mailArgs.id;
-      // add the emails (as an array) to the argument object
-      mailArgs.emails = emails.map((user) => user.email);
 
       // call mail() with mailArgs
-      if (mailArgs.emails.length > 0) {
+      if (recipients.length > 0) {
+        Object.assign(mailArgs, bulkRecipientFields(recipients));
         try {
           await Mail(mailArgs);
         } catch (err) {
@@ -676,14 +686,13 @@ contact the webmaster immediately by replying to this message.`,
       // retrieve the emails of the webmaster(s) from the DB
       // (there could potentially be more than one)
       const emails = await User.find({ role: "webmaster" }).select("email");
-      // returned an array of objects with property "email" (one array item per webmaster)
+      const recipients = emails.map((user) => user.email);
       const mailArgs = { ...emailData };
       delete mailArgs.id;
-      // add the leader's emails (as an array) to the argument object
-      mailArgs.emails = emails.map((user) => user.email);
 
       // call mail() with mailArgs
-      if (mailArgs.emails.length > 0) {
+      if (recipients.length > 0) {
+        Object.assign(mailArgs, bulkRecipientFields(recipients));
         try {
           await Mail(mailArgs);
         } catch (err) {
@@ -705,7 +714,6 @@ contact the webmaster immediately by replying to this message.`,
         "emails",
       );
 
-      // returned an array of objects with property "email" (one array item per leader in input)
       const mailArgs = { ...emailData };
       delete mailArgs.id;
       let emailArray = [];
@@ -715,7 +723,6 @@ contact the webmaster immediately by replying to this message.`,
           .map((email) => email.address);
         emailArray = [...emailArray, ...usableEmails];
       });
-      mailArgs.emails = emailArray;
 
       // need to know who to reply to (ie the leader or coach who is sending the message)
       const sender = await User.findById(user._id).select("email");
@@ -723,7 +730,8 @@ contact the webmaster immediately by replying to this message.`,
       mailArgs.replyTo = sender.email;
 
       // call mail() with mailArgs
-      if (mailArgs.emails.length > 0) {
+      if (emailArray.length > 0) {
+        Object.assign(mailArgs, bulkRecipientFields(emailArray));
         try {
           await Mail(mailArgs);
         } catch (err) {
