@@ -6,6 +6,7 @@
  - display summary if present instead of appreviated content
  */
 
+import { useState } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import parse from "html-react-parser";
@@ -15,11 +16,16 @@ import { QUERY_POSTS } from "../utils/queries";
 import sanitizeHtml from "../utils/sanitizeHtml";
 
 import Spinner from "./Spinner";
+import PaginationNav from "./PaginationNav";
+import PostsPerPage from "./PostsPerPage";
 import { COLORS, QUERIES } from "../utils/constants";
 
 // at some point will accept props capable of limiting
 // the posts to a subset of all possible posts
 export default function BlogPosts() {
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(3);
+
   // cache-and-network so a pin/unpin elsewhere is reflected in sort order
   // (not just the pinned badge) the next time this page is visited, rather
   // than serving the previously-fetched, now-stale-ordered list from cache
@@ -36,12 +42,14 @@ export default function BlogPosts() {
   }
 
   const posts = data?.posts ?? [];
+  const maxPages = Math.max(1, Math.ceil(posts.length / perPage));
+  const pagedPosts = posts.slice((page - 1) * perPage, page * perPage);
 
   return (
     // do not change to a wrapper HTML element unless you are willing
     // to move the grid layout to this component rather than the Home page
     <>
-      {posts.map((post) => {
+      {pagedPosts.map((post) => {
         return (
           <Post key={post._id} to={`/post/${post._id}`} $draft={!post.posted}>
             {post.pinned && (
@@ -62,6 +70,22 @@ export default function BlogPosts() {
           </Post>
         );
       })}
+      {/* no pagination clutter when everything already fits on one page */}
+      {maxPages > 1 && (
+        <PaginationRow>
+          <PaginationNav
+            page={page}
+            setPage={setPage}
+            maxPages={maxPages}
+            displayJump={false}
+          />
+          <PostsPerPage
+            perPage={perPage}
+            setPerPage={setPerPage}
+            setPage={setPage}
+          />
+        </PaginationRow>
+      )}
     </>
   );
 }
@@ -96,6 +120,18 @@ const Post = styled(Link)`
   @media ${QUERIES.mobile} {
     padding: 8px;
   }
+`;
+
+// spans the full width of the parent grid (Home.jsx's PostWrapper) since
+// this component renders as a fragment, so this row is a sibling grid item
+// alongside the post cards rather than nested inside its own container
+const PaginationRow = styled.div`
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: 4px 0;
 `;
 
 const PinBadge = styled.div`
