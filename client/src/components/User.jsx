@@ -25,7 +25,11 @@ import * as RadioGroup from "@radix-ui/react-radio-group";
 import { useQuery, useMutation } from "@apollo/client";
 
 import { QUERY_USER } from "../utils/queries.js";
-import { EDIT_USER, EMAIL_WEBMASTER } from "../utils/mutations.js";
+import {
+  EDIT_USER,
+  EMAIL_WEBMASTER,
+  RESEND_VERIFICATION_EMAIL,
+} from "../utils/mutations.js";
 import { COLORS, QUERIES } from "../utils/constants.js";
 import Auth from "../utils/auth.js";
 import * as ModalStyles from "./Styled/ModalStyles.jsx";
@@ -57,9 +61,22 @@ export default function User({ userProfile }) {
   // request statuses
   const [roleRequestSent, setRoleRequestSent] = useState(false);
   const [profileUpdated, setProfileUpdated] = useState(false);
+  // "idle" | "sending" | "sent" | "error"
+  const [resendStatus, setResendStatus] = useState("idle");
 
   const [editUser] = useMutation(EDIT_USER);
   const [emailWebmaster] = useMutation(EMAIL_WEBMASTER);
+  const [resendVerificationEmail] = useMutation(RESEND_VERIFICATION_EMAIL);
+
+  const handleResendVerification = async () => {
+    setResendStatus("sending");
+    try {
+      const { data } = await resendVerificationEmail();
+      setResendStatus(data.resendVerificationEmail ? "sent" : "error");
+    } catch {
+      setResendStatus("error");
+    }
+  };
 
   const { loading } = useQuery(QUERY_USER, {
     variables: { id: userProfile._id },
@@ -113,8 +130,12 @@ export default function User({ userProfile }) {
       }
       // trigger Toast
       setProfileUpdated(true);
+      // pick up server-side side effects not reflected in local edits,
+      // eg emailVerified resetting when the email address changes
+      const mergedUser = { ...user, emailVerified: updatedUser.emailVerified };
+      setUser(mergedUser);
       // update the "original user" to match what's in the DB
-      setOriginalProfile({ ...user });
+      setOriginalProfile({ ...mergedUser });
     } catch (error) {
       // need to send a message to the user
       setMessage(error.message);
@@ -217,6 +238,30 @@ export default function User({ userProfile }) {
               </Dialog.Portal>
             </Dialog.Root>
           </EmailInputWrapper>
+
+          {!user.emailVerified && (
+            <Description>
+              This email address hasn&apos;t been verified yet.{" "}
+              {resendStatus === "sent" ? (
+                "A new verification link is on its way."
+              ) : (
+                <MinorButton
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={resendStatus === "sending"}
+                >
+                  {resendStatus === "sending"
+                    ? "Sending..."
+                    : "Resend verification email"}
+                </MinorButton>
+              )}
+              {resendStatus === "error" && (
+                <ErrorMessage>
+                  Something went wrong sending that email. Please try again.
+                </ErrorMessage>
+              )}
+            </Description>
+          )}
 
           <InputWrapper>
             <CheckboxRoot

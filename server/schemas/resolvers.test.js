@@ -619,6 +619,131 @@ test("addUser: creates an account (default role) and returns a token", async () 
   assert.equal(data.addUser.user.role, "user");
 });
 
+test("addUser: fires a verification email in the background (doesn't block signup)", async () => {
+  const query = `mutation($firstName: String!, $lastName: String!, $email: String!, $password: String!) {
+    addUser(firstName: $firstName, lastName: $lastName, email: $email, password: $password) {
+      user { _id email }
+    }
+  }`;
+  const before = sentMail.length;
+  const { data, errors } = await runWithRes(
+    query,
+    {
+      firstName: "Verify",
+      lastName: "Me",
+      email: "verify-me@example.com",
+      password: "Whatever-123!",
+    },
+    null,
+  );
+  assert.equal(errors, undefined);
+
+  await flush();
+  assert.equal(sentMail.length, before + 1);
+  const sent = sentMail[sentMail.length - 1];
+  assert.equal(sent.emails, "verify-me@example.com");
+  assert.match(sent.plainText, /verify-email\?token=/);
+
+  const stored = await User.findById(data.addUser.user._id);
+  assert.equal(stored.emailVerified, false);
+
+  await User.findByIdAndDelete(data.addUser.user._id);
+});
+
+test("verifyEmail: a valid token sets emailVerified, an invalid one does nothing", async () => {
+  const target = await User.create({
+    firstName: "Needs",
+    lastName: "Verifying",
+    email: "needs-verifying@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+  });
+  assert.equal(target.emailVerified, false);
+
+  const garbage = await run(
+    `mutation { verifyEmail(token: "not-a-real-token") }`,
+    {},
+    null,
+  );
+  assert.equal(garbage.data.verifyEmail, false);
+  assert.equal((await User.findById(target._id)).emailVerified, false);
+
+  const token = auth.signVerificationToken({ _id: target._id.toString() });
+  const { data, errors } = await run(
+    `mutation($token: String!) { verifyEmail(token: $token) }`,
+    { token },
+    null,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.verifyEmail, true);
+  assert.equal((await User.findById(target._id)).emailVerified, true);
+
+  await User.findByIdAndDelete(target._id);
+});
+
+test("resendVerificationEmail: rejects an unauthenticated caller, sends to the caller's own email when logged in", async () => {
+  const unauth = await run(`mutation { resendVerificationEmail }`, {}, null);
+  assert.ok(unauth.errors?.length);
+
+  const target = await User.create({
+    firstName: "Resend",
+    lastName: "Test",
+    email: "resend-test@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+  });
+
+  const before = sentMail.length;
+  const { data, errors } = await run(
+    `mutation { resendVerificationEmail }`,
+    {},
+    { _id: target._id.toString(), role: "user" },
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.resendVerificationEmail, true);
+  assert.equal(sentMail.length, before + 1);
+  assert.equal(sentMail[sentMail.length - 1].emails, "resend-test@example.com");
+
+  await User.findByIdAndDelete(target._id);
+});
+
+test("editUser: changing email resets emailVerified to false and sends a fresh verification email", async () => {
+  const target = await User.create({
+    firstName: "Changing",
+    lastName: "Email",
+    email: "old-address@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+    emailVerified: true,
+  });
+
+  const contextUser = { _id: target._id.toString(), role: "user" };
+
+  // an edit that does NOT touch email should leave emailVerified alone
+  await run(
+    `mutation($id: ID!, $user: UserData) { editUser(_id: $id, user: $user) { emailVerified } }`,
+    { id: target._id.toString(), user: { firstName: "Changing" } },
+    contextUser,
+  );
+  assert.equal((await User.findById(target._id)).emailVerified, true);
+
+  const before = sentMail.length;
+  const { data, errors } = await run(
+    `mutation($id: ID!, $user: UserData) { editUser(_id: $id, user: $user) { emailVerified email } }`,
+    {
+      id: target._id.toString(),
+      user: { email: "new-address@example.com" },
+    },
+    contextUser,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.editUser.email, "new-address@example.com");
+  assert.equal(data.editUser.emailVerified, false);
+
+  await flush();
+  assert.equal(sentMail.length, before + 1);
+  assert.equal(sentMail[sentMail.length - 1].emails, "new-address@example.com");
+
+  await User.findByIdAndDelete(target._id);
+});
+
 test("changePassword: rejects an unauthenticated caller, succeeds for a logged-in user", async () => {
   const target = await User.create({
     firstName: "Change",

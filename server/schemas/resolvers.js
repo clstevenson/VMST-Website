@@ -7,6 +7,8 @@ const {
   requireRole,
   signUnsubscribeToken,
   verifyUnsubscribeToken,
+  signVerificationToken,
+  verifyVerificationToken,
 } = require("../utils/auth");
 
 // no longer used directly in this file (uploadMembers no longer drops the
@@ -89,6 +91,36 @@ Or log in and update your preferences from your account page.`,
       );
     }
   }
+}
+
+// sent on signup, and again whenever a user changes their email address.
+// Confirms the address is reachable; not currently a gate on anything
+// (no feature checks emailVerified yet) -- just tracked and surfaced as a
+// gentle reminder on the account page.
+async function sendVerificationEmail(user) {
+  const baseUrl = process.env.CLIENT_URL || "http://localhost:3000";
+  const verifyUrl = `${baseUrl}/verify-email?token=${signVerificationToken({
+    _id: user._id,
+  })}`;
+  await Mail({
+    from: "VMST",
+    replyTo: process.env.EMAIL,
+    emails: user.email,
+    subject: "Verify your VMST account email",
+    plainText: `Hello ${user.firstName},
+
+Please confirm this is your email address by clicking the link below. This link expires in 48 hours.
+
+${verifyUrl}
+
+If you didn't create this account, you can ignore this email.`,
+    html: `
+      <p>Hello ${user.firstName},</p>
+      <p>Please confirm this is your email address by clicking the link below. This link expires in 48 hours.</p>
+      <p><a href="${verifyUrl}">Verify my email</a></p>
+      <p style="font-size: 0.85em; color: #666;">If you didn't create this account, you can ignore this email.</p>
+    `,
+  });
 }
 
 // In production, a bulk send's real recipients go in bcc (so they can't
@@ -245,6 +277,10 @@ const resolvers = {
     addUser: async (_, { firstName, lastName, email, password }, { res }) => {
       const user = await User.create({ firstName, lastName, email, password });
       if (!user) throw AuthenticationError;
+      // fire-and-forget: a slow/failed send shouldn't hold up signup
+      sendVerificationEmail(user).catch((err) =>
+        console.error("sendVerificationEmail failed:", err),
+      );
       const accessToken = signToken(user);
       const refreshToken = signRefreshToken(user);
       setRefreshCookie(res, refreshToken);
@@ -272,8 +308,18 @@ const resolvers = {
         // query-then-save so schema validators actually run
         const updatedUser = await User.findById(args._id);
         if (!updatedUser) throw AuthenticationError;
+        // changing email means "verified" would otherwise keep referring
+        // to an address the account no longer uses
+        const emailChanged =
+          args.user.email && args.user.email !== updatedUser.email;
         Object.assign(updatedUser, args.user);
+        if (emailChanged) updatedUser.emailVerified = false;
         await updatedUser.save();
+        if (emailChanged) {
+          sendVerificationEmail(updatedUser).catch((err) =>
+            console.error("sendVerificationEmail failed:", err),
+          );
+        }
         return updatedUser;
       } catch (err) {
         console.log(err);
@@ -758,6 +804,30 @@ contact the webmaster immediately by replying to this message.`,
         notifications: false,
       });
       return !!result;
+    },
+    // no login required -- same reasoning as unsubscribe above, except
+    // this token expires after 48h (see signVerificationToken)
+    verifyEmail: async (_, { token }) => {
+      const userId = verifyVerificationToken(token);
+      if (!userId) return false;
+      const result = await User.findByIdAndUpdate(userId, {
+        emailVerified: true,
+      });
+      return !!result;
+    },
+    // logged-in only, sends to the caller's own current email -- lets
+    // them get a fresh link if the first one expired or got lost
+    resendVerificationEmail: async (_, __, { user }) => {
+      requireRole(user);
+      const target = await User.findById(user._id);
+      if (!target) return false;
+      try {
+        await sendVerificationEmail(target);
+        return true;
+      } catch (err) {
+        console.error("resendVerificationEmail failed:", err);
+        return false;
+      }
     },
     // pin/unpin a post to the front of the home page; at most 2 can be
     // pinned at once (rejected, not auto-evicted, per the user's call), and

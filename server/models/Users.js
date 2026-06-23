@@ -53,6 +53,9 @@ const userSchema = new Schema({
   group: {type: String, default: ""},
   notifications: {type: Boolean, default: false,},
   emailPermission: {type: Boolean, default: true,},
+  // set true once the user clicks the link in their verification email
+  // (sent on signup, and again whenever they change their email address)
+  emailVerified: {type: Boolean, default: false,},
   // active: normal. silent: can't post comments (not wired up yet, since
   // comments aren't either). banned: can't log in, and their email can't
   // be reused by a new account (see the unique index above).

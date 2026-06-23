@@ -32,6 +32,7 @@ type User {
   notifications: Boolean
   emailPermission: Boolean
   accountStatus: String
+  emailVerified: Boolean!
 }
 
 # MeetSwimmer is embedded in Meet
@@ -257,6 +258,8 @@ type Mutation {
   emailLeadersWebmaster(emailData: emailData): Boolean
   emailGroup(emailData: emailData): Boolean
   unsubscribe(token: String!): Boolean
+  verifyEmail(token: String!): Boolean
+  resendVerificationEmail: Boolean
   togglePin(_id: ID!): Post
 }
 `;
