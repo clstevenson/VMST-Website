@@ -716,12 +716,16 @@ contact the webmaster immediately by replying to this message.`,
 
       const mailArgs = { ...emailData };
       delete mailArgs.id;
+      // use only one address per recipient: the lowest-index address that
+      // is both formatValid and deliverable. Emails are pushed primary-
+      // first/secondary-second at upload time, so this naturally means
+      // "use primary unless it's bad, then fall back to secondary"
       let emailArray = [];
       group.forEach((member) => {
-        const usableEmails = member.emails
-          .filter((email) => email.formatValid && email.deliverable)
-          .map((email) => email.address);
-        emailArray = [...emailArray, ...usableEmails];
+        const usableEmail = member.emails.find(
+          (email) => email.formatValid && email.deliverable,
+        );
+        if (usableEmail) emailArray.push(usableEmail.address);
       });
 
       // need to know who to reply to (ie the leader or coach who is sending the message)

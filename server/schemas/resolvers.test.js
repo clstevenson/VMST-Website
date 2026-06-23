@@ -1939,3 +1939,53 @@ test("emailGroup: skips addresses that are not formatValid or not deliverable", 
 
   await Member.findByIdAndDelete(member._id);
 });
+
+test("emailGroup: a member with two usable addresses only gets emailed at the primary (lowest-index) one", async () => {
+  const primaryGood = await Member.create({
+    usmsRegNo: "555510",
+    usmsId: "55510",
+    firstName: "Both",
+    lastName: "Usable",
+    gender: "F",
+    club: "VMST",
+    regYear: 2026,
+    emails: [makeEmail("primary@example.com"), makeEmail("secondary@example.com")],
+  });
+
+  // primary bounced -- should fall back to secondary, not skip the member
+  const primaryBad = await Member.create({
+    usmsRegNo: "555511",
+    usmsId: "55511",
+    firstName: "Primary",
+    lastName: "Bounced",
+    gender: "M",
+    club: "VMST",
+    regYear: 2026,
+    emails: [
+      makeEmail("bounced-primary@example.com", { deliverable: false }),
+      makeEmail("fallback-secondary@example.com"),
+    ],
+  });
+
+  const before = sentMail.length;
+  const { data, errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    {
+      emailData: {
+        id: [primaryGood._id.toString(), primaryBad._id.toString()],
+        subject: "Test",
+        plainText: "test",
+      },
+    },
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.emailGroup, true);
+  assert.equal(sentMail.length, before + 1);
+  assert.deepEqual(sentMail[sentMail.length - 1].emails, [
+    "primary@example.com",
+    "fallback-secondary@example.com",
+  ]);
+
+  await Member.deleteMany({ _id: { $in: [primaryGood._id, primaryBad._id] } });
+});
