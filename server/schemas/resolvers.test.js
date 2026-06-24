@@ -1030,7 +1030,7 @@ test("editPost: leader can edit a post", async () => {
   }
 });
 
-test("editPost: a photo missing its required flickrURL is rejected by the schema validator (restored via query-then-save), and omitting photo entirely unsets it", async () => {
+test("editPost: a photo missing its required flickrURL is rejected by the schema validator and surfaced as a real GraphQL error (restored via query-then-save), and omitting photo entirely unsets it", async () => {
   const post = await Post.create({
     title: "Has a photo",
     content: "<p>Content</p>",
@@ -1049,9 +1049,6 @@ test("editPost: a photo missing its required flickrURL is rejected by the schema
   }`;
 
   try {
-    // editPost's catch block logs and swallows errors rather than
-    // rethrowing (pre-existing style, not changed here) -- so the
-    // regression to guard against is the DB write, not a GraphQL error
     const { data: badData, errors: badErrors } = await run(
       mutation,
       {
@@ -1064,7 +1061,10 @@ test("editPost: a photo missing its required flickrURL is rejected by the schema
       },
       users.leader,
     );
-    assert.equal(badErrors, undefined);
+    // editPost no longer swallows the validator failure -- it propagates
+    // naturally (same as addPost), so the client gets a real, specific
+    // error message instead of an empty, success-shaped response
+    assert.match(badErrors[0].message, /flickrURL.*required/);
     assert.equal(badData.editPost, null);
 
     const stillOriginal = await Post.findById(post._id);

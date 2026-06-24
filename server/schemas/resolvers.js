@@ -631,32 +631,31 @@ contact the webmaster immediately by replying to this message.`,
       if (!updatedPost.posted && updatedPost.author?.userId !== user._id) {
         throw AuthenticationError;
       }
-      try {
-        updatedPost.title = title;
-        updatedPost.summary = summary;
-        updatedPost.content = content;
-        // assigning undefined and saving unsets the subdocument entirely,
-        // equivalent to the previous $unset: { photo: 1 }
-        updatedPost.photo = photo.id ? photo : undefined;
-        // only stamp postedAt the moment a draft actually goes live;
-        // re-saving an already-published post must not change it
-        const isPosted = posted ?? updatedPost.posted;
-        const isPublishing = isPosted && !updatedPost.posted;
-        if (isPublishing) {
-          updatedPost.postedAt = new Date();
-        }
-        updatedPost.posted = isPosted;
-        await updatedPost.save();
-        // fire-and-forget -- see addPost for why this isn't awaited
-        if (isPublishing) {
-          notifySubscribers(updatedPost).catch((err) =>
-            console.error("notifySubscribers failed:", err),
-          );
-        }
-        return updatedPost;
-      } catch (error) {
-        console.log(error);
+      updatedPost.title = title;
+      updatedPost.summary = summary;
+      updatedPost.content = content;
+      // assigning undefined and saving unsets the subdocument entirely,
+      // equivalent to the previous $unset: { photo: 1 }
+      updatedPost.photo = photo.id ? photo : undefined;
+      // only stamp postedAt the moment a draft actually goes live;
+      // re-saving an already-published post must not change it
+      const isPosted = posted ?? updatedPost.posted;
+      const isPublishing = isPosted && !updatedPost.posted;
+      if (isPublishing) {
+        updatedPost.postedAt = new Date();
       }
+      updatedPost.posted = isPosted;
+      // a schema-validator failure (eg a malformed embedded photo subdoc)
+      // throws naturally here and propagates to Apollo, same as addPost --
+      // no try/catch swallowing it into a silent no-op
+      await updatedPost.save();
+      // fire-and-forget -- see addPost for why this isn't awaited
+      if (isPublishing) {
+        notifySubscribers(updatedPost).catch((err) =>
+          console.error("notifySubscribers failed:", err),
+        );
+      }
+      return updatedPost;
     },
     deletePost: async (_, { _id }, { user }) => {
       // only leaders can delete posts

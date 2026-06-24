@@ -248,7 +248,7 @@ export default function CreateEditPost({ isEditing = false }) {
       // need a toast to convey success; its CB function will cleanup
       setPosted(true);
     } catch (error) {
-      console.log(`Error: ${error.message}`);
+      setMessage(`Error: ${error.message}`);
     }
   };
 
