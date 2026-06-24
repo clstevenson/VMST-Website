@@ -32,6 +32,8 @@ type User {
   notifications: Boolean
   emailPermission: Boolean
   accountStatus: String
+  emailVerified: Boolean!
+  linkedMember: ID
 }
 
 # MeetSwimmer is embedded in Meet
@@ -95,6 +97,12 @@ type Post {
 type Auth {
   token: ID!
   user: User
+}
+
+# rolling 24h recipient count against the daily Gmail sending limit
+type EmailUsage {
+  count: Int!
+  limit: Int!
 }
 ####### input data types for convenience
 
@@ -235,6 +243,7 @@ type Query {
   getPhotos(page: Int!, perPage: Int!, search: String): PhotoCollection
   getPhotoSizes(id: String!): Photo
   getPhotoInfo(id: String!): Photo
+  emailUsage: EmailUsage
 }
 
 type Mutation {
@@ -257,6 +266,9 @@ type Mutation {
   emailLeadersWebmaster(emailData: emailData): Boolean
   emailGroup(emailData: emailData): Boolean
   unsubscribe(token: String!): Boolean
+  verifyEmail(token: String!): Boolean
+  resendVerificationEmail: Boolean
+  linkMember(usmsId: String!): Member
   togglePin(_id: ID!): Post
 }
 `;

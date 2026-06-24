@@ -86,6 +86,28 @@ export const UNSUBSCRIBE = gql`
   }
 `;
 
+export const VERIFY_EMAIL = gql`
+  mutation VerifyEmail($token: String!) {
+    verifyEmail(token: $token)
+  }
+`;
+
+export const RESEND_VERIFICATION_EMAIL = gql`
+  mutation ResendVerificationEmail {
+    resendVerificationEmail
+  }
+`;
+
+export const LINK_MEMBER = gql`
+  mutation LinkMember($usmsId: String!) {
+    linkMember(usmsId: $usmsId) {
+      _id
+      firstName
+      lastName
+    }
+  }
+`;
+
 export const ADD_USER = gql`
   mutation addUser(
     $firstName: String!
@@ -118,6 +140,7 @@ export const EDIT_USER = gql`
       notifications
       emailPermission
       accountStatus
+      emailVerified
     }
   }
 `;

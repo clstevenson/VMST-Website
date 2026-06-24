@@ -71,6 +71,25 @@ module.exports = {
     }
   },
 
+  // expires in 48h, unlike the unsubscribe token -- a stale verification
+  // link should require requesting a fresh one rather than work forever
+  signVerificationToken: function ({ _id }) {
+    return jwt.sign({ _id, purpose: "verify-email" }, secret, {
+      expiresIn: "48h",
+    });
+  },
+
+  // returns the target user's _id if `token` is a validly-signed,
+  // unexpired, correctly-scoped verification token, otherwise null
+  verifyVerificationToken: function (token) {
+    try {
+      const { _id, purpose } = jwt.verify(token, secret);
+      return purpose === "verify-email" ? _id : null;
+    } catch {
+      return null;
+    }
+  },
+
   // Call this in login resolver after signing both tokens
   setRefreshCookie: function (res, refreshToken) {
     res.cookie("refresh_token", refreshToken, {

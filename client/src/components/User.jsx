@@ -22,20 +22,26 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as Accordian from "@radix-ui/react-accordion";
 import * as Label from "@radix-ui/react-label";
 import * as RadioGroup from "@radix-ui/react-radio-group";
+import * as Popover from "@radix-ui/react-popover";
 import { useQuery, useMutation } from "@apollo/client";
 
 import { QUERY_USER } from "../utils/queries.js";
-import { EDIT_USER, EMAIL_WEBMASTER } from "../utils/mutations.js";
+import {
+  EDIT_USER,
+  EMAIL_WEBMASTER,
+  RESEND_VERIFICATION_EMAIL,
+} from "../utils/mutations.js";
 import { COLORS, QUERIES } from "../utils/constants.js";
 import Auth from "../utils/auth.js";
 import * as ModalStyles from "./Styled/ModalStyles.jsx";
 import ChangeEmail from "./ChangeEmail.jsx";
 import ChangePassword from "./ChangePassword.jsx";
+import LinkMember from "./LinkMember.jsx";
 import SubmitButton from "./Styled/SubmiButton.jsx";
 import Spinner from "../components/Spinner.jsx";
 import ErrorMessage from "./Styled/ErrorMessage.jsx";
 import ToastMessage from "../components/ToastMessage";
-import { Check } from "react-feather";
+import { Check, HelpCircle } from "react-feather";
 import AccordianItem from "./AccordianItem.jsx";
 import MinorButton from "./Styled/MinorButton.jsx";
 import { FieldSet } from "./Styled/FieldSet.jsx";
@@ -45,6 +51,8 @@ export default function User({ userProfile }) {
   // state of modals
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
+  const [linkOpen, setLinkOpen] = useState(false);
+  const [memberLinked, setMemberLinked] = useState(null);
   // before/after user information
   const [user, setUser] = useState({});
   const [originalProfile, setOriginalProfile] = useState({});
@@ -57,12 +65,33 @@ export default function User({ userProfile }) {
   // request statuses
   const [roleRequestSent, setRoleRequestSent] = useState(false);
   const [profileUpdated, setProfileUpdated] = useState(false);
+  // "idle" | "sending" | "sent" | "error"
+  const [resendStatus, setResendStatus] = useState("idle");
 
   const [editUser] = useMutation(EDIT_USER);
   const [emailWebmaster] = useMutation(EMAIL_WEBMASTER);
+  const [resendVerificationEmail] = useMutation(RESEND_VERIFICATION_EMAIL);
+
+  const handleResendVerification = async () => {
+    setResendStatus("sending");
+    try {
+      const { data } = await resendVerificationEmail();
+      setResendStatus(data.resendVerificationEmail ? "sent" : "error");
+    } catch {
+      setResendStatus("error");
+    }
+  };
 
   const { loading } = useQuery(QUERY_USER, {
     variables: { id: userProfile._id },
+    // neither editUser nor linkMember's mutation responses update the
+    // normalized cache entry for this User (editUser's selection omits _id;
+    // linkMember returns a Member, not a User), so cache-first would keep
+    // serving stale data on every remount (eg navigating away and back)
+    // until a full page reload. Always re-checking with the network avoids
+    // that without needing to fix up every mutation's cache behavior --
+    // same fix as BlogPosts.jsx's identical staleness bug.
+    fetchPolicy: "cache-and-network",
     onCompleted: (data) => {
       const user = data.user;
       setUser({ ...user });
@@ -113,8 +142,12 @@ export default function User({ userProfile }) {
       }
       // trigger Toast
       setProfileUpdated(true);
+      // pick up server-side side effects not reflected in local edits,
+      // eg emailVerified resetting when the email address changes
+      const mergedUser = { ...user, emailVerified: updatedUser.emailVerified };
+      setUser(mergedUser);
       // update the "original user" to match what's in the DB
-      setOriginalProfile({ ...user });
+      setOriginalProfile({ ...mergedUser });
     } catch (error) {
       // need to send a message to the user
       setMessage(error.message);
@@ -218,6 +251,30 @@ export default function User({ userProfile }) {
             </Dialog.Root>
           </EmailInputWrapper>
 
+          {!user.emailVerified && (
+            <Description>
+              This email address hasn&apos;t been verified yet.{" "}
+              {resendStatus === "sent" ? (
+                "A new verification link is on its way."
+              ) : (
+                <MinorButton
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={resendStatus === "sending"}
+                >
+                  {resendStatus === "sending"
+                    ? "Sending..."
+                    : "Resend verification email"}
+                </MinorButton>
+              )}
+              {resendStatus === "error" && (
+                <ErrorMessage>
+                  Something went wrong sending that email. Please try again.
+                </ErrorMessage>
+              )}
+            </Description>
+          )}
+
           <InputWrapper>
             <CheckboxRoot
               id="post-notifications"
@@ -237,22 +294,75 @@ export default function User({ userProfile }) {
 
           <InputWrapper>
             <CheckboxRoot
-              id="email-permission"
-              checked={user.emailPermission}
-              onCheckedChange={(checked) =>
-                setUser({ ...user, emailPermission: checked })
-              }
+              id="link-member"
+              checked={!!user.linkedMember}
+              disabled={!!user.linkedMember}
+              onCheckedChange={(checked) => {
+                if (checked && !user.linkedMember) setLinkOpen(true);
+              }}
             >
               <CheckboxIndicator>
                 <Check strokeWidth={3} />
               </CheckboxIndicator>
             </CheckboxRoot>
-            <label htmlFor="email-permission">
-              I want to receive emails from VMST
+            <label htmlFor="link-member">
+              Link account to USMS membership
             </label>
+            <Popover.Root>
+              <Popover.Trigger asChild>
+                <HelpIconButton type="button" aria-label="Why link my account?">
+                  <HelpCircle size={16} />
+                </HelpIconButton>
+              </Popover.Trigger>
+              <Popover.Portal>
+                <HelpPopoverContent sideOffset={5}>
+                  <p>Linking your account to your USMS membership lets you:</p>
+                  <ol>
+                    <li>
+                      Override USMS email preferences (receive emails from
+                      VMST and your workout group while opting out of
+                      messages from USMS)
+                    </li>
+                    <li>Coming soon: personalized display of results and other info</li>
+                  </ol>
+                  <Popover.Arrow />
+                </HelpPopoverContent>
+              </Popover.Portal>
+            </Popover.Root>
+            <Dialog.Root open={linkOpen} onOpenChange={setLinkOpen}>
+              <Dialog.Portal>
+                <ModalStyles.DialogOverlay />
+                <LinkMember
+                  setOpen={setLinkOpen}
+                  onLinked={(member) => {
+                    setUser({ ...user, linkedMember: member._id });
+                    setMemberLinked(member);
+                  }}
+                />
+              </Dialog.Portal>
+            </Dialog.Root>
           </InputWrapper>
 
-          {!user.emailPermission && (
+          {user.linkedMember && (
+            <InputWrapper>
+              <CheckboxRoot
+                id="email-permission"
+                checked={user.emailPermission}
+                onCheckedChange={(checked) =>
+                  setUser({ ...user, emailPermission: checked })
+                }
+              >
+                <CheckboxIndicator>
+                  <Check strokeWidth={3} />
+                </CheckboxIndicator>
+              </CheckboxRoot>
+              <label htmlFor="email-permission">
+                I want to receive emails from VMST
+              </label>
+            </InputWrapper>
+          )}
+
+          {user.linkedMember && !user.emailPermission && (
             <Description>
               Note: if email permission is not granted, you will not receive any
               comunications related to meets (relays, social events, etc).
@@ -514,6 +624,11 @@ export default function User({ userProfile }) {
           Your request has been sent to the webmaster.
         </ToastMessage>
       )}
+      {memberLinked && (
+        <ToastMessage toastCloseEffect={() => setMemberLinked(null)}>
+          Success! Linked to {memberLinked.firstName} {memberLinked.lastName}.
+        </ToastMessage>
+      )}
     </Wrapper>
   );
 }
@@ -576,6 +691,31 @@ const EmailInputWrapper = styled(InputWrapper)`
 
   @media ${QUERIES.mobile} {
     flex-direction: column;
+  }
+`;
+
+const HelpIconButton = styled.button`
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  color: ${COLORS.accent[11]};
+  cursor: pointer;
+`;
+
+const HelpPopoverContent = styled(Popover.Content)`
+  max-width: 280px;
+  padding: 12px 16px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px hsl(0deg 0% 0% / 0.2);
+  font-size: 0.875rem;
+
+  ol {
+    padding-left: 1.25em;
+    margin: 8px 0 0;
   }
 `;
 

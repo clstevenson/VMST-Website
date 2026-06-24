@@ -1,3 +1,4 @@
+const { GraphQLError } = require("graphql");
 const { Member, Post, User } = require("../models");
 const {
   signToken,
@@ -7,6 +8,8 @@ const {
   requireRole,
   signUnsubscribeToken,
   verifyUnsubscribeToken,
+  signVerificationToken,
+  verifyVerificationToken,
 } = require("../utils/auth");
 
 // no longer used directly in this file (uploadMembers no longer drops the
@@ -29,6 +32,7 @@ const {
 } = require("../utils/get-flickr-photos");
 const { findByIdAndDelete } = require("../models/Posts");
 const Meet = require("../models/Meets");
+const EmailLog = require("../models/EmailLog");
 
 // fires once, the moment a post transitions to published (never on a
 // routine re-save of an already-published post). Sent as individual
@@ -50,6 +54,7 @@ async function notifySubscribers(post) {
   const teaser =
     post.summary || post.content.replace(/<[^>]+>/g, "").slice(0, 200);
 
+  let sentCount = 0;
   for (const subscriber of subscribers) {
     const unsubscribeUrl = `${baseUrl}/unsubscribe?token=${signUnsubscribeToken(
       { _id: subscriber._id },
@@ -82,6 +87,7 @@ Or log in and update your preferences from your account page.`,
           </p>
         `,
       });
+      sentCount++;
     } catch (err) {
       console.error(
         `Failed to send post notification to ${subscriber.email}:`,
@@ -89,6 +95,155 @@ Or log in and update your preferences from your account page.`,
       );
     }
   }
+  await logEmailSend(sentCount);
+}
+
+// sent on signup, and again whenever a user changes their email address.
+// Confirms the address is reachable; not currently a gate on anything
+// (no feature checks emailVerified yet) -- just tracked and surfaced as a
+// gentle reminder on the account page.
+async function sendVerificationEmail(user) {
+  const baseUrl = process.env.CLIENT_URL || "http://localhost:3000";
+  const verifyUrl = `${baseUrl}/verify-email?token=${signVerificationToken({
+    _id: user._id,
+  })}`;
+  await Mail({
+    from: "VMST",
+    replyTo: process.env.EMAIL,
+    emails: user.email,
+    subject: "Verify your VMST account email",
+    plainText: `Hello ${user.firstName},
+
+Please confirm this is your email address by clicking the link below. This link expires in 48 hours.
+
+${verifyUrl}
+
+If you didn't create this account, you can ignore this email.`,
+    html: `
+      <p>Hello ${user.firstName},</p>
+      <p>Please confirm this is your email address by clicking the link below. This link expires in 48 hours.</p>
+      <p><a href="${verifyUrl}">Verify my email</a></p>
+      <p style="font-size: 0.85em; color: #666;">If you didn't create this account, you can ignore this email.</p>
+    `,
+  });
+  await logEmailSend(1);
+}
+
+// In production, a bulk send's real recipients go in bcc (so they can't
+// see each other's addresses), with `emails` (-> Mail()'s `to` field) left
+// as the sending account's own address. In dev, recipients stay in
+// `emails` for easy visibility on Ethereal, which never delivers anywhere
+// real anyway.
+function bulkRecipientFields(recipients) {
+  if (process.env.NODE_ENV === "production") {
+    return { emails: process.env.EMAIL, bcc: recipients };
+  }
+  return { emails: recipients };
+}
+
+// Appended to emailGroup sends only -- the one bulk-email path with no
+// existing unsubscribe mechanism of its own (unlike notifySubscribers, which
+// already carries a one-click unsubscribe link, and unlike
+// emailLeaders/emailWebmaster/emailLeadersWebmaster, whose recipients are
+// the leaders/webmaster themselves, not members opting out of anything).
+async function unsubscribeFooter() {
+  const coordinator = await User.findOne({ role: "membership" }).select(
+    "email",
+  );
+  const coordinatorEmail = coordinator?.email || process.env.EMAIL;
+  const text =
+    "You are receiving this email because you are a member of VMST. " +
+    "Messages such as this are how VMST leaders and coaches communicate " +
+    "club business. If you wish to stop receiving such emails you will " +
+    "need to login to your MyUSMS account at " +
+    "https://www.usms.org/myusmslogin and change your Email Preferences. " +
+    "Uncheck the box to receive Local USMS Communications. If you have " +
+    `any questions, please email ${coordinatorEmail}.`;
+  return {
+    plainText: `\n\n---\n${text}`,
+    html: `<hr /><p style="font-size: 0.85em; color: #666;">${text.replace(
+      "https://www.usms.org/myusmslogin",
+      '<a href="https://www.usms.org/myusmslogin">https://www.usms.org/myusmslogin</a>',
+    )}</p>`,
+  };
+}
+
+// For any Member linked to a User account, that account's emailPermission
+// is the sole source of truth for whether they receive coach/leader email --
+// it overrides Member.emailExclude in both directions (a member who opted
+// out via the USMS CSV but grants permission via their account still gets
+// emailed; one who didn't opt out but revokes permission doesn't). Returns a
+// Map keyed by member _id (string) -> { emailPermission, email }, built with
+// a single batched query so checking N members costs one round-trip, not N.
+async function getLinkedUserOverrides(memberIds) {
+  const linkedUsers = await User.find({
+    linkedMember: { $in: memberIds },
+  }).select("linkedMember emailPermission email");
+  return new Map(
+    linkedUsers.map((u) => [
+      u.linkedMember.toString(),
+      { emailPermission: u.emailPermission, email: u.email },
+    ]),
+  );
+}
+
+// Overrides each member's in-memory emailExclude (not persisted) to reflect
+// a linked account's emailPermission, so every recipient-selection list
+// downstream (all client-side filtering keys off this one field) reflects
+// the override without needing its own awareness of linking at all.
+async function applyMemberOverrides(members) {
+  const overrides = await getLinkedUserOverrides(members.map((m) => m._id));
+  members.forEach((member) => {
+    const override = overrides.get(member._id.toString());
+    if (override) member.emailExclude = !override.emailPermission;
+  });
+  return members;
+}
+
+// Gmail's free-account sending limit counts recipients, not messages sent
+// (one email bcc'd to 80 people uses 80 of the day's 500) -- see
+// https://support.google.com/mail/answer/22839. Every resolver that calls
+// Mail() shares this one tracked total, since they share one real Gmail
+// account in production.
+const DAILY_RECIPIENT_LIMIT = Number(process.env.EMAIL_DAILY_RECIPIENT_LIMIT) || 500;
+const ROLLING_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+// records a completed send for rolling-limit tracking; call after every
+// successful Mail() call, regardless of which resolver triggered it
+async function logEmailSend(recipientCount) {
+  if (recipientCount > 0) {
+    await EmailLog.create({ recipientCount });
+  }
+}
+
+// total recipients emailed (across every resolver) in the last 24h, a
+// strict rolling window matching Gmail's own description of the restriction
+async function getEmailUsage() {
+  const cutoff = new Date(Date.now() - ROLLING_WINDOW_MS);
+  const [result] = await EmailLog.aggregate([
+    { $match: { sentAt: { $gte: cutoff } } },
+    { $group: { _id: null, total: { $sum: "$recipientCount" } } },
+  ]);
+  return result?.total || 0;
+}
+
+// when would there be room for `additionalCount` more recipients? Walks the
+// rolling window oldest-first, "expiring" each entry in turn (the order
+// they'll actually drop out of the window) until what's left plus the new
+// batch fits under the limit -- that entry's own expiry is the answer.
+async function nextAvailableSendTime(additionalCount) {
+  const cutoff = new Date(Date.now() - ROLLING_WINDOW_MS);
+  const entries = await EmailLog.find({ sentAt: { $gte: cutoff } }).sort({
+    sentAt: 1,
+  });
+  let total = entries.reduce((sum, entry) => sum + entry.recipientCount, 0);
+  for (const entry of entries) {
+    total -= entry.recipientCount;
+    if (total + additionalCount <= DAILY_RECIPIENT_LIMIT) {
+      return new Date(entry.sentAt.getTime() + ROLLING_WINDOW_MS);
+    }
+  }
+  return new Date();
 }
 
 const resolvers = {
@@ -152,7 +307,7 @@ const resolvers = {
         if (swimmers.length === 0) {
           throw new Error("Didn't find any VMST swimmers");
         }
-        return swimmers;
+        return await applyMemberOverrides(swimmers);
       } catch (err) {
         console.log(err);
       }
@@ -163,10 +318,11 @@ const resolvers = {
       requireRole(user, "leader", "coach");
       const members = await Member.find({ usmsId: { $in: usmsIds } });
       // a coach may only email members of their own workout group
-      if (user.role === "coach") {
-        return members.filter((member) => member.workoutGroup === user.group);
-      }
-      return members;
+      const scoped =
+        user.role === "coach"
+          ? members.filter((member) => member.workoutGroup === user.group)
+          : members;
+      return await applyMemberOverrides(scoped);
     },
     meets: async (_, __, { user }) => {
       requireRole(user, "leader", "coach");
@@ -211,6 +367,10 @@ const resolvers = {
       if (!response) throw new Error("Something went wrong");
       return response;
     },
+    emailUsage: async (_, __, { user }) => {
+      requireRole(user, "leader", "coach");
+      return { count: await getEmailUsage(), limit: DAILY_RECIPIENT_LIMIT };
+    },
   },
   Mutation: {
     // login with email and password which returns signed JWT
@@ -233,6 +393,10 @@ const resolvers = {
     addUser: async (_, { firstName, lastName, email, password }, { res }) => {
       const user = await User.create({ firstName, lastName, email, password });
       if (!user) throw AuthenticationError;
+      // fire-and-forget: a slow/failed send shouldn't hold up signup
+      sendVerificationEmail(user).catch((err) =>
+        console.error("sendVerificationEmail failed:", err),
+      );
       const accessToken = signToken(user);
       const refreshToken = signRefreshToken(user);
       setRefreshCookie(res, refreshToken);
@@ -260,8 +424,18 @@ const resolvers = {
         // query-then-save so schema validators actually run
         const updatedUser = await User.findById(args._id);
         if (!updatedUser) throw AuthenticationError;
+        // changing email means "verified" would otherwise keep referring
+        // to an address the account no longer uses
+        const emailChanged =
+          args.user.email && args.user.email !== updatedUser.email;
         Object.assign(updatedUser, args.user);
+        if (emailChanged) updatedUser.emailVerified = false;
         await updatedUser.save();
+        if (emailChanged) {
+          sendVerificationEmail(updatedUser).catch((err) =>
+            console.error("sendVerificationEmail failed:", err),
+          );
+        }
         return updatedUser;
       } catch (err) {
         console.log(err);
@@ -321,6 +495,7 @@ contact the webmaster immediately by replying to this message.`,
       // writing the new password, so the old one keeps working
       try {
         await Mail(mailArgs);
+        await logEmailSend(1);
       } catch (err) {
         console.error(err);
         // resetPassword returns User (not Boolean) -- null is the
@@ -536,19 +711,24 @@ contact the webmaster immediately by replying to this message.`,
         const incoming = latestByUsmsId.get(usmsId);
         const previous = existingByUsmsId.get(usmsId);
         // deliverable is sticky per-address: carry it forward only when the
-        // exact address string is unchanged from the prior upload, otherwise
-        // assume reachable (true) -- a new/changed address has no history yet
+        // address is unchanged from the prior upload, otherwise assume
+        // reachable (true) -- a new/changed address has no history yet.
+        // Matched case-insensitively: the domain is always case-insensitive
+        // (DNS), and every major provider treats the local part the same
+        // way in practice, even though the SMTP spec technically allows a
+        // case-sensitive local part. Stored address keeps its original
+        // casing -- only the comparison is normalized.
         const previousDeliverable = new Map(
           (previous?.emails ?? []).map((email) => [
-            email.address,
+            email.address.toLowerCase(),
             email.deliverable,
           ]),
         );
         const emails = (incoming.emails ?? []).map((address) => ({
           address,
           formatValid: emailRegex.test(address),
-          deliverable: previousDeliverable.has(address)
-            ? previousDeliverable.get(address)
+          deliverable: previousDeliverable.has(address.toLowerCase())
+            ? previousDeliverable.get(address.toLowerCase())
             : true,
         }));
 
@@ -620,16 +800,16 @@ contact the webmaster immediately by replying to this message.`,
     emailLeaders: async (_, { emailData }) => {
       // retrieve the emails of the leaders from the DB
       const emails = await User.find({ role: "leader" }).select("email");
-      // returned an array of objects with property "email" (one array item per leader)
+      const recipients = emails.map((leader) => leader.email);
       const mailArgs = { ...emailData };
       delete mailArgs.id;
-      // add the leader's emails (as an array) to the argument object
-      mailArgs.emails = emails.map((leader) => leader.email);
 
       // call mail() with mailArgs
-      if (mailArgs.emails.length > 0) {
+      if (recipients.length > 0) {
+        Object.assign(mailArgs, bulkRecipientFields(recipients));
         try {
           await Mail(mailArgs);
+          await logEmailSend(recipients.length);
         } catch (err) {
           console.error(err);
           return false;
@@ -646,16 +826,16 @@ contact the webmaster immediately by replying to this message.`,
       const emails = await User.find({
         $or: [{ role: "leader" }, { role: "webmaster" }],
       }).select("email");
-      // returned an array of objects with property "email" (one array item per email address)
+      const recipients = emails.map((user) => user.email);
       const mailArgs = { ...emailData };
       delete mailArgs.id;
-      // add the emails (as an array) to the argument object
-      mailArgs.emails = emails.map((user) => user.email);
 
       // call mail() with mailArgs
-      if (mailArgs.emails.length > 0) {
+      if (recipients.length > 0) {
+        Object.assign(mailArgs, bulkRecipientFields(recipients));
         try {
           await Mail(mailArgs);
+          await logEmailSend(recipients.length);
         } catch (err) {
           console.error(err);
           return false;
@@ -671,16 +851,16 @@ contact the webmaster immediately by replying to this message.`,
       // retrieve the emails of the webmaster(s) from the DB
       // (there could potentially be more than one)
       const emails = await User.find({ role: "webmaster" }).select("email");
-      // returned an array of objects with property "email" (one array item per webmaster)
+      const recipients = emails.map((user) => user.email);
       const mailArgs = { ...emailData };
       delete mailArgs.id;
-      // add the leader's emails (as an array) to the argument object
-      mailArgs.emails = emails.map((user) => user.email);
 
       // call mail() with mailArgs
-      if (mailArgs.emails.length > 0) {
+      if (recipients.length > 0) {
+        Object.assign(mailArgs, bulkRecipientFields(recipients));
         try {
           await Mail(mailArgs);
+          await logEmailSend(recipients.length);
         } catch (err) {
           console.error(err);
           return false;
@@ -697,20 +877,37 @@ contact the webmaster immediately by replying to this message.`,
       requireRole(user, "leader", "coach");
       // retrieve the emails of the recipients (from their id's)
       const group = await Member.find({ _id: { $in: emailData.id } }).select(
-        "emails",
+        "emails emailExclude",
       );
 
-      // returned an array of objects with property "email" (one array item per leader in input)
       const mailArgs = { ...emailData };
       delete mailArgs.id;
+      const overrides = await getLinkedUserOverrides(
+        group.map((member) => member._id),
+      );
+      // use only one address per recipient: the lowest-index address that
+      // is both formatValid and deliverable. Emails are pushed primary-
+      // first/secondary-second at upload time, so this naturally means
+      // "use primary unless it's bad, then fall back to secondary".
+      // A linked account's emailPermission is the sole source of truth for
+      // that member (overriding emailExclude either way) and, when linked,
+      // the verified login email is used instead of the USMS-uploaded one.
+      // This is also the one server-side enforcement of either flag --
+      // recipient-selection UI already excludes these members, but this is
+      // what makes that exclusion binding rather than a UI-only courtesy.
       let emailArray = [];
       group.forEach((member) => {
-        const usableEmails = member.emails
-          .filter((email) => email.formatValid && email.deliverable)
-          .map((email) => email.address);
-        emailArray = [...emailArray, ...usableEmails];
+        const override = overrides.get(member._id.toString());
+        if (override) {
+          if (override.emailPermission) emailArray.push(override.email);
+          return;
+        }
+        if (member.emailExclude) return;
+        const usableEmail = member.emails.find(
+          (email) => email.formatValid && email.deliverable,
+        );
+        if (usableEmail) emailArray.push(usableEmail.address);
       });
-      mailArgs.emails = emailArray;
 
       // need to know who to reply to (ie the leader or coach who is sending the message)
       const sender = await User.findById(user._id).select("email");
@@ -718,9 +915,30 @@ contact the webmaster immediately by replying to this message.`,
       mailArgs.replyTo = sender.email;
 
       // call mail() with mailArgs
-      if (mailArgs.emails.length > 0) {
+      if (emailArray.length > 0) {
+        // refuse rather than push the shared Gmail account over its daily
+        // recipient limit -- tell the leader/coach exactly when there will
+        // be room, rather than just rejecting outright
+        const usage = await getEmailUsage();
+        if (usage + emailArray.length > DAILY_RECIPIENT_LIMIT) {
+          const nextAvailable = await nextAvailableSendTime(emailArray.length);
+          throw new GraphQLError(
+            `Sending this batch (${emailArray.length} recipients) would exceed the daily limit of ${DAILY_RECIPIENT_LIMIT}.`,
+            {
+              extensions: {
+                code: "EMAIL_LIMIT_EXCEEDED",
+                nextAvailable: nextAvailable.toISOString(),
+              },
+            },
+          );
+        }
+        Object.assign(mailArgs, bulkRecipientFields(emailArray));
+        const footer = await unsubscribeFooter();
+        mailArgs.plainText = (mailArgs.plainText || "") + footer.plainText;
+        mailArgs.html = (mailArgs.html || "") + footer.html;
         try {
           await Mail(mailArgs);
+          await logEmailSend(emailArray.length);
         } catch (err) {
           console.error(err);
           return false;
@@ -741,6 +959,60 @@ contact the webmaster immediately by replying to this message.`,
         notifications: false,
       });
       return !!result;
+    },
+    // no login required -- same reasoning as unsubscribe above, except
+    // this token expires after 48h (see signVerificationToken)
+    verifyEmail: async (_, { token }) => {
+      const userId = verifyVerificationToken(token);
+      if (!userId) return false;
+      const result = await User.findByIdAndUpdate(userId, {
+        emailVerified: true,
+      });
+      return !!result;
+    },
+    // logged-in only, sends to the caller's own current email -- lets
+    // them get a fresh link if the first one expired or got lost
+    resendVerificationEmail: async (_, __, { user }) => {
+      requireRole(user);
+      const target = await User.findById(user._id);
+      if (!target) return false;
+      try {
+        await sendVerificationEmail(target);
+        return true;
+      } catch (err) {
+        console.error("resendVerificationEmail failed:", err);
+        return false;
+      }
+    },
+    // links the caller's account to their USMS membership record by USMS ID.
+    // One Member can be linked from at most one User account -- enforced
+    // here, not via a unique index, since `null` is the common case and
+    // this is the only write path anyway
+    linkMember: async (_, { usmsId }, { user }) => {
+      requireRole(user);
+      const member = await Member.findOne({ usmsId });
+      if (!member) {
+        const coordinator = await User.findOne({
+          role: "membership",
+        }).select("email");
+        throw new Error(
+          "That USMS ID wasn't found. Please check it and try again." +
+            (coordinator
+              ? ` If you believe this is an error, contact the membership coordinator at ${coordinator.email}.`
+              : ""),
+        );
+      }
+      const alreadyLinked = await User.findOne({
+        linkedMember: member._id,
+        _id: { $ne: user._id },
+      });
+      if (alreadyLinked) {
+        throw new Error(
+          "That USMS ID is already linked to a different account.",
+        );
+      }
+      await User.findByIdAndUpdate(user._id, { linkedMember: member._id });
+      return member;
     },
     // pin/unpin a post to the front of the home page; at most 2 can be
     // pinned at once (rejected, not auto-evicted, per the user's call), and

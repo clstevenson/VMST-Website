@@ -24,6 +24,7 @@ let User;
 let Member;
 let Meet;
 let Post;
+let EmailLog;
 let auth;
 
 const users = {}; // role -> { _id, role }
@@ -61,6 +62,7 @@ test.before(async () => {
   Member = require("../models/Members");
   Meet = require("../models/Meets");
   Post = require("../models/Posts");
+  EmailLog = require("../models/EmailLog");
   auth = require("../utils/auth");
 
   await mongoose.connection.asPromise();
@@ -617,6 +619,214 @@ test("addUser: creates an account (default role) and returns a token", async () 
   assert.ok(data.addUser.token);
   assert.equal(data.addUser.user.email, "new-signup@example.com");
   assert.equal(data.addUser.user.role, "user");
+});
+
+test("addUser: fires a verification email in the background (doesn't block signup)", async () => {
+  const query = `mutation($firstName: String!, $lastName: String!, $email: String!, $password: String!) {
+    addUser(firstName: $firstName, lastName: $lastName, email: $email, password: $password) {
+      user { _id email }
+    }
+  }`;
+  const before = sentMail.length;
+  const { data, errors } = await runWithRes(
+    query,
+    {
+      firstName: "Verify",
+      lastName: "Me",
+      email: "verify-me@example.com",
+      password: "Whatever-123!",
+    },
+    null,
+  );
+  assert.equal(errors, undefined);
+
+  await flush();
+  assert.equal(sentMail.length, before + 1);
+  const sent = sentMail[sentMail.length - 1];
+  assert.equal(sent.emails, "verify-me@example.com");
+  assert.match(sent.plainText, /verify-email\?token=/);
+
+  const stored = await User.findById(data.addUser.user._id);
+  assert.equal(stored.emailVerified, false);
+
+  await User.findByIdAndDelete(data.addUser.user._id);
+});
+
+test("verifyEmail: a valid token sets emailVerified, an invalid one does nothing", async () => {
+  const target = await User.create({
+    firstName: "Needs",
+    lastName: "Verifying",
+    email: "needs-verifying@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+  });
+  assert.equal(target.emailVerified, false);
+
+  const garbage = await run(
+    `mutation { verifyEmail(token: "not-a-real-token") }`,
+    {},
+    null,
+  );
+  assert.equal(garbage.data.verifyEmail, false);
+  assert.equal((await User.findById(target._id)).emailVerified, false);
+
+  const token = auth.signVerificationToken({ _id: target._id.toString() });
+  const { data, errors } = await run(
+    `mutation($token: String!) { verifyEmail(token: $token) }`,
+    { token },
+    null,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.verifyEmail, true);
+  assert.equal((await User.findById(target._id)).emailVerified, true);
+
+  await User.findByIdAndDelete(target._id);
+});
+
+test("resendVerificationEmail: rejects an unauthenticated caller, sends to the caller's own email when logged in", async () => {
+  const unauth = await run(`mutation { resendVerificationEmail }`, {}, null);
+  assert.ok(unauth.errors?.length);
+
+  const target = await User.create({
+    firstName: "Resend",
+    lastName: "Test",
+    email: "resend-test@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+  });
+
+  const before = sentMail.length;
+  const { data, errors } = await run(
+    `mutation { resendVerificationEmail }`,
+    {},
+    { _id: target._id.toString(), role: "user" },
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.resendVerificationEmail, true);
+  assert.equal(sentMail.length, before + 1);
+  assert.equal(sentMail[sentMail.length - 1].emails, "resend-test@example.com");
+
+  await User.findByIdAndDelete(target._id);
+});
+
+test("editUser: changing email resets emailVerified to false and sends a fresh verification email", async () => {
+  const target = await User.create({
+    firstName: "Changing",
+    lastName: "Email",
+    email: "old-address@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+    emailVerified: true,
+  });
+
+  const contextUser = { _id: target._id.toString(), role: "user" };
+
+  // an edit that does NOT touch email should leave emailVerified alone
+  await run(
+    `mutation($id: ID!, $user: UserData) { editUser(_id: $id, user: $user) { emailVerified } }`,
+    { id: target._id.toString(), user: { firstName: "Changing" } },
+    contextUser,
+  );
+  assert.equal((await User.findById(target._id)).emailVerified, true);
+
+  const before = sentMail.length;
+  const { data, errors } = await run(
+    `mutation($id: ID!, $user: UserData) { editUser(_id: $id, user: $user) { emailVerified email } }`,
+    {
+      id: target._id.toString(),
+      user: { email: "new-address@example.com" },
+    },
+    contextUser,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.editUser.email, "new-address@example.com");
+  assert.equal(data.editUser.emailVerified, false);
+
+  await flush();
+  assert.equal(sentMail.length, before + 1);
+  assert.equal(sentMail[sentMail.length - 1].emails, "new-address@example.com");
+
+  await User.findByIdAndDelete(target._id);
+});
+
+test("linkMember: rejects an unauthenticated caller", async () => {
+  const { errors } = await run(
+    `mutation($usmsId: String!) { linkMember(usmsId: $usmsId) { _id } }`,
+    { usmsId: "12345" },
+    null,
+  );
+  assert.equal(errors[0].extensions.code, "UNAUTHENTICATED");
+});
+
+test("linkMember: a valid USMS ID links the account and returns the member", async () => {
+  const target = await User.create({
+    firstName: "Link",
+    lastName: "Me",
+    email: "link-me@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+  });
+  const contextUser = { _id: target._id.toString(), role: "user" };
+
+  const { data, errors } = await run(
+    `mutation($usmsId: String!) { linkMember(usmsId: $usmsId) { _id firstName lastName } }`,
+    { usmsId: "12345" },
+    contextUser,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.linkMember.firstName, "Swimmer");
+
+  const updated = await User.findById(target._id);
+  assert.equal(updated.linkedMember.toString(), data.linkMember._id);
+
+  await User.findByIdAndDelete(target._id);
+});
+
+test("linkMember: an unknown USMS ID errors with the membership coordinator's email", async () => {
+  const target = await User.create({
+    firstName: "No",
+    lastName: "Match",
+    email: "no-match@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+  });
+  const contextUser = { _id: target._id.toString(), role: "user" };
+
+  const { errors } = await run(
+    `mutation($usmsId: String!) { linkMember(usmsId: $usmsId) { _id } }`,
+    { usmsId: "00000" },
+    contextUser,
+  );
+  assert.match(errors[0].message, /membership@example\.com/);
+
+  await User.findByIdAndDelete(target._id);
+});
+
+test("linkMember: rejects a USMS ID already linked to a different account", async () => {
+  const first = await User.create({
+    firstName: "First",
+    lastName: "Linker",
+    email: "first-linker@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+  });
+  const second = await User.create({
+    firstName: "Second",
+    lastName: "Linker",
+    email: "second-linker@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+  });
+
+  const firstResult = await run(
+    `mutation($usmsId: String!) { linkMember(usmsId: $usmsId) { _id } }`,
+    { usmsId: "12345" },
+    { _id: first._id.toString(), role: "user" },
+  );
+  assert.equal(firstResult.errors, undefined);
+
+  const secondResult = await run(
+    `mutation($usmsId: String!) { linkMember(usmsId: $usmsId) { _id } }`,
+    { usmsId: "12345" },
+    { _id: second._id.toString(), role: "user" },
+  );
+  assert.match(secondResult.errors[0].message, /already linked/);
+
+  await User.findByIdAndDelete(first._id);
+  await User.findByIdAndDelete(second._id);
 });
 
 test("changePassword: rejects an unauthenticated caller, succeeds for a logged-in user", async () => {
@@ -1558,6 +1768,74 @@ test("emailLeadersWebmaster: succeeds for an anonymous visitor, reaches both", a
   assert.ok(emails.includes("webmaster@example.com"));
 });
 
+test("emailGroup: in production, real recipients go in bcc with `to` set to the sending account", async () => {
+  const member = await Member.create({
+    usmsRegNo: "555502",
+    usmsId: "55502",
+    firstName: "Bcc",
+    lastName: "Check",
+    gender: "F",
+    club: "VMST",
+    regYear: 2026,
+    emails: [makeEmail("bcc-recipient@example.com")],
+  });
+
+  const originalNodeEnv = process.env.NODE_ENV;
+  const originalEmail = process.env.EMAIL;
+  process.env.NODE_ENV = "production";
+  process.env.EMAIL = "vmst.sending@example.com";
+
+  try {
+    const before = sentMail.length;
+    const { data, errors } = await run(
+      `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+      {
+        emailData: {
+          id: [member._id.toString()],
+          subject: "Workout group update",
+          plainText: "practice moved to 6am",
+        },
+      },
+      users.coach,
+    );
+    assert.equal(errors, undefined);
+    assert.equal(data.emailGroup, true);
+    assert.equal(sentMail.length, before + 1);
+    const sent = sentMail[sentMail.length - 1];
+    assert.equal(sent.emails, "vmst.sending@example.com");
+    assert.deepEqual(sent.bcc, ["bcc-recipient@example.com"]);
+  } finally {
+    process.env.NODE_ENV = originalNodeEnv;
+    process.env.EMAIL = originalEmail;
+    await Member.findByIdAndDelete(member._id);
+  }
+});
+
+test("emailLeaders: in production, real recipients go in bcc with `to` set to the sending account", async () => {
+  const originalNodeEnv = process.env.NODE_ENV;
+  const originalEmail = process.env.EMAIL;
+  process.env.NODE_ENV = "production";
+  process.env.EMAIL = "vmst.sending@example.com";
+
+  try {
+    const before = sentMail.length;
+    const { data, errors } = await run(
+      `mutation($emailData: emailData) { emailLeaders(emailData: $emailData) }`,
+      { emailData: { id: [], subject: "Hello leaders", plainText: "hi" } },
+      null,
+    );
+    assert.equal(errors, undefined);
+    assert.equal(data.emailLeaders, true);
+    assert.equal(sentMail.length, before + 1);
+    const sent = sentMail[sentMail.length - 1];
+    assert.equal(sent.emails, "vmst.sending@example.com");
+    assert.deepEqual(sent.bcc, ["leader@example.com"]);
+  } finally {
+    process.env.NODE_ENV = originalNodeEnv;
+    process.env.EMAIL = originalEmail;
+  }
+});
+
 // uploadMembers wholesale-replaces "the truth" on every call (anyone missing
 // from memberData is hard-deleted), so these tests must run after every other
 // test that depends on a particular Member collection state -- in particular,
@@ -1666,6 +1944,67 @@ test("uploadMembers: dedupes by usmsId keeping the higher regYear, preserves del
   assert.equal(await Member.findOne({ usmsId: "TESTB" }), null);
 
   await Member.deleteOne({ usmsId: "TESTA" });
+});
+
+test("uploadMembers: deliverable carries forward when only the address's casing changes", async () => {
+  const mutation = `mutation($memberData: [MemberData]) {
+    uploadMembers(memberData: $memberData) {
+      usmsId
+      emails { address formatValid deliverable }
+    }
+  }`;
+
+  await run(
+    mutation,
+    {
+      memberData: [
+        {
+          usmsRegNo: "TEST-CASE-A",
+          usmsId: "TESTCASE",
+          firstName: "Case",
+          lastName: "Test",
+          gender: "F",
+          club: "VMST",
+          regYear: 2026,
+          emails: ["mixed.Case@Example.com"],
+          emailExclude: false,
+        },
+      ],
+    },
+    users.membership,
+  );
+
+  await Member.updateOne(
+    { usmsId: "TESTCASE", "emails.address": "mixed.Case@Example.com" },
+    { $set: { "emails.$.deliverable": false } },
+  );
+
+  // re-upload with the same address but different casing -- should still
+  // count as the "same" address for carrying the bounce flag forward
+  const { data, errors } = await run(
+    mutation,
+    {
+      memberData: [
+        {
+          usmsRegNo: "TEST-CASE-A",
+          usmsId: "TESTCASE",
+          firstName: "Case",
+          lastName: "Test",
+          gender: "F",
+          club: "VMST",
+          regYear: 2026,
+          emails: ["MIXED.case@example.COM"],
+          emailExclude: false,
+        },
+      ],
+    },
+    users.membership,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.uploadMembers[0].emails[0].address, "MIXED.case@example.COM");
+  assert.equal(data.uploadMembers[0].emails[0].deliverable, false);
+
+  await Member.deleteOne({ usmsId: "TESTCASE" });
 });
 
 test("uploadMembers: a malformed email gets formatValid:false without failing the rest of the upload, while case, plus-addressing, and long TLDs are accepted", async () => {
@@ -1809,4 +2148,334 @@ test("emailGroup: skips addresses that are not formatValid or not deliverable", 
   assert.deepEqual(sentMail[sentMail.length - 1].emails, ["good@example.com"]);
 
   await Member.findByIdAndDelete(member._id);
+});
+
+test("emailGroup: a member with two usable addresses only gets emailed at the primary (lowest-index) one", async () => {
+  const primaryGood = await Member.create({
+    usmsRegNo: "555510",
+    usmsId: "55510",
+    firstName: "Both",
+    lastName: "Usable",
+    gender: "F",
+    club: "VMST",
+    regYear: 2026,
+    emails: [makeEmail("primary@example.com"), makeEmail("secondary@example.com")],
+  });
+
+  // primary bounced -- should fall back to secondary, not skip the member
+  const primaryBad = await Member.create({
+    usmsRegNo: "555511",
+    usmsId: "55511",
+    firstName: "Primary",
+    lastName: "Bounced",
+    gender: "M",
+    club: "VMST",
+    regYear: 2026,
+    emails: [
+      makeEmail("bounced-primary@example.com", { deliverable: false }),
+      makeEmail("fallback-secondary@example.com"),
+    ],
+  });
+
+  const before = sentMail.length;
+  const { data, errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    {
+      emailData: {
+        id: [primaryGood._id.toString(), primaryBad._id.toString()],
+        subject: "Test",
+        plainText: "test",
+      },
+    },
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.emailGroup, true);
+  assert.equal(sentMail.length, before + 1);
+  assert.deepEqual(sentMail[sentMail.length - 1].emails, [
+    "primary@example.com",
+    "fallback-secondary@example.com",
+  ]);
+
+  await Member.deleteMany({ _id: { $in: [primaryGood._id, primaryBad._id] } });
+});
+
+test("emailGroup: a non-linked member's emailExclude is enforced server-side, not just by the client", async () => {
+  const optedOut = await Member.create({
+    usmsRegNo: "555520",
+    usmsId: "55520",
+    firstName: "Opted",
+    lastName: "Out",
+    gender: "F",
+    club: "VMST",
+    regYear: 2026,
+    emailExclude: true,
+    emails: [makeEmail("opted-out@example.com")],
+  });
+
+  const before = sentMail.length;
+  const { errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    {
+      emailData: { id: [optedOut._id.toString()], subject: "Test", plainText: "test" },
+    },
+    users.leader,
+  );
+  // no usable recipients at all -- same "no recipients" error as any other
+  // empty group, confirming the member was actually skipped, not just deprioritized
+  assert.match(errors[0].message, /No Recipients/);
+  assert.equal(sentMail.length, before);
+
+  await Member.findByIdAndDelete(optedOut._id);
+});
+
+test("emailGroup: a linked account's emailPermission overrides Member.emailExclude in both directions, and uses the account's own email", async () => {
+  // opted out via the USMS CSV, but their linked account grants permission --
+  // should still be emailed, at their *account* email, not the Member one
+  const optedOutButLinked = await Member.create({
+    usmsRegNo: "555521",
+    usmsId: "55521",
+    firstName: "Opted",
+    lastName: "ButLinked",
+    gender: "F",
+    club: "VMST",
+    regYear: 2026,
+    emailExclude: true,
+    emails: [makeEmail("member-address@example.com")],
+  });
+  const grantingUser = await User.create({
+    firstName: "Granting",
+    lastName: "User",
+    email: "granting-user@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+    linkedMember: optedOutButLinked._id,
+    emailPermission: true,
+  });
+
+  // did NOT opt out, but their linked account revokes permission -- should
+  // NOT be emailed despite Member.emailExclude being false
+  const notOptedOutButRevoked = await Member.create({
+    usmsRegNo: "555522",
+    usmsId: "55522",
+    firstName: "NotOptedOut",
+    lastName: "ButRevoked",
+    gender: "M",
+    club: "VMST",
+    regYear: 2026,
+    emailExclude: false,
+    emails: [makeEmail("revoked-member-address@example.com")],
+  });
+  const revokingUser = await User.create({
+    firstName: "Revoking",
+    lastName: "User",
+    email: "revoking-user@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+    linkedMember: notOptedOutButRevoked._id,
+    emailPermission: false,
+  });
+
+  const before = sentMail.length;
+  const { data, errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    {
+      emailData: {
+        id: [optedOutButLinked._id.toString(), notOptedOutButRevoked._id.toString()],
+        subject: "Test",
+        plainText: "test",
+      },
+    },
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.emailGroup, true);
+  assert.equal(sentMail.length, before + 1);
+  assert.deepEqual(sentMail[sentMail.length - 1].emails, [
+    "granting-user@example.com",
+  ]);
+
+  await Member.deleteMany({
+    _id: { $in: [optedOutButLinked._id, notOptedOutButRevoked._id] },
+  });
+  await User.deleteMany({ _id: { $in: [grantingUser._id, revokingUser._id] } });
+});
+
+test("vmstMembers/membersByUsmsId: a linked account's emailPermission overrides the returned emailExclude value", async () => {
+  const member = await Member.create({
+    usmsRegNo: "555523",
+    usmsId: "55523",
+    firstName: "Override",
+    lastName: "Query",
+    gender: "F",
+    club: "VMST",
+    regYear: 2026,
+    emailExclude: true,
+    emails: [makeEmail("override-query@example.com")],
+  });
+  const linkedUser = await User.create({
+    firstName: "Override",
+    lastName: "LinkedUser",
+    email: "override-linked-user@example.com",
+    password: "irrelevant-not-used-by-these-tests",
+    linkedMember: member._id,
+    emailPermission: true,
+  });
+
+  const { data, errors } = await run(
+    `{ vmstMembers { usmsId emailExclude } }`,
+    {},
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+  const found = data.vmstMembers.find((m) => m.usmsId === "55523");
+  assert.equal(found.emailExclude, false);
+
+  const byUsmsId = await run(
+    `query($usmsIds: [String]!) { membersByUsmsId(usmsIds: $usmsIds) { usmsId emailExclude } }`,
+    { usmsIds: ["55523"] },
+    users.leader,
+  );
+  assert.equal(byUsmsId.errors, undefined);
+  assert.equal(byUsmsId.data.membersByUsmsId[0].emailExclude, false);
+
+  await Member.findByIdAndDelete(member._id);
+  await User.findByIdAndDelete(linkedUser._id);
+});
+
+test("emailGroup: appends unsubscribe instructions with the membership coordinator's email", async () => {
+  const recipient = await Member.create({
+    usmsRegNo: "555524",
+    usmsId: "55524",
+    firstName: "Footer",
+    lastName: "Test",
+    gender: "F",
+    club: "VMST",
+    regYear: 2026,
+    emails: [makeEmail("footer-test@example.com")],
+  });
+
+  const { errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    {
+      emailData: {
+        id: [recipient._id.toString()],
+        subject: "Test",
+        plainText: "Original message body",
+        html: "<p>Original message body</p>",
+      },
+    },
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+
+  const sent = sentMail[sentMail.length - 1];
+  assert.match(sent.plainText, /Original message body/);
+  assert.match(sent.plainText, /membership@example\.com/);
+  assert.match(sent.plainText, /myusmslogin/);
+  assert.match(sent.html, /Original message body/);
+  assert.match(sent.html, /membership@example\.com/);
+
+  await Member.findByIdAndDelete(recipient._id);
+});
+
+test("emailUsage: rejects unauthenticated and non-leader/coach roles, sums only entries within the last 24h", async () => {
+  await EmailLog.deleteMany({});
+  const within = await EmailLog.create({ recipientCount: 7 });
+  const expired = await EmailLog.create({
+    recipientCount: 999,
+    sentAt: new Date(Date.now() - 25 * 60 * 60 * 1000),
+  });
+
+  const unauth = await run(`{ emailUsage { count limit } }`, {}, null);
+  assert.ok(unauth.errors?.length);
+
+  const wrongRole = await run(
+    `{ emailUsage { count limit } }`,
+    {},
+    users.user,
+  );
+  assert.ok(wrongRole.errors?.length);
+
+  const { data, errors } = await run(
+    `{ emailUsage { count limit } }`,
+    {},
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.emailUsage.count, 7);
+  assert.equal(data.emailUsage.limit, 500);
+
+  await EmailLog.deleteMany({ _id: { $in: [within._id, expired._id] } });
+});
+
+test("emailGroup: succeeds right up to the daily limit", async () => {
+  await EmailLog.deleteMany({});
+  await EmailLog.create({ recipientCount: 499 });
+  const recipient = await Member.create({
+    usmsRegNo: "555525",
+    usmsId: "55525",
+    firstName: "AtLimit",
+    lastName: "Test",
+    gender: "F",
+    club: "VMST",
+    regYear: 2026,
+    emails: [makeEmail("at-limit@example.com")],
+  });
+
+  const { data, errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    {
+      emailData: { id: [recipient._id.toString()], subject: "Test", plainText: "test" },
+    },
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.emailGroup, true);
+
+  const usage = await run(`{ emailUsage { count } }`, {}, users.leader);
+  assert.equal(usage.data.emailUsage.count, 500);
+
+  await Member.findByIdAndDelete(recipient._id);
+  await EmailLog.deleteMany({});
+});
+
+test("emailGroup: refuses to send once it would exceed the daily limit, and reports when there will be room", async () => {
+  await EmailLog.deleteMany({});
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  const existing = await EmailLog.create({
+    recipientCount: 500,
+    sentAt: oneHourAgo,
+  });
+  const recipient = await Member.create({
+    usmsRegNo: "555526",
+    usmsId: "55526",
+    firstName: "OverLimit",
+    lastName: "Test",
+    gender: "M",
+    club: "VMST",
+    regYear: 2026,
+    emails: [makeEmail("over-limit@example.com")],
+  });
+
+  const before = sentMail.length;
+  const { errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    {
+      emailData: { id: [recipient._id.toString()], subject: "Test", plainText: "test" },
+    },
+    users.leader,
+  );
+  assert.equal(errors[0].extensions.code, "EMAIL_LIMIT_EXCEEDED");
+  const expectedNextAvailable = new Date(
+    oneHourAgo.getTime() + 24 * 60 * 60 * 1000,
+  );
+  assert.equal(
+    errors[0].extensions.nextAvailable,
+    expectedNextAvailable.toISOString(),
+  );
+  // confirms the rejection happened before sending or logging anything
+  assert.equal(sentMail.length, before);
+  assert.equal((await EmailLog.countDocuments()), 1);
+
+  await Member.findByIdAndDelete(recipient._id);
+  await EmailLog.findByIdAndDelete(existing._id);
 });

@@ -10,6 +10,8 @@ export const QUERY_USER = gql`
       group
       notifications
       emailPermission
+      emailVerified
+      linkedMember
     }
   }
 `;
@@ -177,6 +179,16 @@ export const QUERY_MEMBERS_BY_USMS_ID = gql`
       workoutGroup
       regYear
       emailExclude
+    }
+  }
+`;
+
+// rolling 24h recipient count against the daily Gmail sending limit
+export const QUERY_EMAIL_USAGE = gql`
+  query GetEmailUsage {
+    emailUsage {
+      count
+      limit
     }
   }
 `;
