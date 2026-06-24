@@ -121,6 +121,13 @@ export default function CreateEditPost({ isEditing = false }) {
   });
 
   const [getPost] = useLazyQuery(QUERY_SINGLEPOST, {
+    // this shares its cache key with SinglePost.jsx's read view, and
+    // onCompleted below resets the form's dirty-tracking baseline --
+    // cache-and-network would risk firing onCompleted a second time
+    // (stale cache, then fresh network) after the leader has already
+    // started typing, silently wiping their in-progress edit. network-only
+    // avoids the double-fire entirely. See notes/stale-cache-audit.org.
+    fetchPolicy: "network-only",
     onCompleted: (data) => {
       // reset (rather than setValue) establishes these as the form's
       // baseline, so formState.isDirty only flips once the user actually

@@ -53,6 +53,12 @@ export default function ManageUsers() {
   const [groups, setGroups] = useState([]);
 
   useQuery(QUERY_USERS, {
+    // editUser's mutation response omits _id, so Apollo can't normalize
+    // its own edits back into this cache entry; a different webmaster's
+    // edit has the same problem -- without this, this tab silently shows
+    // stale users on every remount (eg switching tabs and back) until a
+    // full page reload. See notes/stale-cache-audit.org.
+    fetchPolicy: "cache-and-network",
     onCompleted: (data) => {
       setCurrentUsers(data.users);
       setDisplay(data.users);
@@ -60,6 +66,9 @@ export default function ManageUsers() {
   });
 
   useQuery(QUERY_GROUPS, {
+    // a derived list (no _id), so it has no automatic-merge escape valve
+    // at all -- same staleness-on-remount bug as QUERY_USERS above
+    fetchPolicy: "cache-and-network",
     // some VMST members aren't assigned to a WO group; filter that blank
     // entry out so it can't be mistaken for a real, selectable group
     onCompleted: (data) => setGroups(data.groups.filter(Boolean)),
