@@ -77,6 +77,11 @@ export default function Communication({ setTab, userProfile }) {
   } = useForm();
 
   const { loading } = useQuery(QUERY_VMST, {
+    // Member data is written exclusively by the membership role, in a
+    // different session entirely -- this tab needs to re-check the
+    // network on every remount (eg switching tabs and back) rather than
+    // serve a stale roster. See notes/stale-cache-audit.org.
+    fetchPolicy: "cache-and-network",
     onCompleted: (data) => {
       let members = data.vmstMembers;
       // if a WO-group coach (not a VMST-wide coach), limit to members of
@@ -147,6 +152,9 @@ export default function Communication({ setTab, userProfile }) {
   useQuery(QUERY_MEMBERS_BY_USMS_ID, {
     variables: { usmsIds },
     skip: usmsIds.length === 0,
+    // same cross-session Member-data staleness as QUERY_VMST above --
+    // see notes/stale-cache-audit.org
+    fetchPolicy: "cache-and-network",
     onCompleted: (data) => {
       const members = data.membersByUsmsId.map((member) => ({
         name: `${member.firstName} ${member.lastName}`,

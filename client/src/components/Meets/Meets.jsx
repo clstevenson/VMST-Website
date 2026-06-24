@@ -68,6 +68,11 @@ export default function Meets({ setTab }) {
 
   // get all VMST members on initial render
   useQuery(QUERY_VMST, {
+    // Member data is written exclusively by the membership role, in a
+    // different session entirely -- re-check the network on every remount
+    // (eg switching tabs and back) rather than serve a stale roster.
+    // See notes/stale-cache-audit.org.
+    fetchPolicy: "cache-and-network",
     onCompleted: (data) => {
       setMembers([...data.vmstMembers]);
     },
