@@ -1,9 +1,12 @@
+const Sentry = require("./instrument");
+
 const express = require("express");
 const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
 
 const { authMiddleware, refreshHandler, logoutHandler } = require("./utils/auth");
 const createLoginLimiter = require("./utils/rateLimiter");
+const sentryPlugin = require("./utils/sentryPlugin");
 const { typeDefs, resolvers } = require("./schemas");
 
 const path = require("path");
@@ -12,7 +15,7 @@ const cookieParser = require("cookie-parser");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({ typeDefs, resolvers, plugins: [sentryPlugin] });
 
 const startApolloServer = async () => {
   await server.start();
@@ -38,6 +41,12 @@ const startApolloServer = async () => {
       res.sendFile(path.join(__dirname, "../client/dist/index.html"));
     });
   }
+
+  // catches anything outside the /graphql surface (eg an error in static
+  // file serving) that the Apollo plugin above never sees -- must be
+  // registered after every route/middleware and before any other
+  // error-handling middleware
+  Sentry.setupExpressErrorHandler(app);
 
   db.once("open", () => {
     app.listen(PORT, () => {

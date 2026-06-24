@@ -55,6 +55,19 @@ test.before(async () => {
     },
   };
 
+  // resolvers.js calls Sentry.captureException at several intentionally-
+  // exercised catch sites (eg changePassword's too-short-password test
+  // below) -- stub it out the same way as emailHandler above, rather than
+  // let the real SDK (loaded with the real DSN from .env) send test noise
+  // to the actual Sentry project
+  const instrumentPath = require.resolve("../instrument");
+  require.cache[instrumentPath] = {
+    id: instrumentPath,
+    filename: instrumentPath,
+    loaded: true,
+    exports: { captureException: () => {} },
+  };
+
   mongoose = require("mongoose");
   const { ApolloServer } = require("@apollo/server");
   const { typeDefs, resolvers } = require("./index");

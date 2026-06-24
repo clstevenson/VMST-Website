@@ -19,6 +19,7 @@ const {
 // ./index) to be what triggers that connection, after pointing MONGODB_URI
 // at the in-memory test DB.
 require("../config/connection");
+const Sentry = require("../instrument");
 const Mail = require("../utils/emailHandler");
 const generatePassword = require("../utils/password-generator");
 const bcrypt = require("bcrypt");
@@ -89,6 +90,7 @@ Or log in and update your preferences from your account page.`,
       });
       sentCount++;
     } catch (err) {
+      Sentry.captureException(err);
       console.error(
         `Failed to send post notification to ${subscriber.email}:`,
         err,
@@ -309,6 +311,7 @@ const resolvers = {
         }
         return await applyMemberOverrides(swimmers);
       } catch (err) {
+        Sentry.captureException(err);
         console.log(err);
       }
     },
@@ -394,9 +397,10 @@ const resolvers = {
       const user = await User.create({ firstName, lastName, email, password });
       if (!user) throw AuthenticationError;
       // fire-and-forget: a slow/failed send shouldn't hold up signup
-      sendVerificationEmail(user).catch((err) =>
-        console.error("sendVerificationEmail failed:", err),
-      );
+      sendVerificationEmail(user).catch((err) => {
+        Sentry.captureException(err);
+        console.error("sendVerificationEmail failed:", err);
+      });
       const accessToken = signToken(user);
       const refreshToken = signRefreshToken(user);
       setRefreshCookie(res, refreshToken);
@@ -447,9 +451,10 @@ const resolvers = {
         throw err;
       }
       if (emailChanged) {
-        sendVerificationEmail(updatedUser).catch((err) =>
-          console.error("sendVerificationEmail failed:", err),
-        );
+        sendVerificationEmail(updatedUser).catch((err) => {
+          Sentry.captureException(err);
+          console.error("sendVerificationEmail failed:", err);
+        });
       }
       return updatedUser;
     },
@@ -460,6 +465,7 @@ const resolvers = {
         const deletedUser = await User.findByIdAndDelete(_id);
         return deletedUser;
       } catch (error) {
+        Sentry.captureException(error);
         console.log(error);
       }
     },
@@ -509,6 +515,7 @@ contact the webmaster immediately by replying to this message.`,
         await Mail(mailArgs);
         await logEmailSend(1);
       } catch (err) {
+        Sentry.captureException(err);
         console.error(err);
         // resetPassword returns User (not Boolean) -- null is the
         // schema-valid way to signal failure here
@@ -546,6 +553,7 @@ contact the webmaster immediately by replying to this message.`,
         await updatedUser.save();
         return updatedUser;
       } catch (err) {
+        Sentry.captureException(err);
         console.log(err);
       }
     },
@@ -609,9 +617,10 @@ contact the webmaster immediately by replying to this message.`,
       // (and the client's success toast) shouldn't wait on every individual
       // subscriber email finishing its own SMTP round-trip
       if (isPosted) {
-        notifySubscribers(created).catch((err) =>
-          console.error("notifySubscribers failed:", err),
-        );
+        notifySubscribers(created).catch((err) => {
+          Sentry.captureException(err);
+          console.error("notifySubscribers failed:", err);
+        });
       }
       return created;
     },
@@ -656,9 +665,10 @@ contact the webmaster immediately by replying to this message.`,
       await updatedPost.save();
       // fire-and-forget -- see addPost for why this isn't awaited
       if (isPublishing) {
-        notifySubscribers(updatedPost).catch((err) =>
-          console.error("notifySubscribers failed:", err),
-        );
+        notifySubscribers(updatedPost).catch((err) => {
+          Sentry.captureException(err);
+          console.error("notifySubscribers failed:", err);
+        });
       }
       return updatedPost;
     },
@@ -677,6 +687,7 @@ contact the webmaster immediately by replying to this message.`,
         // return is null if the post is not deleted (ie, ID not found)
         return deletedPost;
       } catch (error) {
+        Sentry.captureException(error);
         console.log(error);
       }
     },
@@ -829,6 +840,7 @@ contact the webmaster immediately by replying to this message.`,
       } catch (err) {
         // ordered:false means whatever succeeded is already persisted;
         // log and continue rather than losing that progress
+        Sentry.captureException(err);
         console.error(err);
       }
 
@@ -849,6 +861,7 @@ contact the webmaster immediately by replying to this message.`,
           await Mail(mailArgs);
           await logEmailSend(recipients.length);
         } catch (err) {
+          Sentry.captureException(err);
           console.error(err);
           return false;
         }
@@ -875,6 +888,7 @@ contact the webmaster immediately by replying to this message.`,
           await Mail(mailArgs);
           await logEmailSend(recipients.length);
         } catch (err) {
+          Sentry.captureException(err);
           console.error(err);
           return false;
         }
@@ -900,6 +914,7 @@ contact the webmaster immediately by replying to this message.`,
           await Mail(mailArgs);
           await logEmailSend(recipients.length);
         } catch (err) {
+          Sentry.captureException(err);
           console.error(err);
           return false;
         }
@@ -978,6 +993,7 @@ contact the webmaster immediately by replying to this message.`,
           await Mail(mailArgs);
           await logEmailSend(emailArray.length);
         } catch (err) {
+          Sentry.captureException(err);
           console.error(err);
           return false;
         }
@@ -1018,6 +1034,7 @@ contact the webmaster immediately by replying to this message.`,
         await sendVerificationEmail(target);
         return true;
       } catch (err) {
+        Sentry.captureException(err);
         console.error("resendVerificationEmail failed:", err);
         return false;
       }
