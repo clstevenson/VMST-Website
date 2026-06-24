@@ -412,34 +412,46 @@ const resolvers = {
       if (args._id !== user._id && user.role !== "webmaster") {
         throw AuthenticationError;
       }
-      try {
-        // don't attempt to update password here
-        delete args.user.password;
-        // only the webmaster can change roles or account status (eg a
-        // banned user could otherwise just un-ban themselves)
-        if (user.role !== "webmaster") {
-          delete args.user.role;
-          delete args.user.accountStatus;
-        }
-        // query-then-save so schema validators actually run
-        const updatedUser = await User.findById(args._id);
-        if (!updatedUser) throw AuthenticationError;
-        // changing email means "verified" would otherwise keep referring
-        // to an address the account no longer uses
-        const emailChanged =
-          args.user.email && args.user.email !== updatedUser.email;
-        Object.assign(updatedUser, args.user);
-        if (emailChanged) updatedUser.emailVerified = false;
-        await updatedUser.save();
-        if (emailChanged) {
-          sendVerificationEmail(updatedUser).catch((err) =>
-            console.error("sendVerificationEmail failed:", err),
-          );
-        }
-        return updatedUser;
-      } catch (err) {
-        console.log(err);
+      // don't attempt to update password here
+      delete args.user.password;
+      // only the webmaster can change roles or account status (eg a
+      // banned user could otherwise just un-ban themselves)
+      if (user.role !== "webmaster") {
+        delete args.user.role;
+        delete args.user.accountStatus;
       }
+      // query-then-save so schema validators actually run
+      const updatedUser = await User.findById(args._id);
+      if (!updatedUser) throw AuthenticationError;
+      // changing email means "verified" would otherwise keep referring
+      // to an address the account no longer uses
+      const emailChanged =
+        args.user.email && args.user.email !== updatedUser.email;
+      Object.assign(updatedUser, args.user);
+      if (emailChanged) updatedUser.emailVerified = false;
+      try {
+        await updatedUser.save();
+      } catch (err) {
+        // email's uniqueness is enforced by a DB-level index, not a Mongoose
+        // validator, so a collision surfaces as a raw driver error (eg
+        // "E11000 duplicate key error collection: ... dup key: { email:
+        // ... }") -- not something to show a user directly. Any other save
+        // failure (eg the match validator rejecting a malformed email)
+        // already has a clean, client-presentable message, so it propagates
+        // unwrapped, same as addPost/editPost.
+        if (err.code === 11000) {
+          throw new GraphQLError("That email address is already in use.", {
+            extensions: { code: "DUPLICATE_EMAIL" },
+          });
+        }
+        throw err;
+      }
+      if (emailChanged) {
+        sendVerificationEmail(updatedUser).catch((err) =>
+          console.error("sendVerificationEmail failed:", err),
+        );
+      }
+      return updatedUser;
     },
     // permanently removes a user's account; webmaster only
     deleteUser: async (_, { _id }, { user }) => {

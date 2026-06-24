@@ -452,7 +452,19 @@ test("editUser: webmaster can edit another user's record", async () => {
   assert.equal(data.editUser.firstName, "UpdatedByWebmaster");
 });
 
-test("editUser: a malformed email is rejected by the schema validator (restored via query-then-save) instead of being silently saved", async () => {
+test("editUser: a webmaster editing a since-deleted user's ID gets a real authentication error, not a silent null", async () => {
+  const { data, errors } = await run(
+    `mutation($id: ID!, $user: UserData) {
+      editUser(_id: $id, user: $user) { firstName }
+    }`,
+    { id: new mongoose.Types.ObjectId().toString(), user: { firstName: "Ghost" } },
+    users.webmaster,
+  );
+  assert.equal(errors[0].extensions.code, "UNAUTHENTICATED");
+  assert.equal(data.editUser, null);
+});
+
+test("editUser: a malformed email is rejected by the schema validator and surfaced as a real GraphQL error (restored via query-then-save) instead of being silently saved", async () => {
   const { data, errors } = await run(
     `mutation($id: ID!, $user: UserData) {
       editUser(_id: $id, user: $user) { email }
@@ -460,10 +472,28 @@ test("editUser: a malformed email is rejected by the schema validator (restored 
     { id: users.user._id, user: { email: "not-an-email" } },
     users.user,
   );
-  // editUser's catch block logs and swallows errors rather than
-  // rethrowing (pre-existing style, not changed here) -- so the
-  // regression to guard against is the DB write, not a GraphQL error
-  assert.equal(errors, undefined);
+  // editUser no longer swallows the validator failure -- it propagates
+  // naturally (same as addPost/editPost), so the client gets a real,
+  // specific error message instead of an empty, success-shaped response
+  assert.match(errors[0].message, /email/i);
+  assert.equal(data.editUser, null);
+
+  const stillOriginal = await User.findById(users.user._id);
+  assert.equal(stillOriginal.email, "user@example.com");
+});
+
+test("editUser: claiming an email already in use by another account is rejected with a clean DUPLICATE_EMAIL error, not the raw driver message", async () => {
+  const { data, errors } = await run(
+    `mutation($id: ID!, $user: UserData) {
+      editUser(_id: $id, user: $user) { email }
+    }`,
+    // leader@example.com already belongs to users.leader
+    { id: users.user._id, user: { email: "leader@example.com" } },
+    users.user,
+  );
+  assert.equal(errors[0].extensions.code, "DUPLICATE_EMAIL");
+  assert.equal(errors[0].message, "That email address is already in use.");
+  assert.doesNotMatch(errors[0].message, /E11000|duplicate key|collection/);
   assert.equal(data.editUser, null);
 
   const stillOriginal = await User.findById(users.user._id);
