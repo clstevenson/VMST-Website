@@ -84,6 +84,34 @@ function summarizeMissingFieldErrors(err, members) {
   );
 }
 
+// MemberData's required fields (everything but workoutGroup/emails/emailExclude
+// in typeDefs.js) -- checked here, before the GraphQL call, so a CSV missing a
+// column is caught with a clear, specific message instead of either crashing
+// (see the optional chaining in handleFormSubmit's extraction below) or
+// reaching the server and coming back as a raw graphql-js variable-coercion
+// error. Same pattern as Meets.jsx's findMissingSwimmerFields.
+const REQUIRED_MEMBER_FIELDS = [
+  "usmsRegNo",
+  "usmsId",
+  "firstName",
+  "lastName",
+  "gender",
+  "club",
+  "regYear",
+];
+
+function findMissingMemberFields(memberData) {
+  const rowsByField = {};
+  memberData.forEach((member, index) => {
+    REQUIRED_MEMBER_FIELDS.forEach((field) => {
+      if (!member[field]) {
+        (rowsByField[field] ??= []).push(index);
+      }
+    });
+  });
+  return rowsByField;
+}
+
 export default function UploadMembers() {
   const { user } = useAuth();
   // state representing new members data uploaded from user
@@ -315,11 +343,13 @@ export default function UploadMembers() {
     const memberData = members.map((member) => {
       const obj = {};
       obj.usmsRegNo = member["USMS Number"];
-      obj.usmsId = member["USMS Number"].slice(-5);
+      // optional chaining/fallback: a missing CSV column must never crash
+      // this handler outright (it used to -- see MissingFieldClientCheck.org)
+      obj.usmsId = member["USMS Number"]?.slice(-5) ?? "";
       obj.firstName = member["First Name"];
       obj.lastName = member["Last Name"];
       obj.gender = member.Gender;
-      obj.club = member.Club.toString();
+      obj.club = member.Club?.toString() ?? "";
       obj.workoutGroup = member["WO Group"];
       obj.regYear = member["Reg. Year"];
       obj.emails = [];
@@ -330,6 +360,29 @@ export default function UploadMembers() {
       obj.emailExclude = member["Exclude LMSC Group Email"] === "Y";
       return obj;
     });
+
+    // catch missing required fields here, before the GraphQL call, instead of
+    // letting the server reject it -- see findMissingMemberFields above
+    const missingByField = findMissingMemberFields(memberData);
+    if (Object.keys(missingByField).length > 0) {
+      const fieldSummary = Object.entries(missingByField)
+        .map(
+          ([field, rows]) =>
+            `${field} (${rows.length} row${rows.length === 1 ? "" : "s"})`
+        )
+        .join(", ");
+      const affectedRows = new Set(Object.values(missingByField).flat());
+      const firstRow = members[Math.min(...affectedRows)];
+      const example = firstRow
+        ? ` First problem row: ${firstRow["First Name"] ?? "?"} ${firstRow["Last Name"] ?? "?"} (USMS # ${firstRow["USMS Number"] ?? "?"}).`
+        : "";
+      setMessage(
+        `${affectedRows.size} row(s) are missing required field(s): ${fieldSummary}. ` +
+          `This usually means a column was blank or the export skipped a step -- ` +
+          `check the upload instructions and re-upload.${example}`
+      );
+      return;
+    }
 
     // update the DB
     let data;
