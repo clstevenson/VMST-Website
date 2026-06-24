@@ -3,9 +3,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Description
-This is the demo of a proposed website for the Virginia Masters Swim Team (VMST), the largest adult swim team in Virginia. VMST is a member club of [US Masters Swimming](https://www.usms.org) (USMS), a national nonprofit adult swimming organization consisting of approximately 60,000 members.
+This is the codebase for the website of the Virginia Masters Swim Team (VMST), the largest adult swim team in Virginia. VMST is a member club of [US Masters Swimming](https://www.usms.org) (USMS), a national nonprofit adult swimming organization consisting of approximately 60,000 members.
 
-The 300 members of VMST are geographically spread throughout the state and beyond; they even include two international members (one in Australia, one in Great Britain)! As one might imagine, team communication is a challenge; moreover, USMS policy prohibits the sharing of emails.
+The 200-300 members of VMST are geographically spread throughout the state and beyond; they even include two international members (one in Australia, one in Great Britain)! As one might imagine, team communication is a challenge; moreover, USMS policy prohibits the sharing of emails.
 
 The primary purpose of this website is to facilitate communication between VMST leadership and members.
 
@@ -16,7 +16,7 @@ The primary purpose of this website is to facilitate communication between VMST 
 - [License](#license)
 
 ## Deployment
-The website is [deployed on Render](https://vmstswim.org):
+The website is [deployed on Render](https://vmstswim.org) and has been adopted as the official website for VMST:
 
 <https://vmstswim.org>
 
@@ -44,7 +44,7 @@ There are three additional types of users beyond the basic. Clicking on the "Req
 
 There are also two "hidden" roles that are related to administration of the website.
 
-- website administrators for tasks such as comment moderation, resetting passwords, and website maintenance.
+- website administrator for such as comment moderation, account management, and website maintenance.
 - the Virginia LMSC Membership Coordinator (email: clearscreen100@gmail.com) is responsible for updating the website's USMS membership database so that current emails of all VMST members can be used for communication. There should be only one user with this role, and they will need to update the membership data routinely, roughly every 1-2 weeks and on request of team leadership.
 
 When a leader or coach logs in, they are presented with additional tabs on the user page. One of those is the communications page, which allows the coach or leader to send emails to VMST members. A screenshot example is shown below, showing how a coach might communicate with their group members. A rich text editor is used in case the coach/leader wants to apply additional formatting to the message.
@@ -58,10 +58,10 @@ Leaders and coaches can also upload the rosters for upcoming meets, allowing for
 In order to communicate with the competitors, a match needs to be found between each person on the meet roster and the registered members of VMST. The Meets tab allows for review of these matches (which are based on name and gender) to make sure it is accurate. Once a meet is created in the database, it is available on the Communications tab for email messages.
 
 ## Contributions
-The [first version website](https://github.com/Spikey1289/VMST-Communication-Website) was initially created by the following individuals: Ian Stevenson, Chris Stevenson, De'Shawn Pair, and Brian Guthrie. Future development will continue on this fork by two collaborators:
+The [first version website](https://github.com/Spikey1289/VMST-Communication-Website) was initially created by the following individuals: Ian Stevenson, Chris Stevenson, De'Shawn Pair, and Brian Guthrie. Future development will continue on this fork by Chris Stevenson (chrislstevenson@gmail.com).
 
-- Chris Stevenson (chrislstevenson@gmail.com)
-- Ian Stevenson (ianmstevenson1@gmail.com)
+## Technical Description
+The website was originally designed in summer 2024 and I have been using Claude Code as an assistant in development since summer 2026. The [Claude.MD file](CLAUDE.md) describes the tech stack of the website.
 
 ## License
 This project is licensed under the terms of the [MIT license](https://opensource.org/licenses/MIT).
