@@ -2479,3 +2479,110 @@ test("emailGroup: refuses to send once it would exceed the daily limit, and repo
   await Member.findByIdAndDelete(recipient._id);
   await EmailLog.findByIdAndDelete(existing._id);
 });
+
+test("uploadMembers: a duplicate usmsRegNo across two different usmsIds fails only that row, reports it via UPLOAD_PARTIAL_FAILURE, and still upserts every other row", async () => {
+  const memberData = [
+    {
+      usmsRegNo: "DUP-REG",
+      usmsId: "TESTC",
+      firstName: "First",
+      lastName: "Collider",
+      gender: "F",
+      club: "VMST",
+      regYear: 2026,
+      emails: ["testc@example.com"],
+      emailExclude: false,
+    },
+    {
+      // same usmsRegNo as above on purpose -- usmsRegNo has its own unique
+      // index, independent of the usmsId dedupe key, so this collides
+      usmsRegNo: "DUP-REG",
+      usmsId: "TESTD",
+      firstName: "Second",
+      lastName: "Collider",
+      gender: "F",
+      club: "VMST",
+      regYear: 2026,
+      emails: ["testd@example.com"],
+      emailExclude: false,
+    },
+    {
+      usmsRegNo: "TEST-OK",
+      usmsId: "TESTE",
+      firstName: "Unaffected",
+      lastName: "Row",
+      gender: "M",
+      club: "VMST",
+      regYear: 2026,
+      emails: ["teste@example.com"],
+      emailExclude: false,
+    },
+  ];
+
+  const mutation = `mutation($memberData: [MemberData]) {
+    uploadMembers(memberData: $memberData) { usmsId }
+  }`;
+
+  const { data, errors } = await run(mutation, { memberData }, users.membership);
+
+  assert.equal(data.uploadMembers, null);
+  assert.equal(errors[0].extensions.code, "UPLOAD_PARTIAL_FAILURE");
+  assert.equal(errors[0].extensions.succeededCount, 2);
+  assert.equal(errors[0].extensions.failedCount, 1);
+
+  const [failure] = errors[0].extensions.failures;
+  assert.ok(["TESTC", "TESTD"].includes(failure.usmsId));
+  assert.ok(failure.message);
+
+  // ordered:false doesn't guarantee which of the two colliding ops "wins",
+  // but exactly one of them must have been upserted, and the unrelated row
+  // must be unaffected
+  const collidedCount = await Member.countDocuments({
+    usmsId: { $in: ["TESTC", "TESTD"] },
+  });
+  assert.equal(collidedCount, 1);
+  assert.ok(await Member.findOne({ usmsId: "TESTE" }));
+
+  await Member.deleteMany({ usmsId: { $in: ["TESTC", "TESTD", "TESTE"] } });
+});
+
+test("uploadMembers: a bulkWrite failure with no per-row detail (eg a dropped connection) is reported as UPLOAD_FAILED rather than silently swallowed", async () => {
+  const realBulkWrite = Member.bulkWrite;
+  Member.bulkWrite = async () => {
+    throw new Error("simulated connection loss");
+  };
+
+  const memberData = [
+    {
+      usmsRegNo: "TEST-CONN",
+      usmsId: "TESTF",
+      firstName: "Should",
+      lastName: "NotPersist",
+      gender: "F",
+      club: "VMST",
+      regYear: 2026,
+      emails: ["testf@example.com"],
+      emailExclude: false,
+    },
+  ];
+
+  const mutation = `mutation($memberData: [MemberData]) {
+    uploadMembers(memberData: $memberData) { usmsId }
+  }`;
+
+  try {
+    const { data, errors } = await run(
+      mutation,
+      { memberData },
+      users.membership,
+    );
+    assert.equal(data.uploadMembers, null);
+    assert.equal(errors[0].extensions.code, "UPLOAD_FAILED");
+  } finally {
+    Member.bulkWrite = realBulkWrite;
+  }
+
+  // the cleanup deleteMany must not have run against an untrustworthy
+  // comparison -- nothing should have been touched
+  assert.equal(await Member.findOne({ usmsId: "TESTF" }), null);
+});

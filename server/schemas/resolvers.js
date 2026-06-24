@@ -748,6 +748,7 @@ contact the webmaster immediately by replying to this message.`,
 
       // upsert everyone in the new upload -- never drop the collection, so a
       // bad record (or a partial failure) can't take the whole roster with it
+      let failures = [];
       if (finalMembers.length > 0) {
         try {
           await Member.bulkWrite(
@@ -761,14 +762,47 @@ contact the webmaster immediately by replying to this message.`,
             { ordered: false },
           );
         } catch (err) {
+          if (!err.writeErrors?.length) {
+            // not a per-row failure shape (eg a dropped connection
+            // mid-batch) -- we have no reliable idea what succeeded, so
+            // don't run the "anyone missing has left" cleanup below against
+            // an untrustworthy comparison; just surface that it failed
+            throw new GraphQLError(`Member upload failed: ${err.message}`, {
+              extensions: { code: "UPLOAD_FAILED" },
+            });
+          }
           // ordered:false means whatever succeeded is already persisted;
-          // log and continue rather than losing that progress
-          console.error(err);
+          // collect the per-row failures (eg a duplicate usmsRegNo across two
+          // different usmsIds violating its unique index) so they can be
+          // reported below, rather than losing that progress *or* the fact
+          // that some rows didn't make it
+          failures = err.writeErrors.map((writeError) => {
+            const member = finalMembers[writeError.index];
+            return {
+              usmsId: member?.usmsId,
+              name: member ? `${member.firstName} ${member.lastName}` : null,
+              message: writeError.errmsg,
+            };
+          });
         }
       }
 
       // anyone in the DB but not in this upload has left the LMSC
       await Member.deleteMany({ usmsId: { $nin: newUsmsIds } });
+
+      if (failures.length > 0) {
+        throw new GraphQLError(
+          `${failures.length} of ${newUsmsIds.length} members failed to upload`,
+          {
+            extensions: {
+              code: "UPLOAD_PARTIAL_FAILURE",
+              succeededCount: newUsmsIds.length - failures.length,
+              failedCount: failures.length,
+              failures,
+            },
+          },
+        );
+      }
 
       return await Member.find({ usmsId: { $in: newUsmsIds } });
     },
