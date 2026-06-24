@@ -11,6 +11,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import { QUERY_VMST, QUERY_MEETS } from "../../utils/queries";
 import { ADD_MEET, DELETE_MEET, EDIT_MEET } from "../../utils/mutations";
 import { QUERIES } from "../../utils/constants";
+import findMissingFields from "../../utils/findMissingFields";
 import ErrorMessage from "../../components/Styled/ErrorMessage";
 import MeetUpload from "./MeetUpload";
 import MeetInfo from "./MeetInfo";
@@ -27,18 +28,6 @@ import ToastMessage from "../ToastMessage";
 // GraphQL error text), this works directly off the already-parsed JS objects
 // -- there's no error shape to reverse-engineer.
 const REQUIRED_SWIMMER_FIELDS = ["firstName", "lastName", "gender", "meetAge"];
-
-function findMissingSwimmerFields(competitors) {
-  const rowsByField = {};
-  competitors.forEach((swimmer, index) => {
-    REQUIRED_SWIMMER_FIELDS.forEach((field) => {
-      if (!swimmer[field]) {
-        (rowsByField[field] ??= []).push(index);
-      }
-    });
-  });
-  return rowsByField;
-}
 
 export default function Meets({ setTab }) {
   // array of objects containing competitors in the meet being displayed
@@ -142,7 +131,7 @@ export default function Meets({ setTab }) {
 
   const onSubmit = async () => {
     // use react-hook-form for some errors, early return if any found
-    const missingByField = findMissingSwimmerFields(competitors);
+    const missingByField = findMissingFields(competitors, REQUIRED_SWIMMER_FIELDS);
     const hasMissingFields = Object.keys(missingByField).length > 0;
     if (
       competitors.length === 0 ||

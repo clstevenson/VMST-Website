@@ -3,17 +3,23 @@ import styled from "styled-components";
 
 import { useAuth } from "../../context/AuthContext";
 import { useQuery, useMutation } from "@apollo/client";
-import { UPLOAD_MEMBERS, UPDATE_EMAIL_DELIVERABILITY } from "../../utils/mutations";
+import {
+  UPLOAD_MEMBERS,
+  UPDATE_EMAIL_DELIVERABILITY,
+} from "../../utils/mutations";
 import { QUERY_MEMBERS } from "../../utils/queries";
-import papa from "papaparse";
 import { Check } from "react-feather";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
+import * as Tooltip from "@radix-ui/react-tooltip";
 
 import FileUploader from "../FileUploader";
 import getGroups from "../../utils/getGroups";
+import findMissingFields from "../../utils/findMissingFields";
+import parseCSVFile from "../../utils/parseCSVFile";
 import { COLORS, QUERIES, WEIGHTS } from "../../utils/constants";
 import SubmitButton from "../Styled/SubmiButton";
 import Table from "../Styled/Table";
+import MissingBadge from "../Styled/MissingBadge";
 import ToastMessage from "../ToastMessage";
 import Instructions from "./Instructions";
 import PaginationNav from "../PaginationNav";
@@ -48,9 +54,12 @@ function summarizeMissingFieldErrors(err, members) {
     : allErrors;
 
   const badInputErrors = relevantErrors.filter(
-    (gqlError) => gqlError.extensions?.code === "BAD_USER_INPUT"
+    (gqlError) => gqlError.extensions?.code === "BAD_USER_INPUT",
   );
-  if (!badInputErrors.length || badInputErrors.length !== relevantErrors.length) {
+  if (
+    !badInputErrors.length ||
+    badInputErrors.length !== relevantErrors.length
+  ) {
     return null;
   }
 
@@ -63,16 +72,21 @@ function summarizeMissingFieldErrors(err, members) {
   }
 
   const affectedRows = new Set(
-    Object.values(rowsByField).flatMap((rows) => [...rows])
+    Object.values(rowsByField).flatMap((rows) => [...rows]),
   );
   const fieldSummary = Object.entries(rowsByField)
-    .map(([field, rows]) => `${field} (${rows.size} row${rows.size === 1 ? "" : "s"})`)
+    .map(
+      ([field, rows]) =>
+        `${field} (${rows.size} row${rows.size === 1 ? "" : "s"})`,
+    )
     .join(", ");
   const firstRow = members[Math.min(...affectedRows)];
   const example = firstRow
     ? ` First problem row: ${firstRow["First Name"]} ${firstRow["Last Name"]} (USMS # ${firstRow["USMS Number"]}).`
     : "";
-  const countLabel = truncated ? `${affectedRows.size}+` : `${affectedRows.size}`;
+  const countLabel = truncated
+    ? `${affectedRows.size}+`
+    : `${affectedRows.size}`;
   const truncatedNote = truncated
     ? " (the server stopped counting after 50 problems -- there may be more than shown)"
     : "";
@@ -85,11 +99,11 @@ function summarizeMissingFieldErrors(err, members) {
 }
 
 // MemberData's required fields (everything but workoutGroup/emails/emailExclude
-// in typeDefs.js) -- checked here, before the GraphQL call, so a CSV missing a
-// column is caught with a clear, specific message instead of either crashing
-// (see the optional chaining in handleFormSubmit's extraction below) or
-// reaching the server and coming back as a raw graphql-js variable-coercion
-// error. Same pattern as Meets.jsx's findMissingSwimmerFields.
+// in typeDefs.js) -- checked before the GraphQL call (in handleSubmitUpload,
+// below), so a CSV missing a column is caught with a clear, specific message
+// instead of either crashing (see extractMemberData's optional chaining
+// below) or reaching the server and coming back as a raw graphql-js
+// variable-coercion error. Same pattern as Meets.jsx's findMissingSwimmerFields.
 const REQUIRED_MEMBER_FIELDS = [
   "usmsRegNo",
   "usmsId",
@@ -100,16 +114,106 @@ const REQUIRED_MEMBER_FIELDS = [
   "regYear",
 ];
 
-function findMissingMemberFields(memberData) {
-  const rowsByField = {};
-  memberData.forEach((member, index) => {
-    REQUIRED_MEMBER_FIELDS.forEach((field) => {
-      if (!member[field]) {
-        (rowsByField[field] ??= []).push(index);
-      }
-    });
+// crash-proofed extraction of a parsed CSV row into MemberData's shape --
+// used both to build the preview (below) and the actual mutation variables,
+// so there's exactly one place that knows the CSV column names
+function extractMemberData(rawRows) {
+  return rawRows.map((member) => {
+    const obj = {};
+    // fall back to "" (not undefined) for every required field -- besides
+    // crash-proofing usmsId/club's method calls below, this also keeps
+    // findMissingMemberFields's falsy check meaningful and avoids literal
+    // "undefined" text leaking into the preview table's cells
+    obj.usmsRegNo = member["USMS Number"] ?? "";
+    obj.usmsId = member["USMS Number"]?.slice(-5) ?? "";
+    obj.firstName = member["First Name"] ?? "";
+    obj.lastName = member["Last Name"] ?? "";
+    obj.gender = member.Gender ?? "";
+    obj.club = member.Club?.toString() ?? "";
+    obj.workoutGroup = member["WO Group"];
+    obj.regYear = member["Reg. Year"] ?? "";
+    obj.emails = [];
+    if (member["(P) Email Address"])
+      obj.emails.push(member["(P) Email Address"]);
+    if (member["(S) Email Address"])
+      obj.emails.push(member["(S) Email Address"]);
+    obj.emailExclude = member["Exclude LMSC Group Email"] === "Y";
+    return obj;
   });
-  return rowsByField;
+}
+
+// WHATWG HTML living-standard input[type=email] pattern -- the same one
+// browsers use for native email validation, and the same one duplicated in
+// ChangeEmail.jsx and server/schemas/resolvers.js's uploadMembers resolver
+const EMAIL_REGEX =
+  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
+// Mirrors server/schemas/resolvers.js's uploadMembers resolver closely
+// enough to preview what it would actually persist: dedupe by usmsId
+// (keeping the higher regYear, same as the server), then build each
+// email's {address, formatValid, deliverable} the same way the resolver
+// does -- deliverable carried forward from currentMembers (already loaded
+// client-side) when the address is unchanged, otherwise true. If the
+// resolver's carry-forward logic changes, this needs to change with it.
+function buildPreviewMembers(memberData, currentMembers) {
+  const latestByUsmsId = new Map();
+  for (const incoming of memberData) {
+    const current = latestByUsmsId.get(incoming.usmsId);
+    if (!current || incoming.regYear > current.regYear) {
+      latestByUsmsId.set(incoming.usmsId, incoming);
+    }
+  }
+
+  const currentByUsmsId = new Map(
+    currentMembers.map((member) => [member.usmsId, member]),
+  );
+
+  return [...latestByUsmsId.entries()].map(([usmsId, incoming]) => {
+    const previous = currentByUsmsId.get(usmsId);
+    const previousDeliverable = new Map(
+      (previous?.emails ?? []).map((email) => [
+        email.address.toLowerCase(),
+        email.deliverable,
+      ]),
+    );
+    const emails = (incoming.emails ?? []).map((address) => ({
+      address,
+      formatValid: EMAIL_REGEX.test(address),
+      deliverable: previousDeliverable.has(address.toLowerCase())
+        ? previousDeliverable.get(address.toLowerCase())
+        : true,
+    }));
+
+    return {
+      usmsRegNo: incoming.usmsRegNo,
+      usmsId,
+      firstName: incoming.firstName,
+      lastName: incoming.lastName,
+      gender: incoming.gender,
+      club: incoming.club,
+      workoutGroup: incoming.workoutGroup,
+      regYear: incoming.regYear,
+      emails,
+      emailExclude: incoming.emailExclude,
+    };
+  });
+}
+
+// shared by the real DB member list and the preview member list, so
+// "what counts as reachable/VMST" only has one implementation
+function computeMemberStats(members) {
+  const isReachableMember = (member) =>
+    !member.emailExclude &&
+    member.emails.some((email) => email.formatValid && email.deliverable);
+  return {
+    numMembers: members.length,
+    numVMST: members.filter((member) => member.club === "VMST").length,
+    numReachable: members.filter(isReachableMember).length,
+    numReachableVMST: members.filter(
+      (member) => member.club === "VMST" && isReachableMember(member),
+    ).length,
+    groups: getGroups(members),
+  };
 }
 
 export default function UploadMembers() {
@@ -118,6 +222,10 @@ export default function UploadMembers() {
   const [members, setMembers] = useState([]);
   // state representing the DB (and what is displayed in the table)
   const [currentMembers, setCurrentMembers] = useState([]);
+  // preview of what currentMembers would become if the staged file is
+  // submitted -- same shape as currentMembers, built client-side from
+  // `members` by buildPreviewMembers, never sent to the server itself
+  const [previewMembers, setPreviewMembers] = useState([]);
   // state representing member information in DB to be displayed in the table
   // (may be filtered and/or paginated version of DB membership data)
   const [display, setDisplay] = useState([]);
@@ -141,8 +249,8 @@ export default function UploadMembers() {
   // states for paginating the members table
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(100);
-  // mutation to update the Members collection in the CB
-  // (used in form onSubmit event handler)
+  // mutation to update the Members collection in the DB
+  // (used in handleSubmitUpload, the Submit button's onClick)
   const [upload] = useMutation(UPLOAD_MEMBERS);
   // state representing success of DB update
   const [updated, setUpdated] = useState(false);
@@ -163,27 +271,36 @@ export default function UploadMembers() {
     onCompleted: (data) => applyMemberList(data.members),
   });
 
-  // a member is reachable by email if they haven't opted out and have at
-  // least one well-formed, deliverable email address
-  const isReachable = (member) =>
-    !member.emailExclude &&
-    member.emails.some((email) => email.formatValid && email.deliverable);
+  // a CSV is staged (parsed, not yet submitted or cancelled) exactly when
+  // `file` is set -- reused as the single source of truth for preview mode
+  // rather than tracking a second boolean that could drift out of sync
+  const previewMode = file !== "";
+
+  // shared by entering preview mode and leaving it (submit or cancel) --
+  // both are a clean slate for the filter/quick-filter inputs
+  const resetFilters = () => {
+    setName("");
+    setClubGroup("");
+    setEmailFilter("");
+    setQuickFilters([]);
+  };
 
   // shared by the initial query, a full upload success, and a refetch after
   // a partial upload failure -- all three need to push a fresh member list
-  // into every derived piece of state the same way
-  const applyMemberList = (members) => {
+  // into every derived piece of state the same way. `displaySource`
+  // defaults to `members` itself, but a partial-failure retry (still
+  // previewing, file/members deliberately left alone) needs to update the
+  // DB-truth stats from `members` while still displaying the re-computed
+  // preview, not the DB contents
+  const applyMemberList = (members, displaySource = members) => {
     setCurrentMembers(members);
-    setNumMembers(members.length);
-    setNumVMST(members.filter((member) => member.club === "VMST").length);
-    setNumReachable(members.filter(isReachable).length);
-    setNumReachableVMST(
-      members.filter(
-        (member) => member.club === "VMST" && isReachable(member)
-      ).length
-    );
-    setGroups(getGroups(members));
-    displayMembers(members);
+    const stats = computeMemberStats(members);
+    setNumMembers(stats.numMembers);
+    setNumVMST(stats.numVMST);
+    setNumReachable(stats.numReachable);
+    setNumReachableVMST(stats.numReachableVMST);
+    setGroups(stats.groups);
+    displayMembers(displaySource);
   };
 
   // function to extract data to display in members table
@@ -191,10 +308,13 @@ export default function UploadMembers() {
     const displayData = members.map((member) => {
       return {
         usmsRegNo: member.usmsRegNo,
-        fullName: member.firstName + " " + member.lastName,
+        firstName: member.firstName,
+        lastName: member.lastName,
+        gender: member.gender,
         club: member.club,
         usmsId: member.usmsId,
         workoutGroup: member.workoutGroup,
+        regYear: member.regYear,
         emails: member.emails,
         emailExclude: member.emailExclude,
       };
@@ -221,10 +341,10 @@ export default function UploadMembers() {
               emails: member.emails.map((email) =>
                 email.address === address
                   ? { ...email, deliverable: checked }
-                  : email
+                  : email,
               ),
             }
-          : member
+          : member,
       );
     setCurrentMembers(applyToggle);
     setDisplay(applyToggle);
@@ -255,7 +375,7 @@ export default function UploadMembers() {
 
   const handleSaveChanges = async () => {
     const updates = Object.values(pendingChanges).map(
-      ({ usmsId, address, deliverable }) => ({ usmsId, address, deliverable })
+      ({ usmsId, address, deliverable }) => ({ usmsId, address, deliverable }),
     );
     if (updates.length === 0) return;
     await saveDeliverability({ variables: { updates } });
@@ -269,14 +389,14 @@ export default function UploadMembers() {
     const revert = (members) =>
       members.map((member) => {
         const memberPending = Object.values(pendingChanges).filter(
-          (change) => change.usmsId === member.usmsId
+          (change) => change.usmsId === member.usmsId,
         );
         if (memberPending.length === 0) return member;
         return {
           ...member,
           emails: member.emails.map((email) => {
             const pending = memberPending.find(
-              (change) => change.address === email.address
+              (change) => change.address === email.address,
             );
             return pending
               ? { ...email, deliverable: pending.original }
@@ -291,7 +411,11 @@ export default function UploadMembers() {
 
   // render the address + deliverable checkbox for one of a member's emails,
   // or nothing if that email slot is blank
-  const renderEmailCell = (member, index) => {
+  // readOnly is true while previewing unsubmitted data -- there's no
+  // persisted Member document yet for toggleDeliverable's mutation to
+  // attach to, so the checkbox shows the (carried-forward) state but isn't
+  // interactive
+  const renderEmailCell = (member, index, readOnly = false) => {
     const email = member.emails?.[index];
     if (!email || !email.address) return null;
     const inactive = !email.formatValid || member.emailExclude;
@@ -299,7 +423,7 @@ export default function UploadMembers() {
       <EmailCell>
         <EmailCheckbox
           checked={email.deliverable}
-          disabled={inactive}
+          disabled={inactive || readOnly}
           onCheckedChange={(checked) =>
             toggleDeliverable(member.usmsId, email.address, checked)
           }
@@ -317,58 +441,39 @@ export default function UploadMembers() {
   const handleFile = async (e) => {
     setFile(e.target.value);
     setMessage("");
-    let reader = new FileReader();
-    reader.readAsText(e.target.files[0]);
-    reader.onload = () => {
-      const results = papa.parse(reader.result, {
-        header: true,
-        dynamicTyping: true,
-        skipEmptyLines: true,
-      });
-      setMembers([...results.data]);
-    };
-    reader.onerror = () => {
-      console.log(reader.error);
-      setMessage(`File read error: ${reader.error}`);
-    };
+    let rawRows;
+    try {
+      rawRows = await parseCSVFile(e.target.files[0]);
+    } catch (error) {
+      setMessage(`File read error: ${error}`);
+      return;
+    }
+    setMembers([...rawRows]);
+    // build and show the preview immediately -- this is what entering
+    // preview mode means, same as a fresh DB query populating the table
+    const memberData = extractMemberData(rawRows);
+    const preview = buildPreviewMembers(memberData, currentMembers);
+    setPreviewMembers(preview);
+    resetFilters();
+    displayMembers(preview);
   };
 
-  // form submit event handler extracts the good parts of the data
-  // and uploads to the Members collection of the DB, replacing those contents
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    // if no file has been chosen then don't do anything
-    if (file === "") return;
-    // extract the parts that we need
-    const memberData = members.map((member) => {
-      const obj = {};
-      obj.usmsRegNo = member["USMS Number"];
-      // optional chaining/fallback: a missing CSV column must never crash
-      // this handler outright (it used to -- see MissingFieldClientCheck.org)
-      obj.usmsId = member["USMS Number"]?.slice(-5) ?? "";
-      obj.firstName = member["First Name"];
-      obj.lastName = member["Last Name"];
-      obj.gender = member.Gender;
-      obj.club = member.Club?.toString() ?? "";
-      obj.workoutGroup = member["WO Group"];
-      obj.regYear = member["Reg. Year"];
-      obj.emails = [];
-      if (member["(P) Email Address"])
-        obj.emails.push(member["(P) Email Address"]);
-      if (member["(S) Email Address"])
-        obj.emails.push(member["(S) Email Address"]);
-      obj.emailExclude = member["Exclude LMSC Group Email"] === "Y";
-      return obj;
-    });
+  // Submit button handler -- uploads the previewed data to the Members
+  // collection of the DB, replacing those contents. Not a form onSubmit
+  // (no native submit/Enter-key behavior to worry about): the button is
+  // only rendered while previewMode is true, so there's always a staged
+  // file by the time this runs.
+  const handleSubmitUpload = async () => {
+    const memberData = extractMemberData(members);
 
     // catch missing required fields here, before the GraphQL call, instead of
     // letting the server reject it -- see findMissingMemberFields above
-    const missingByField = findMissingMemberFields(memberData);
+    const missingByField = findMissingFields(memberData, REQUIRED_MEMBER_FIELDS);
     if (Object.keys(missingByField).length > 0) {
       const fieldSummary = Object.entries(missingByField)
         .map(
           ([field, rows]) =>
-            `${field} (${rows.length} row${rows.length === 1 ? "" : "s"})`
+            `${field} (${rows.length} row${rows.length === 1 ? "" : "s"})`,
         )
         .join(", ");
       const affectedRows = new Set(Object.values(missingByField).flat());
@@ -379,7 +484,7 @@ export default function UploadMembers() {
       setMessage(
         `${affectedRows.size} row(s) are missing required field(s): ${fieldSummary}. ` +
           `This usually means a column was blank or the export skipped a step -- ` +
-          `check the upload instructions and re-upload.${example}`
+          `check the upload instructions and re-upload.${example}`,
       );
       return;
     }
@@ -390,7 +495,7 @@ export default function UploadMembers() {
       ({ data } = await upload({ variables: { memberData } }));
     } catch (err) {
       const partialFailure = err.graphQLErrors?.find(
-        (gqlError) => gqlError.extensions?.code === "UPLOAD_PARTIAL_FAILURE"
+        (gqlError) => gqlError.extensions?.code === "UPLOAD_PARTIAL_FAILURE",
       );
       if (partialFailure) {
         // the rows that didn't collide are already persisted -- refresh the
@@ -401,13 +506,24 @@ export default function UploadMembers() {
           .map((f) => `${f.name ?? "unknown"} (USMS ID ${f.usmsId ?? "?"})`)
           .join(", ");
         setMessage(
-          `Uploaded ${succeededCount} member(s), but ${failedCount} failed and were NOT updated: ${failedList}. Fix those rows and re-upload.`
+          `Uploaded ${succeededCount} member(s), but ${failedCount} failed and were NOT updated: ${failedList}. Fix those rows and re-upload.`,
         );
         const refreshed = await refetchMembers();
-        applyMemberList(refreshed.data.members);
+        // file/members are kept (see comment below) so the coordinator can
+        // fix and resubmit -- recompute the preview against the now-updated
+        // DB (so deliverable carry-forward reflects what just succeeded)
+        // and keep showing it, rather than flipping to the DB view
+        const refreshedPreview = buildPreviewMembers(
+          memberData,
+          refreshed.data.members,
+        );
+        setPreviewMembers(refreshedPreview);
+        applyMemberList(refreshed.data.members, refreshedPreview);
       } else {
         const summary = summarizeMissingFieldErrors(err, members);
-        setMessage(summary ?? `Upload failed: ${err.message}. Please try again.`);
+        setMessage(
+          summary ?? `Upload failed: ${err.message}. Please try again.`,
+        );
       }
       // leave file/members alone on failure so the coordinator can retry
       // without re-choosing the file
@@ -425,11 +541,25 @@ export default function UploadMembers() {
     //reset state variables
     setMembers([]);
     setFile("");
-    setName("");
-    setClubGroup("");
+    setPreviewMembers([]);
+    resetFilters();
     // a fresh upload replaces the roster, so any unsaved deliverable
     // toggles from before it no longer refer to current data
     setPendingChanges({});
+  };
+
+  // Cancel button handler -- discard the staged file/preview entirely and
+  // go back to showing the real DB contents. Nothing was ever written, so
+  // there's no DB-side cleanup, just resetting every piece of state the
+  // preview touched.
+  const handleCancelPreview = () => {
+    setMembers([]);
+    setFile("");
+    setPreviewMembers([]);
+    resetFilters();
+    setMessage("");
+    setPendingChanges({});
+    displayMembers(currentMembers);
   };
 
   // case-insensitive recompute of display from every current filter
@@ -443,7 +573,10 @@ export default function UploadMembers() {
     const emailTerm = (overrides.emailFilter ?? emailFilter).toLowerCase();
     const activeQuickFilters = overrides.quickFilters ?? quickFilters;
 
-    const filteredMembers = currentMembers.filter((member) => {
+    // filters apply to whichever data set is actually on screen --
+    // the preview while one's staged, the real DB contents otherwise
+    const source = previewMode ? previewMembers : currentMembers;
+    const filteredMembers = source.filter((member) => {
       const fullName = [member.firstName, member.lastName]
         .join("")
         .toLowerCase();
@@ -507,7 +640,7 @@ export default function UploadMembers() {
 
   return (
     <Wrapper>
-      <Form onSubmit={handleFormSubmit}>
+      <Form>
         <FileWrapper>
           <FileUploader
             style={{ width: "160px", flex: "0 0 auto" }}
@@ -524,41 +657,42 @@ export default function UploadMembers() {
           </FileUploadInstructions>
         </FileWrapper>
 
-        {/* After file chosen display message and update button */}
+        {/* when message is not an empty string, it is displayed */}
+        {message && <p> {message} </p>}
+
+        <Instructions />
+
         {file && (
-          <>
-            <p>
-              <span style={{ fontFamily: "monospace" }}>
-                {file.substring(file.lastIndexOf("\\") + 1)}
-              </span>{" "}
-              uploaded with {members.length} members
-            </p>
-            <FileWrapper>
-              <UpdateButton type="submit" disabled={file === ""}>
-                Update members
-              </UpdateButton>
-              <FileUploadInstructions>
-                Click to update database with uploaded file
-              </FileUploadInstructions>
-            </FileWrapper>
-          </>
+          <p>
+            <span style={{ fontFamily: "monospace" }}>
+              {file.substring(file.lastIndexOf("\\") + 1)}
+            </span>{" "}
+            parsed, {members.length} rows. Currently in the database:{" "}
+            {numMembers} members ({numVMST} VMST, {numReachable} reachable,{" "}
+            {numReachableVMST} reachable VMST).
+          </p>
         )}
       </Form>
 
-      {/* when message is not an empty string, it is displayed */}
-      {message && <p> {message} </p>}
-
-      <Instructions />
-
-      <p>
-        There are currently {numMembers} members in the LMSC, {numVMST} of whom
-        are in VMST.
-        <br />
-        {numReachable} members are reachable by email, {numReachableVMST} of
-        whom are in VMST.
-        <br />
-        VMST workout groups: {groups.map(({ name }) => name).join(", ")}.
-      </p>
+      {previewMode ? (
+        <PreviewBanner>
+          <strong>PREVIEW</strong>: The table below shows the parsed data from
+          the CSV file you uploaded. Examine it for errors before you submit the
+          parsed data to the server. Cancel or upload a different file if you
+          notice any problems.
+          <br />
+        </PreviewBanner>
+      ) : (
+        <p>
+          There are currently {numMembers} members in the LMSC, {numVMST} of
+          whom are in VMST.
+          <br />
+          {numReachable} members are reachable by email, {numReachableVMST} of
+          whom are in VMST.
+          <br />
+          VMST workout groups: {groups.map(({ name }) => name).join(", ")}.
+        </p>
+      )}
 
       {/* filter the table by name, club/group, or email */}
       <form>
@@ -599,11 +733,8 @@ export default function UploadMembers() {
           <ClearSearchButton
             onClick={(evt) => {
               evt.preventDefault();
-              setClubGroup("");
-              setName("");
-              setEmailFilter("");
-              setQuickFilters([]);
-              displayMembers(currentMembers);
+              resetFilters();
+              displayMembers(previewMode ? previewMembers : currentMembers);
             }}
           >
             Clear All
@@ -624,24 +755,51 @@ export default function UploadMembers() {
             </QuickFilterItem>
           </QuickFilterGroup>
           <FileUploadInstructions>
-            Uncheck the box next to an email address to mark it
-            non-deliverable.
+            {previewMode ||
+              "Uncheck the box next to an email address to mark it non-deliverable."}
           </FileUploadInstructions>
         </QuickFilterRow>
       </form>
 
-      <SaveChangesRow>
-        {Object.keys(pendingChanges).length > 0 && (
-          <>
-            <SaveChangesButton onClick={handleSaveChanges}>
-              Save Changes ({Object.keys(pendingChanges).length})
-            </SaveChangesButton>
-            <ClearSearchButton onClick={handleClearChanges}>
-              Clear Changes
-            </ClearSearchButton>
-          </>
-        )}
-      </SaveChangesRow>
+      {previewMode ? (
+        <Tooltip.Provider delayDuration={300}>
+          <SaveChangesRow>
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <SubmitPreviewButton type="button" onClick={handleSubmitUpload}>
+                  Submit
+                </SubmitPreviewButton>
+              </Tooltip.Trigger>
+              <TooltipContent side="bottom" sideOffset={4}>
+                Submit parsed data to server
+              </TooltipContent>
+            </Tooltip.Root>
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <ClearSearchButton type="button" onClick={handleCancelPreview}>
+                  Cancel
+                </ClearSearchButton>
+              </Tooltip.Trigger>
+              <TooltipContent side="bottom" sideOffset={4}>
+                Cancel this operation
+              </TooltipContent>
+            </Tooltip.Root>
+          </SaveChangesRow>
+        </Tooltip.Provider>
+      ) : (
+        <SaveChangesRow>
+          {Object.keys(pendingChanges).length > 0 && (
+            <>
+              <SaveChangesButton onClick={handleSaveChanges}>
+                Save Changes ({Object.keys(pendingChanges).length})
+              </SaveChangesButton>
+              <ClearSearchButton onClick={handleClearChanges}>
+                Clear Changes
+              </ClearSearchButton>
+            </>
+          )}
+        </SaveChangesRow>
+      )}
 
       <PaginationRow>
         <PaginationNav
@@ -665,27 +823,42 @@ export default function UploadMembers() {
               <th scope="col">Reg num</th>
               <th scope="col">Club</th>
               <th scope="col">WO grp</th>
+              {previewMode && <th scope="col">Gender</th>}
+              {previewMode && <th scope="col">Reg year</th>}
               <th scope="col">Primary email</th>
               <th scope="col">Secondary email</th>
               <th scope="col">Opt out</th>
             </tr>
           </thead>
           <tbody>
-            {pagedMembers?.map((member) => (
-              <tr key={member.usmsRegNo}>
-                <th scope="row">{member.fullName}</th>
+            {pagedMembers?.map((member, index) => (
+              <tr key={`${page}-${index}`}>
+                <th scope="row">
+                  {member.firstName || <MissingBadge>missing</MissingBadge>}{" "}
+                  {member.lastName || <MissingBadge>missing</MissingBadge>}
+                </th>
                 <td>
-                  <a
-                    href={`https://www.usms.org/people/${member.usmsRegNo.slice(-5)}`}
-                    target="_new"
-                  >
-                    {member.usmsRegNo}
-                  </a>
+                  {member.usmsRegNo ? (
+                    <a
+                      href={`https://www.usms.org/people/${member.usmsRegNo.slice(-5)}`}
+                      target="_new"
+                    >
+                      {member.usmsRegNo}
+                    </a>
+                  ) : (
+                    <MissingBadge>missing</MissingBadge>
+                  )}
                 </td>
-                <td>{member.club}</td>
+                <td>{member.club || <MissingBadge>missing</MissingBadge>}</td>
                 <td>{member.workoutGroup}</td>
-                <td>{renderEmailCell(member, 0)}</td>
-                <td>{renderEmailCell(member, 1)}</td>
+                {previewMode && (
+                  <td>{member.gender || <MissingBadge>missing</MissingBadge>}</td>
+                )}
+                {previewMode && (
+                  <td>{member.regYear || <MissingBadge>missing</MissingBadge>}</td>
+                )}
+                <td>{renderEmailCell(member, 0, previewMode)}</td>
+                <td>{renderEmailCell(member, 1, previewMode)}</td>
                 <td style={{ textAlign: "center" }}>
                   <EmailCheckbox
                     checked={member.emailExclude}
@@ -739,6 +912,21 @@ const FileUploadInstructions = styled.span`
   padding: 8px;
 `;
 
+const PreviewBanner = styled.p`
+  background-color: ${COLORS.accent[2]};
+  border: 1px solid ${COLORS.accent[9]};
+  border-radius: 6px;
+  padding: 8px 12px;
+`;
+
+const TooltipContent = styled(Tooltip.Content)`
+  background-color: ${COLORS.gray[12]};
+  color: white;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.85em;
+`;
+
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -748,7 +936,7 @@ const Form = styled.form`
   margin-left: -4px;
 `;
 
-const UpdateButton = styled(SubmitButton)`
+const SubmitPreviewButton = styled(SubmitButton)`
   display: inline-block;
   padding: 4px 8px;
   margin: 8px 0;
