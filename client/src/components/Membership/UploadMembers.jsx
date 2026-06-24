@@ -8,16 +8,18 @@ import {
   UPDATE_EMAIL_DELIVERABILITY,
 } from "../../utils/mutations";
 import { QUERY_MEMBERS } from "../../utils/queries";
-import papa from "papaparse";
 import { Check } from "react-feather";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import * as Tooltip from "@radix-ui/react-tooltip";
 
 import FileUploader from "../FileUploader";
 import getGroups from "../../utils/getGroups";
+import findMissingFields from "../../utils/findMissingFields";
+import parseCSVFile from "../../utils/parseCSVFile";
 import { COLORS, QUERIES, WEIGHTS } from "../../utils/constants";
 import SubmitButton from "../Styled/SubmiButton";
 import Table from "../Styled/Table";
+import MissingBadge from "../Styled/MissingBadge";
 import ToastMessage from "../ToastMessage";
 import Instructions from "./Instructions";
 import PaginationNav from "../PaginationNav";
@@ -111,18 +113,6 @@ const REQUIRED_MEMBER_FIELDS = [
   "club",
   "regYear",
 ];
-
-function findMissingMemberFields(memberData) {
-  const rowsByField = {};
-  memberData.forEach((member, index) => {
-    REQUIRED_MEMBER_FIELDS.forEach((field) => {
-      if (!member[field]) {
-        (rowsByField[field] ??= []).push(index);
-      }
-    });
-  });
-  return rowsByField;
-}
 
 // crash-proofed extraction of a parsed CSV row into MemberData's shape --
 // used both to build the preview (below) and the actual mutation variables,
@@ -451,28 +441,21 @@ export default function UploadMembers() {
   const handleFile = async (e) => {
     setFile(e.target.value);
     setMessage("");
-    let reader = new FileReader();
-    reader.readAsText(e.target.files[0]);
-    reader.onload = () => {
-      const results = papa.parse(reader.result, {
-        header: true,
-        dynamicTyping: true,
-        skipEmptyLines: true,
-      });
-      const rawRows = results.data;
-      setMembers([...rawRows]);
-      // build and show the preview immediately -- this is what entering
-      // preview mode means, same as a fresh DB query populating the table
-      const memberData = extractMemberData(rawRows);
-      const preview = buildPreviewMembers(memberData, currentMembers);
-      setPreviewMembers(preview);
-      resetFilters();
-      displayMembers(preview);
-    };
-    reader.onerror = () => {
-      console.log(reader.error);
-      setMessage(`File read error: ${reader.error}`);
-    };
+    let rawRows;
+    try {
+      rawRows = await parseCSVFile(e.target.files[0]);
+    } catch (error) {
+      setMessage(`File read error: ${error}`);
+      return;
+    }
+    setMembers([...rawRows]);
+    // build and show the preview immediately -- this is what entering
+    // preview mode means, same as a fresh DB query populating the table
+    const memberData = extractMemberData(rawRows);
+    const preview = buildPreviewMembers(memberData, currentMembers);
+    setPreviewMembers(preview);
+    resetFilters();
+    displayMembers(preview);
   };
 
   // Submit button handler -- uploads the previewed data to the Members
@@ -485,7 +468,7 @@ export default function UploadMembers() {
 
     // catch missing required fields here, before the GraphQL call, instead of
     // letting the server reject it -- see findMissingMemberFields above
-    const missingByField = findMissingMemberFields(memberData);
+    const missingByField = findMissingFields(memberData, REQUIRED_MEMBER_FIELDS);
     if (Object.keys(missingByField).length > 0) {
       const fieldSummary = Object.entries(missingByField)
         .map(
@@ -851,8 +834,8 @@ export default function UploadMembers() {
             {pagedMembers?.map((member, index) => (
               <tr key={`${page}-${index}`}>
                 <th scope="row">
-                  {member.firstName || <Missing>missing</Missing>}{" "}
-                  {member.lastName || <Missing>missing</Missing>}
+                  {member.firstName || <MissingBadge>missing</MissingBadge>}{" "}
+                  {member.lastName || <MissingBadge>missing</MissingBadge>}
                 </th>
                 <td>
                   {member.usmsRegNo ? (
@@ -863,16 +846,16 @@ export default function UploadMembers() {
                       {member.usmsRegNo}
                     </a>
                   ) : (
-                    <Missing>missing</Missing>
+                    <MissingBadge>missing</MissingBadge>
                   )}
                 </td>
-                <td>{member.club || <Missing>missing</Missing>}</td>
+                <td>{member.club || <MissingBadge>missing</MissingBadge>}</td>
                 <td>{member.workoutGroup}</td>
                 {previewMode && (
-                  <td>{member.gender || <Missing>missing</Missing>}</td>
+                  <td>{member.gender || <MissingBadge>missing</MissingBadge>}</td>
                 )}
                 {previewMode && (
-                  <td>{member.regYear || <Missing>missing</Missing>}</td>
+                  <td>{member.regYear || <MissingBadge>missing</MissingBadge>}</td>
                 )}
                 <td>{renderEmailCell(member, 0, previewMode)}</td>
                 <td>{renderEmailCell(member, 1, previewMode)}</td>
@@ -927,17 +910,6 @@ const Wrapper = styled.div`
 
 const FileUploadInstructions = styled.span`
   padding: 8px;
-`;
-
-// same urgent palette RosterTable.jsx uses for meet-roster missing fields --
-// reused here for the same purpose, not for the PREVIEW banner below (that
-// one means "this hasn't been saved yet", not "something's wrong")
-const Missing = styled.span`
-  color: ${COLORS.urgent_text};
-  background-color: ${COLORS.urgent_light};
-  border-radius: 4px;
-  padding: 1px 6px;
-  font-size: 0.85em;
 `;
 
 const PreviewBanner = styled.p`

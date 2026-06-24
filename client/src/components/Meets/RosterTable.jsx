@@ -12,6 +12,7 @@ import { Check } from "react-feather";
 
 import { COLORS, WEIGHTS } from "../../utils/constants";
 import Table from "../Styled/Table";
+import MissingBadge from "../Styled/MissingBadge";
 import { CheckboxRoot, CheckboxIndicator } from "../Styled/Checkbox";
 
 export default function RosterTable({ competitors, setCompetitors }) {
@@ -65,14 +66,14 @@ export default function RosterTable({ competitors, setCompetitors }) {
                       visible here instead of only surfacing as a cryptic
                       error when the leader tries to save */}
                   <th scope="row">
-                    {swimmer.firstName || <Missing>missing</Missing>}{" "}
-                    {swimmer.lastName || <Missing>missing</Missing>}
+                    {swimmer.firstName || <MissingBadge>missing</MissingBadge>}{" "}
+                    {swimmer.lastName || <MissingBadge>missing</MissingBadge>}
                   </th>
                   <td style={{ textAlign: "center" }}>
-                    {swimmer.gender || <Missing>missing</Missing>}
+                    {swimmer.gender || <MissingBadge>missing</MissingBadge>}
                   </td>
                   <td style={{ textAlign: "center" }}>
-                    {swimmer.meetAge || <Missing>missing</Missing>}
+                    {swimmer.meetAge || <MissingBadge>missing</MissingBadge>}
                   </td>
                   <td>
                     {swimmer.relays.map((eventNum) => eventNum).join(", ")}
@@ -129,14 +130,6 @@ const Wrapper = styled.div`
 const Checkbox = styled(CheckboxRoot)`
   width: 28px;
   height: 28px;
-`;
-
-const Missing = styled.span`
-  color: ${COLORS.urgent_text};
-  background-color: ${COLORS.urgent_light};
-  border-radius: 4px;
-  padding: 1px 6px;
-  font-size: 0.85em;
 `;
 
 const SeparatorRoot = styled(Separator.Root)`

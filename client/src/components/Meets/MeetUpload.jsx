@@ -3,13 +3,13 @@
  This component enables the upload of a CSV file containing meet rosters and their relay availability. The component also includes (as an accordian) instructions to generate that CSV file.
  */
 import styled from "styled-components";
-import papa from "papaparse";
 import * as Accordian from "@radix-ui/react-accordion";
 
 import { FieldSet } from "../Styled/FieldSet";
 import FileUploader from "../FileUploader";
 import AccordianItem from "../AccordianItem";
 import matchUSMS from "../../utils/matchUSMS";
+import parseCSVFile from "../../utils/parseCSVFile";
 import ErrorMessage from "../Styled/ErrorMessage";
 import { COLORS } from "../../utils/constants";
 
@@ -24,80 +24,71 @@ export default function MeetUpload({
 }) {
   // file input onchange event handler, which parses the CSV file
   const handleFile = async (e) => {
-    let reader = new FileReader();
-    reader.readAsText(e.target.files[0]);
-
-    // use react-hook-form to display any file read errors
     clearErrors("file");
-    reader.onerror = () => {
+    let rawRows;
+    try {
+      rawRows = await parseCSVFile(e.target.files[0]);
+    } catch (error) {
       setError("file", {
         type: "custom",
-        message: `File read error: ${reader.error}`,
+        message: `File read error: ${error}`,
       });
-    };
+      return;
+    }
 
-    // parsing file and setting connected variables
-    reader.onload = () => {
-      const results = papa.parse(reader.result, {
-        header: true,
-        dynamicTyping: true,
-        skipEmptyLines: true,
-      });
+    // obtain an array of relay events (array of strings)
+    const relayEvents = Object.keys(rawRows[0]).filter((prop) =>
+      /R\d+/.test(prop)
+    );
 
-      // obtain an array of relay events (array of strings)
-      const relayEvents = Object.keys(results.data[0]).filter((prop) =>
-        /R\d+/.test(prop)
-      );
+    // the "Meet Age" property has a lot of tabs and spaces between the words
+    // retrieve it for later use in extracting its value
+    const ageProp = Object.keys(rawRows[0]).filter(
+      (prop) => prop.includes("Meet") && prop.includes("Age")
+    );
 
-      // the "Meet Age" property has a lot of tabs and spaces between the words
-      // retrieve it for later use in extracting its value
-      const ageProp = Object.keys(results.data[0]).filter(
-        (prop) => prop.includes("Meet") && prop.includes("Age")
-      );
-
-      const meetSwimmers = results.data
-        // filter by club (VMST only)
-        .filter(({ Club }) => Club === "VMST")
-        // return object subset
-        .map((swimmer) => {
-          return {
-            _id: crypto.randomUUID(),
-            firstName: swimmer.First,
-            lastName: swimmer.Last,
-            meetAge: swimmer[ageProp],
-            gender: swimmer.Sex,
-            includeEmail: true, // by default
-            relays: relayEvents
-              .map((relay) => swimmer[relay])
-              .filter((number) => number !== null),
-          };
-        });
-
-      // for each competitor, find the best match among the registered members
-      const matchedCompetitors = meetSwimmers.map((swimmer) => {
-        // required to be the same gender
-        const filteredMembers = members.filter(
-          ({ gender }) => gender === swimmer.gender
-        );
-        const match = matchUSMS(swimmer, filteredMembers);
-        // add the top match to the swimmer object (want permanent rec)
-        // fall back to an empty placeholder if no USMS match was found
-        const member = match[0] || {
-          usmsId: "",
-          firstName: "",
-          lastName: "",
-          gender: "",
+    const meetSwimmers = rawRows
+      // filter by club (VMST only)
+      .filter(({ Club }) => Club === "VMST")
+      // return object subset
+      .map((swimmer) => {
+        return {
+          _id: crypto.randomUUID(),
+          firstName: swimmer.First,
+          lastName: swimmer.Last,
+          meetAge: swimmer[ageProp],
+          gender: swimmer.Sex,
+          includeEmail: true, // by default
+          relays: relayEvents
+            .map((relay) => swimmer[relay])
+            .filter((number) => number !== null),
         };
-        // don't include unmatched swimmers in emails by default
-        return { ...swimmer, member, includeEmail: Boolean(match[0]) };
       });
 
-      setRelayEventNumbers([...relayEvents]);
-      setCompetitors([...matchedCompetitors]);
-      // reset form and errors
-      clearErrors("roster");
-      uploadCloseEffect();
-    };
+    // for each competitor, find the best match among the registered members
+    const matchedCompetitors = meetSwimmers.map((swimmer) => {
+      // required to be the same gender
+      const filteredMembers = members.filter(
+        ({ gender }) => gender === swimmer.gender
+      );
+      const match = matchUSMS(swimmer, filteredMembers);
+      // add the top match to the swimmer object (want permanent rec)
+      // fall back to an empty placeholder if no USMS match was found
+      const member = match[0] || {
+        usmsId: "",
+        firstName: "",
+        lastName: "",
+        gender: "",
+      };
+      // don't include unmatched swimmers in emails by default
+      return { ...swimmer, member, includeEmail: Boolean(match[0]) };
+    });
+
+    setRelayEventNumbers([...relayEvents]);
+    setCompetitors([...matchedCompetitors]);
+    // reset form and errors
+    clearErrors("roster");
+    uploadCloseEffect();
   };
 
   return (
