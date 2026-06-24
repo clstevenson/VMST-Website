@@ -18,6 +18,28 @@ import { MeetButtons } from "./MeetFormButtons";
 import { SavedMeets } from "./SavedMeets";
 import ToastMessage from "../ToastMessage";
 
+// MeetSwimmerData's required fields (firstName/lastName/gender/meetAge) --
+// checked here, before ever building the GraphQL variables, so a CSV
+// missing a column (eg "Gender") is caught with a clear, specific message
+// instead of reaching the server and coming back as a raw graphql-js
+// variable-coercion error. Unlike the analogous fix for member-CSV uploads
+// (UploadMembers.jsx's summarizeMissingFieldErrors, which has to regex-parse
+// GraphQL error text), this works directly off the already-parsed JS objects
+// -- there's no error shape to reverse-engineer.
+const REQUIRED_SWIMMER_FIELDS = ["firstName", "lastName", "gender", "meetAge"];
+
+function findMissingSwimmerFields(competitors) {
+  const rowsByField = {};
+  competitors.forEach((swimmer, index) => {
+    REQUIRED_SWIMMER_FIELDS.forEach((field) => {
+      if (!swimmer[field]) {
+        (rowsByField[field] ??= []).push(index);
+      }
+    });
+  });
+  return rowsByField;
+}
+
 export default function Meets({ setTab }) {
   // array of objects containing competitors in the meet being displayed
   const [competitors, setCompetitors] = useState([]);
@@ -120,12 +142,27 @@ export default function Meets({ setTab }) {
 
   const onSubmit = async () => {
     // use react-hook-form for some errors, early return if any found
-    if (competitors.length === 0 || (endDate && endDate < startDate)) {
-      if (competitors.length === 0)
+    const missingByField = findMissingSwimmerFields(competitors);
+    const hasMissingFields = Object.keys(missingByField).length > 0;
+    if (
+      competitors.length === 0 ||
+      hasMissingFields ||
+      (endDate && endDate < startDate)
+    ) {
+      if (competitors.length === 0) {
         setError("roster", {
           type: "custom",
           message: "No meet roster found in memory",
         });
+      } else if (hasMissingFields) {
+        const fieldSummary = Object.entries(missingByField)
+          .map(([field, indices]) => `${field} (${indices.length} swimmer${indices.length === 1 ? "" : "s"})`)
+          .join(", ");
+        setError("roster", {
+          type: "custom",
+          message: `The roster is missing required information: ${fieldSummary}. This usually means a column was blank or missing in the uploaded CSV -- check the rows flagged "missing" in the table below, fix the CSV, and re-upload.`,
+        });
+      }
 
       if (endDate < startDate) {
         setError("endDate", {
@@ -236,8 +273,13 @@ export default function Meets({ setTab }) {
       setShowToast(true);
       setDeleted(true);
     } catch (error) {
-      console.log(error);
-      // display error to user
+      // use react-hook-form to display message, same pattern as onSubmit's
+      // "save" error -- a distinct key so a stale save error and a delete
+      // error can't be confused for each other
+      setError("delete", {
+        type: "custom",
+        message: `Error deleting meet: ${error.message}`,
+      });
     }
   };
 
@@ -290,6 +332,11 @@ export default function Meets({ setTab }) {
       {errors.save && (
         <ErrorMessage style={{ gridArea: "message", justifySelf: "center" }}>
           {errors.save.message}
+        </ErrorMessage>
+      )}
+      {errors.delete && (
+        <ErrorMessage style={{ gridArea: "message", justifySelf: "center" }}>
+          {errors.delete.message}
         </ErrorMessage>
       )}
 

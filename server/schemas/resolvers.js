@@ -558,40 +558,33 @@ contact the webmaster immediately by replying to this message.`,
         meetSwimmers,
         relays,
       };
-      try {
-        return await Meet.create(newMeet);
-      } catch (error) {
-        console.log(error);
-      }
+      // a schema-validator failure (eg an invalid course) throws naturally
+      // here and propagates to Apollo, same as addPost -- no try/catch
+      // swallowing it into a silent no-op
+      return await Meet.create(newMeet);
     },
     // edit a meet
     editMeet: async (_, { _id, meet, meetSwimmers, relays }, { user }) => {
       // only leaders can edit meets
       requireRole(user, "leader");
-      try {
-        // query-then-save so schema validators actually run
-        // each field is only assigned if actually provided
-        const updatedMeet = await Meet.findById(_id);
-        if (!updatedMeet) throw new Error("Meet not found");
-        if (meet) Object.assign(updatedMeet, meet);
-        if (meetSwimmers !== undefined) updatedMeet.meetSwimmers = meetSwimmers;
-        if (relays !== undefined) updatedMeet.relays = relays;
-        await updatedMeet.save();
-        return updatedMeet;
-      } catch (error) {
-        console.log(error);
-      }
+      // query-then-save so schema validators actually run
+      // each field is only assigned if actually provided
+      const updatedMeet = await Meet.findById(_id);
+      if (!updatedMeet) throw new Error("Meet not found");
+      if (meet) Object.assign(updatedMeet, meet);
+      if (meetSwimmers !== undefined) updatedMeet.meetSwimmers = meetSwimmers;
+      if (relays !== undefined) updatedMeet.relays = relays;
+      // a schema-validator failure (eg an invalid course) throws naturally,
+      // same as addMeet/addPost/editPost -- no try/catch swallowing it
+      await updatedMeet.save();
+      return updatedMeet;
     },
     // delete a meet
     deleteMeet: async (_, { _id }, { user }) => {
       // only leaders can delete meets
       requireRole(user, "leader");
-      try {
-        const deletedMeet = await Meet.findByIdAndDelete(_id);
-        return deletedMeet;
-      } catch (error) {
-        console.log(error);
-      }
+      const deletedMeet = await Meet.findByIdAndDelete(_id);
+      return deletedMeet;
     },
     // add a new post
     addPost: async (
