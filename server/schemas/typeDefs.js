@@ -98,6 +98,12 @@ type Auth {
   token: ID!
   user: User
 }
+
+# rolling 24h recipient count against the daily Gmail sending limit
+type EmailUsage {
+  count: Int!
+  limit: Int!
+}
 ####### input data types for convenience
 
 input UserData {
@@ -237,6 +243,7 @@ type Query {
   getPhotos(page: Int!, perPage: Int!, search: String): PhotoCollection
   getPhotoSizes(id: String!): Photo
   getPhotoInfo(id: String!): Photo
+  emailUsage: EmailUsage
 }
 
 type Mutation {

@@ -22,6 +22,7 @@ import {
   QUERY_VMST,
   QUERY_MEETS,
   QUERY_MEMBERS_BY_USMS_ID,
+  QUERY_EMAIL_USAGE,
 } from "../../utils/queries";
 import { EMAIL_GROUP } from "../../utils/mutations";
 import { COLORS, QUERIES } from "../../utils/constants";
@@ -101,6 +102,22 @@ export default function Communication({ setTab, userProfile }) {
       setOptOut(selectOptedOut(members));
     },
   });
+
+  // rolling 24h recipient count against the daily Gmail limit -- fetched on
+  // open and re-fetched after a send (not polled continuously, since the
+  // number only meaningfully changes when a batch actually goes out).
+  // cache-first would otherwise serve a stale count on every later remount
+  // of this tab within the same session (eg navigating away and back) --
+  // same staleness class as the earlier User.jsx/QUERY_USER bug, and here
+  // it especially matters since someone else's send between visits is a
+  // real, likely case, not just a hypothetical one
+  const { data: usageData, refetch: refetchUsage } = useQuery(
+    QUERY_EMAIL_USAGE,
+    { fetchPolicy: "cache-and-network" },
+  );
+  const emailUsage = usageData?.emailUsage ?? { count: 0, limit: 500 };
+  const projectedUsage = emailUsage.count + recipients.length;
+  const overLimitOnSend = projectedUsage > emailUsage.limit;
 
   useQuery(QUERY_MEETS, {
     onCompleted: (data) => {
@@ -189,12 +206,27 @@ export default function Communication({ setTab, userProfile }) {
         // trigger toast if successful
         if (data?.emailGroup) {
           setSent(true);
+          // reflect the just-sent batch in the counter right away, rather
+          // than waiting for the next time the page happens to be opened
+          refetchUsage();
         } else {
           setMessage(
             "Something went wrong sending the email. Please try again later.",
           );
         }
       } catch (error) {
+        const limitError = error.graphQLErrors?.find(
+          (e) => e.extensions?.code === "EMAIL_LIMIT_EXCEEDED",
+        );
+        if (limitError) {
+          const nextAvailable = new Date(
+            limitError.extensions.nextAvailable,
+          ).toLocaleString();
+          setMessage(
+            `${limitError.message} The next available time to send this batch is ${nextAvailable}.`,
+          );
+          return;
+        }
         console.log(error);
         setMessage(
           "Something went wrong sending the email. Please try again later.",
@@ -277,7 +309,20 @@ export default function Communication({ setTab, userProfile }) {
             >
               {anySelected ? "Deselect All" : "Select All"}
             </SelectButton>
+
+            <EmailCounter $urgent={emailUsage.count >= emailUsage.limit * 0.9}>
+              {emailUsage.count} / {emailUsage.limit} emails sent today
+            </EmailCounter>
           </SelectionWrapper>
+
+          {overLimitOnSend && (
+            <ErrorMessage>
+              Sending to all {recipients.length} selected recipients would
+              put today&apos;s total at {projectedUsage}, over the daily
+              limit of {emailUsage.limit}. Trim the recipient list, or wait
+              until more room frees up.
+            </ErrorMessage>
+          )}
 
           <SubjectWrapper>
             <label htmlFor="subject">Subject: </label>
@@ -401,6 +446,7 @@ const SelectionWrapper = styled.div`
   flex-direction: row;
   justify-content: left;
   align-items: center;
+  gap: 12px;
   max-width: var(--max-prose-width);
   width: 100%;
 
@@ -408,6 +454,24 @@ const SelectionWrapper = styled.div`
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
+  }
+`;
+
+const EmailCounter = styled.span`
+  margin-left: auto;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  ${(props) =>
+    props.$urgent &&
+    `
+      background-color: ${COLORS.urgent_light};
+      color: ${COLORS.urgent_text};
+      padding: 2px 8px;
+      border-radius: 4px;
+    `}
+
+  @media ${QUERIES.mobile} {
+    margin-left: 0;
   }
 `;
 

@@ -183,6 +183,16 @@ export const QUERY_MEMBERS_BY_USMS_ID = gql`
   }
 `;
 
+// rolling 24h recipient count against the daily Gmail sending limit
+export const QUERY_EMAIL_USAGE = gql`
+  query GetEmailUsage {
+    emailUsage {
+      count
+      limit
+    }
+  }
+`;
+
 // get a list of meets that have been saved into memory
 export const QUERY_MEETS = gql`
   query getMeets {

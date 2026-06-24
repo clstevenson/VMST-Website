@@ -24,6 +24,7 @@ let User;
 let Member;
 let Meet;
 let Post;
+let EmailLog;
 let auth;
 
 const users = {}; // role -> { _id, role }
@@ -61,6 +62,7 @@ test.before(async () => {
   Member = require("../models/Members");
   Meet = require("../models/Meets");
   Post = require("../models/Posts");
+  EmailLog = require("../models/EmailLog");
   auth = require("../utils/auth");
 
   await mongoose.connection.asPromise();
@@ -2373,4 +2375,107 @@ test("emailGroup: appends unsubscribe instructions with the membership coordinat
   assert.match(sent.html, /membership@example\.com/);
 
   await Member.findByIdAndDelete(recipient._id);
+});
+
+test("emailUsage: rejects unauthenticated and non-leader/coach roles, sums only entries within the last 24h", async () => {
+  await EmailLog.deleteMany({});
+  const within = await EmailLog.create({ recipientCount: 7 });
+  const expired = await EmailLog.create({
+    recipientCount: 999,
+    sentAt: new Date(Date.now() - 25 * 60 * 60 * 1000),
+  });
+
+  const unauth = await run(`{ emailUsage { count limit } }`, {}, null);
+  assert.ok(unauth.errors?.length);
+
+  const wrongRole = await run(
+    `{ emailUsage { count limit } }`,
+    {},
+    users.user,
+  );
+  assert.ok(wrongRole.errors?.length);
+
+  const { data, errors } = await run(
+    `{ emailUsage { count limit } }`,
+    {},
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.emailUsage.count, 7);
+  assert.equal(data.emailUsage.limit, 500);
+
+  await EmailLog.deleteMany({ _id: { $in: [within._id, expired._id] } });
+});
+
+test("emailGroup: succeeds right up to the daily limit", async () => {
+  await EmailLog.deleteMany({});
+  await EmailLog.create({ recipientCount: 499 });
+  const recipient = await Member.create({
+    usmsRegNo: "555525",
+    usmsId: "55525",
+    firstName: "AtLimit",
+    lastName: "Test",
+    gender: "F",
+    club: "VMST",
+    regYear: 2026,
+    emails: [makeEmail("at-limit@example.com")],
+  });
+
+  const { data, errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    {
+      emailData: { id: [recipient._id.toString()], subject: "Test", plainText: "test" },
+    },
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.emailGroup, true);
+
+  const usage = await run(`{ emailUsage { count } }`, {}, users.leader);
+  assert.equal(usage.data.emailUsage.count, 500);
+
+  await Member.findByIdAndDelete(recipient._id);
+  await EmailLog.deleteMany({});
+});
+
+test("emailGroup: refuses to send once it would exceed the daily limit, and reports when there will be room", async () => {
+  await EmailLog.deleteMany({});
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  const existing = await EmailLog.create({
+    recipientCount: 500,
+    sentAt: oneHourAgo,
+  });
+  const recipient = await Member.create({
+    usmsRegNo: "555526",
+    usmsId: "55526",
+    firstName: "OverLimit",
+    lastName: "Test",
+    gender: "M",
+    club: "VMST",
+    regYear: 2026,
+    emails: [makeEmail("over-limit@example.com")],
+  });
+
+  const before = sentMail.length;
+  const { errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    {
+      emailData: { id: [recipient._id.toString()], subject: "Test", plainText: "test" },
+    },
+    users.leader,
+  );
+  assert.equal(errors[0].extensions.code, "EMAIL_LIMIT_EXCEEDED");
+  const expectedNextAvailable = new Date(
+    oneHourAgo.getTime() + 24 * 60 * 60 * 1000,
+  );
+  assert.equal(
+    errors[0].extensions.nextAvailable,
+    expectedNextAvailable.toISOString(),
+  );
+  // confirms the rejection happened before sending or logging anything
+  assert.equal(sentMail.length, before);
+  assert.equal((await EmailLog.countDocuments()), 1);
+
+  await Member.findByIdAndDelete(recipient._id);
+  await EmailLog.findByIdAndDelete(existing._id);
 });
