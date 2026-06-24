@@ -20,6 +20,98 @@ import PaginationNav from "../PaginationNav";
 import MembersPerPage from "./MembersPerPage";
 import { CheckboxRoot, CheckboxIndicator } from "../Styled/Checkbox";
 
+// graphql-js's own (stable, version-pinned) wording for a missing required
+// input field, eg:
+// Variable "$memberData" got invalid value {...} at "memberData[3]"; Field
+// "gender" of required type "String!" was not provided.
+// A CSV missing a column (eg a skipped export step) produces one of these
+// per missing field per row -- which Apollo concatenates into one wall of
+// near-identical paragraphs. If every error in the response matches this
+// shape, summarize by field/row count instead of dumping all of them; if
+// even one doesn't match (eg a wrong-type value, not just a missing one),
+// bail out to the raw message rather than risk hiding something different.
+const MISSING_FIELD_PATTERN =
+  /at "memberData\[(\d+)\]"; Field "([^"]+)" of required type "[^"]+!" was not provided\./;
+
+// graphql-js caps variable-coercion errors at 50 and appends one final,
+// differently-shaped error announcing the cutoff -- routine for any CSV
+// missing more than ~25 required-field rows (2 errors/row), not a sign that
+// something unexpected happened, so it's stripped out before the "did every
+// error match the expected shape" check rather than causing a bail-out
+const ERROR_LIMIT_PATTERN = /error limit reached/;
+
+function summarizeMissingFieldErrors(err, members) {
+  const allErrors = err.graphQLErrors ?? [];
+  const truncated = allErrors.some((e) => ERROR_LIMIT_PATTERN.test(e.message));
+  const relevantErrors = truncated
+    ? allErrors.filter((e) => !ERROR_LIMIT_PATTERN.test(e.message))
+    : allErrors;
+
+  const badInputErrors = relevantErrors.filter(
+    (gqlError) => gqlError.extensions?.code === "BAD_USER_INPUT"
+  );
+  if (!badInputErrors.length || badInputErrors.length !== relevantErrors.length) {
+    return null;
+  }
+
+  const rowsByField = {};
+  for (const gqlError of badInputErrors) {
+    const match = gqlError.message.match(MISSING_FIELD_PATTERN);
+    if (!match) return null;
+    const [, indexStr, field] = match;
+    (rowsByField[field] ??= new Set()).add(Number(indexStr));
+  }
+
+  const affectedRows = new Set(
+    Object.values(rowsByField).flatMap((rows) => [...rows])
+  );
+  const fieldSummary = Object.entries(rowsByField)
+    .map(([field, rows]) => `${field} (${rows.size} row${rows.size === 1 ? "" : "s"})`)
+    .join(", ");
+  const firstRow = members[Math.min(...affectedRows)];
+  const example = firstRow
+    ? ` First problem row: ${firstRow["First Name"]} ${firstRow["Last Name"]} (USMS # ${firstRow["USMS Number"]}).`
+    : "";
+  const countLabel = truncated ? `${affectedRows.size}+` : `${affectedRows.size}`;
+  const truncatedNote = truncated
+    ? " (the server stopped counting after 50 problems -- there may be more than shown)"
+    : "";
+
+  return (
+    `${countLabel} row(s) are missing required field(s): ${fieldSummary}${truncatedNote}. ` +
+    `This usually means a column was blank or the export skipped a step -- ` +
+    `check the upload instructions and re-upload.${example}`
+  );
+}
+
+// MemberData's required fields (everything but workoutGroup/emails/emailExclude
+// in typeDefs.js) -- checked here, before the GraphQL call, so a CSV missing a
+// column is caught with a clear, specific message instead of either crashing
+// (see the optional chaining in handleFormSubmit's extraction below) or
+// reaching the server and coming back as a raw graphql-js variable-coercion
+// error. Same pattern as Meets.jsx's findMissingSwimmerFields.
+const REQUIRED_MEMBER_FIELDS = [
+  "usmsRegNo",
+  "usmsId",
+  "firstName",
+  "lastName",
+  "gender",
+  "club",
+  "regYear",
+];
+
+function findMissingMemberFields(memberData) {
+  const rowsByField = {};
+  memberData.forEach((member, index) => {
+    REQUIRED_MEMBER_FIELDS.forEach((field) => {
+      if (!member[field]) {
+        (rowsByField[field] ??= []).push(index);
+      }
+    });
+  });
+  return rowsByField;
+}
+
 export default function UploadMembers() {
   const { user } = useAuth();
   // state representing new members data uploaded from user
@@ -51,7 +143,7 @@ export default function UploadMembers() {
   const [perPage, setPerPage] = useState(100);
   // mutation to update the Members collection in the CB
   // (used in form onSubmit event handler)
-  const [upload, { error }] = useMutation(UPLOAD_MEMBERS);
+  const [upload] = useMutation(UPLOAD_MEMBERS);
   // state representing success of DB update
   const [updated, setUpdated] = useState(false);
 
@@ -61,23 +153,14 @@ export default function UploadMembers() {
   const [saveDeliverability] = useMutation(UPDATE_EMAIL_DELIVERABILITY);
   const [savedChanges, setSavedChanges] = useState(false);
 
-  // retrieve DB membership info
-  useQuery(QUERY_MEMBERS, {
-    onCompleted: (data) => {
-      setCurrentMembers(data.members);
-      setNumMembers(data.members.length);
-      setNumVMST(
-        data.members.filter((member) => member.club === "VMST").length
-      );
-      setNumReachable(data.members.filter(isReachable).length);
-      setNumReachableVMST(
-        data.members.filter(
-          (member) => member.club === "VMST" && isReachable(member)
-        ).length
-      );
-      setGroups(getGroups(data.members));
-      displayMembers(data.members);
-    },
+  // retrieve DB membership info. cache-and-network (not the default
+  // cache-first) because this page's own mutations write the DB directly
+  // without going through Apollo's normalized cache for this query -- without
+  // it, navigating away and back via client-side routing shows stale data
+  // until a full reload
+  const { refetch: refetchMembers } = useQuery(QUERY_MEMBERS, {
+    fetchPolicy: "cache-and-network",
+    onCompleted: (data) => applyMemberList(data.members),
   });
 
   // a member is reachable by email if they haven't opted out and have at
@@ -85,6 +168,23 @@ export default function UploadMembers() {
   const isReachable = (member) =>
     !member.emailExclude &&
     member.emails.some((email) => email.formatValid && email.deliverable);
+
+  // shared by the initial query, a full upload success, and a refetch after
+  // a partial upload failure -- all three need to push a fresh member list
+  // into every derived piece of state the same way
+  const applyMemberList = (members) => {
+    setCurrentMembers(members);
+    setNumMembers(members.length);
+    setNumVMST(members.filter((member) => member.club === "VMST").length);
+    setNumReachable(members.filter(isReachable).length);
+    setNumReachableVMST(
+      members.filter(
+        (member) => member.club === "VMST" && isReachable(member)
+      ).length
+    );
+    setGroups(getGroups(members));
+    displayMembers(members);
+  };
 
   // function to extract data to display in members table
   const displayMembers = (members) => {
@@ -243,11 +343,13 @@ export default function UploadMembers() {
     const memberData = members.map((member) => {
       const obj = {};
       obj.usmsRegNo = member["USMS Number"];
-      obj.usmsId = member["USMS Number"].slice(-5);
+      // optional chaining/fallback: a missing CSV column must never crash
+      // this handler outright (it used to -- see MissingFieldClientCheck.org)
+      obj.usmsId = member["USMS Number"]?.slice(-5) ?? "";
       obj.firstName = member["First Name"];
       obj.lastName = member["Last Name"];
       obj.gender = member.Gender;
-      obj.club = member.Club.toString();
+      obj.club = member.Club?.toString() ?? "";
       obj.workoutGroup = member["WO Group"];
       obj.regYear = member["Reg. Year"];
       obj.emails = [];
@@ -259,31 +361,63 @@ export default function UploadMembers() {
       return obj;
     });
 
+    // catch missing required fields here, before the GraphQL call, instead of
+    // letting the server reject it -- see findMissingMemberFields above
+    const missingByField = findMissingMemberFields(memberData);
+    if (Object.keys(missingByField).length > 0) {
+      const fieldSummary = Object.entries(missingByField)
+        .map(
+          ([field, rows]) =>
+            `${field} (${rows.length} row${rows.length === 1 ? "" : "s"})`
+        )
+        .join(", ");
+      const affectedRows = new Set(Object.values(missingByField).flat());
+      const firstRow = members[Math.min(...affectedRows)];
+      const example = firstRow
+        ? ` First problem row: ${firstRow["First Name"] ?? "?"} ${firstRow["Last Name"] ?? "?"} (USMS # ${firstRow["USMS Number"] ?? "?"}).`
+        : "";
+      setMessage(
+        `${affectedRows.size} row(s) are missing required field(s): ${fieldSummary}. ` +
+          `This usually means a column was blank or the export skipped a step -- ` +
+          `check the upload instructions and re-upload.${example}`
+      );
+      return;
+    }
+
     // update the DB
-    const { data } = await upload({ variables: { memberData } });
+    let data;
+    try {
+      ({ data } = await upload({ variables: { memberData } }));
+    } catch (err) {
+      const partialFailure = err.graphQLErrors?.find(
+        (gqlError) => gqlError.extensions?.code === "UPLOAD_PARTIAL_FAILURE"
+      );
+      if (partialFailure) {
+        // the rows that didn't collide are already persisted -- refresh the
+        // table from the DB rather than leaving it showing pre-upload data
+        const { succeededCount, failedCount, failures } =
+          partialFailure.extensions;
+        const failedList = failures
+          .map((f) => `${f.name ?? "unknown"} (USMS ID ${f.usmsId ?? "?"})`)
+          .join(", ");
+        setMessage(
+          `Uploaded ${succeededCount} member(s), but ${failedCount} failed and were NOT updated: ${failedList}. Fix those rows and re-upload.`
+        );
+        const refreshed = await refetchMembers();
+        applyMemberList(refreshed.data.members);
+      } else {
+        const summary = summarizeMissingFieldErrors(err, members);
+        setMessage(summary ?? `Upload failed: ${err.message}. Please try again.`);
+      }
+      // leave file/members alone on failure so the coordinator can retry
+      // without re-choosing the file
+      return;
+    }
 
     if (data.uploadMembers.length === 0) {
-      setMessage(`There was a problem: ${error}`);
+      setMessage("There was a problem: no members were uploaded.");
     } else {
-      // update the variable representing members in DB
-      setCurrentMembers(data.uploadMembers);
-      // update some state vars: members, member stats
-      // these will trigger update of the member table (should that be a spearate component?)
-      setNumMembers(data.uploadMembers.length);
-      setNumVMST(
-        data.uploadMembers.filter((member) => member.club === "VMST").length
-      );
-      setNumReachable(data.uploadMembers.filter(isReachable).length);
-      setNumReachableVMST(
-        data.uploadMembers.filter(
-          (member) => member.club === "VMST" && isReachable(member)
-        ).length
-      );
-      setGroups(getGroups(data.uploadMembers));
-
-      // display the new data
-      displayMembers(data.uploadMembers);
-
+      applyMemberList(data.uploadMembers);
       // show Toast Message
       setUpdated(true);
     }

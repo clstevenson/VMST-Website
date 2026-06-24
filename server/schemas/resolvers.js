@@ -412,34 +412,46 @@ const resolvers = {
       if (args._id !== user._id && user.role !== "webmaster") {
         throw AuthenticationError;
       }
-      try {
-        // don't attempt to update password here
-        delete args.user.password;
-        // only the webmaster can change roles or account status (eg a
-        // banned user could otherwise just un-ban themselves)
-        if (user.role !== "webmaster") {
-          delete args.user.role;
-          delete args.user.accountStatus;
-        }
-        // query-then-save so schema validators actually run
-        const updatedUser = await User.findById(args._id);
-        if (!updatedUser) throw AuthenticationError;
-        // changing email means "verified" would otherwise keep referring
-        // to an address the account no longer uses
-        const emailChanged =
-          args.user.email && args.user.email !== updatedUser.email;
-        Object.assign(updatedUser, args.user);
-        if (emailChanged) updatedUser.emailVerified = false;
-        await updatedUser.save();
-        if (emailChanged) {
-          sendVerificationEmail(updatedUser).catch((err) =>
-            console.error("sendVerificationEmail failed:", err),
-          );
-        }
-        return updatedUser;
-      } catch (err) {
-        console.log(err);
+      // don't attempt to update password here
+      delete args.user.password;
+      // only the webmaster can change roles or account status (eg a
+      // banned user could otherwise just un-ban themselves)
+      if (user.role !== "webmaster") {
+        delete args.user.role;
+        delete args.user.accountStatus;
       }
+      // query-then-save so schema validators actually run
+      const updatedUser = await User.findById(args._id);
+      if (!updatedUser) throw AuthenticationError;
+      // changing email means "verified" would otherwise keep referring
+      // to an address the account no longer uses
+      const emailChanged =
+        args.user.email && args.user.email !== updatedUser.email;
+      Object.assign(updatedUser, args.user);
+      if (emailChanged) updatedUser.emailVerified = false;
+      try {
+        await updatedUser.save();
+      } catch (err) {
+        // email's uniqueness is enforced by a DB-level index, not a Mongoose
+        // validator, so a collision surfaces as a raw driver error (eg
+        // "E11000 duplicate key error collection: ... dup key: { email:
+        // ... }") -- not something to show a user directly. Any other save
+        // failure (eg the match validator rejecting a malformed email)
+        // already has a clean, client-presentable message, so it propagates
+        // unwrapped, same as addPost/editPost.
+        if (err.code === 11000) {
+          throw new GraphQLError("That email address is already in use.", {
+            extensions: { code: "DUPLICATE_EMAIL" },
+          });
+        }
+        throw err;
+      }
+      if (emailChanged) {
+        sendVerificationEmail(updatedUser).catch((err) =>
+          console.error("sendVerificationEmail failed:", err),
+        );
+      }
+      return updatedUser;
     },
     // permanently removes a user's account; webmaster only
     deleteUser: async (_, { _id }, { user }) => {
@@ -546,40 +558,33 @@ contact the webmaster immediately by replying to this message.`,
         meetSwimmers,
         relays,
       };
-      try {
-        return await Meet.create(newMeet);
-      } catch (error) {
-        console.log(error);
-      }
+      // a schema-validator failure (eg an invalid course) throws naturally
+      // here and propagates to Apollo, same as addPost -- no try/catch
+      // swallowing it into a silent no-op
+      return await Meet.create(newMeet);
     },
     // edit a meet
     editMeet: async (_, { _id, meet, meetSwimmers, relays }, { user }) => {
       // only leaders can edit meets
       requireRole(user, "leader");
-      try {
-        // query-then-save so schema validators actually run
-        // each field is only assigned if actually provided
-        const updatedMeet = await Meet.findById(_id);
-        if (!updatedMeet) throw new Error("Meet not found");
-        if (meet) Object.assign(updatedMeet, meet);
-        if (meetSwimmers !== undefined) updatedMeet.meetSwimmers = meetSwimmers;
-        if (relays !== undefined) updatedMeet.relays = relays;
-        await updatedMeet.save();
-        return updatedMeet;
-      } catch (error) {
-        console.log(error);
-      }
+      // query-then-save so schema validators actually run
+      // each field is only assigned if actually provided
+      const updatedMeet = await Meet.findById(_id);
+      if (!updatedMeet) throw new Error("Meet not found");
+      if (meet) Object.assign(updatedMeet, meet);
+      if (meetSwimmers !== undefined) updatedMeet.meetSwimmers = meetSwimmers;
+      if (relays !== undefined) updatedMeet.relays = relays;
+      // a schema-validator failure (eg an invalid course) throws naturally,
+      // same as addMeet/addPost/editPost -- no try/catch swallowing it
+      await updatedMeet.save();
+      return updatedMeet;
     },
     // delete a meet
     deleteMeet: async (_, { _id }, { user }) => {
       // only leaders can delete meets
       requireRole(user, "leader");
-      try {
-        const deletedMeet = await Meet.findByIdAndDelete(_id);
-        return deletedMeet;
-      } catch (error) {
-        console.log(error);
-      }
+      const deletedMeet = await Meet.findByIdAndDelete(_id);
+      return deletedMeet;
     },
     // add a new post
     addPost: async (
@@ -631,32 +636,31 @@ contact the webmaster immediately by replying to this message.`,
       if (!updatedPost.posted && updatedPost.author?.userId !== user._id) {
         throw AuthenticationError;
       }
-      try {
-        updatedPost.title = title;
-        updatedPost.summary = summary;
-        updatedPost.content = content;
-        // assigning undefined and saving unsets the subdocument entirely,
-        // equivalent to the previous $unset: { photo: 1 }
-        updatedPost.photo = photo.id ? photo : undefined;
-        // only stamp postedAt the moment a draft actually goes live;
-        // re-saving an already-published post must not change it
-        const isPosted = posted ?? updatedPost.posted;
-        const isPublishing = isPosted && !updatedPost.posted;
-        if (isPublishing) {
-          updatedPost.postedAt = new Date();
-        }
-        updatedPost.posted = isPosted;
-        await updatedPost.save();
-        // fire-and-forget -- see addPost for why this isn't awaited
-        if (isPublishing) {
-          notifySubscribers(updatedPost).catch((err) =>
-            console.error("notifySubscribers failed:", err),
-          );
-        }
-        return updatedPost;
-      } catch (error) {
-        console.log(error);
+      updatedPost.title = title;
+      updatedPost.summary = summary;
+      updatedPost.content = content;
+      // assigning undefined and saving unsets the subdocument entirely,
+      // equivalent to the previous $unset: { photo: 1 }
+      updatedPost.photo = photo.id ? photo : undefined;
+      // only stamp postedAt the moment a draft actually goes live;
+      // re-saving an already-published post must not change it
+      const isPosted = posted ?? updatedPost.posted;
+      const isPublishing = isPosted && !updatedPost.posted;
+      if (isPublishing) {
+        updatedPost.postedAt = new Date();
       }
+      updatedPost.posted = isPosted;
+      // a schema-validator failure (eg a malformed embedded photo subdoc)
+      // throws naturally here and propagates to Apollo, same as addPost --
+      // no try/catch swallowing it into a silent no-op
+      await updatedPost.save();
+      // fire-and-forget -- see addPost for why this isn't awaited
+      if (isPublishing) {
+        notifySubscribers(updatedPost).catch((err) =>
+          console.error("notifySubscribers failed:", err),
+        );
+      }
+      return updatedPost;
     },
     deletePost: async (_, { _id }, { user }) => {
       // only leaders can delete posts
@@ -748,6 +752,7 @@ contact the webmaster immediately by replying to this message.`,
 
       // upsert everyone in the new upload -- never drop the collection, so a
       // bad record (or a partial failure) can't take the whole roster with it
+      let failures = [];
       if (finalMembers.length > 0) {
         try {
           await Member.bulkWrite(
@@ -761,14 +766,47 @@ contact the webmaster immediately by replying to this message.`,
             { ordered: false },
           );
         } catch (err) {
+          if (!err.writeErrors?.length) {
+            // not a per-row failure shape (eg a dropped connection
+            // mid-batch) -- we have no reliable idea what succeeded, so
+            // don't run the "anyone missing has left" cleanup below against
+            // an untrustworthy comparison; just surface that it failed
+            throw new GraphQLError(`Member upload failed: ${err.message}`, {
+              extensions: { code: "UPLOAD_FAILED" },
+            });
+          }
           // ordered:false means whatever succeeded is already persisted;
-          // log and continue rather than losing that progress
-          console.error(err);
+          // collect the per-row failures (eg a duplicate usmsRegNo across two
+          // different usmsIds violating its unique index) so they can be
+          // reported below, rather than losing that progress *or* the fact
+          // that some rows didn't make it
+          failures = err.writeErrors.map((writeError) => {
+            const member = finalMembers[writeError.index];
+            return {
+              usmsId: member?.usmsId,
+              name: member ? `${member.firstName} ${member.lastName}` : null,
+              message: writeError.errmsg,
+            };
+          });
         }
       }
 
       // anyone in the DB but not in this upload has left the LMSC
       await Member.deleteMany({ usmsId: { $nin: newUsmsIds } });
+
+      if (failures.length > 0) {
+        throw new GraphQLError(
+          `${failures.length} of ${newUsmsIds.length} members failed to upload`,
+          {
+            extensions: {
+              code: "UPLOAD_PARTIAL_FAILURE",
+              succeededCount: newUsmsIds.length - failures.length,
+              failedCount: failures.length,
+              failures,
+            },
+          },
+        );
+      }
 
       return await Member.find({ usmsId: { $in: newUsmsIds } });
     },

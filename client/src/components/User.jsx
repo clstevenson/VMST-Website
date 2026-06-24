@@ -123,7 +123,8 @@ export default function User({ userProfile }) {
     evt.preventDefault();
     const { firstName, lastName, email, notifications, emailPermission } = user;
     try {
-      // submit the "user" state to the server for updating
+      // submit the "user" state to the server for updating. editUser either
+      // returns the updated user or throws (eg DUPLICATE_EMAIL), caught below
       const {
         data: { editUser: updatedUser },
       } = await editUser({
@@ -132,14 +133,6 @@ export default function User({ userProfile }) {
           user: { firstName, lastName, email, notifications, emailPermission },
         },
       });
-      // check that we got something back
-      if (!updatedUser) {
-        // need to send a message to the user
-        setMessage(
-          "Something went wrong on the server; possibly the email address you chose is already in use.",
-        );
-        return;
-      }
       // trigger Toast
       setProfileUpdated(true);
       // pick up server-side side effects not reflected in local edits,
@@ -305,9 +298,7 @@ export default function User({ userProfile }) {
                 <Check strokeWidth={3} />
               </CheckboxIndicator>
             </CheckboxRoot>
-            <label htmlFor="link-member">
-              Link account to USMS membership
-            </label>
+            <label htmlFor="link-member">Link account to USMS membership</label>
             <Popover.Root>
               <Popover.Trigger asChild>
                 <HelpIconButton type="button" aria-label="Why link my account?">
@@ -319,11 +310,14 @@ export default function User({ userProfile }) {
                   <p>Linking your account to your USMS membership lets you:</p>
                   <ol>
                     <li>
-                      Override USMS email preferences (receive emails from
-                      VMST and your workout group while opting out of
-                      messages from USMS)
+                      Override USMS email preferences (receive emails from VMST
+                      and your workout group while opting out of messages from
+                      USMS)
                     </li>
-                    <li>Coming soon: personalized display of results and other info</li>
+                    <li>
+                      Coming soon: personalized display of results and other
+                      info
+                    </li>
                   </ol>
                   <Popover.Arrow />
                 </HelpPopoverContent>
@@ -369,7 +363,12 @@ export default function User({ userProfile }) {
             </Description>
           )}
         </CommunicationsWrapper>
-        {isProfileChanged() && <ErrorMessage>Profile has changed</ErrorMessage>}
+        {isProfileChanged() && (
+          <ErrorMessage>
+            Profile has changed; click a button below to Save or Discard
+            changes.
+          </ErrorMessage>
+        )}
         {message && <ErrorMessage>{message}</ErrorMessage>}
       </UserForm>
 

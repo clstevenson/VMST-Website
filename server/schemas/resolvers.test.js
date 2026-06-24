@@ -452,7 +452,19 @@ test("editUser: webmaster can edit another user's record", async () => {
   assert.equal(data.editUser.firstName, "UpdatedByWebmaster");
 });
 
-test("editUser: a malformed email is rejected by the schema validator (restored via query-then-save) instead of being silently saved", async () => {
+test("editUser: a webmaster editing a since-deleted user's ID gets a real authentication error, not a silent null", async () => {
+  const { data, errors } = await run(
+    `mutation($id: ID!, $user: UserData) {
+      editUser(_id: $id, user: $user) { firstName }
+    }`,
+    { id: new mongoose.Types.ObjectId().toString(), user: { firstName: "Ghost" } },
+    users.webmaster,
+  );
+  assert.equal(errors[0].extensions.code, "UNAUTHENTICATED");
+  assert.equal(data.editUser, null);
+});
+
+test("editUser: a malformed email is rejected by the schema validator and surfaced as a real GraphQL error (restored via query-then-save) instead of being silently saved", async () => {
   const { data, errors } = await run(
     `mutation($id: ID!, $user: UserData) {
       editUser(_id: $id, user: $user) { email }
@@ -460,10 +472,28 @@ test("editUser: a malformed email is rejected by the schema validator (restored 
     { id: users.user._id, user: { email: "not-an-email" } },
     users.user,
   );
-  // editUser's catch block logs and swallows errors rather than
-  // rethrowing (pre-existing style, not changed here) -- so the
-  // regression to guard against is the DB write, not a GraphQL error
-  assert.equal(errors, undefined);
+  // editUser no longer swallows the validator failure -- it propagates
+  // naturally (same as addPost/editPost), so the client gets a real,
+  // specific error message instead of an empty, success-shaped response
+  assert.match(errors[0].message, /email/i);
+  assert.equal(data.editUser, null);
+
+  const stillOriginal = await User.findById(users.user._id);
+  assert.equal(stillOriginal.email, "user@example.com");
+});
+
+test("editUser: claiming an email already in use by another account is rejected with a clean DUPLICATE_EMAIL error, not the raw driver message", async () => {
+  const { data, errors } = await run(
+    `mutation($id: ID!, $user: UserData) {
+      editUser(_id: $id, user: $user) { email }
+    }`,
+    // leader@example.com already belongs to users.leader
+    { id: users.user._id, user: { email: "leader@example.com" } },
+    users.user,
+  );
+  assert.equal(errors[0].extensions.code, "DUPLICATE_EMAIL");
+  assert.equal(errors[0].message, "That email address is already in use.");
+  assert.doesNotMatch(errors[0].message, /E11000|duplicate key|collection/);
   assert.equal(data.editUser, null);
 
   const stillOriginal = await User.findById(users.user._id);
@@ -1030,7 +1060,7 @@ test("editPost: leader can edit a post", async () => {
   }
 });
 
-test("editPost: a photo missing its required flickrURL is rejected by the schema validator (restored via query-then-save), and omitting photo entirely unsets it", async () => {
+test("editPost: a photo missing its required flickrURL is rejected by the schema validator and surfaced as a real GraphQL error (restored via query-then-save), and omitting photo entirely unsets it", async () => {
   const post = await Post.create({
     title: "Has a photo",
     content: "<p>Content</p>",
@@ -1049,9 +1079,6 @@ test("editPost: a photo missing its required flickrURL is rejected by the schema
   }`;
 
   try {
-    // editPost's catch block logs and swallows errors rather than
-    // rethrowing (pre-existing style, not changed here) -- so the
-    // regression to guard against is the DB write, not a GraphQL error
     const { data: badData, errors: badErrors } = await run(
       mutation,
       {
@@ -1064,7 +1091,10 @@ test("editPost: a photo missing its required flickrURL is rejected by the schema
       },
       users.leader,
     );
-    assert.equal(badErrors, undefined);
+    // editPost no longer swallows the validator failure -- it propagates
+    // naturally (same as addPost), so the client gets a real, specific
+    // error message instead of an empty, success-shaped response
+    assert.match(badErrors[0].message, /flickrURL.*required/);
     assert.equal(badData.editPost, null);
 
     const stillOriginal = await Post.findById(post._id);
@@ -1527,7 +1557,7 @@ test("addMeet and deleteMeet: reject a coach (leader-only, unlike meets/vmstMemb
   assert.ok(await Meet.findById(existingMeet._id));
 });
 
-test("editMeet: a leader can edit a meet; an invalid course is rejected by the schema validator (restored via query-then-save) without touching unrelated fields", async () => {
+test("editMeet: a leader can edit a meet; an invalid course is rejected by the schema validator and surfaced as a real GraphQL error (restored via query-then-save) without touching unrelated fields", async () => {
   const meet = await Meet.create({
     meetName: "Editable Meet",
     course: "SCY",
@@ -1552,9 +1582,9 @@ test("editMeet: a leader can edit a meet; an invalid course is rejected by the s
     assert.equal(data.editMeet.meetName, "Renamed Meet");
     assert.equal(data.editMeet.course, "SCY");
 
-    // editMeet's catch block logs and swallows errors rather than
-    // rethrowing (pre-existing style, not changed here) -- so the
-    // regression to guard against is the DB write, not a GraphQL error
+    // editMeet no longer swallows the validator failure -- it propagates
+    // naturally (same as addPost/editPost), so the client gets a real,
+    // specific error message instead of an empty, success-shaped response
     const { data: badData, errors: badErrors } = await run(
       `mutation($id: ID!, $meet: MeetData) {
         editMeet(_id: $id, meet: $meet) { meetName course startDate }
@@ -1569,7 +1599,7 @@ test("editMeet: a leader can edit a meet; an invalid course is rejected by the s
       },
       users.leader,
     );
-    assert.equal(badErrors, undefined);
+    assert.match(badErrors[0].message, /not-a-real-course.*not a valid course/);
     assert.equal(badData.editMeet, null);
 
     const stillThere = await Meet.findById(meet._id);
@@ -1578,6 +1608,21 @@ test("editMeet: a leader can edit a meet; an invalid course is rejected by the s
   } finally {
     await Meet.findByIdAndDelete(meet._id);
   }
+});
+
+test("editMeet: editing a since-deleted meet's ID gets a real \"Meet not found\" error, not a silent null", async () => {
+  const { data, errors } = await run(
+    `mutation($id: ID!, $meet: MeetData) {
+      editMeet(_id: $id, meet: $meet) { meetName }
+    }`,
+    {
+      id: new mongoose.Types.ObjectId().toString(),
+      meet: { meetName: "Ghost", course: "SCY", startDate: "2026-02-01" },
+    },
+    users.leader,
+  );
+  assert.equal(errors[0].message, "Meet not found");
+  assert.equal(data.editMeet, null);
 });
 
 test("addMeet, emailGroup, deleteMeet: real Nationals roster matched against the just-uploaded members", async () => {
@@ -2478,4 +2523,111 @@ test("emailGroup: refuses to send once it would exceed the daily limit, and repo
 
   await Member.findByIdAndDelete(recipient._id);
   await EmailLog.findByIdAndDelete(existing._id);
+});
+
+test("uploadMembers: a duplicate usmsRegNo across two different usmsIds fails only that row, reports it via UPLOAD_PARTIAL_FAILURE, and still upserts every other row", async () => {
+  const memberData = [
+    {
+      usmsRegNo: "DUP-REG",
+      usmsId: "TESTC",
+      firstName: "First",
+      lastName: "Collider",
+      gender: "F",
+      club: "VMST",
+      regYear: 2026,
+      emails: ["testc@example.com"],
+      emailExclude: false,
+    },
+    {
+      // same usmsRegNo as above on purpose -- usmsRegNo has its own unique
+      // index, independent of the usmsId dedupe key, so this collides
+      usmsRegNo: "DUP-REG",
+      usmsId: "TESTD",
+      firstName: "Second",
+      lastName: "Collider",
+      gender: "F",
+      club: "VMST",
+      regYear: 2026,
+      emails: ["testd@example.com"],
+      emailExclude: false,
+    },
+    {
+      usmsRegNo: "TEST-OK",
+      usmsId: "TESTE",
+      firstName: "Unaffected",
+      lastName: "Row",
+      gender: "M",
+      club: "VMST",
+      regYear: 2026,
+      emails: ["teste@example.com"],
+      emailExclude: false,
+    },
+  ];
+
+  const mutation = `mutation($memberData: [MemberData]) {
+    uploadMembers(memberData: $memberData) { usmsId }
+  }`;
+
+  const { data, errors } = await run(mutation, { memberData }, users.membership);
+
+  assert.equal(data.uploadMembers, null);
+  assert.equal(errors[0].extensions.code, "UPLOAD_PARTIAL_FAILURE");
+  assert.equal(errors[0].extensions.succeededCount, 2);
+  assert.equal(errors[0].extensions.failedCount, 1);
+
+  const [failure] = errors[0].extensions.failures;
+  assert.ok(["TESTC", "TESTD"].includes(failure.usmsId));
+  assert.ok(failure.message);
+
+  // ordered:false doesn't guarantee which of the two colliding ops "wins",
+  // but exactly one of them must have been upserted, and the unrelated row
+  // must be unaffected
+  const collidedCount = await Member.countDocuments({
+    usmsId: { $in: ["TESTC", "TESTD"] },
+  });
+  assert.equal(collidedCount, 1);
+  assert.ok(await Member.findOne({ usmsId: "TESTE" }));
+
+  await Member.deleteMany({ usmsId: { $in: ["TESTC", "TESTD", "TESTE"] } });
+});
+
+test("uploadMembers: a bulkWrite failure with no per-row detail (eg a dropped connection) is reported as UPLOAD_FAILED rather than silently swallowed", async () => {
+  const realBulkWrite = Member.bulkWrite;
+  Member.bulkWrite = async () => {
+    throw new Error("simulated connection loss");
+  };
+
+  const memberData = [
+    {
+      usmsRegNo: "TEST-CONN",
+      usmsId: "TESTF",
+      firstName: "Should",
+      lastName: "NotPersist",
+      gender: "F",
+      club: "VMST",
+      regYear: 2026,
+      emails: ["testf@example.com"],
+      emailExclude: false,
+    },
+  ];
+
+  const mutation = `mutation($memberData: [MemberData]) {
+    uploadMembers(memberData: $memberData) { usmsId }
+  }`;
+
+  try {
+    const { data, errors } = await run(
+      mutation,
+      { memberData },
+      users.membership,
+    );
+    assert.equal(data.uploadMembers, null);
+    assert.equal(errors[0].extensions.code, "UPLOAD_FAILED");
+  } finally {
+    Member.bulkWrite = realBulkWrite;
+  }
+
+  // the cleanup deleteMany must not have run against an untrustworthy
+  // comparison -- nothing should have been touched
+  assert.equal(await Member.findOne({ usmsId: "TESTF" }), null);
 });

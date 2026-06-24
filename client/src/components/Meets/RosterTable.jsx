@@ -60,12 +60,20 @@ export default function RosterTable({ competitors, setCompetitors }) {
             {competitors.map((swimmer, index) => {
               return (
                 <tr key={swimmer._id}>
-                  {/* Roster upload data */}
+                  {/* Roster upload data -- flag any required field the CSV
+                      didn't supply (eg a missing column), so a problem is
+                      visible here instead of only surfacing as a cryptic
+                      error when the leader tries to save */}
                   <th scope="row">
-                    {swimmer.firstName} {swimmer.lastName}
+                    {swimmer.firstName || <Missing>missing</Missing>}{" "}
+                    {swimmer.lastName || <Missing>missing</Missing>}
                   </th>
-                  <td style={{ textAlign: "center" }}>{swimmer.gender}</td>
-                  <td style={{ textAlign: "center" }}>{swimmer.meetAge}</td>
+                  <td style={{ textAlign: "center" }}>
+                    {swimmer.gender || <Missing>missing</Missing>}
+                  </td>
+                  <td style={{ textAlign: "center" }}>
+                    {swimmer.meetAge || <Missing>missing</Missing>}
+                  </td>
                   <td>
                     {swimmer.relays.map((eventNum) => eventNum).join(", ")}
                   </td>
@@ -121,6 +129,14 @@ const Wrapper = styled.div`
 const Checkbox = styled(CheckboxRoot)`
   width: 28px;
   height: 28px;
+`;
+
+const Missing = styled.span`
+  color: ${COLORS.urgent_text};
+  background-color: ${COLORS.urgent_light};
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.85em;
 `;
 
 const SeparatorRoot = styled(Separator.Root)`
