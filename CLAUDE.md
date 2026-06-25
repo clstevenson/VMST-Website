@@ -37,7 +37,9 @@ The suite spins up an isolated in-memory MongoDB (`mongodb-memory-server`, start
 
 ### Environment
 
-Both `server/.env` and `client/.env.development` / `client/.env.production` are required and are gitignored. The server needs at least `MONGODB_URI` and `SECRET_KEY` (JWT signing secret); see `server/config/connection.js` and `server/utils/auth.js`. Other utils (`emailHandler.js`, `get-flickr-photos.js`) likely need their own API credentials (nodemailer/SMTP, Flickr). `EMAIL_DAILY_RECIPIENT_LIMIT` (optional, defaults to 500) caps the rolling-24h recipient count enforced in `resolvers.js` — see Email sending below.
+`server/.env` is required and gitignored (matches the bare `.env` rule in `.gitignore`) — it holds real secrets (`SECRET_KEY`, JWT signing secret; `EMAIL_PASSWORD`; `FLICKR_APIKEY`; etc.) and must never be committed. The server needs at least `MONGODB_URI` and `SECRET_KEY`; see `server/config/connection.js` and `server/utils/auth.js`. Other utils (`emailHandler.js`, `get-flickr-photos.js`) likely need their own API credentials (nodemailer/SMTP, Flickr). `EMAIL_DAILY_RECIPIENT_LIMIT` (optional, defaults to 500) caps the rolling-24h recipient count enforced in `resolvers.js` — see Email sending below.
+
+`client/.env.development` and `client/.env.production` are also required, but — per Vite's own convention — are *not* gitignored; only the `.env.*.local` variants are. Both are committed and tracked, so anything added to them is visible in the repo and in the built client bundle (any `VITE_`-prefixed var is inlined into client-side JS/HTML by design). Don't put real secrets in them — only values that are already meant to be public once shipped to a browser (e.g. `VITE_UMAMI_WEBSITE_ID`, which has to be visible in page source for the tracking script to work at all).
 
 ## Architecture
 
