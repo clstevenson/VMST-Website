@@ -16,6 +16,10 @@
 import { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
+import BlotFormatter from "@enzedonline/quill-blot-formatter2";
+import "@enzedonline/quill-blot-formatter2/dist/css/quill-blot-formatter2.css";
+
+Quill.register("modules/blotFormatter2", BlotFormatter);
 
 const Editor = forwardRef(
   ({ id, placeholder, modules, defaultValue, onTextChange }, ref) => {
@@ -46,8 +50,32 @@ const Editor = forwardRef(
       }
 
       quill.on(Quill.events.TEXT_CHANGE, () => {
+        // If the last block is an image, append an empty paragraph so the
+        // cursor can be clicked/placed after it. Deferred to avoid firing
+        // inside the current TEXT_CHANGE call stack.
+        const len = quill.getLength();
+        if (len >= 2) {
+          const [leaf] = quill.getLeaf(len - 2);
+          if (leaf?.domNode?.tagName === "IMG") {
+            setTimeout(() => quill.insertText(quill.getLength() - 1, "\n", "api"), 0);
+          }
+        }
         onTextChangeRef.current?.(quill.getSemanticHTML());
       });
+
+      // One-time check: dangerouslyPasteHTML fires before the listener above,
+      // so if the loaded content ends with an image we never caught it. Insert
+      // the trailing paragraph silently so the cursor can be placed after the
+      // image without dirtying postContent / enabling Save prematurely.
+      {
+        const len = quill.getLength();
+        if (len >= 2) {
+          const [leaf] = quill.getLeaf(len - 2);
+          if (leaf?.domNode?.tagName === "IMG") {
+            quill.insertText(quill.getLength() - 1, "\n", Quill.sources.SILENT);
+          }
+        }
+      }
 
       return () => {
         if (ref) ref.current = null;
