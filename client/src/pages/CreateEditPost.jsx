@@ -869,6 +869,7 @@ const QuillWrapper = styled.div`
 
   /* Scope to .ql-editor only so the blot-formatter toolbar/overlay (appended
      to .ql-container as a sibling of .ql-editor) isn't forced white */
+  & .ql-editor,
   & .ql-editor * {
     background-color: white;
   }
