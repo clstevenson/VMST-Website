@@ -68,8 +68,6 @@ export default function CreateEditPost({ isEditing = false }) {
   // when editing, postContent loads asynchronously, so the editor must not
   // mount until that initial content has arrived
   const [contentReady, setContentReady] = useState(!isEditing);
-  // description shown under the Cancel/Save/Post icon row on hover/focus
-  const [actionStatus, setActionStatus] = useState("");
   // baseline values captured when editing an existing post, so the Save
   // button can stay disabled until something actually changes
   const originalContentRef = useRef("");
@@ -501,14 +499,7 @@ export default function CreateEditPost({ isEditing = false }) {
         <ActionRow>
           <IconButton
             type="button"
-            onMouseEnter={() =>
-              setActionStatus(isEditing ? "Do not save changes" : "Do not post")
-            }
-            onFocus={() =>
-              setActionStatus(isEditing ? "Do not save changes" : "Do not post")
-            }
-            onMouseLeave={() => setActionStatus("")}
-            onBlur={() => setActionStatus("")}
+            data-tooltip={isEditing ? "Do not save changes" : "Do not post"}
             onClick={() => {
               reset();
               navigate(-1);
@@ -520,26 +511,13 @@ export default function CreateEditPost({ isEditing = false }) {
             type="submit"
             $disabled={saveDisabled}
             aria-disabled={saveDisabled ? "true" : undefined}
-            onMouseEnter={() =>
-              setActionStatus(
-                saveDisabled
-                  ? "No changes to save"
-                  : canPublish
-                    ? "Save as draft post"
-                    : "Save changes to post",
-              )
+            data-tooltip={
+              saveDisabled
+                ? "No changes to save"
+                : canPublish
+                  ? "Save as draft post"
+                  : "Save changes to post"
             }
-            onFocus={() =>
-              setActionStatus(
-                saveDisabled
-                  ? "No changes to save"
-                  : canPublish
-                    ? "Save as draft post"
-                    : "Save changes to post",
-              )
-            }
-            onMouseLeave={() => setActionStatus("")}
-            onBlur={() => setActionStatus("")}
             onClick={(event) => {
               publishOnSubmitRef.current = !canPublish;
               if (saveDisabled) event.preventDefault();
@@ -553,18 +531,7 @@ export default function CreateEditPost({ isEditing = false }) {
           {canPublish && (
             <IconButton
               type="submit"
-              onMouseEnter={() =>
-                setActionStatus(
-                  isEditing ? "Publish this draft" : "Create blog post",
-                )
-              }
-              onFocus={() =>
-                setActionStatus(
-                  isEditing ? "Publish this draft" : "Create blog post",
-                )
-              }
-              onMouseLeave={() => setActionStatus("")}
-              onBlur={() => setActionStatus("")}
+              data-tooltip={isEditing ? "Publish this draft" : "Create blog post"}
               onClick={() => {
                 publishOnSubmitRef.current = true;
               }}
@@ -576,7 +543,6 @@ export default function CreateEditPost({ isEditing = false }) {
             </IconButton>
           )}
         </ActionRow>
-        <StatusLine>{actionStatus}</StatusLine>
       </SubmitWrapper>
       {posted && (
         <ToastMessage toastCloseEffect={cleanup} duration={1500}>
@@ -602,7 +568,7 @@ const FormWrapper = styled.form`
   margin: 32px 0;
   background-color: ${COLORS.accent[3]};
   border: 1px solid ${COLORS.accent[12]};
-  padding: 16px;
+  padding: 16px 16px 32px;
   border-radius: 8px;
   box-shadow: 2px 4px 8px ${COLORS.gray[10]};
   width: 100%;
@@ -716,6 +682,7 @@ const ActionRow = styled.div`
 `;
 
 const IconButton = styled.button`
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -741,15 +708,26 @@ const IconButton = styled.button`
   &:hover svg {
     stroke-width: 2;
   }
-`;
 
-// reserves a line of height so hover/focus descriptions don't shift layout
-const StatusLine = styled.p`
-  height: 1.2em;
-  margin-top: 4px;
-  font-size: 0.9rem;
-  font-style: italic;
-  color: ${COLORS.accent[11]};
+  &[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 0.85rem;
+    font-style: italic;
+    color: ${COLORS.accent[11]};
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  &:hover[data-tooltip]::after,
+  &:focus-visible[data-tooltip]::after {
+    opacity: 1;
+  }
 `;
 
 const Description = styled.p`
@@ -869,6 +847,7 @@ const QuillWrapper = styled.div`
 
   /* Scope to .ql-editor only so the blot-formatter toolbar/overlay (appended
      to .ql-container as a sibling of .ql-editor) isn't forced white */
+  & .ql-editor,
   & .ql-editor * {
     background-color: white;
   }
