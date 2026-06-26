@@ -258,6 +258,9 @@ const Image = styled.img`
 const Title = styled.h2`
   font-size: 1.2rem;
   color: ${COLORS.accent[9]};
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
 `;
 
 // limit to 2 lines of text, with ellipses...
@@ -268,6 +271,9 @@ const Content = styled.div`
   text-overflow: ellipsis;
   overflow: hidden;
   color: ${COLORS.accent[12]};
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
 `;
 
 const Date = styled.p`

@@ -246,6 +246,9 @@ const Article = styled.article`
 const ContentWrapper = styled.div`
   margin: 16px 0;
   width: 100%;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
 
   /* Standalone (unaligned) images: centered block */
   & img {
