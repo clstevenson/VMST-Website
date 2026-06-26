@@ -13,6 +13,7 @@ import parse from "html-react-parser";
 import { useQuery } from "@apollo/client";
 import { Pin, Search } from "lucide-react";
 import { QUERY_POSTS } from "../utils/queries";
+import { useAuth } from "../context/AuthContext";
 import sanitizeHtml from "../utils/sanitizeHtml";
 
 import Spinner from "./Spinner";
@@ -39,6 +40,7 @@ export default function BlogPosts() {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(initialPerPage);
   const [search, setSearch] = useState("");
+  const { user: userProfile, isLoading } = useAuth();
 
   // remember the user's preferred page size across visits
   useEffect(() => {
@@ -94,7 +96,7 @@ export default function BlogPosts() {
       {pagedPosts.map((post) => {
         return (
           <Post key={post._id} to={`/post/${post._id}`} $draft={!post.posted}>
-            {post.pinned && (
+            {post.pinned && userProfile?.role === "leader" && (
               <PinBadge title="Pinned post">
                 <Pin size={16} />
               </PinBadge>
@@ -102,7 +104,10 @@ export default function BlogPosts() {
             {post.photo && (
               <Image src={post.photo.url} alt={post.photo.caption} />
             )}
-            <Title>{!post.posted && "DRAFT: "}{post.title}</Title>
+            <Title>
+              {!post.posted && "DRAFT: "}
+              {post.title}
+            </Title>
             {post.summary ? (
               <Content>{post.summary}</Content>
             ) : (
