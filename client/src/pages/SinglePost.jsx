@@ -237,6 +237,10 @@ const Article = styled.article`
   margin: 0 auto;
   max-width: 70ch;
 
+  p {
+    margin-block: 1em;
+  }
+
   @media ${QUERIES.mobile} {
     min-width: 300px;
   }
