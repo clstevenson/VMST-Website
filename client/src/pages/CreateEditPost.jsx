@@ -553,7 +553,9 @@ export default function CreateEditPost({ isEditing = false }) {
       </SubmitWrapper>
       {posted && (
         <ToastMessage toastCloseEffect={cleanup} duration={1500}>
-          Success! Your new post is live.
+          {publishOnSubmitRef.current
+            ? "Success! Your new post is live."
+            : "Your draft post has been saved."}
         </ToastMessage>
       )}
     </FormWrapper>

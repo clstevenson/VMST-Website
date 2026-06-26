@@ -267,10 +267,10 @@ const resolvers = {
       requireRole(user);
       return await User.findOne({ email: email });
     },
-    // pinned posts first, then most recently posted first (not created --
-    // a post drafted long ago but published today should show as recent).
-    // drafts have no postedAt and are never pinned, so they naturally sort
-    // last; a draft (posted: false) is only included for its own author
+    // pinned posts first, then drafts (author-only), then published newest-first.
+    // posted:1 (ascending) sorts false before true so drafts surface above
+    // published posts. postedAt is null on drafts so they cluster together;
+    // pinned posts are always published so pinned:-1 still takes precedence.
     posts: async (_, __, { user }) => {
       const filter = user
         ? {
@@ -280,7 +280,7 @@ const resolvers = {
             ],
           }
         : { posted: true };
-      return await Post.find(filter).sort({ pinned: -1, postedAt: -1 });
+      return await Post.find(filter).sort({ pinned: -1, posted: 1, postedAt: -1 });
     },
     // get a single post with all comments
     // can't populate users directly, need to populate comments that are nested
