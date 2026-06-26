@@ -238,7 +238,7 @@ const Article = styled.article`
   max-width: 70ch;
 
   p {
-    margin-block: 1em;
+    margin-block: 0.75em;
   }
 
   @media ${QUERIES.mobile} {
