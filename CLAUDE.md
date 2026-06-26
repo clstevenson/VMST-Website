@@ -59,7 +59,7 @@ Express + Apollo Server (GraphQL) on top of Mongoose/MongoDB. `server/server.js`
 
 Vite + React 18, React Router v6 (routes declared in `client/src/main.jsx`, wrapping everything in `App.jsx`'s `<Outlet/>`), Apollo Client for GraphQL, styled-components for styling, Radix UI primitives for accessible interactive components (dialog, tabs, popover, etc.), react-hook-form for forms, react-quill for rich text (used by leaders/coaches composing emails and blog posts).
 
-- **Apollo Client setup** lives in `App.jsx`: an `authLink` reads the JWT from `localStorage` (`id_token`) and attaches it as a Bearer token on every GraphQL request.
+- **Apollo Client setup** lives in `apolloClient.js`: an `authLink` calls `AuthService.getToken()` (reads the `access_token` cookie) and attaches it as a Bearer token on every GraphQL request.
 - **Auth** (`client/src/utils/auth.js`): a singleton `AuthService` class wrapping `jwt-decode` — `loggedIn()`, `getProfile()` (decodes role/_id/group out of the token), `login()`/`logout()` (manage `localStorage` and force a full page redirect rather than a router navigation).
 - **GraphQL operations** are centralized in `client/src/utils/queries.js` and `mutations.js` rather than being inlined per-component.
 - **Pages** (`client/src/pages/`) are route-level views; **components** (`client/src/components/`) are organized with feature subfolders for `Communication`, `Meets`, `Membership`, `NavBar`, `PhotoGallery`, and a `Styled` folder for shared styled-components primitives.

@@ -247,34 +247,84 @@ const ContentWrapper = styled.div`
   margin: 16px 0;
   width: 100%;
 
-  /*
-   embedded images display as centered blocks rather than floating with
-   text wrapped around them -- looked bad across too many image/viewport
-   size combinations; per-image author control (float vs. block) would
-   need a Quill alignment module, not just CSS, so isn't done here
-   */
+  /* Standalone (unaligned) images: centered block */
   & img {
     max-width: 100%;
     display: block;
     margin: 16px auto;
   }
+
+  /* Alignment wrappers produced by quill-blot-formatter2.
+     Images are blocks with no text wrap; left/center/right means where
+     the block sits horizontally, not which side text floats around. */
+  & [class^="ql-image-align-"] {
+    display: flex;
+    flex-wrap: wrap;
+    width: var(--resize-width, auto);
+    max-width: 100%;
+    margin: 16px 0;
+  }
+
+  & [class^="ql-image-align-"] > img {
+    flex: 1 1 auto;
+    display: block;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  & .ql-image-align-left {
+    margin-right: auto;
+  }
+
+  & .ql-image-align-center {
+    margin: 16px auto;
+  }
+
+  & .ql-image-align-right {
+    margin-left: auto;
+  }
+
+  /* Responsive width expansion on small screens, only for percentage-based
+     resizes (data-relative="true" is set by the formatter in that case) */
+  @media (max-width: 900px) {
+    & [class^="ql-image-align-"][data-relative="true"] {
+      width: calc(var(--resize-width) + 20%);
+    }
+  }
+  @media (max-width: 800px) {
+    & [class^="ql-image-align-"][data-relative="true"] {
+      width: calc(var(--resize-width) + 40%);
+    }
+  }
+  @media (max-width: 700px) {
+    & [class^="ql-image-align-"][data-relative="true"] {
+      width: calc(var(--resize-width) + 60%);
+    }
+  }
+  @media (max-width: 600px) {
+    & [class^="ql-image-align-"][data-relative="true"] {
+      width: calc(var(--resize-width) + 80%);
+    }
+  }
+  @media (max-width: 500px) {
+    & [class^="ql-image-align-"][data-relative="true"] {
+      width: 100%;
+    }
+  }
+
   & h1 {
     font-size: 1.2rem;
-    clear: both;
   }
   & h2 {
     font-size: 1.15rem;
-    clear: both;
   }
   & h3 {
     font-size: 1.1rem;
-    clear: both;
   }
   & h4,
   & h5,
   & h6 {
     font-size: 1.05rem;
-    clear: both;
   }
 `;
 

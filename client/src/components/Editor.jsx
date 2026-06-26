@@ -16,6 +16,10 @@
 import { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
+import BlotFormatter from "@enzedonline/quill-blot-formatter2";
+import "@enzedonline/quill-blot-formatter2/dist/css/quill-blot-formatter2.css";
+
+Quill.register("modules/blotFormatter2", BlotFormatter);
 
 const Editor = forwardRef(
   ({ id, placeholder, modules, defaultValue, onTextChange }, ref) => {

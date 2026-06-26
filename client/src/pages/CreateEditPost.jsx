@@ -28,6 +28,7 @@ import ErrorMessage from "../components/Styled/ErrorMessage";
 import ToastMessage from "../components/ToastMessage";
 import Spinner from "../components/Spinner";
 import Editor from "../components/Editor";
+import { ImageSpec } from "@enzedonline/quill-blot-formatter2";
 
 export default function CreateEditPost({ isEditing = false }) {
   const navigate = useNavigate();
@@ -97,6 +98,27 @@ export default function CreateEditPost({ isEditing = false }) {
       [{ header: [1, 2, 3, 4, false] }],
       ["link", "image"],
     ],
+    blotFormatter2: {
+      specs: [ImageSpec],
+      resize: {
+        allowResizing: true,
+        showSize: true,
+        imageOversizeProtection: true,
+      },
+      align: {
+        allowAligning: true,
+      },
+      delete: {
+        allowKeyboardDelete: true,
+      },
+      image: {
+        allowAltTitleEdit: false,
+        allowCompressor: true,
+        linkOptions: {
+          allowLinkEdit: true,
+        },
+      },
+    },
   };
 
   useQuery(QUERY_ALBUMS, {
@@ -247,7 +269,12 @@ export default function CreateEditPost({ isEditing = false }) {
           });
         } else {
           await addPost({
-            variables: { title, summary, content: postContent, posted: shouldPost },
+            variables: {
+              title,
+              summary,
+              content: postContent,
+              posted: shouldPost,
+            },
           });
         }
       }
@@ -338,14 +365,16 @@ export default function CreateEditPost({ isEditing = false }) {
           )}
         </QuillWrapper>
         <QuillDescription>
-          Check out{" "}
+          Use the toolbar&apos;s image button to insert an image file (eg
+          downloaded from{" "}
           <a href="https://www.flickr.com/photos/va_swims/" target="_new">
             our Flickr account
-          </a>{" "}
-          for images to use. If you use images, please choose small sizes (eg{" "}
-          <span>Small240</span> or <span>Small320</span>) to reduce database
-          bloat. The image will display centered, on its own line, in the
-          final post.
+          </a>
+          ). Keep your image sizes SMALL to avoid DB bloat (eg{" "}
+          <span>Small320</span> from Flickr). For accessibility use a
+          descriptive filename. Click any inserted image to activate a toolbar
+          for resizing and alignment; images display as blocks with no text
+          wrap. Compress images after resizing using the icon in the toolbar.
         </QuillDescription>
         {/* error message to display */}
         {message && <ErrorMessage>{message}</ErrorMessage>}
@@ -473,14 +502,10 @@ export default function CreateEditPost({ isEditing = false }) {
           <IconButton
             type="button"
             onMouseEnter={() =>
-              setActionStatus(
-                isEditing ? "Do not save changes" : "Do not post",
-              )
+              setActionStatus(isEditing ? "Do not save changes" : "Do not post")
             }
             onFocus={() =>
-              setActionStatus(
-                isEditing ? "Do not save changes" : "Do not post",
-              )
+              setActionStatus(isEditing ? "Do not save changes" : "Do not post")
             }
             onMouseLeave={() => setActionStatus("")}
             onBlur={() => setActionStatus("")}
@@ -521,7 +546,9 @@ export default function CreateEditPost({ isEditing = false }) {
             }}
           >
             {canPublish ? <Archive /> : <SaveCheck />}
-            {isSubmitting && !publishOnSubmitRef.current ? "working..." : "Save"}
+            {isSubmitting && !publishOnSubmitRef.current
+              ? "working..."
+              : "Save"}
           </IconButton>
           {canPublish && (
             <IconButton
@@ -838,7 +865,9 @@ const SelectItem = styled(Select.Item)`
 const QuillWrapper = styled.div`
   padding: 0;
 
-  & * {
+  /* Scope to .ql-editor only so the blot-formatter toolbar/overlay (appended
+     to .ql-container as a sibling of .ql-editor) isn't forced white */
+  & .ql-editor * {
     background-color: white;
   }
 
@@ -846,7 +875,20 @@ const QuillWrapper = styled.div`
     background-color: revert;
   }
 
-  & p {
+  & .ql-editor p {
     font-size: 1.05rem;
+  }
+
+  /* Override float-based alignment from the package CSS with block alignment */
+  & div.ql-editor .ql-image-align-left {
+    float: none;
+    margin-right: auto;
+    margin-left: 0;
+  }
+
+  & div.ql-editor .ql-image-align-right {
+    float: none;
+    margin-left: auto;
+    margin-right: 0;
   }
 `;
