@@ -600,8 +600,8 @@ contact the webmaster immediately by replying to this message.`,
       { title, summary, content, photo, posted },
       { user },
     ) => {
-      // only team leaders can create posts
-      requireRole(user, "leader");
+      // leaders and coaches can create posts
+      requireRole(user, "leader", "coach");
       const isPosted = posted ?? true;
       const post = {
         title,
@@ -629,8 +629,8 @@ contact the webmaster immediately by replying to this message.`,
       { _id, title, summary, content, photo, posted },
       { user },
     ) => {
-      // only leaders can edit posts
-      requireRole(user, "leader");
+      // leaders and coaches can edit posts
+      requireRole(user, "leader", "coach");
       // query-then-save (not findOneAndUpdate) so schema validators --
       // required fields on the post and on the embedded photo subdoc --
       // actually run
@@ -638,9 +638,9 @@ contact the webmaster immediately by replying to this message.`,
       if (!updatedPost) {
         throw new Error("Something went wrong, post was not updated");
       }
-      // a draft is only editable by the leader who created it, so other
-      // leaders don't unknowingly alter or delete someone's in-progress
-      // post; once published, any leader can edit as before. Thrown outside
+      // a draft is only editable by its author, so other leaders/coaches
+      // don't unknowingly alter or delete someone's in-progress post;
+      // once published, any leader or coach can edit as before. Thrown outside
       // the try/catch below so it isn't swallowed by the generic catch.
       if (!updatedPost.posted && updatedPost.author?.userId !== user._id) {
         throw AuthenticationError;
@@ -673,8 +673,8 @@ contact the webmaster immediately by replying to this message.`,
       return updatedPost;
     },
     deletePost: async (_, { _id }, { user }) => {
-      // only leaders can delete posts
-      requireRole(user, "leader");
+      // leaders and coaches can delete posts
+      requireRole(user, "leader", "coach");
       const post = await Post.findById(_id);
       if (!post) return null;
       // same author-only restriction on drafts as editPost, thrown outside
