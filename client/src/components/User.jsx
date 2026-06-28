@@ -72,6 +72,9 @@ export default function User({ userProfile }) {
   const [emailWebmaster] = useMutation(EMAIL_WEBMASTER);
   const [resendVerificationEmail] = useMutation(RESEND_VERIFICATION_EMAIL);
 
+  const emailLimits =
+    "Note that, at present, we are using a personal gmail account to send out email messages. There are limits on the number of recipients per email and the number of emails that can be sent out in a 24-hr period. Those limits are listed on the Communications tab. Since this account is shared by several leaders and coaches, please review your message carefully before sending in order to avoid the need to send multiple messages.";
+
   const handleResendVerification = async () => {
     setResendStatus("sending");
     try {
@@ -384,17 +387,18 @@ export default function User({ userProfile }) {
                 <strong>{user.group ? user.group : "none"}</strong>.
               </p>
               <Description>
-                Coaches can communicate with their designated workout group. If
-                you do not have a designated workout group yet, please contact
-                the webmaster using <Link to="/contact">the Contact page</Link>.
+                Coaches can communicate with their designated workout group and
+                can add/edit/delete posts. If you do not have a designated
+                workout group yet, please contact the webmaster using{" "}
+                <Link to="/contact">the Contact page</Link>.
               </Description>
             </div>
           )}
 
           <p>
             While visitors to the website are not required to create an account,
-            doing so confers some extra superpowers. Accounts have one of three
-            roles, which are described below.
+            doing so confers some extra superpowers. Accounts have one of
+            several possible roles that are described below.
           </p>
 
           {/* Explanation of roles, form to request changed role */}
@@ -440,7 +444,8 @@ export default function User({ userProfile }) {
               <p>
                 A role of &quot;coach&quot; is intended for coaches of workout
                 groups, or someone designated by them, to communicate with
-                workout groups on their behalf. A coach{" "}
+                workout groups on their behalf and to create, edit, or delete
+                posts on the home page. A coach{" "}
                 <em>
                   <strong>MUST</strong>
                 </em>{" "}
@@ -462,23 +467,12 @@ export default function User({ userProfile }) {
                 emails will NOT receive these communications; the names of those
                 opt-outs are also displayed in your Communications page.
               </p>
-              <p>
-                Note that, at present, we are using a persional gmail account to
-                send out email messages. Such accounts have a limit of 100
-                recipients per email and 500 recipients in a given 24-h period.
-                While no single WO group has more than 100 members, if you send
-                out multiple messages then you could start to approach the 24h
-                limit. Remembering that you share this account with other
-                coaches and leaders, you do not want to come anywhere close to
-                this limit. Please review your message carefully before sending
-                to avoid the need to send repeated messages, particularly if you
-                have a large WO group.
-              </p>
+              <p>{emailLimits}</p>
               <p>
                 If you think there is some mistake in your WO group roll (eg,
                 you think someone is a member who is not on the list or it has
                 not been updated recently), please{" "}
-                <a href="mailto: clearscreen100@gmail.com">
+                <a href="mailto:vmst.swimming+membership@gmail.com">
                   email the LMSC Membership Coordinator
                 </a>{" "}
                 with your concerns.
@@ -487,25 +481,15 @@ export default function User({ userProfile }) {
             <AccordianItem title="Role: Leader" titlePadding="24px">
               <p>
                 A person with the role of &quot;leader&quot; (ie, a VMST team
-                leader) will be able to email any VMST member. Leaders will also
-                be able to create posts that appear on the home page (and are
-                seen by all visitors to the site) as well as edit/delete
-                existing posts. This role is meant to be shared by those who are
+                leader) will be able to email any VMST member. Like coaches,
+                leaders can also create, edit, and delete posts on the home
+                page. This role is meant to be shared by those who are
                 authorized to communicate with any VMST team member on official
-                team business or to create/edit posts to the website. It is
-                intended that this would be the three VMST Board Members, though
-                they may designate others for this role if they wish.
+                team business. It is intended that this would be the three VMST
+                Board Members, though they may designate others for this role if
+                they wish.
               </p>
-              <p>
-                Note that, at present, we are using a personal gmail account to
-                send out email messages. Such accounts have a limit of 100
-                recipients per email and 500 recipients in a 24-h period. It is
-                strongly advised that you remain well below this limit to avoid
-                suspension of the account; remember that all users (ie, other
-                leaders and coaches) are using the same account. Please review
-                your message carefully before sending in order to avoid the need
-                to send multiple messages.
-              </p>
+              <p>{emailLimits}</p>
               <p>
                 If you need to send a message to all members, there are two
                 options. VMST can pay for an account with a higher send limit,
