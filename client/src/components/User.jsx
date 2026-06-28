@@ -433,11 +433,14 @@ export default function User({ userProfile }) {
                 <em>they will also not receive emails from VMST</em>. If you
                 wish to receive emails from VMST leaders and coaches, you can do
                 so without changing your LMSC-level preference. In other words,
-                you can get emails from VMST but not the LMSC (if you wish).
-              </p>
-              <p>
-                Finally: if demand warrants it, users will gain the ability to
-                reply to posts (non-anonymously).
+                you can get emails from VMST but not the LMSC (if you wish). In
+                order to do so, you will first need to link to your USMS
+                account, at which point your choices here will override the
+                preferences in your{" "}
+                <a href="https://www.usms.org/myusmslogin" target="_blank">
+                  MyUSMS account
+                </a>
+                .
               </p>
             </AccordianItem>
             <AccordianItem title="Role: Coach" titlePadding="24px">
