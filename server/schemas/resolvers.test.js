@@ -1010,7 +1010,7 @@ test("uploadMembers: membership role can upload the real USMS member report", as
   assert.ok(vmstCount > 100, `expected a substantial VMST roster, got ${vmstCount}`);
 });
 
-test("addPost: rejects a non-leader, succeeds for a leader", async () => {
+test("addPost: rejects non-authorized roles, succeeds for leaders and coaches", async () => {
   const query = `mutation($title: String!, $summary: String, $content: String!) {
     addPost(title: $title, summary: $summary, content: $content) { _id title }
   }`;
@@ -1020,20 +1020,32 @@ test("addPost: rejects a non-leader, succeeds for a leader", async () => {
     content: "<p>Hello, VMST!</p>",
   };
 
-  const { errors: rejected } = await run(query, variables, users.coach);
-  assert.ok(rejected?.length, "only leaders should be able to add posts");
+  const { errors: rejected } = await run(query, variables, users.user);
+  assert.ok(rejected?.length, "regular users should not be able to add posts");
 
-  const { data, errors } = await run(query, variables, users.leader);
-  assert.equal(errors, undefined);
-  assert.equal(data.addPost.title, "Test post");
+  const { data: leaderData, errors: leaderErrors } = await run(query, variables, users.leader);
+  assert.equal(leaderErrors, undefined);
+  assert.equal(leaderData.addPost.title, "Test post");
+  await Post.findByIdAndDelete(leaderData.addPost._id);
 
-  const stored = await Post.findById(data.addPost._id);
-  assert.equal(stored.title, "Test post");
-
-  await Post.findByIdAndDelete(data.addPost._id);
+  const { data: coachData, errors: coachErrors } = await run(query, variables, users.coach);
+  assert.equal(coachErrors, undefined);
+  assert.equal(coachData.addPost.title, "Test post");
+  await Post.findByIdAndDelete(coachData.addPost._id);
 });
 
-test("editPost: leader can edit a post", async () => {
+test("editPost: leaders and coaches can edit a post", async () => {
+  const mutation = `mutation($id: ID!, $title: String!, $summary: String, $content: String!, $photo: PhotoData) {
+    editPost(_id: $id, title: $title, summary: $summary, content: $content, photo: $photo) {
+      title
+    }
+  }`;
+  const photo = {
+    id: "photo-1",
+    url: "https://example.com/photo.jpg",
+    flickrURL: "https://flickr.com/photo-1",
+  };
+
   const post = await Post.create({
     title: "Original title",
     summary: "Original summary",
@@ -1041,33 +1053,24 @@ test("editPost: leader can edit a post", async () => {
   });
 
   try {
-    const { data, errors } = await run(
-      `mutation($id: ID!, $title: String!, $summary: String, $content: String!, $photo: PhotoData) {
-        editPost(_id: $id, title: $title, summary: $summary, content: $content, photo: $photo) {
-          title
-        }
-      }`,
-      {
-        id: post._id.toString(),
-        title: "Updated title",
-        summary: "Updated summary",
-        content: "<p>Updated content</p>",
-        photo: {
-          id: "photo-1",
-          url: "https://example.com/photo.jpg",
-          flickrURL: "https://flickr.com/photo-1",
-        },
-      },
+    const { data: leaderData, errors: leaderErrors } = await run(
+      mutation,
+      { id: post._id.toString(), title: "Leader edit", summary: "s", content: "<p>v2</p>", photo },
       users.leader,
     );
-    assert.equal(errors, undefined);
+    assert.equal(leaderErrors, undefined);
+    assert.equal(leaderData.editPost?.title, "Leader edit");
 
-    // the update itself does succeed in the database -- it's specifically
-    // the resolver's return value that's wrong, not the underlying write
+    const { data: coachData, errors: coachErrors } = await run(
+      mutation,
+      { id: post._id.toString(), title: "Coach edit", summary: "s", content: "<p>v3</p>", photo },
+      users.coach,
+    );
+    assert.equal(coachErrors, undefined);
+    assert.equal(coachData.editPost?.title, "Coach edit");
+
     const stored = await Post.findById(post._id);
-    assert.equal(stored.title, "Updated title");
-
-    assert.equal(data.editPost?.title, "Updated title");
+    assert.equal(stored.title, "Coach edit");
   } finally {
     await Post.findByIdAndDelete(post._id);
   }
@@ -1136,31 +1139,37 @@ test("editPost: a photo missing its required flickrURL is rejected by the schema
   }
 });
 
-test("deletePost: rejects a non-leader, succeeds for a leader", async () => {
-  const post = await Post.create({
-    title: "To be deleted",
-    summary: "",
-    content: "<p>Bye</p>",
-  });
+test("deletePost: rejects non-authorized roles, succeeds for leaders and coaches", async () => {
   const query = `mutation($id: ID!) { deletePost(_id: $id) { _id } }`;
 
-  const { errors: rejected } = await run(
-    query,
-    { id: post._id.toString() },
-    users.coach,
-  );
-  assert.ok(rejected?.length, "only leaders should be able to delete posts");
+  const post1 = await Post.create({ title: "Delete by leader", content: "<p>Bye</p>" });
+  const post2 = await Post.create({ title: "Delete by coach", content: "<p>Bye</p>" });
 
-  const { data, errors } = await run(
-    query,
-    { id: post._id.toString() },
-    users.leader,
-  );
-  assert.equal(errors, undefined);
-  assert.equal(data.deletePost._id, post._id.toString());
+  try {
+    const { errors: rejected } = await run(query, { id: post1._id.toString() }, users.user);
+    assert.ok(rejected?.length, "regular users should not be able to delete posts");
 
-  const stillThere = await Post.findById(post._id);
-  assert.equal(stillThere, null);
+    const { data: leaderData, errors: leaderErrors } = await run(
+      query,
+      { id: post1._id.toString() },
+      users.leader,
+    );
+    assert.equal(leaderErrors, undefined);
+    assert.equal(leaderData.deletePost._id, post1._id.toString());
+    assert.equal(await Post.findById(post1._id), null);
+
+    const { data: coachData, errors: coachErrors } = await run(
+      query,
+      { id: post2._id.toString() },
+      users.coach,
+    );
+    assert.equal(coachErrors, undefined);
+    assert.equal(coachData.deletePost._id, post2._id.toString());
+    assert.equal(await Post.findById(post2._id), null);
+  } finally {
+    await Post.findByIdAndDelete(post1._id);
+    await Post.findByIdAndDelete(post2._id);
+  }
 });
 
 test("addPost: defaults to posted with author/postedAt set; posted:false creates an unpublished draft", async () => {
