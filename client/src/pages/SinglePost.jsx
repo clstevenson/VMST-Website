@@ -25,6 +25,7 @@ export default function SinglePost() {
   // user's can add, edit, or delete posts
   const { user } = useAuth();
   const isLeader = user?.role === "leader";
+  const canPost = isLeader || user?.role === "coach";
   // toggle to display Toast confirming deletion
   const [deleted, setDeleted] = useState(false);
   // toggle to display alert to confirm post deletion
@@ -131,7 +132,7 @@ export default function SinglePost() {
         )}
       </PostWrapper>
       <FooterWrapper>
-        {isLeader && (
+        {canPost && (
           <>
             <IconButton>
               <Edit
@@ -157,7 +158,7 @@ export default function SinglePost() {
                 <Trash2 /> Delete
               </IconButton>
             </Alert>
-            {post.posted && (
+            {isLeader && post.posted && (
               <IconButton onClick={handleTogglePin}>
                 {post.pinned ? <PinOff /> : <Pin />}
                 {post.pinned ? "Unpin" : "Pin"}

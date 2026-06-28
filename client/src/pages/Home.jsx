@@ -1,11 +1,5 @@
 /*
  Display posts, allowing the display of single posts at some point.
-
- TODO: Eventually add the ability to search and filter:
- - search titles and content (or just leave it at both)
- - control how many posts are displayed, allowing for pagination
- - filter by date
- - maybe eventually allow tags on posts?
  */
 
 import styled from "styled-components";
@@ -23,7 +17,7 @@ export default function Home() {
     <Wrapper>
       <HeaderWrapper>
         <Title>Check out the latest from VMST!</Title>
-        {role === "leader" && (
+        {["leader", "coach"].includes(role) && (
           <CreatePost to="/post/create">
             <PlusCircle /> New Post
           </CreatePost>

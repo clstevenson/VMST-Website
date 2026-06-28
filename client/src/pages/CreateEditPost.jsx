@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
-/* 
- Page for the form used to create or edit a new post. Only available to leaders.
+/*
+ Page for the form used to create or edit a new post. Available to leaders and coaches.
 
  The prop determines whether or not this component is being used to creeate or edit.
  They also correspond to different routes.
@@ -33,7 +33,7 @@ import { ImageSpec } from "@enzedonline/quill-blot-formatter2";
 export default function CreateEditPost({ isEditing = false }) {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
-  const isLeader = user?.role === "leader";
+  const canPost = ["leader", "coach"].includes(user?.role);
   const [addPost] = useMutation(ADD_POST);
   const [editPost] = useMutation(EDIT_POST);
   const {
@@ -166,14 +166,14 @@ export default function CreateEditPost({ isEditing = false }) {
     },
   });
 
-  // only logged-in leaders can view the page; wait for the auth check
+  // only logged-in leaders/coaches can view the page; wait for the auth check
   // (including a possible silent token refresh) to settle first
   useEffect(() => {
-    if (!isLoading && !isLeader) navigate("/");
-  }, [isLoading, isLeader, navigate]);
+    if (!isLoading && !canPost) navigate("/");
+  }, [isLoading, canPost, navigate]);
 
   useEffect(() => {
-    if (isLoading || !isLeader) return;
+    if (isLoading || !canPost) return;
 
     // fill in the photo picker grid
     getPhotos({ variables: { albumId, page } });
@@ -184,7 +184,7 @@ export default function CreateEditPost({ isEditing = false }) {
     }
   }, [
     isLoading,
-    isLeader,
+    canPost,
     albumId,
     page,
     getPhotos,
@@ -318,7 +318,7 @@ export default function CreateEditPost({ isEditing = false }) {
   };
 
   // still resolving the session, or about to redirect away
-  if (isLoading || !isLeader) return null;
+  if (isLoading || !canPost) return null;
 
   return (
     <FormWrapper
