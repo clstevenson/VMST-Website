@@ -19,8 +19,11 @@ export default function PostsPerPage({ perPage, setPerPage, setPage }) {
       </SelectTrigger>
       <SelectContent position="popper" align="center">
         <Select.Viewport>
+          <SelectItem value="2">2 per page</SelectItem>
           <SelectItem value="3">3 per page</SelectItem>
+          <SelectItem value="4">4 per page</SelectItem>
           <SelectItem value="6">6 per page</SelectItem>
+          <SelectItem value="8">8 per page</SelectItem>
           <SelectItem value="9">9 per page</SelectItem>
           <SelectItem value="12">12 per page</SelectItem>
         </Select.Viewport>
