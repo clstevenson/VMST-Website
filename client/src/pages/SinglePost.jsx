@@ -9,7 +9,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import * as Separator from "@radix-ui/react-separator";
 import { Home, Trash2, Edit } from "react-feather";
 import { Pin, PinOff } from "lucide-react";
-import parse from "html-react-parser";
+import parse, { domToReact } from "html-react-parser";
 
 import { QUERY_SINGLEPOST } from "../utils/queries";
 import { DELETE_POST, TOGGLE_PIN } from "../utils/mutations";
@@ -94,7 +94,19 @@ export default function SinglePost() {
         <Article>
           <Title>{post.title}</Title>
 
-          <ContentWrapper>{parse(sanitizeHtml(post.content))}</ContentWrapper>
+          <ContentWrapper>
+            {parse(sanitizeHtml(post.content), {
+              replace(node) {
+                if (node.type === "tag" && node.name === "a") {
+                  return (
+                    <a {...node.attribs} target="_blank" rel="noopener noreferrer">
+                      {domToReact(node.children)}
+                    </a>
+                  );
+                }
+              },
+            })}
+          </ContentWrapper>
           <Attribution>-- posted on {post.createdAt}</Attribution>
 
           {/*
