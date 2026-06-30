@@ -340,6 +340,30 @@ test("membersByUsmsId: a coach only gets back members in their own workout group
   await Member.deleteMany({ _id: { $in: [inGroup._id, outOfGroup._id] } });
 });
 
+test("groups: returns VMST workout groups and excludes non-VMST members (no auth required)", async () => {
+  const vmst = await Member.create({
+    usmsRegNo: "GRP001", usmsId: "GRP01",
+    firstName: "Grp", lastName: "Vmst",
+    gender: "M", club: "VMST", regYear: 2026,
+    workoutGroup: "TestGroupVMST",
+  });
+  const other = await Member.create({
+    usmsRegNo: "GRP002", usmsId: "GRP02",
+    firstName: "Grp", lastName: "Other",
+    gender: "M", club: "MINN", regYear: 2026,
+    workoutGroup: "TestGroupOther",
+  });
+
+  // groups is intentionally open — no requireRole call in the resolver
+  const { data, errors } = await run("{ groups }", {}, null);
+
+  assert.equal(errors, undefined);
+  assert.ok(data.groups.includes("TestGroupVMST"), "expected VMST group in result");
+  assert.ok(!data.groups.includes("TestGroupOther"), "expected non-VMST group excluded");
+
+  await Member.deleteMany({ _id: { $in: [vmst._id, other._id] } });
+});
+
 test("meets: rejects an unauthenticated caller, allows leader", async () => {
   const unauth = await run("{ meets { meetName } }", {}, null);
   assert.ok(unauth.errors?.length);
