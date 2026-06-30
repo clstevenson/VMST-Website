@@ -537,6 +537,10 @@ contact the webmaster immediately by replying to this message.`,
     // logged-in users can change their password
     changePassword: async (_, { password }, { user }) => {
       requireRole(user);
+      // check before the try block so a deleted account surfaces as a real
+      // GraphQL error rather than being swallowed and returning null
+      const updatedUser = await User.findById(user._id);
+      if (!updatedUser) throw AuthenticationError;
       try {
         // the schema's minlength validator runs against the already-hashed
         // value at save time (the hash is always ~60 chars), so it can
@@ -545,16 +549,11 @@ contact the webmaster immediately by replying to this message.`,
         if (password.length < 6) {
           throw new Error("Password must be at least 6 characters.");
         }
-        // need to hash the new password then save it to the args
-        const hashedPassword = await bcrypt.hash(password, 10);
         // query-then-save (not findByIdAndUpdate) -- the pre('save') hook
         // only hashes on document creation (`if (this.isNew)`), so hashing
         // stays manual regardless; .save() still restores any other
         // validators that findByIdAndUpdate would otherwise skip
-        const updatedUser = await User.findById(user._id);
-        if (!updatedUser) {
-          throw new Error("Something went wrong, password was not updated.");
-        }
+        const hashedPassword = await bcrypt.hash(password, 10);
         updatedUser.password = hashedPassword;
         await updatedUser.save();
         return updatedUser;

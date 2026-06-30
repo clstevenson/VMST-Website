@@ -971,6 +971,27 @@ test("changePassword: rejects a too-short password without touching the stored h
   assert.ok(await stillOriginal.isCorrectPassword("Original-Password-1!"));
 });
 
+test("changePassword: surfaces an auth error when the account no longer exists", async () => {
+  const target = await User.create({
+    firstName: "Ghost",
+    lastName: "User",
+    email: "ghost-pw@example.com",
+    password: "Original-Password-1!",
+    role: "user",
+  });
+  const ctx = { _id: target._id.toString(), role: "user" };
+  await target.deleteOne();
+
+  const { data, errors } = await run(
+    `mutation($password: String!) { changePassword(password: $password) { _id } }`,
+    { password: "NewPassword-1!" },
+    ctx,
+  );
+  assert.ok(errors?.length > 0, "expected an auth error for a deleted account");
+  assert.equal(data.changePassword, null);
+  assert.equal(errors[0].extensions.code, "UNAUTHENTICATED");
+});
+
 test("resetPassword: emails a new password to an existing account, errors for an unknown email", async () => {
   const target = await User.create({
     firstName: "Reset",
