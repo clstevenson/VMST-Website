@@ -93,7 +93,7 @@ export default function Meets({ setTab }) {
           startDate,
           endDate,
           meetSwimmers: swimmers,
-          relays: meetRelays,
+          relayEvents: meetRelays,
         }) => {
           const meetSwimmers = swimmers.map(
             ({
@@ -116,7 +116,7 @@ export default function Meets({ setTab }) {
               };
             }
           );
-          const relays = meetRelays.map(({ eventNum }) => {
+          const relayEvents = meetRelays.map(({ eventNum }) => {
             return { eventNum };
           });
           return {
@@ -126,7 +126,7 @@ export default function Meets({ setTab }) {
             startDate,
             endDate,
             meetSwimmers,
-            relays,
+            relayEvents,
           };
         }
       );
@@ -187,16 +187,16 @@ export default function Meets({ setTab }) {
       startDate,
       endDate,
     };
-    const relays = relayEventNumbers.map((relayNum) => {
+    const relayEvents = relayEventNumbers.map((relayNum) => {
       return { eventNum: relayNum };
     });
     // save in DB
     try {
       if (isEditing) {
-        const changedMeet = { id: currentMeetId, meet, meetSwimmers, relays };
+        const changedMeet = { id: currentMeetId, meet, meetSwimmers, relayEvents };
         await editMeet({ variables: changedMeet });
       } else {
-        const newMeet = { meet, meetSwimmers, relays };
+        const newMeet = { meet, meetSwimmers, relayEvents };
         console.log(newMeet);
         await addMeet({ variables: newMeet });
       }

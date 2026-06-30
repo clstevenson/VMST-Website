@@ -84,7 +84,7 @@ export default function MeetUpload({
       return { ...swimmer, member, includeEmail: Boolean(match[0]) };
     });
 
-    setRelayEventNumbers([...relayEvents]);
+    setRelayEventNumbers(relayEvents.map((e) => parseInt(e.slice(1))));
     setCompetitors([...matchedCompetitors]);
     // reset form and errors
     clearErrors("roster");

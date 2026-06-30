@@ -1683,11 +1683,11 @@ test("addMeet, emailGroup, deleteMeet: real Nationals roster matched against the
     false,
   );
 
-  const relays = relayEvents.map((eventNum) => ({ eventNum }));
+  const relayEventObjects = relayEvents.map((col) => ({ eventNum: parseInt(col.slice(1)) }));
 
   const { data: addData, errors: addErrors } = await run(
-    `mutation($meet: MeetData, $meetSwimmers: [MeetSwimmerData], $relays: [RelayData]) {
-      addMeet(meet: $meet, meetSwimmers: $meetSwimmers, relays: $relays) {
+    `mutation($meet: MeetData, $meetSwimmers: [MeetSwimmerData], $relayEvents: [RelayData]) {
+      addMeet(meet: $meet, meetSwimmers: $meetSwimmers, relayEvents: $relayEvents) {
         _id
         meetSwimmers { firstName lastName usmsId includeEmail }
       }
@@ -1699,7 +1699,7 @@ test("addMeet, emailGroup, deleteMeet: real Nationals roster matched against the
         startDate: "2026-08-01",
       },
       meetSwimmers,
-      relays,
+      relayEvents: relayEventObjects,
     },
     users.leader,
   );

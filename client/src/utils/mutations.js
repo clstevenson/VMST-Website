@@ -238,9 +238,9 @@ export const ADD_MEET = gql`
   mutation AddMeet(
     $meet: MeetData
     $meetSwimmers: [MeetSwimmerData]
-    $relays: [RelayData]
+    $relayEvents: [RelayData]
   ) {
-    addMeet(meet: $meet, meetSwimmers: $meetSwimmers, relays: $relays) {
+    addMeet(meet: $meet, meetSwimmers: $meetSwimmers, relayEvents: $relayEvents) {
       _id
       meetName
       course
@@ -255,13 +255,13 @@ export const EDIT_MEET = gql`
     $id: ID!
     $meet: MeetData
     $meetSwimmers: [MeetSwimmerData]
-    $relays: [RelayData]
+    $relayEvents: [RelayData]
   ) {
     editMeet(
       _id: $id
       meet: $meet
       meetSwimmers: $meetSwimmers
-      relays: $relays
+      relayEvents: $relayEvents
     ) {
       _id
       course

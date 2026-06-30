@@ -558,13 +558,13 @@ contact the webmaster immediately by replying to this message.`,
       }
     },
     // add a new meet
-    addMeet: async (_, { meet, meetSwimmers, relays }, { user }) => {
+    addMeet: async (_, { meet, meetSwimmers, relayEvents }, { user }) => {
       // only leaders can add meets
       requireRole(user, "leader");
       const newMeet = {
         ...meet,
         meetSwimmers,
-        relays,
+        relayEvents,
       };
       // a schema-validator failure (eg an invalid course) throws naturally
       // here and propagates to Apollo, same as addPost -- no try/catch
@@ -572,7 +572,7 @@ contact the webmaster immediately by replying to this message.`,
       return await Meet.create(newMeet);
     },
     // edit a meet
-    editMeet: async (_, { _id, meet, meetSwimmers, relays }, { user }) => {
+    editMeet: async (_, { _id, meet, meetSwimmers, relayEvents }, { user }) => {
       // only leaders can edit meets
       requireRole(user, "leader");
       // query-then-save so schema validators actually run
@@ -581,7 +581,7 @@ contact the webmaster immediately by replying to this message.`,
       if (!updatedMeet) throw new Error("Meet not found");
       if (meet) Object.assign(updatedMeet, meet);
       if (meetSwimmers !== undefined) updatedMeet.meetSwimmers = meetSwimmers;
-      if (relays !== undefined) updatedMeet.relays = relays;
+      if (relayEvents !== undefined) updatedMeet.relayEvents = relayEvents;
       // a schema-validator failure (eg an invalid course) throws naturally,
       // same as addMeet/addPost/editPost -- no try/catch swallowing it
       await updatedMeet.save();

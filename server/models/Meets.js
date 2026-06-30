@@ -12,10 +12,10 @@
 
 const { Schema, model } = require("mongoose");
 
-// relays are embedded subdocuments
+// relay event objects are embedded subdocuments
 const relaySchema = new Schema({
-  // relay event numbers as usually strings, eg "R22"
-  eventNum: { type: String, required: true },
+  // relay event number as an integer, eg 22 for the "R22" column in the CSV
+  eventNum: { type: Number, required: true },
   distance: { type: Number, enum: [200, 400, 800] },
   relayStroke: { type: String, enum: ["Free", "Medley"] },
   relayGender: { type: String, enum: ["M", "F", "X"] },
@@ -27,8 +27,8 @@ const competitors = new Schema({
   lastName: { type: String, required: true },
   gender: { type: String, required: true },
   meetAge: { type: Number, required: true },
-  // relays swimmer is willing to do, as event numbers
-  relays: { type: [String], default: [] },
+  // relay event numbers the swimmer is willing to do, as integers
+  relays: { type: [Number], default: [] },
   // USMS ID will allow lookup of a member (assuming they are still registered)
   usmsId: String,
   // include in email messages
@@ -52,7 +52,7 @@ const meetSchema = new Schema({
   // TODO: validate that endDate >= startDate
   endDate: String,
   meetSwimmers: [competitors],
-  relays: [relaySchema],
+  relayEvents: [relaySchema],
 });
 
 const Meet = model("meet", meetSchema);
