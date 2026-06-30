@@ -28,6 +28,7 @@
 // go to https://www.flickr.com/services/api/misc.urls.html for more details
 
 const { createFlickr } = require("flickr-sdk");
+const Sentry = require("../instrument");
 require("dotenv").config();
 
 // account info
@@ -38,10 +39,28 @@ const featuredPhotoset = "72177720319183779";
 
 const { flickr } = createFlickr(flickrAPI);
 
+const SLOW_THRESHOLD_MS = parseInt(process.env.FLICKR_SLOW_THRESHOLD_MS ?? "3000", 10);
+
+async function timedFlickr(method, params) {
+  const start = Date.now();
+  const response = await flickr(method, params);
+  const elapsed = Date.now() - start;
+  if (elapsed > SLOW_THRESHOLD_MS) {
+    Sentry.captureMessage(`Slow Flickr API: ${method} (${elapsed}ms)`, (scope) => {
+      scope.setLevel("warning");
+      scope.setFingerprint(["flickr-slow-response", method]);
+      scope.setTag("flickr_method", method);
+      scope.setExtra("elapsed_ms", elapsed);
+      scope.setExtra("threshold_ms", SLOW_THRESHOLD_MS);
+    });
+  }
+  return response;
+}
+
 // gets a list of photosets; excludes the "featured photos" photoset,
 // since that photoset can be displayed separately
 const getAlbums = async (page = 1, perPage = 15) => {
-  const response = await flickr("flickr.photosets.getList", {
+  const response = await timedFlickr("flickr.photosets.getList", {
     api_key: flickrAPI,
     user_id: userId,
     per_page: perPage,
@@ -81,7 +100,7 @@ const getAlbums = async (page = 1, perPage = 15) => {
 // retrieve information about photos in a specific photoset/album
 // one argument is required: the album ID, as a string
 const getAlbumPhotos = async (albumId, page = 1, perPage = 15) => {
-  const response = await flickr("flickr.photosets.getPhotos", {
+  const response = await timedFlickr("flickr.photosets.getPhotos", {
     api_key: flickrAPI,
     photoset_id: albumId,
     per_page: perPage,
@@ -121,7 +140,7 @@ const getFeaturedPhotos = async (page = 1, perPage = 15) => {
 // get a list of all photos in descending order of recency
 // accepts third argument as a free text search of title, description, or tags
 const getPhotos = async (page = 1, perPage = 15, searchTerm = "") => {
-  const response = await flickr("flickr.photos.search", {
+  const response = await timedFlickr("flickr.photos.search", {
     api_key: flickrAPI,
     user_id: userId,
     text: searchTerm,
@@ -156,7 +175,7 @@ const getPhotos = async (page = 1, perPage = 15, searchTerm = "") => {
 // also returns the Flickr URL of the photo
 // requires the ID of the photo as input argument, as a string
 const getPhotoSizes = async (photoId) => {
-  const response = await flickr("flickr.photos.getSizes", {
+  const response = await timedFlickr("flickr.photos.getSizes", {
     api_key: flickrAPI,
     photo_id: photoId,
   });
@@ -181,7 +200,7 @@ const getPhotoSizes = async (photoId) => {
 
 // get information about a single photo
 const getPhotoInfo = async (photoId) => {
-  const response = await flickr("flickr.photos.getInfo", {
+  const response = await timedFlickr("flickr.photos.getInfo", {
     api_key: flickrAPI,
     photo_id: photoId,
   });
