@@ -33,7 +33,7 @@ import Editor from "../Editor";
 import RecipientsDisplay from "./RecipientsDisplay";
 import RecipientsCombobox from "./RecipientsCombobox";
 import GroupSelection from "./GroupSelection";
-import { selectOptedOut } from "./memberFilters";
+import { selectOptedOut, isReachable } from "./memberFilters";
 
 // from the list of (VMST) members return the list of distinct WO groups
 // (using this utility means avoiding a DB query)
@@ -235,6 +235,13 @@ export default function Communication({ setTab, userProfile }) {
           );
           return;
         }
+        const noRecipientsError = error.graphQLErrors?.find(
+          (e) => e.extensions?.code === "NO_RECIPIENTS",
+        );
+        if (noRecipientsError) {
+          setMessage(noRecipientsError.message);
+          return;
+        }
         console.log(error);
         setMessage(
           "Something went wrong sending the email. Please try again later.",
@@ -250,9 +257,9 @@ export default function Communication({ setTab, userProfile }) {
       setRecipients([]);
       setAnySelected(false);
     } else {
-      // select all recipients
+      // select all recipients with a deliverable address
       setAnySelected(true);
-      const members = swimmers.filter((swimmer) => !swimmer.emailExclude);
+      const members = swimmers.filter(isReachable);
       setRecipients(members);
     }
   };

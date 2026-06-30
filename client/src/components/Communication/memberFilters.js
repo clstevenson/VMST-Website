@@ -6,6 +6,15 @@
 // that fact alone, not also listed as unreachable for lacking a working
 // email.
 
+// true when a member has not opted out and has at least one formatValid +
+// deliverable address on file
+export function isReachable(member) {
+  return (
+    !member.emailExclude &&
+    member.emails?.some((email) => email.formatValid && email.deliverable)
+  );
+}
+
 // members who have explicitly opted out of receiving team emails
 export function selectOptedOut(members) {
   return members.filter((member) => member.emailExclude);
