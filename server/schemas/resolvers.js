@@ -935,9 +935,14 @@ contact the webmaster immediately by replying to this message.`,
       // only team leaders or coaches can email WO groups
       requireRole(user, "leader", "coach");
       // retrieve the emails of the recipients (from their id's)
-      const group = await Member.find({ _id: { $in: emailData.id } }).select(
-        "emails emailExclude",
+      const allMembers = await Member.find({ _id: { $in: emailData.id } }).select(
+        "emails emailExclude workoutGroup",
       );
+      // coaches may only email members of their own workout group;
+      // leaders are unrestricted
+      const group = user.role === "coach"
+        ? allMembers.filter((m) => m.workoutGroup === user.group)
+        : allMembers;
 
       const mailArgs = { ...emailData };
       delete mailArgs.id;

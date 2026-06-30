@@ -1838,6 +1838,46 @@ test("emailGroup: a coach can email members (success path, not just leader)", as
   await Member.findByIdAndDelete(member._id);
 });
 
+test("emailGroup: a coach can only email members of their own workout group", async () => {
+  const coachWithGroup = { _id: users.coach._id, role: "coach", group: "Distance" };
+
+  const inGroup = await Member.create({
+    usmsRegNo: "555511", usmsId: "55511",
+    firstName: "In", lastName: "Group",
+    gender: "F", club: "VMST", regYear: 2026,
+    workoutGroup: "Distance",
+    emails: [makeEmail("ingroup@example.com")],
+  });
+  const outOfGroup = await Member.create({
+    usmsRegNo: "555512", usmsId: "55512",
+    firstName: "Out", lastName: "OfGroup",
+    gender: "M", club: "VMST", regYear: 2026,
+    workoutGroup: "Sprint",
+    emails: [makeEmail("outofgroup@example.com")],
+  });
+
+  const before = sentMail.length;
+  const { data, errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    {
+      emailData: {
+        id: [inGroup._id.toString(), outOfGroup._id.toString()],
+        subject: "Group update",
+        plainText: "practice moved",
+      },
+    },
+    coachWithGroup,
+  );
+
+  assert.equal(errors, undefined);
+  assert.equal(data.emailGroup, true);
+  assert.equal(sentMail.length, before + 1);
+  // only the in-group member's address appears — out-of-group silently excluded
+  assert.deepEqual(sentMail[sentMail.length - 1].emails, ["ingroup@example.com"]);
+
+  await Member.deleteMany({ _id: { $in: [inGroup._id, outOfGroup._id] } });
+});
+
 test("emailLeaders: succeeds for an anonymous visitor (no email address exposed)", async () => {
   const before = sentMail.length;
   const { data, errors } = await run(
