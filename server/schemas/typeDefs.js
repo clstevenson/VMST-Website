@@ -48,10 +48,10 @@ type MeetSwimmer {
   includeEmail: Boolean
 }
 
-# Relay is embedded in Meet
+# Relay event object embedded in Meet
 type Relay {
   _id: ID!
-  eventNum: String!
+  eventNum: Int!
   distance: Int
   relayStroke: String
   relayGender: String
@@ -64,7 +64,7 @@ type Meet {
   startDate: String!
   endDate: String
   meetSwimmers: [MeetSwimmer]
-  relays: [Relay]
+  relayEvents: [Relay]
 }
 
 # Comments are embedded in Posts
@@ -180,7 +180,7 @@ input MeetSwimmerData {
 }
 
 input RelayData {
-  eventNum: String!
+  eventNum: Int!
   distance: Int
   relayStroke: String
   relayGender: String
@@ -256,9 +256,9 @@ type Mutation {
   addPost(title: String!, summary: String, content: String!, photo: PhotoData, posted: Boolean): Post
   editPost(_id: ID!, title: String!, summary: String, content: String!, photo: PhotoData, posted: Boolean): Post
   deletePost(_id: ID!): Post
-  addMeet(meet: MeetData, meetSwimmers: [MeetSwimmerData], relays: [RelayData]): Meet
+  addMeet(meet: MeetData, meetSwimmers: [MeetSwimmerData], relayEvents: [RelayData]): Meet
   deleteMeet(_id: ID!): Meet
-  editMeet(_id: ID!, meet: MeetData, meetSwimmers: [MeetSwimmerData], relays: [RelayData]): Meet
+  editMeet(_id: ID!, meet: MeetData, meetSwimmers: [MeetSwimmerData], relayEvents: [RelayData]): Meet
   uploadMembers(memberData: [MemberData]): [Member]
   updateEmailDeliverability(updates: [EmailDeliverabilityInput]): [Member]
   emailLeaders(emailData: emailData): Boolean

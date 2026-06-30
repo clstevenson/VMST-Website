@@ -211,7 +211,7 @@ export const QUERY_MEETS = gql`
         usmsId
         includeEmail
       }
-      relays {
+      relayEvents {
         eventNum
       }
     }
