@@ -2431,10 +2431,8 @@ test("emailGroup: throws when all recipient addresses are non-deliverable (plain
   );
   assert.ok(errors?.length > 0, "expected an error when all addresses are non-deliverable");
   assert.equal(data.emailGroup, null);
-  // throws a plain Error today -- when the bug-fix branch adds a proper GraphQLError
-  // with code "NO_RECIPIENTS", update these two assertions to match
-  assert.match(errors[0].message, /No Recipients for Members/);
-  assert.notEqual(errors[0].extensions?.code, "NO_RECIPIENTS");
+  assert.match(errors[0].message, /deliverable email address/);
+  assert.equal(errors[0].extensions?.code, "NO_RECIPIENTS");
 
   await Member.findByIdAndDelete(member._id);
 });
@@ -2512,7 +2510,7 @@ test("emailGroup: a non-linked member's emailExclude is enforced server-side, no
   );
   // no usable recipients at all -- same "no recipients" error as any other
   // empty group, confirming the member was actually skipped, not just deprioritized
-  assert.match(errors[0].message, /No Recipients/);
+  assert.match(errors[0].message, /deliverable email address/);
   assert.equal(sentMail.length, before);
 
   await Member.findByIdAndDelete(optedOut._id);
