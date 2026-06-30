@@ -16,7 +16,7 @@ import { Description } from "../Styled/Description";
 import { CheckboxRoot, CheckboxIndicator } from "../Styled/Checkbox";
 import { COLORS } from "../../utils/constants";
 import { QUERY_VMST_EMAIL_STATUS } from "../../utils/queries";
-import { selectUnreachable } from "./memberFilters";
+import { selectUnreachable, isReachable } from "./memberFilters";
 
 // single source of truth for this accordion's title -- used both as the
 // AccordianItem's title prop and (via accordianItemValue) to recognize its
@@ -75,7 +75,7 @@ export default function GroupSelection({
             // are currently in the recipients list
             const groupMembers = swimmers.filter(
               (swimmer) =>
-                swimmer.workoutGroup === group.name && !swimmer.emailExclude,
+                swimmer.workoutGroup === group.name && isReachable(swimmer),
             );
             const checked =
               groupMembers.length > 0 &&
@@ -97,11 +97,11 @@ export default function GroupSelection({
                     // get current recipients
                     const currentRecipients = recipients;
                     if (checked) {
-                      // add group members who have not opted out of emails
+                      // add group members who have a deliverable address
                       const groupMembers = swimmers.filter(
                         (swimmer) =>
                           swimmer.workoutGroup === group.name &&
-                          !swimmer.emailExclude,
+                          isReachable(swimmer),
                       );
                       // add group to the rec
                       const newRecipients = [

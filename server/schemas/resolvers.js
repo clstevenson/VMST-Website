@@ -1008,7 +1008,10 @@ contact the webmaster immediately by replying to this message.`,
           return false;
         }
       } else {
-        throw new Error("No Recipients for Members");
+        throw new GraphQLError(
+          "None of the selected recipients have a deliverable email address.",
+          { extensions: { code: "NO_RECIPIENTS" } },
+        );
       }
 
       // returning "true" to client means emails successfully sent

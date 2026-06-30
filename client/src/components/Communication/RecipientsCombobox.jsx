@@ -13,6 +13,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { COLORS } from "../../utils/constants";
 import ListSwimmer from "./ListSwimmer";
 import InputSwimmer from "./InputSwimmer";
+import { isReachable } from "./memberFilters";
 
 export default function RecipientsCombobox({
   recipients,
@@ -81,8 +82,8 @@ export default function RecipientsCombobox({
           aria-label="Swimmers to Email"
         >
           {swimmers
-            // don't include opt-outs
-            .filter(({ emailExclude }) => !emailExclude)
+            // only include members with at least one deliverable address
+            .filter(isReachable)
             // filter by input against both name or WO group (if there is one)
             .filter(({ name, workoutGroup }) => {
               if (name.toLowerCase().includes(searchSwimmers.toLowerCase()))

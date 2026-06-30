@@ -143,6 +143,10 @@ export const QUERY_VMST = gql`
       workoutGroup
       regYear
       emailExclude
+      emails {
+        formatValid
+        deliverable
+      }
     }
   }
 `;
