@@ -5,7 +5,9 @@ process.env.SECRET_KEY = "auth-test-secret";
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const jwt = require("jsonwebtoken");
-const { authMiddleware, signToken } = require("./auth");
+const express = require("express");
+const request = require("supertest");
+const { authMiddleware, signToken, logoutHandler } = require("./auth");
 
 const TEST_SECRET = "auth-test-secret";
 
@@ -51,4 +53,26 @@ test("authMiddleware: expired token leaves user undefined", () => {
   const expired = jwt.sign({ data: payload }, TEST_SECRET, { expiresIn: -1 });
   const ctx = authMiddleware({ req: makeReq(expired), res: fakeRes });
   assert.equal(ctx.user, undefined);
+});
+
+// ── logoutHandler ──────────────────────────────────────────────────────────
+
+function buildLogoutApp() {
+  const app = express();
+  app.post("/logout", logoutHandler);
+  return app;
+}
+
+test("logoutHandler: returns 204", async () => {
+  const res = await request(buildLogoutApp()).post("/logout");
+  assert.equal(res.status, 204);
+});
+
+test("logoutHandler: Set-Cookie header clears the refresh_token cookie", async () => {
+  const res = await request(buildLogoutApp()).post("/logout");
+  const cookies = res.headers["set-cookie"] ?? [];
+  const refreshCookie = cookies.find((c) => c.startsWith("refresh_token="));
+  assert.ok(refreshCookie, "expected a Set-Cookie header for refresh_token");
+  // Express clearCookie sets Expires to the Unix epoch to tell the browser to delete it
+  assert.match(refreshCookie, /Expires=Thu, 01 Jan 1970/);
 });
