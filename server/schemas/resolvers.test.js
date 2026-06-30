@@ -695,6 +695,28 @@ test("addUser: fires a verification email in the background (doesn't block signu
   await User.findByIdAndDelete(data.addUser.user._id);
 });
 
+test("addUser: duplicate email surfaces as a raw driver error, not a clean DUPLICATE_EMAIL", async () => {
+  const { data, errors } = await runWithRes(
+    `mutation($firstName: String!, $lastName: String!, $email: String!, $password: String!) {
+      addUser(firstName: $firstName, lastName: $lastName, email: $email, password: $password) {
+        token
+      }
+    }`,
+    {
+      firstName: "Dupe",
+      lastName: "User",
+      email: "leader@example.com", // already exists in the seeded users fixture
+      password: "Whatever-123!",
+    },
+    null,
+  );
+  assert.ok(errors?.length > 0, "expected an error for duplicate email");
+  assert.equal(data.addUser, null);
+  // addUser has no E11000 guard (unlike editUser), so the raw driver message leaks through
+  assert.match(errors[0].message, /E11000|duplicate key/);
+  assert.notEqual(errors[0].extensions?.code, "DUPLICATE_EMAIL");
+});
+
 test("verifyEmail: a valid token sets emailVerified, an invalid one does nothing", async () => {
   const target = await User.create({
     firstName: "Needs",
