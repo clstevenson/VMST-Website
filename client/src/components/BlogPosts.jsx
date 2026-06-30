@@ -217,11 +217,10 @@ const NavWrapper = styled.div`
 `;
 
 const PerPageWrapper = styled.div`
-  grid-column: 3;
   justify-self: end;
 
   @media ${QUERIES.mobile} {
-    grid-column: auto;
+    justify-self: center;
   }
 `;
 
@@ -239,6 +238,10 @@ const SearchWrapper = styled.div`
   gap: 4px;
   justify-self: start;
   color: ${COLORS.accent[9]};
+
+  @media ${QUERIES.mobile} {
+    justify-self: center;
+  }
 `;
 
 const SearchInput = styled.input`
