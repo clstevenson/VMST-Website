@@ -1206,6 +1206,36 @@ test("editPost: a photo missing its required flickrURL is rejected by the schema
   }
 });
 
+test("editPost: editing a since-deleted post's ID surfaces a plain Error, not a silent null", async () => {
+  const { data, errors } = await run(
+    `mutation($id: ID!, $title: String!, $content: String!) {
+      editPost(_id: $id, title: $title, content: $content) { _id }
+    }`,
+    {
+      id: new mongoose.Types.ObjectId().toString(),
+      title: "Ghost",
+      content: "<p>Ghost</p>",
+    },
+    users.leader,
+  );
+  assert.ok(errors?.length > 0, "expected an error for a non-existent post");
+  assert.equal(data.editPost, null);
+  assert.match(errors[0].message, /Something went wrong, post was not updated/);
+  // plain Error (not GraphQLError) -- if this becomes a proper error code,
+  // update to assert the specific code instead
+  assert.equal(errors[0].extensions.code, "INTERNAL_SERVER_ERROR");
+});
+
+test("deletePost: returns null silently for a non-existent post ID", async () => {
+  const { data, errors } = await run(
+    `mutation($id: ID!) { deletePost(_id: $id) { _id } }`,
+    { id: new mongoose.Types.ObjectId().toString() },
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.deletePost, null);
+});
+
 test("deletePost: rejects non-authorized roles, succeeds for leaders and coaches", async () => {
   const query = `mutation($id: ID!) { deletePost(_id: $id) { _id } }`;
 
