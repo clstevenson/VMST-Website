@@ -1627,6 +1627,18 @@ test("togglePin: rejects non-leaders, refuses to pin a draft, caps at 2 pinned, 
   }
 });
 
+test("togglePin: surfaces a plain Error for a non-existent post ID", async () => {
+  const { data, errors } = await run(
+    `mutation($id: ID!) { togglePin(_id: $id) { _id } }`,
+    { id: new mongoose.Types.ObjectId().toString() },
+    users.leader,
+  );
+  assert.ok(errors?.length > 0, "expected an error for a non-existent post");
+  assert.equal(data.togglePin, null);
+  assert.match(errors[0].message, /Post not found/);
+  assert.equal(errors[0].extensions.code, "INTERNAL_SERVER_ERROR");
+});
+
 test("posts: pinned posts sort first, then by postedAt (not createdAt)", async () => {
   const old = await Post.create({
     title: "Old but pinned",
