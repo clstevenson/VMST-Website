@@ -78,3 +78,24 @@ test("refreshHandler: rejects a missing/invalid refresh token", async () => {
 
   assert.equal(res.status, 403);
 });
+
+test("refreshHandler: returns 403 when the user no longer exists", async () => {
+  const user = await User.create({
+    firstName: "Deleted",
+    lastName: "User",
+    email: "deleted-refresh-test@example.com",
+    password: "irrelevant-not-used-by-this-test",
+  });
+  const token = signRefreshToken(user);
+  await user.deleteOne();
+
+  const res = await request(buildApp())
+    .post("/refresh")
+    .set("Cookie", `refresh_token=${token}`);
+
+  assert.equal(res.status, 403);
+  // Unlike the banned-user path, the deleted-user path does not clear the
+  // cookie — the 403 alone is sufficient to block access token issuance.
+  const setCookie = res.headers["set-cookie"] ?? [];
+  assert.equal(setCookie.length, 0, "expected no Set-Cookie header for deleted user");
+});

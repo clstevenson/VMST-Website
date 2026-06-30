@@ -207,7 +207,9 @@ async function applyMemberOverrides(members) {
 // https://support.google.com/mail/answer/22839. Every resolver that calls
 // Mail() shares this one tracked total, since they share one real Gmail
 // account in production.
-const DAILY_RECIPIENT_LIMIT = Number(process.env.EMAIL_DAILY_RECIPIENT_LIMIT) || 500;
+const DAILY_RECIPIENT_LIMIT =
+  Number(process.env.EMAIL_DAILY_RECIPIENT_LIMIT) || 500;
+// millisec in a 24-h period
 const ROLLING_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 // records a completed send for rolling-limit tracking; call after every
@@ -280,7 +282,11 @@ const resolvers = {
             ],
           }
         : { posted: true };
-      return await Post.find(filter).sort({ pinned: -1, posted: 1, postedAt: -1 });
+      return await Post.find(filter).sort({
+        pinned: -1,
+        posted: 1,
+        postedAt: -1,
+      });
     },
     // get a single post with all comments
     // can't populate users directly, need to populate comments that are nested
@@ -531,6 +537,10 @@ contact the webmaster immediately by replying to this message.`,
     // logged-in users can change their password
     changePassword: async (_, { password }, { user }) => {
       requireRole(user);
+      // check before the try block so a deleted account surfaces as a real
+      // GraphQL error rather than being swallowed and returning null
+      const updatedUser = await User.findById(user._id);
+      if (!updatedUser) throw AuthenticationError;
       try {
         // the schema's minlength validator runs against the already-hashed
         // value at save time (the hash is always ~60 chars), so it can
@@ -539,16 +549,11 @@ contact the webmaster immediately by replying to this message.`,
         if (password.length < 6) {
           throw new Error("Password must be at least 6 characters.");
         }
-        // need to hash the new password then save it to the args
-        const hashedPassword = await bcrypt.hash(password, 10);
         // query-then-save (not findByIdAndUpdate) -- the pre('save') hook
         // only hashes on document creation (`if (this.isNew)`), so hashing
         // stays manual regardless; .save() still restores any other
         // validators that findByIdAndUpdate would otherwise skip
-        const updatedUser = await User.findById(user._id);
-        if (!updatedUser) {
-          throw new Error("Something went wrong, password was not updated.");
-        }
+        const hashedPassword = await bcrypt.hash(password, 10);
         updatedUser.password = hashedPassword;
         await updatedUser.save();
         return updatedUser;
@@ -929,9 +934,14 @@ contact the webmaster immediately by replying to this message.`,
       // only team leaders or coaches can email WO groups
       requireRole(user, "leader", "coach");
       // retrieve the emails of the recipients (from their id's)
-      const group = await Member.find({ _id: { $in: emailData.id } }).select(
-        "emails emailExclude",
+      const allMembers = await Member.find({ _id: { $in: emailData.id } }).select(
+        "emails emailExclude workoutGroup",
       );
+      // coaches may only email members of their own workout group;
+      // leaders are unrestricted
+      const group = user.role === "coach"
+        ? allMembers.filter((m) => m.workoutGroup === user.group)
+        : allMembers;
 
       const mailArgs = { ...emailData };
       delete mailArgs.id;

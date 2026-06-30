@@ -340,6 +340,30 @@ test("membersByUsmsId: a coach only gets back members in their own workout group
   await Member.deleteMany({ _id: { $in: [inGroup._id, outOfGroup._id] } });
 });
 
+test("groups: returns VMST workout groups and excludes non-VMST members (no auth required)", async () => {
+  const vmst = await Member.create({
+    usmsRegNo: "GRP001", usmsId: "GRP01",
+    firstName: "Grp", lastName: "Vmst",
+    gender: "M", club: "VMST", regYear: 2026,
+    workoutGroup: "TestGroupVMST",
+  });
+  const other = await Member.create({
+    usmsRegNo: "GRP002", usmsId: "GRP02",
+    firstName: "Grp", lastName: "Other",
+    gender: "M", club: "MINN", regYear: 2026,
+    workoutGroup: "TestGroupOther",
+  });
+
+  // groups is intentionally open — no requireRole call in the resolver
+  const { data, errors } = await run("{ groups }", {}, null);
+
+  assert.equal(errors, undefined);
+  assert.ok(data.groups.includes("TestGroupVMST"), "expected VMST group in result");
+  assert.ok(!data.groups.includes("TestGroupOther"), "expected non-VMST group excluded");
+
+  await Member.deleteMany({ _id: { $in: [vmst._id, other._id] } });
+});
+
 test("meets: rejects an unauthenticated caller, allows leader", async () => {
   const unauth = await run("{ meets { meetName } }", {}, null);
   assert.ok(unauth.errors?.length);
@@ -695,6 +719,28 @@ test("addUser: fires a verification email in the background (doesn't block signu
   await User.findByIdAndDelete(data.addUser.user._id);
 });
 
+test("addUser: duplicate email surfaces as a raw driver error, not a clean DUPLICATE_EMAIL", async () => {
+  const { data, errors } = await runWithRes(
+    `mutation($firstName: String!, $lastName: String!, $email: String!, $password: String!) {
+      addUser(firstName: $firstName, lastName: $lastName, email: $email, password: $password) {
+        token
+      }
+    }`,
+    {
+      firstName: "Dupe",
+      lastName: "User",
+      email: "leader@example.com", // already exists in the seeded users fixture
+      password: "Whatever-123!",
+    },
+    null,
+  );
+  assert.ok(errors?.length > 0, "expected an error for duplicate email");
+  assert.equal(data.addUser, null);
+  // addUser has no E11000 guard (unlike editUser), so the raw driver message leaks through
+  assert.match(errors[0].message, /E11000|duplicate key/);
+  assert.notEqual(errors[0].extensions?.code, "DUPLICATE_EMAIL");
+});
+
 test("verifyEmail: a valid token sets emailVerified, an invalid one does nothing", async () => {
   const target = await User.create({
     firstName: "Needs",
@@ -925,6 +971,27 @@ test("changePassword: rejects a too-short password without touching the stored h
   assert.ok(await stillOriginal.isCorrectPassword("Original-Password-1!"));
 });
 
+test("changePassword: surfaces an auth error when the account no longer exists", async () => {
+  const target = await User.create({
+    firstName: "Ghost",
+    lastName: "User",
+    email: "ghost-pw@example.com",
+    password: "Original-Password-1!",
+    role: "user",
+  });
+  const ctx = { _id: target._id.toString(), role: "user" };
+  await target.deleteOne();
+
+  const { data, errors } = await run(
+    `mutation($password: String!) { changePassword(password: $password) { _id } }`,
+    { password: "NewPassword-1!" },
+    ctx,
+  );
+  assert.ok(errors?.length > 0, "expected an auth error for a deleted account");
+  assert.equal(data.changePassword, null);
+  assert.equal(errors[0].extensions.code, "UNAUTHENTICATED");
+});
+
 test("resetPassword: emails a new password to an existing account, errors for an unknown email", async () => {
   const target = await User.create({
     firstName: "Reset",
@@ -1137,6 +1204,36 @@ test("editPost: a photo missing its required flickrURL is rejected by the schema
   } finally {
     await Post.findByIdAndDelete(post._id);
   }
+});
+
+test("editPost: editing a since-deleted post's ID surfaces a plain Error, not a silent null", async () => {
+  const { data, errors } = await run(
+    `mutation($id: ID!, $title: String!, $content: String!) {
+      editPost(_id: $id, title: $title, content: $content) { _id }
+    }`,
+    {
+      id: new mongoose.Types.ObjectId().toString(),
+      title: "Ghost",
+      content: "<p>Ghost</p>",
+    },
+    users.leader,
+  );
+  assert.ok(errors?.length > 0, "expected an error for a non-existent post");
+  assert.equal(data.editPost, null);
+  assert.match(errors[0].message, /Something went wrong, post was not updated/);
+  // plain Error (not GraphQLError) -- if this becomes a proper error code,
+  // update to assert the specific code instead
+  assert.equal(errors[0].extensions.code, "INTERNAL_SERVER_ERROR");
+});
+
+test("deletePost: returns null silently for a non-existent post ID", async () => {
+  const { data, errors } = await run(
+    `mutation($id: ID!) { deletePost(_id: $id) { _id } }`,
+    { id: new mongoose.Types.ObjectId().toString() },
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.deletePost, null);
 });
 
 test("deletePost: rejects non-authorized roles, succeeds for leaders and coaches", async () => {
@@ -1530,6 +1627,18 @@ test("togglePin: rejects non-leaders, refuses to pin a draft, caps at 2 pinned, 
   }
 });
 
+test("togglePin: surfaces a plain Error for a non-existent post ID", async () => {
+  const { data, errors } = await run(
+    `mutation($id: ID!) { togglePin(_id: $id) { _id } }`,
+    { id: new mongoose.Types.ObjectId().toString() },
+    users.leader,
+  );
+  assert.ok(errors?.length > 0, "expected an error for a non-existent post");
+  assert.equal(data.togglePin, null);
+  assert.match(errors[0].message, /Post not found/);
+  assert.equal(errors[0].extensions.code, "INTERNAL_SERVER_ERROR");
+});
+
 test("posts: pinned posts sort first, then by postedAt (not createdAt)", async () => {
   const old = await Post.create({
     title: "Old but pinned",
@@ -1792,6 +1901,46 @@ test("emailGroup: a coach can email members (success path, not just leader)", as
   await Member.findByIdAndDelete(member._id);
 });
 
+test("emailGroup: a coach can only email members of their own workout group", async () => {
+  const coachWithGroup = { _id: users.coach._id, role: "coach", group: "Distance" };
+
+  const inGroup = await Member.create({
+    usmsRegNo: "555511", usmsId: "55511",
+    firstName: "In", lastName: "Group",
+    gender: "F", club: "VMST", regYear: 2026,
+    workoutGroup: "Distance",
+    emails: [makeEmail("ingroup@example.com")],
+  });
+  const outOfGroup = await Member.create({
+    usmsRegNo: "555512", usmsId: "55512",
+    firstName: "Out", lastName: "OfGroup",
+    gender: "M", club: "VMST", regYear: 2026,
+    workoutGroup: "Sprint",
+    emails: [makeEmail("outofgroup@example.com")],
+  });
+
+  const before = sentMail.length;
+  const { data, errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    {
+      emailData: {
+        id: [inGroup._id.toString(), outOfGroup._id.toString()],
+        subject: "Group update",
+        plainText: "practice moved",
+      },
+    },
+    coachWithGroup,
+  );
+
+  assert.equal(errors, undefined);
+  assert.equal(data.emailGroup, true);
+  assert.equal(sentMail.length, before + 1);
+  // only the in-group member's address appears — out-of-group silently excluded
+  assert.deepEqual(sentMail[sentMail.length - 1].emails, ["ingroup@example.com"]);
+
+  await Member.deleteMany({ _id: { $in: [inGroup._id, outOfGroup._id] } });
+});
+
 test("emailLeaders: succeeds for an anonymous visitor (no email address exposed)", async () => {
   const before = sentMail.length;
   const { data, errors } = await run(
@@ -1900,6 +2049,56 @@ test("emailLeaders: in production, real recipients go in bcc with `to` set to th
   } finally {
     process.env.NODE_ENV = originalNodeEnv;
     process.env.EMAIL = originalEmail;
+  }
+});
+
+test("emailLeaders: throws when no leaders exist in the database", async () => {
+  await User.findByIdAndUpdate(users.leader._id, { role: "user" });
+  try {
+    const { data, errors } = await run(
+      `mutation($emailData: emailData) { emailLeaders(emailData: $emailData) }`,
+      { emailData: { id: [], subject: "No leaders test", plainText: "hi" } },
+      null,
+    );
+    assert.ok(errors?.length > 0, "expected an error when no leaders exist");
+    assert.equal(data.emailLeaders, null);
+    assert.match(errors[0].message, /No Leaders found/);
+  } finally {
+    await User.findByIdAndUpdate(users.leader._id, { role: "leader" });
+  }
+});
+
+test("emailWebmaster: throws when no webmaster exists in the database", async () => {
+  await User.findByIdAndUpdate(users.webmaster._id, { role: "user" });
+  try {
+    const { data, errors } = await run(
+      `mutation($emailData: emailData) { emailWebmaster(emailData: $emailData) }`,
+      { emailData: { id: [], subject: "No webmaster test", plainText: "hi" } },
+      null,
+    );
+    assert.ok(errors?.length > 0, "expected an error when no webmaster exists");
+    assert.equal(data.emailWebmaster, null);
+    assert.match(errors[0].message, /No webmasters found/);
+  } finally {
+    await User.findByIdAndUpdate(users.webmaster._id, { role: "webmaster" });
+  }
+});
+
+test("emailLeadersWebmaster: throws when neither leaders nor webmaster exist", async () => {
+  await User.findByIdAndUpdate(users.leader._id, { role: "user" });
+  await User.findByIdAndUpdate(users.webmaster._id, { role: "user" });
+  try {
+    const { data, errors } = await run(
+      `mutation($emailData: emailData) { emailLeadersWebmaster(emailData: $emailData) }`,
+      { emailData: { id: [], subject: "No recipients test", plainText: "hi" } },
+      null,
+    );
+    assert.ok(errors?.length > 0, "expected an error when no leaders or webmaster exist");
+    assert.equal(data.emailLeadersWebmaster, null);
+    assert.match(errors[0].message, /No Recipients found/);
+  } finally {
+    await User.findByIdAndUpdate(users.leader._id, { role: "leader" });
+    await User.findByIdAndUpdate(users.webmaster._id, { role: "webmaster" });
   }
 });
 
@@ -2213,6 +2412,29 @@ test("emailGroup: skips addresses that are not formatValid or not deliverable", 
   assert.equal(data.emailGroup, true);
   assert.equal(sentMail.length, before + 1);
   assert.deepEqual(sentMail[sentMail.length - 1].emails, ["good@example.com"]);
+
+  await Member.findByIdAndDelete(member._id);
+});
+
+test("emailGroup: throws when all recipient addresses are non-deliverable (plain Error, not a clean GraphQLError)", async () => {
+  const member = await Member.create({
+    usmsRegNo: "555599", usmsId: "55599",
+    firstName: "All", lastName: "Bounced",
+    gender: "M", club: "VMST", regYear: 2026,
+    emails: [makeEmail("bounced@example.com", { deliverable: false })],
+  });
+
+  const { data, errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    { emailData: { id: [member._id.toString()], subject: "Test", plainText: "test" } },
+    users.leader,
+  );
+  assert.ok(errors?.length > 0, "expected an error when all addresses are non-deliverable");
+  assert.equal(data.emailGroup, null);
+  // throws a plain Error today -- when the bug-fix branch adds a proper GraphQLError
+  // with code "NO_RECIPIENTS", update these two assertions to match
+  assert.match(errors[0].message, /No Recipients for Members/);
+  assert.notEqual(errors[0].extensions?.code, "NO_RECIPIENTS");
 
   await Member.findByIdAndDelete(member._id);
 });
