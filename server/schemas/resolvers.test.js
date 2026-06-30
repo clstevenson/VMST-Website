@@ -1949,6 +1949,56 @@ test("emailLeaders: in production, real recipients go in bcc with `to` set to th
   }
 });
 
+test("emailLeaders: throws when no leaders exist in the database", async () => {
+  await User.findByIdAndUpdate(users.leader._id, { role: "user" });
+  try {
+    const { data, errors } = await run(
+      `mutation($emailData: emailData) { emailLeaders(emailData: $emailData) }`,
+      { emailData: { id: [], subject: "No leaders test", plainText: "hi" } },
+      null,
+    );
+    assert.ok(errors?.length > 0, "expected an error when no leaders exist");
+    assert.equal(data.emailLeaders, null);
+    assert.match(errors[0].message, /No Leaders found/);
+  } finally {
+    await User.findByIdAndUpdate(users.leader._id, { role: "leader" });
+  }
+});
+
+test("emailWebmaster: throws when no webmaster exists in the database", async () => {
+  await User.findByIdAndUpdate(users.webmaster._id, { role: "user" });
+  try {
+    const { data, errors } = await run(
+      `mutation($emailData: emailData) { emailWebmaster(emailData: $emailData) }`,
+      { emailData: { id: [], subject: "No webmaster test", plainText: "hi" } },
+      null,
+    );
+    assert.ok(errors?.length > 0, "expected an error when no webmaster exists");
+    assert.equal(data.emailWebmaster, null);
+    assert.match(errors[0].message, /No webmasters found/);
+  } finally {
+    await User.findByIdAndUpdate(users.webmaster._id, { role: "webmaster" });
+  }
+});
+
+test("emailLeadersWebmaster: throws when neither leaders nor webmaster exist", async () => {
+  await User.findByIdAndUpdate(users.leader._id, { role: "user" });
+  await User.findByIdAndUpdate(users.webmaster._id, { role: "user" });
+  try {
+    const { data, errors } = await run(
+      `mutation($emailData: emailData) { emailLeadersWebmaster(emailData: $emailData) }`,
+      { emailData: { id: [], subject: "No recipients test", plainText: "hi" } },
+      null,
+    );
+    assert.ok(errors?.length > 0, "expected an error when no leaders or webmaster exist");
+    assert.equal(data.emailLeadersWebmaster, null);
+    assert.match(errors[0].message, /No Recipients found/);
+  } finally {
+    await User.findByIdAndUpdate(users.leader._id, { role: "leader" });
+    await User.findByIdAndUpdate(users.webmaster._id, { role: "webmaster" });
+  }
+});
+
 // uploadMembers wholesale-replaces "the truth" on every call (anyone missing
 // from memberData is hard-deleted), so these tests must run after every other
 // test that depends on a particular Member collection state -- in particular,
@@ -2259,6 +2309,29 @@ test("emailGroup: skips addresses that are not formatValid or not deliverable", 
   assert.equal(data.emailGroup, true);
   assert.equal(sentMail.length, before + 1);
   assert.deepEqual(sentMail[sentMail.length - 1].emails, ["good@example.com"]);
+
+  await Member.findByIdAndDelete(member._id);
+});
+
+test("emailGroup: throws when all recipient addresses are non-deliverable (plain Error, not a clean GraphQLError)", async () => {
+  const member = await Member.create({
+    usmsRegNo: "555599", usmsId: "55599",
+    firstName: "All", lastName: "Bounced",
+    gender: "M", club: "VMST", regYear: 2026,
+    emails: [makeEmail("bounced@example.com", { deliverable: false })],
+  });
+
+  const { data, errors } = await run(
+    `mutation($emailData: emailData) { emailGroup(emailData: $emailData) }`,
+    { emailData: { id: [member._id.toString()], subject: "Test", plainText: "test" } },
+    users.leader,
+  );
+  assert.ok(errors?.length > 0, "expected an error when all addresses are non-deliverable");
+  assert.equal(data.emailGroup, null);
+  // throws a plain Error today -- when the bug-fix branch adds a proper GraphQLError
+  // with code "NO_RECIPIENTS", update these two assertions to match
+  assert.match(errors[0].message, /No Recipients for Members/);
+  assert.notEqual(errors[0].extensions?.code, "NO_RECIPIENTS");
 
   await Member.findByIdAndDelete(member._id);
 });

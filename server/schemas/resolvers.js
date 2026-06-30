@@ -207,7 +207,9 @@ async function applyMemberOverrides(members) {
 // https://support.google.com/mail/answer/22839. Every resolver that calls
 // Mail() shares this one tracked total, since they share one real Gmail
 // account in production.
-const DAILY_RECIPIENT_LIMIT = Number(process.env.EMAIL_DAILY_RECIPIENT_LIMIT) || 500;
+const DAILY_RECIPIENT_LIMIT =
+  Number(process.env.EMAIL_DAILY_RECIPIENT_LIMIT) || 500;
+// millisec in a 24-h period
 const ROLLING_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 // records a completed send for rolling-limit tracking; call after every
@@ -280,7 +282,11 @@ const resolvers = {
             ],
           }
         : { posted: true };
-      return await Post.find(filter).sort({ pinned: -1, posted: 1, postedAt: -1 });
+      return await Post.find(filter).sort({
+        pinned: -1,
+        posted: 1,
+        postedAt: -1,
+      });
     },
     // get a single post with all comments
     // can't populate users directly, need to populate comments that are nested
