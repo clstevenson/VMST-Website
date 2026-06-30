@@ -21,7 +21,7 @@ import PaginationNav from "./PaginationNav";
 import PostsPerPage from "./PostsPerPage";
 import { COLORS, QUERIES } from "../utils/constants";
 
-const PER_PAGE_OPTIONS = [3, 6, 9, 12];
+const PER_PAGE_OPTIONS = [2, 3, 4, 6, 8, 9, 12];
 const PER_PAGE_STORAGE_KEY = "postsPerPage";
 
 function initialPerPage() {
@@ -146,7 +146,7 @@ export default function BlogPosts() {
               />
             </NavWrapper>
           )}
-          {maxPages > 1 && (
+          {posts.length > 0 && (
             <PerPageWrapper>
               <PostsPerPage
                 perPage={perPage}
@@ -217,7 +217,12 @@ const NavWrapper = styled.div`
 `;
 
 const PerPageWrapper = styled.div`
+  grid-column: 3;
   justify-self: end;
+
+  @media ${QUERIES.mobile} {
+    grid-column: auto;
+  }
 `;
 
 const NoResults = styled.p`
