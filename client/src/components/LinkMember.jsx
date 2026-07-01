@@ -44,8 +44,9 @@ export default function LinkMember({ setOpen, onLinked }) {
       <ModalStyle.DialogTitle>Link USMS Membership</ModalStyle.DialogTitle>
 
       <Dialog.Description>
-        Enter your permanent 5-character USMS ID. You must be a currently
-        registered USMS member for this to succeed.
+        Enter your permanent 5-character USMS ID (the last 5 digits of your USMS
+        number). You must be a currently registered USMS member for this to
+        succeed.
       </Dialog.Description>
 
       <ModalStyle.Form
