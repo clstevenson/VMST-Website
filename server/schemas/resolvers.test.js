@@ -25,6 +25,7 @@ let Member;
 let Meet;
 let Post;
 let EmailLog;
+let MembershipUpload;
 let auth;
 
 const users = {}; // role -> { _id, role }
@@ -76,6 +77,7 @@ test.before(async () => {
   Meet = require("../models/Meets");
   Post = require("../models/Posts");
   EmailLog = require("../models/EmailLog");
+  MembershipUpload = require("../models/MembershipUpload");
   auth = require("../utils/auth");
 
   await mongoose.connection.asPromise();
@@ -2694,6 +2696,46 @@ test("emailUsage: rejects unauthenticated and non-leader/coach roles, sums only 
   await EmailLog.deleteMany({ _id: { $in: [within._id, expired._id] } });
 });
 
+test("membershipUploadInfo: rejects unauthenticated and non-leader/coach roles, and returns the most recent upload plus the membership coordinator's email", async () => {
+  await MembershipUpload.deleteMany({});
+  const older = await MembershipUpload.create({
+    uploadedAt: new Date("2026-01-01"),
+  });
+  const newer = await MembershipUpload.create({
+    uploadedAt: new Date("2026-02-01"),
+  });
+
+  const query = `{ membershipUploadInfo { lastUploadDate coordinatorEmail } }`;
+
+  const unauth = await run(query, {}, null);
+  assert.ok(unauth.errors?.length);
+
+  const wrongRole = await run(query, {}, users.user);
+  assert.ok(wrongRole.errors?.length);
+
+  const { data, errors } = await run(query, {}, users.leader);
+  assert.equal(errors, undefined);
+  assert.equal(
+    data.membershipUploadInfo.lastUploadDate,
+    new Date("2026-02-01").toISOString(),
+  );
+  assert.equal(data.membershipUploadInfo.coordinatorEmail, "membership@example.com");
+
+  await MembershipUpload.deleteMany({ _id: { $in: [older._id, newer._id] } });
+});
+
+test("membershipUploadInfo: returns null lastUploadDate when no upload has ever happened", async () => {
+  await MembershipUpload.deleteMany({});
+
+  const { data, errors } = await run(
+    `{ membershipUploadInfo { lastUploadDate coordinatorEmail } }`,
+    {},
+    users.leader,
+  );
+  assert.equal(errors, undefined);
+  assert.equal(data.membershipUploadInfo.lastUploadDate, null);
+});
+
 test("emailGroup: succeeds right up to the daily limit", async () => {
   await EmailLog.deleteMany({});
   await EmailLog.create({ recipientCount: 499 });
@@ -2857,6 +2899,8 @@ test("uploadMembers: a bulkWrite failure with no per-row detail (eg a dropped co
     uploadMembers(memberData: $memberData) { usmsId }
   }`;
 
+  const uploadCountBefore = await MembershipUpload.countDocuments();
+
   try {
     const { data, errors } = await run(
       mutation,
@@ -2872,4 +2916,74 @@ test("uploadMembers: a bulkWrite failure with no per-row detail (eg a dropped co
   // the cleanup deleteMany must not have run against an untrustworthy
   // comparison -- nothing should have been touched
   assert.equal(await Member.findOne({ usmsId: "TESTF" }), null);
+
+  // and since nothing persisted, no upload should be recorded either
+  assert.equal(await MembershipUpload.countDocuments(), uploadCountBefore);
+});
+
+test("uploadMembers: records a MembershipUpload timestamp on success, and on a partial failure (since some rows did persist)", async () => {
+  await MembershipUpload.deleteMany({});
+
+  const mutation = `mutation($memberData: [MemberData]) {
+    uploadMembers(memberData: $memberData) { usmsId }
+  }`;
+
+  const { errors: successErrors } = await run(
+    mutation,
+    {
+      memberData: [
+        {
+          usmsRegNo: "TEST-UPLOADLOG",
+          usmsId: "TESTUPLOADLOG",
+          firstName: "Logged",
+          lastName: "Upload",
+          gender: "F",
+          club: "VMST",
+          regYear: 2026,
+          emails: ["testuploadlog@example.com"],
+          emailExclude: false,
+        },
+      ],
+    },
+    users.membership,
+  );
+  assert.equal(successErrors, undefined);
+  assert.equal(await MembershipUpload.countDocuments(), 1);
+
+  // a duplicate usmsRegNo across two usmsIds fails one row but persists the
+  // other -- see the UPLOAD_PARTIAL_FAILURE test above for the full case
+  const { errors: partialErrors } = await run(
+    mutation,
+    {
+      memberData: [
+        {
+          usmsRegNo: "TEST-UPLOADLOG",
+          usmsId: "TESTUPLOADLOG",
+          firstName: "Logged",
+          lastName: "Upload",
+          gender: "F",
+          club: "VMST",
+          regYear: 2026,
+          emails: ["testuploadlog@example.com"],
+          emailExclude: false,
+        },
+        {
+          usmsRegNo: "TEST-UPLOADLOG",
+          usmsId: "TESTUPLOADLOG2",
+          firstName: "Duplicate",
+          lastName: "RegNo",
+          gender: "F",
+          club: "VMST",
+          regYear: 2026,
+          emails: ["dup@example.com"],
+          emailExclude: false,
+        },
+      ],
+    },
+    users.membership,
+  );
+  assert.equal(partialErrors[0].extensions.code, "UPLOAD_PARTIAL_FAILURE");
+  assert.equal(await MembershipUpload.countDocuments(), 2);
+
+  await Member.deleteMany({ usmsId: { $in: ["TESTUPLOADLOG", "TESTUPLOADLOG2"] } });
 });

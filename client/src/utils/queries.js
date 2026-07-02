@@ -197,6 +197,15 @@ export const QUERY_EMAIL_USAGE = gql`
   }
 `;
 
+export const QUERY_MEMBERSHIP_UPLOAD_INFO = gql`
+  query GetMembershipUploadInfo {
+    membershipUploadInfo {
+      lastUploadDate
+      coordinatorEmail
+    }
+  }
+`;
+
 // get a list of meets that have been saved into memory
 export const QUERY_MEETS = gql`
   query getMeets {

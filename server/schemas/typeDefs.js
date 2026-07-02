@@ -104,6 +104,12 @@ type EmailUsage {
   count: Int!
   limit: Int!
 }
+
+# when the USMS roster was last uploaded, and who to contact if it's stale
+type MembershipUploadInfo {
+  lastUploadDate: String
+  coordinatorEmail: String
+}
 ####### input data types for convenience
 
 input UserData {
@@ -244,6 +250,7 @@ type Query {
   getPhotoSizes(id: String!): Photo
   getPhotoInfo(id: String!): Photo
   emailUsage: EmailUsage
+  membershipUploadInfo: MembershipUploadInfo
 }
 
 type Mutation {

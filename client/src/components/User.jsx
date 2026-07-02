@@ -22,7 +22,6 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as Accordian from "@radix-ui/react-accordion";
 import * as Label from "@radix-ui/react-label";
 import * as RadioGroup from "@radix-ui/react-radio-group";
-import * as Popover from "@radix-ui/react-popover";
 import { useQuery, useMutation } from "@apollo/client";
 
 import { QUERY_USER } from "../utils/queries.js";
@@ -41,11 +40,12 @@ import SubmitButton from "./Styled/SubmiButton.jsx";
 import Spinner from "../components/Spinner.jsx";
 import ErrorMessage from "./Styled/ErrorMessage.jsx";
 import ToastMessage from "../components/ToastMessage";
-import { Check, HelpCircle } from "react-feather";
+import { Check } from "react-feather";
 import AccordianItem from "./AccordianItem.jsx";
 import MinorButton from "./Styled/MinorButton.jsx";
 import { FieldSet } from "./Styled/FieldSet.jsx";
 import { CheckboxRoot, CheckboxIndicator } from "./Styled/Checkbox.jsx";
+import HelpPopover from "./Styled/HelpPopover.jsx";
 
 export default function User({ userProfile }) {
   // state of modals
@@ -302,30 +302,17 @@ export default function User({ userProfile }) {
               </CheckboxIndicator>
             </CheckboxRoot>
             <label htmlFor="link-member">Link account to USMS membership</label>
-            <Popover.Root>
-              <Popover.Trigger asChild>
-                <HelpIconButton type="button" aria-label="Why link my account?">
-                  <HelpCircle size={16} />
-                </HelpIconButton>
-              </Popover.Trigger>
-              <Popover.Portal>
-                <HelpPopoverContent sideOffset={5}>
-                  <p>Linking your account to your USMS membership lets you:</p>
-                  <ol>
-                    <li>
-                      Override USMS email preferences (receive emails from VMST
-                      and your workout group while opting out of messages from
-                      USMS)
-                    </li>
-                    <li>
-                      Coming soon: personalized display of results and other
-                      info
-                    </li>
-                  </ol>
-                  <Popover.Arrow />
-                </HelpPopoverContent>
-              </Popover.Portal>
-            </Popover.Root>
+            <HelpPopover label="Why link my account?">
+              <p>Linking your account to your USMS membership lets you:</p>
+              <ol>
+                <li>
+                  Override USMS email preferences (receive emails from VMST
+                  and your workout group while opting out of messages from
+                  USMS)
+                </li>
+                <li>Coming soon: personalized display of results and other info</li>
+              </ol>
+            </HelpPopover>
             <Dialog.Root open={linkOpen} onOpenChange={setLinkOpen}>
               <Dialog.Portal>
                 <ModalStyles.DialogOverlay />
@@ -677,31 +664,6 @@ const EmailInputWrapper = styled(InputWrapper)`
 
   @media ${QUERIES.mobile} {
     flex-direction: column;
-  }
-`;
-
-const HelpIconButton = styled.button`
-  display: flex;
-  align-items: center;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  padding: 0;
-  color: ${COLORS.accent[11]};
-  cursor: pointer;
-`;
-
-const HelpPopoverContent = styled(Popover.Content)`
-  max-width: 280px;
-  padding: 12px 16px;
-  background-color: white;
-  border-radius: 4px;
-  box-shadow: 0 4px 12px hsl(0deg 0% 0% / 0.2);
-  font-size: 0.875rem;
-
-  ol {
-    padding-left: 1.25em;
-    margin: 8px 0 0;
   }
 `;
 
