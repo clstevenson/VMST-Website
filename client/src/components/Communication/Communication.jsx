@@ -17,18 +17,21 @@ import styled from "styled-components";
 import { useRef, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { useForm } from "react-hook-form";
+import dayjs from "dayjs";
 
 import {
   QUERY_VMST,
   QUERY_MEETS,
   QUERY_MEMBERS_BY_USMS_ID,
   QUERY_EMAIL_USAGE,
+  QUERY_MEMBERSHIP_UPLOAD_INFO,
 } from "../../utils/queries";
 import { EMAIL_GROUP } from "../../utils/mutations";
 import { COLORS, QUERIES } from "../../utils/constants";
 import ToastMessage from "../ToastMessage";
 import SubmitButton from "../Styled/SubmiButton";
 import ErrorMessage from "../Styled/ErrorMessage";
+import HelpPopover from "../Styled/HelpPopover";
 import Editor from "../Editor";
 import RecipientsDisplay from "./RecipientsDisplay";
 import RecipientsCombobox from "./RecipientsCombobox";
@@ -123,6 +126,14 @@ export default function Communication({ setTab, userProfile }) {
   const emailUsage = usageData?.emailUsage ?? { count: 0, limit: 500 };
   const projectedUsage = emailUsage.count + recipients.length;
   const overLimitOnSend = projectedUsage > emailUsage.limit;
+
+  // when the USMS roster was last uploaded, so leaders/coaches can tell if
+  // it's stale -- same cross-session staleness concern as QUERY_VMST above,
+  // since the membership role uploads it in a separate session entirely
+  const { data: uploadInfoData } = useQuery(QUERY_MEMBERSHIP_UPLOAD_INFO, {
+    fetchPolicy: "cache-and-network",
+  });
+  const uploadInfo = uploadInfoData?.membershipUploadInfo;
 
   useQuery(QUERY_MEETS, {
     onCompleted: (data) => {
@@ -294,11 +305,35 @@ export default function Communication({ setTab, userProfile }) {
     <Form aria-label="send email" onSubmit={handleSubmit(onSubmit)}>
       <Wrapper>
         <MessageWrapper>
-          {userProfile.role === "coach" && userProfile.group !== "VMST" ? (
-            <Title>Email {userProfile.group} Members</Title>
-          ) : (
-            <Title>Email VMST Members</Title>
-          )}
+          <TitleRow>
+            {userProfile.role === "coach" && userProfile.group !== "VMST" ? (
+              <Title>Email {userProfile.group} Members</Title>
+            ) : (
+              <Title>Email VMST Members</Title>
+            )}
+
+            {uploadInfo && (
+              <UploadInfoWrapper>
+                <span>
+                  Member list updated{" "}
+                  {uploadInfo.lastUploadDate
+                    ? dayjs(uploadInfo.lastUploadDate).format("M/D/YY")
+                    : "unknown"}
+                </span>
+                <HelpPopover label="What does this date mean?">
+                  <p>
+                    The date refers to the most recent upload of USMS
+                    membership data. If the date is not recent enough, please
+                    email the membership director at{" "}
+                    <a href={`mailto:${uploadInfo.coordinatorEmail}`}>
+                      {uploadInfo.coordinatorEmail}
+                    </a>
+                    .
+                  </p>
+                </HelpPopover>
+              </UploadInfoWrapper>
+            )}
+          </TitleRow>
 
           {/*
             Display people who will be receiving this email, with warnings as appropriate
@@ -490,11 +525,26 @@ const EmailCounter = styled.span`
   }
 `;
 
+const TitleRow = styled.div`
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+`;
+
 const Title = styled.h2`
   font-size: var(--subheading-size);
   color: ${COLORS.accent[12]};
   margin: 16px 0;
   /* text-align: center; */
+`;
+
+const UploadInfoWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: ${COLORS.gray[11]};
 `;
 
 // Used to style the contents of the Quill editor

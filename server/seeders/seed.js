@@ -3,6 +3,7 @@ require("dotenv").config();
 
 // Membership Data as of 04/28/24 (with emails replaced)
 const { Member, User, Post } = require("../models");
+const MembershipUpload = require("../models/MembershipUpload");
 
 connection.on("error", (err) => err);
 
@@ -48,7 +49,20 @@ const seedMembers = async () => {
   });
 
   // add to the members collection
-  return await Member.insertMany(lmscMembers);
+  const insertedMembers = await Member.insertMany(lmscMembers);
+
+  // record when this "upload" happened, for the membershipUploadInfo query
+  let uploadCheck = await connection.db
+    .listCollections({ name: "membershipuploads" })
+    .toArray();
+  if (uploadCheck.length) {
+    await connection.dropCollection("membershipuploads");
+  }
+  // constructed from local y/m/d (not an ISO string) so it reads as 6/1/24
+  // regardless of the viewer's timezone offset from UTC
+  await MembershipUpload.create({ uploadedAt: new Date(2024, 5, 1) });
+
+  return insertedMembers;
 };
 
 /**

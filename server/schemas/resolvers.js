@@ -34,6 +34,7 @@ const {
 const { findByIdAndDelete } = require("../models/Posts");
 const Meet = require("../models/Meets");
 const EmailLog = require("../models/EmailLog");
+const MembershipUpload = require("../models/MembershipUpload");
 
 // fires once, the moment a post transitions to published (never on a
 // routine re-save of an already-published post). Sent as individual
@@ -143,16 +144,24 @@ function bulkRecipientFields(recipients) {
   return { emails: recipients };
 }
 
+// USMS prohibits sharing raw member emails outside the `membership` role, so
+// this is the one address safe to surface to leaders/coaches/members as a
+// point of contact. Falls back to the sending account's own address if no
+// membership-role account exists yet (eg a fresh deployment).
+async function getCoordinatorEmail() {
+  const coordinator = await User.findOne({ role: "membership" }).select(
+    "email",
+  );
+  return coordinator?.email || process.env.EMAIL;
+}
+
 // Appended to emailGroup sends only -- the one bulk-email path with no
 // existing unsubscribe mechanism of its own (unlike notifySubscribers, which
 // already carries a one-click unsubscribe link, and unlike
 // emailLeaders/emailWebmaster/emailLeadersWebmaster, whose recipients are
 // the leaders/webmaster themselves, not members opting out of anything).
 async function unsubscribeFooter() {
-  const coordinator = await User.findOne({ role: "membership" }).select(
-    "email",
-  );
-  const coordinatorEmail = coordinator?.email || process.env.EMAIL;
+  const coordinatorEmail = await getCoordinatorEmail();
   const text =
     "You are receiving this email because you are a member of VMST. " +
     "Messages such as this are how VMST leaders and coaches communicate " +
@@ -379,6 +388,19 @@ const resolvers = {
     emailUsage: async (_, __, { user }) => {
       requireRole(user, "leader", "coach");
       return { count: await getEmailUsage(), limit: DAILY_RECIPIENT_LIMIT };
+    },
+    membershipUploadInfo: async (_, __, { user }) => {
+      requireRole(user, "leader", "coach");
+      const latest = await MembershipUpload.findOne().sort({
+        uploadedAt: -1,
+      });
+      return {
+        // GraphQL's default String serializer calls Date.valueOf() (epoch
+        // ms) before toJSON(), so a raw Date here would reach the client as
+        // an epoch-ms string instead of an ISO date -- serialize explicitly
+        lastUploadDate: latest?.uploadedAt?.toISOString() || null,
+        coordinatorEmail: await getCoordinatorEmail(),
+      };
     },
   },
   Mutation: {
@@ -809,6 +831,11 @@ contact the webmaster immediately by replying to this message.`,
 
       // anyone in the DB but not in this upload has left the LMSC
       await Member.deleteMany({ usmsId: { $nin: newUsmsIds } });
+
+      // roster state changed even on a partial failure, so record the
+      // upload either way -- only the immediate UPLOAD_FAILED throw above
+      // (nothing persisted) skips this
+      await MembershipUpload.create({});
 
       if (failures.length > 0) {
         throw new GraphQLError(
